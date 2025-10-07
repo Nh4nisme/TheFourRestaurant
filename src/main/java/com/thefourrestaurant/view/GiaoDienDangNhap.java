@@ -38,8 +38,8 @@ public class GiaoDienDangNhap {
         logo.setPreserveRatio(true);
         logo.setFitWidth(350);
 
-        VBox card = new VBox(16);
-        card.setPadding(new Insets(24));
+        VBox card = new VBox(20);
+        card.setPadding(new Insets(30));
         card.setAlignment(Pos.CENTER);
         card.setMaxWidth(500);
         card.setStyle(
@@ -52,21 +52,25 @@ public class GiaoDienDangNhap {
         username.setPromptText("Tài Khoản");
         styleField(username);
         hidePromptOnFocus(username);
+        username.setPrefWidth(480);
+        VBox.setMargin(username, new Insets(10, 0, 0, 0));
 
         PasswordField password = new PasswordField();
         password.setPromptText("Mật Khẩu");
         styleField(password);
         hidePromptOnFocus(password); 
+        password.setPrefWidth(480);
 
         Button loginBtn = new Button("Đăng Nhập");
         loginBtn.setFont(montserratExtrabold);
-        loginBtn.setPrefHeight(44);
-        loginBtn.setMaxWidth(Double.MAX_VALUE);
+        loginBtn.setPrefHeight(50);
+        loginBtn.setPrefWidth(250);
         loginBtn.setStyle(
             "-fx-background-color: " + COLOR_GOLD + ";" +
             "-fx-background-radius: 10;" +
             "-fx-text-fill: #1E424D;"
         );
+        VBox.setMargin(username, new Insets(15, 0, 0, 0));
 
         Runnable tryLogin = () -> {
             if (username.getText().trim().isEmpty() || password.getText().trim().isEmpty()) {
@@ -112,22 +116,16 @@ public class GiaoDienDangNhap {
     }
 
     private void styleField(TextField field) {
-        field.setPrefHeight(44);
+        field.setPrefHeight(45);
         field.setFont(montserratSemibold);
         field.setStyle(
             "-fx-background-color: " + COLOR_CARD_INNER + ";" +
-            "-fx-background-radius: 8;" +
+            "-fx-background-radius: 20;" +
             "-fx-prompt-text-fill: " + COLOR_GOLD + ";" + 
             "-fx-text-fill: white;" +
             "-fx-font-size: 14px;" +
             "-fx-padding: 0 14 0 14;"
         );
-        field.setBorder(new Border(new BorderStroke(
-                Color.rgb(229, 213, 149, 0.5),
-                BorderStrokeStyle.SOLID,
-                new CornerRadii(8),
-                new BorderWidths(1.5)
-        )));
     }
 
     private void hidePromptOnFocus(TextInputControl field) {
