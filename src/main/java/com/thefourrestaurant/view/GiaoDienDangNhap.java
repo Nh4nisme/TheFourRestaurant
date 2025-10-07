@@ -33,6 +33,7 @@ public class GiaoDienDangNhap {
         VBox centerContent = new VBox(20);
         centerContent.setAlignment(Pos.CENTER);
         centerContent.setPadding(new Insets(0, 20, 0, 20));
+        VBox.setMargin(centerContent, new Insets(-80, 0, 0, 0));
 
         ImageView logo = new ImageView(getImage("/com/thefourrestaurant/images/logo.png"));
         logo.setPreserveRatio(true);
