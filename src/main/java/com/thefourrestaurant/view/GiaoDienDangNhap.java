@@ -19,13 +19,16 @@ public class GiaoDienDangNhap {
     private static final String COLOR_CARD = "#FFFFFF33"; // #2A4C5A
     private static final String COLOR_CARD_INNER = "#B0BAC366"; // #2A4C5A
     private static final String COLOR_GOLD = "#DDB248";
-    private static final String FONT_PATH = "/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf";
+
+    private Font montserratSemibold;
+    private Font montserratExtrabold;
 
     public void show(Stage stage) {
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: " + COLOR_TEAL + ";");
 
-        Font montserrat = Font.loadFont(getClass().getResourceAsStream(FONT_PATH), 16);
+        montserratSemibold = Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 20);
+        montserratExtrabold = Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-ExtraBold.ttf"), 20);
 
         VBox centerContent = new VBox(20);
         centerContent.setAlignment(Pos.CENTER);
@@ -38,10 +41,10 @@ public class GiaoDienDangNhap {
         VBox card = new VBox(16);
         card.setPadding(new Insets(24));
         card.setAlignment(Pos.CENTER);
-        card.setMaxWidth(360);
+        card.setMaxWidth(500);
         card.setStyle(
             "-fx-background-color: " + COLOR_CARD + ";" +
-            "-fx-background-radius: 12;" +
+            "-fx-background-radius: 50;" +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 4);"
         );
 
@@ -56,16 +59,13 @@ public class GiaoDienDangNhap {
         hidePromptOnFocus(password); 
 
         Button loginBtn = new Button("Đăng Nhập");
-        loginBtn.setFont(montserrat);
-        loginBtn.setDefaultButton(true);
+        loginBtn.setFont(montserratExtrabold);
         loginBtn.setPrefHeight(44);
         loginBtn.setMaxWidth(Double.MAX_VALUE);
         loginBtn.setStyle(
-                "-fx-background-color: " + COLOR_GOLD + ";" +
-                "-fx-background-radius: 8;" +
-                "-fx-text-fill: #000000;" + 
-                "-fx-font-weight: bold;" +
-                "-fx-font-size: 18px;"
+            "-fx-background-color: " + COLOR_GOLD + ";" +
+            "-fx-background-radius: 10;" +
+            "-fx-text-fill: #1E424D;"
         );
 
         Runnable tryLogin = () -> {
@@ -113,6 +113,7 @@ public class GiaoDienDangNhap {
 
     private void styleField(TextField field) {
         field.setPrefHeight(44);
+        field.setFont(montserratSemibold);
         field.setStyle(
             "-fx-background-color: " + COLOR_CARD_INNER + ";" +
             "-fx-background-radius: 8;" +
@@ -142,7 +143,6 @@ public class GiaoDienDangNhap {
 
     private Image getImage(String path) {
         Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
-        if (img.isError()) throw new RuntimeException("Failed to load image: " + path);
         return img;
     }
 }
