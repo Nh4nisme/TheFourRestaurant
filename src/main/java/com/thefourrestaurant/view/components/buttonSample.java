@@ -11,8 +11,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-public class buttonSample extends Button {
-    public buttonSample(String text, String iconPath, double width, double height, double fontSize) {
+public class ButtonSample extends Button {
+    public ButtonSample(String text, String iconPath, double width, double height, double fontSize) {
         super(text);
 
         Font montserrat = Font.loadFont(
