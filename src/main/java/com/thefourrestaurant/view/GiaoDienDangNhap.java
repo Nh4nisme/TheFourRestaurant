@@ -53,10 +53,12 @@ public class GiaoDienDangNhap {
         TextField username = new TextField();
         username.setPromptText("Tài Khoản");
         styleField(username);
+        hidePromptOnFocus(username);
 
         PasswordField password = new PasswordField();
         password.setPromptText("Mật Khẩu");
         styleField(password);
+        hidePromptOnFocus(password); 
 
         Button loginBtn = new Button("Đăng Nhập");
         loginBtn.setDefaultButton(true);
@@ -124,6 +126,17 @@ public class GiaoDienDangNhap {
                 new CornerRadii(12),
                 new BorderWidths(2)
         )));
+    }
+
+    private void hidePromptOnFocus(TextInputControl field) {
+        final String originalPrompt = field.getPromptText();
+        field.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+            if (isFocused) {
+                field.setPromptText(null);
+            } else if (field.getText().isEmpty()) {
+                field.setPromptText(originalPrompt);
+            }
+        });
     }
 
     private Image getImage(String path) {
