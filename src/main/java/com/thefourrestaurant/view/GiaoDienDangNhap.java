@@ -16,38 +16,33 @@ import java.util.Objects;
 public class GiaoDienDangNhap {
 
     private static final String COLOR_TEAL = "#1E424D";
-    private static final String COLOR_CARD = "#768894";
-    private static final String COLOR_CARD_INNER = "#6E808C";
+    private static final String COLOR_CARD = "#FFFFFF33"; // #2A4C5A
+    private static final String COLOR_CARD_INNER = "#B0BAC366"; // #2A4C5A
     private static final String COLOR_GOLD = "#DDB248";
     private static final String FONT_PATH = "/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf";
 
     public void show(Stage stage) {
-        HBox root = new HBox();
+        BorderPane root = new BorderPane();
+        root.setStyle("-fx-background-color: " + COLOR_TEAL + ";");
 
         Font montserrat = Font.loadFont(getClass().getResourceAsStream(FONT_PATH), 16);
 
-        StackPane leftPane = new StackPane();
-        leftPane.setStyle("-fx-background-color: " + COLOR_TEAL + ";");
-        leftPane.setPadding(new Insets(24));
-
-        VBox leftContent = new VBox(20);
-        leftContent.setAlignment(Pos.TOP_CENTER);
+        VBox centerContent = new VBox(20);
+        centerContent.setAlignment(Pos.CENTER);
+        centerContent.setPadding(new Insets(0, 20, 0, 20));
 
         ImageView logo = new ImageView(getImage("/com/thefourrestaurant/images/logo.png"));
         logo.setPreserveRatio(true);
-        logo.setFitWidth(420);
-
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
+        logo.setFitWidth(350);
 
         VBox card = new VBox(16);
         card.setPadding(new Insets(24));
         card.setAlignment(Pos.CENTER);
-        card.setMaxWidth(520);
+        card.setMaxWidth(360);
         card.setStyle(
             "-fx-background-color: " + COLOR_CARD + ";" +
-            "-fx-background-radius: 16;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 16, 0, 0, 4);"
+            "-fx-background-radius: 12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 4);"
         );
 
         TextField username = new TextField();
@@ -61,17 +56,17 @@ public class GiaoDienDangNhap {
         hidePromptOnFocus(password); 
 
         Button loginBtn = new Button("Đăng Nhập");
+        loginBtn.setFont(montserrat);
         loginBtn.setDefaultButton(true);
         loginBtn.setPrefHeight(44);
         loginBtn.setMaxWidth(Double.MAX_VALUE);
         loginBtn.setStyle(
                 "-fx-background-color: " + COLOR_GOLD + ";" +
-                "-fx-background-radius: 10;" +
-                "-fx-text-fill: #2a2a2a;" +
+                "-fx-background-radius: 8;" +
+                "-fx-text-fill: #000000;" + 
                 "-fx-font-weight: bold;" +
-                "-fx-font-size: 16px;"
+                "-fx-font-size: 18px;"
         );
-        if (montserrat != null) loginBtn.setFont(montserrat);
 
         Runnable tryLogin = () -> {
             if (username.getText().trim().isEmpty() || password.getText().trim().isEmpty()) {
@@ -86,18 +81,26 @@ public class GiaoDienDangNhap {
         password.setOnAction(e -> tryLogin.run());
 
         card.getChildren().addAll(username, password, loginBtn);
-
-        leftContent.getChildren().addAll(logo, spacer, card);
-        leftPane.getChildren().add(leftContent);
+        centerContent.getChildren().addAll(logo, card);
 
         StackPane rightPane = new StackPane();
         Image motif = getImage("/com/thefourrestaurant/images/motif.png");
-        BackgroundSize bgs = new BackgroundSize(100, 100, true, true, true, false);
+        BackgroundSize bgs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true);
         rightPane.setBackground(new Background(new BackgroundImage(
             motif, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, bgs
         )));
-
-        root.getChildren().addAll(leftPane, rightPane);
+        
+        HBox mainContainer = new HBox();
+        VBox leftPane = new VBox();
+        leftPane.setAlignment(Pos.CENTER);
+        leftPane.getChildren().add(centerContent);
+        leftPane.setStyle("-fx-background-color: " + COLOR_TEAL + ";");
+        
+        mainContainer.getChildren().addAll(leftPane, rightPane);
+        HBox.setHgrow(leftPane, Priority.ALWAYS);
+        HBox.setHgrow(rightPane, Priority.ALWAYS);
+        
+        root.setCenter(mainContainer);
 
         Scene scene = new Scene(root, 1024, 768);
         stage.setTitle("The Four - Đăng Nhập");
@@ -106,25 +109,23 @@ public class GiaoDienDangNhap {
 
         leftPane.prefWidthProperty().bind(scene.widthProperty().multiply(0.6));
         rightPane.prefWidthProperty().bind(scene.widthProperty().multiply(0.4));
-        leftPane.prefHeightProperty().bind(scene.heightProperty());
-        rightPane.prefHeightProperty().bind(scene.heightProperty());
     }
 
     private void styleField(TextField field) {
         field.setPrefHeight(44);
         field.setStyle(
             "-fx-background-color: " + COLOR_CARD_INNER + ";" +
-            "-fx-background-radius: 12;" +
-            "-fx-prompt-text-fill: rgba(255,255,255,0.8);" +
+            "-fx-background-radius: 8;" +
+            "-fx-prompt-text-fill: " + COLOR_GOLD + ";" + 
             "-fx-text-fill: white;" +
             "-fx-font-size: 14px;" +
             "-fx-padding: 0 14 0 14;"
         );
         field.setBorder(new Border(new BorderStroke(
-                Color.rgb(229,213,149, 0.35),
+                Color.rgb(229, 213, 149, 0.5),
                 BorderStrokeStyle.SOLID,
-                new CornerRadii(12),
-                new BorderWidths(2)
+                new CornerRadii(8),
+                new BorderWidths(1.5)
         )));
     }
 
@@ -141,7 +142,7 @@ public class GiaoDienDangNhap {
 
     private Image getImage(String path) {
         Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
-        if (img.isError()) throw new RuntimeException();
+        if (img.isError()) throw new RuntimeException("Failed to load image: " + path);
         return img;
     }
 }
