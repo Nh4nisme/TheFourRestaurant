@@ -39,7 +39,7 @@ public class GiaoDienChinh {
 
 
 // Scene
-        Scene scene = new Scene(borderPane,1620,880);
+        Scene scene = new Scene(borderPane,1024,768);
 //        stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
