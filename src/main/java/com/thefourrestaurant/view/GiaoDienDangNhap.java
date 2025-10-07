@@ -11,6 +11,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 public class GiaoDienDangNhap {
 
     private static final String COLOR_TEAL = "#1E424D";
@@ -31,7 +33,7 @@ public class GiaoDienDangNhap {
         VBox leftContent = new VBox(20);
         leftContent.setAlignment(Pos.TOP_CENTER);
 
-        ImageView logo = new ImageView(safeImage("/com/thefourrestaurant/images/logo.png"));
+        ImageView logo = new ImageView(getImage("/com/thefourrestaurant/images/logo.png"));
         logo.setPreserveRatio(true);
         logo.setFitWidth(420);
 
@@ -43,9 +45,9 @@ public class GiaoDienDangNhap {
         card.setAlignment(Pos.CENTER);
         card.setMaxWidth(520);
         card.setStyle(
-                "-fx-background-color: " + COLOR_CARD + ";" +
-                "-fx-background-radius: 16;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 16, 0, 0, 4);"
+            "-fx-background-color: " + COLOR_CARD + ";" +
+            "-fx-background-radius: 16;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 16, 0, 0, 4);"
         );
 
         TextField username = new TextField();
@@ -87,10 +89,10 @@ public class GiaoDienDangNhap {
         leftPane.getChildren().add(leftContent);
 
         StackPane rightPane = new StackPane();
-        Image motif = safeImage("/com/thefourrestaurant/images/motif.png");
+        Image motif = getImage("/com/thefourrestaurant/images/motif.png");
         BackgroundSize bgs = new BackgroundSize(100, 100, true, true, true, false);
         rightPane.setBackground(new Background(new BackgroundImage(
-                motif, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, bgs
+            motif, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, bgs
         )));
 
         root.getChildren().addAll(leftPane, rightPane);
@@ -124,14 +126,9 @@ public class GiaoDienDangNhap {
         )));
     }
 
-    private Image safeImage(String path) {
-        try {
-            Image img = new Image(getClass().getResourceAsStream(path));
-            if (img.isError()) throw new RuntimeException();
-            return img;
-        } catch (Exception e) {
-            // Fallback: 1x1 transparent if resource missing
-            return new Image("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AApMBcKQ5u7kAAAAASUVORK5CYII=");
-        }
+    private Image getImage(String path) {
+        Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+        if (img.isError()) throw new RuntimeException();
+        return img;
     }
 }
