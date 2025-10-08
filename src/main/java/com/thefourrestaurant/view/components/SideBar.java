@@ -10,8 +10,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-public class sideBar extends VBox {
-    public sideBar(){
+public class SideBar extends VBox {
+    public SideBar(){
         Font montserrat = Font.loadFont(getClass().getResourceAsStream("com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"),16);
         setPrefWidth(90);
         setStyle("-fx-background-color: #1E424D");

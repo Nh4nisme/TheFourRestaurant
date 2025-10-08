@@ -4,7 +4,7 @@ import com.thefourrestaurant.view.GiaoDienChinh;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class mainApp extends Application {
+public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         GiaoDienChinh gd = new GiaoDienChinh();
