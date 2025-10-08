@@ -1,20 +1,20 @@
 package com.thefourrestaurant.view;
 
-import com.thefourrestaurant.view.components.navBar;
+import com.thefourrestaurant.view.components.NavBar;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import com.thefourrestaurant.view.components.sideBar;
+import com.thefourrestaurant.view.components.SideBar;
 
 public class GiaoDienChinh {
     public void show(Stage stage) {
         BorderPane borderPane = new BorderPane();
 
 // SideBar
-        sideBar sideBar = new sideBar();
+        SideBar sideBar = new SideBar();
         borderPane.setLeft(sideBar);
 
 // Right VBox
@@ -27,7 +27,7 @@ public class GiaoDienChinh {
                 giaoDienChinhSize
                 );
         VBox rightBox = new VBox();
-        navBar navBar = new navBar();
+        NavBar navBar = new NavBar();
         Pane backgroundCenter =  new Pane();
         VBox.setVgrow(backgroundCenter, Priority.ALWAYS);
 
@@ -39,7 +39,7 @@ public class GiaoDienChinh {
 
 
 // Scene
-        Scene scene = new Scene(borderPane,1620,880);
+        Scene scene = new Scene(borderPane,1024,768);
 //        stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
