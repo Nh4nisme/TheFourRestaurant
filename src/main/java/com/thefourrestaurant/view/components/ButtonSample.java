@@ -6,17 +6,18 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+import java.util.Objects;
+
 public class ButtonSample extends Button {
-    public ButtonSample(String text, String iconPath, double width, double height, double fontSize) {
+    public ButtonSample(String text, String iconPath, double height, double fontSize) {
         super(text);
 
         Font montserrat = Font.loadFont(
-                getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"),
+                getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"),
                 fontSize
         );
         if (montserrat != null) {
@@ -27,33 +28,31 @@ public class ButtonSample extends Button {
 
         // Load icon
         if (iconPath != null && !iconPath.isEmpty()) {
-            ImageView icon = new ImageView(new Image(getClass().getResourceAsStream(iconPath)));
+            ImageView icon = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(iconPath))));
             icon.setFitWidth(40);
             icon.setFitHeight(40);
             icon.setPreserveRatio(true);
 
             setGraphic(icon);
             setContentDisplay(ContentDisplay.LEFT);
-            setGraphicTextGap(1); // khoảng cách icon và text
         }
 
         // Kích thước button
-        setPrefWidth(width);
         setPrefHeight(height);
-        setMinWidth(width);
-        setMaxWidth(width);
         setMinHeight(height);
         setMaxHeight(height);
-        setPadding(new Insets(5));
+        setPadding(new Insets(5, 10, 5, 10));
 
         // Border
         BorderStroke borderStroke = new BorderStroke(
-                Color.rgb(229,213,149),
+                Color.rgb(249,213,149),
                 BorderStrokeStyle.SOLID,
                 new CornerRadii(5),
-                new BorderWidths(2)
+                new BorderWidths(2),
+                Insets.EMPTY
         );
         setBorder(new Border(borderStroke));
+        getStyleClass().add("button_sampleGamboge");
 
         // DropShadow effect
         DropShadow shadow = new DropShadow();
@@ -62,7 +61,5 @@ public class ButtonSample extends Button {
         shadow.setOffsetY(2);
         shadow.setColor(Color.GRAY);
         setEffect(shadow);
-
-        // Hover effect
     }
 }

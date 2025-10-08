@@ -4,10 +4,11 @@ import com.thefourrestaurant.view.components.NavBar;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import com.thefourrestaurant.view.components.SideBar;
+
+import java.util.Objects;
 
 public class GiaoDienChinh {
     public void show(Stage stage) {
@@ -18,7 +19,7 @@ public class GiaoDienChinh {
         borderPane.setLeft(sideBar);
 
 // Right VBox
-        Image giaoDienChinhIMG = new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/GiaoDienChinhImg.png"));
+        Image giaoDienChinhIMG = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/thefourrestaurant/images/GiaoDienChinhImg.png")));
         BackgroundSize giaoDienChinhSize = new BackgroundSize(100, 100, true, true, true, true);
         BackgroundImage giaoDienChinhBackgroundIMG = new BackgroundImage(giaoDienChinhIMG,
                 BackgroundRepeat.NO_REPEAT,
@@ -39,8 +40,9 @@ public class GiaoDienChinh {
 
 
 // Scene
-        Scene scene = new Scene(borderPane,1024,768);
-//        stage.setFullScreen(true);
+        Scene scene = new Scene(borderPane,1620,880);
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/thefourrestaurant/css/Application.css")).toExternalForm());
+        stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
 
