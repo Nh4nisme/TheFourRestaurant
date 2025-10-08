@@ -1,7 +1,9 @@
 package com.thefourrestaurant.view;
 
+import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -10,6 +12,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.Objects;
 
@@ -71,6 +74,58 @@ public class GiaoDienDangNhap {
             "-fx-background-radius: 10;" +
             "-fx-text-fill: #1E424D;"
         );
+        
+        ScaleTransition txtTenDangNhapTransitionUp = new ScaleTransition(Duration.millis(150), txtTenDangNhap);
+        txtTenDangNhapTransitionUp.setToX(1.05);
+        txtTenDangNhapTransitionUp.setToY(1.05);
+        
+        ScaleTransition txtTenDangNhapTransitionDown = new ScaleTransition(Duration.millis(150), txtTenDangNhap);
+        txtTenDangNhapTransitionDown.setToX(1);
+        txtTenDangNhapTransitionDown.setToY(1);
+        
+        txtTenDangNhap.setOnMouseEntered(e -> {
+        	txtTenDangNhapTransitionUp.playFromStart();
+        });
+        
+        txtTenDangNhap.setOnMouseExited(e -> {
+        	txtTenDangNhapTransitionDown.playFromStart();
+        });
+        
+        ScaleTransition txtMatKhauTransitionUp = new ScaleTransition(Duration.millis(150), txtMatKhau);
+        txtMatKhauTransitionUp.setToX(1.05);
+        txtMatKhauTransitionUp.setToY(1.05);
+        
+        ScaleTransition txtMatKhauTransitionDown = new ScaleTransition(Duration.millis(150), txtMatKhau);
+        txtMatKhauTransitionDown.setToX(1);
+        txtMatKhauTransitionDown.setToY(1);
+        
+        txtMatKhau.setOnMouseEntered(e -> {
+        	txtMatKhauTransitionUp.playFromStart();
+        });
+        
+        txtMatKhau.setOnMouseExited(e -> {
+        	txtMatKhauTransitionDown.playFromStart();
+        });
+        
+//        btnDangNhap.setOnMouseEntered(e -> btnDangNhap.setCursor(Cursor.HAND));
+        
+        ScaleTransition btnDangNhapTransitionUp = new ScaleTransition(Duration.millis(150), btnDangNhap);
+        btnDangNhapTransitionUp.setToX(1.05);
+        btnDangNhapTransitionUp.setToY(1.05);
+        
+        ScaleTransition btnDangNhapTransitionDown = new ScaleTransition(Duration.millis(150), btnDangNhap);
+        btnDangNhapTransitionDown.setToX(1);
+        btnDangNhapTransitionDown.setToY(1);
+        
+        btnDangNhap.setOnMouseEntered(e -> {
+        	btnDangNhap.setCursor(Cursor.HAND);
+        	btnDangNhapTransitionUp.playFromStart();
+        });
+        
+        btnDangNhap.setOnMouseExited(e -> {
+        	btnDangNhapTransitionDown.playFromStart();
+        });
+        
         VBox.setMargin(txtTenDangNhap, new Insets(15, 0, 0, 0));
 
         Runnable tryLogin = () -> {
