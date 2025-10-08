@@ -24,6 +24,8 @@ public class NavBar extends HBox {
         btnXuLi = new ButtonSample("Xử lí","/com/thefourrestaurant/images/icon/xuLyIcon.png", 45, 16);
         btnTKDN = new ButtonSample("QL: Tâm GAY LORD", "/com/thefourrestaurant/images/icon/accountIcon.png", 45, 16);
 
+        // Cho phép thanh điều hướng mở rộng chiều rộng
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 

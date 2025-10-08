@@ -1,17 +1,18 @@
 package com.thefourrestaurant.view.components;
 
 import com.thefourrestaurant.util.ClockText;
+import com.thefourrestaurant.view.QuanLy.LoaiMonAn;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 public class SideBar extends VBox {
-    public SideBar(){
+    public SideBar(VBox rightBox){
         Font montserrat = Font.loadFont(getClass().getResourceAsStream("com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"),16);
         setPrefWidth(90);
         setStyle("-fx-background-color: #1E424D");
@@ -75,6 +76,11 @@ public class SideBar extends VBox {
         btnDanhMuc.setStyle("-fx-background-color: transparent;");
         btnDanhMuc.setOnMouseEntered(e -> {danhMucIcon.setScaleX(1.2);danhMucIcon.setScaleY(1.2);});
         btnDanhMuc.setOnMouseExited(e -> {danhMucIcon.setScaleX(1);danhMucIcon.setScaleY(1);});
+        btnDanhMuc.setOnAction(e -> {
+            LoaiMonAn loaiMonAn = new LoaiMonAn();
+            VBox.setVgrow(loaiMonAn, Priority.ALWAYS);
+            rightBox.getChildren().set(1, loaiMonAn);
+        });
 
         ImageView caiDatIcon = new ImageView(new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/caiDatIcon.png")));
         caiDatIcon.setFitWidth(45);
@@ -85,7 +91,7 @@ public class SideBar extends VBox {
         btnCaiDat.setOnMouseEntered(e -> {caiDatIcon.setScaleX(1.2);caiDatIcon.setScaleY(1.2);});
         btnCaiDat.setOnMouseExited(e -> {caiDatIcon.setScaleX(1);caiDatIcon.setScaleY(1);});
 
-        groupButton.getChildren().addAll(btnThongKe,btnHoaDon,btnTaiKhoan,btnKhachHang, btnCaiDat);
+        groupButton.getChildren().addAll(btnThongKe,btnHoaDon,btnTaiKhoan,btnKhachHang, btnDanhMuc, btnCaiDat);
 
         // Tao Vbox rong
         VBox BoDemGio = new VBox();
@@ -103,30 +109,3 @@ public class SideBar extends VBox {
         getChildren().addAll(logoImg,groupButton,BoDemGio);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
