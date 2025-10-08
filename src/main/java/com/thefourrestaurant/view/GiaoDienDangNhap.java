@@ -35,46 +35,46 @@ public class GiaoDienDangNhap {
         centerContent.setPadding(new Insets(0, 20, 0, 20));
         VBox.setMargin(centerContent, new Insets(-80, 0, 0, 0));
 
-        ImageView logo = new ImageView(getImage("/com/thefourrestaurant/images/logo.png"));
+        ImageView logo = new ImageView(getImage("/com/thefourrestaurant/images/Logo.png"));
         logo.setPreserveRatio(true);
         logo.setFitWidth(350);
 
-        VBox card = new VBox(20);
-        card.setPadding(new Insets(30));
-        card.setAlignment(Pos.CENTER);
-        card.setMaxWidth(500);
-        card.setStyle(
+        VBox cardDangNhap = new VBox(20);
+        cardDangNhap.setPadding(new Insets(30));
+        cardDangNhap.setAlignment(Pos.CENTER);
+        cardDangNhap.setMaxWidth(500);
+        cardDangNhap.setStyle(
             "-fx-background-color: " + COLOR_CARD + ";" +
             "-fx-background-radius: 50;" +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 4);"
         );
 
-        TextField username = new TextField();
-        username.setPromptText("Tài Khoản");
-        styleField(username);
-        hidePromptOnFocus(username);
-        username.setPrefWidth(480);
-        VBox.setMargin(username, new Insets(10, 0, 0, 0));
+        TextField txtTenDangNhap = new TextField();
+        txtTenDangNhap.setPromptText("Tài Khoản");
+        styleField(txtTenDangNhap);
+        hidePromptOnFocus(txtTenDangNhap);
+        txtTenDangNhap.setPrefWidth(480);
+        VBox.setMargin(txtTenDangNhap, new Insets(10, 0, 0, 0));
 
-        PasswordField password = new PasswordField();
-        password.setPromptText("Mật Khẩu");
-        styleField(password);
-        hidePromptOnFocus(password); 
-        password.setPrefWidth(480);
+        PasswordField txtMatKhau = new PasswordField();
+        txtMatKhau.setPromptText("Mật Khẩu");
+        styleField(txtMatKhau);
+        hidePromptOnFocus(txtMatKhau); 
+        txtMatKhau.setPrefWidth(480);
 
-        Button loginBtn = new Button("Đăng Nhập");
-        loginBtn.setFont(montserratExtrabold);
-        loginBtn.setPrefHeight(50);
-        loginBtn.setPrefWidth(250);
-        loginBtn.setStyle(
+        Button btnDangNhap = new Button("Đăng Nhập");
+        btnDangNhap.setFont(montserratExtrabold);
+        btnDangNhap.setPrefHeight(50);
+        btnDangNhap.setPrefWidth(250);
+        btnDangNhap.setStyle(
             "-fx-background-color: " + COLOR_GOLD + ";" +
             "-fx-background-radius: 10;" +
             "-fx-text-fill: #1E424D;"
         );
-        VBox.setMargin(username, new Insets(15, 0, 0, 0));
+        VBox.setMargin(txtTenDangNhap, new Insets(15, 0, 0, 0));
 
         Runnable tryLogin = () -> {
-            if (username.getText().trim().isEmpty() || password.getText().trim().isEmpty()) {
+            if (txtTenDangNhap.getText().trim().isEmpty() || txtMatKhau.getText().trim().isEmpty()) {
                 Alert a = new Alert(Alert.AlertType.WARNING, "Vui lòng nhập đầy đủ Tài Khoản và Mật Khẩu.", ButtonType.OK);
                 a.initOwner(stage);
                 a.showAndWait();
@@ -82,17 +82,17 @@ public class GiaoDienDangNhap {
             }
             new GiaoDienChinh().show(stage);
         };
-        loginBtn.setOnAction(e -> tryLogin.run());
-        password.setOnAction(e -> tryLogin.run());
+        btnDangNhap.setOnAction(e -> tryLogin.run());
+        txtMatKhau.setOnAction(e -> tryLogin.run());
 
-        card.getChildren().addAll(username, password, loginBtn);
-        centerContent.getChildren().addAll(logo, card);
+        cardDangNhap.getChildren().addAll(txtTenDangNhap, txtMatKhau, btnDangNhap);
+        centerContent.getChildren().addAll(logo, cardDangNhap);
 
         StackPane rightPane = new StackPane();
-        Image motif = getImage("/com/thefourrestaurant/images/motif.png");
+        Image anhNenDangNhap = getImage("/com/thefourrestaurant/images/AnhNenDangNhap.png");
         BackgroundSize bgs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true);
         rightPane.setBackground(new Background(new BackgroundImage(
-            motif, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, bgs
+            anhNenDangNhap, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, bgs
         )));
         
         HBox mainContainer = new HBox();
