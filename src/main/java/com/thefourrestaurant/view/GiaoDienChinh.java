@@ -14,10 +14,6 @@ public class GiaoDienChinh {
     public void show(Stage stage) {
         BorderPane borderPane = new BorderPane();
 
-// SideBar
-        SideBar sideBar = new SideBar();
-        borderPane.setLeft(sideBar);
-
 // Right VBox
         Image giaoDienChinhIMG = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/thefourrestaurant/images/GiaoDienChinhImg.png")));
         BackgroundSize giaoDienChinhSize = new BackgroundSize(100, 100, true, true, true, true);
@@ -28,7 +24,10 @@ public class GiaoDienChinh {
                 giaoDienChinhSize
                 );
         VBox rightBox = new VBox();
-        NavBar navBar = new NavBar();
+        NavBar navBar = new NavBar(rightBox);
+        navBar.setMinHeight(80);
+        navBar.setMaxHeight(80);
+
         Pane backgroundCenter =  new Pane();
         VBox.setVgrow(backgroundCenter, Priority.ALWAYS);
 
@@ -38,9 +37,13 @@ public class GiaoDienChinh {
         rightBox.getChildren().addAll(navBar,backgroundCenter);
         borderPane.setCenter(rightBox); // dùng center thay vì right nếu muốn tỷ lệ dễ bind
 
+// SideBar
+        SideBar sideBar = new SideBar(rightBox);
+        borderPane.setLeft(sideBar);
+
 
 // Scene
-        Scene scene = new Scene(borderPane,1620,880);
+        Scene scene = new Scene(borderPane,1920,1080);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/thefourrestaurant/css/Application.css")).toExternalForm());
         stage.setFullScreen(true);
         stage.setScene(scene);

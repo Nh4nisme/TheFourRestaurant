@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.components;
 
+import com.thefourrestaurant.view.LoaiMonAn;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -11,7 +12,7 @@ public class NavBar extends HBox {
 
     private final ButtonSample btnHeThong, btnTimKiem, btnDanhMucNav, btnXuLi, btnTKDN;
 
-    public NavBar() {
+    public NavBar(VBox rightBox) {
         setAlignment(Pos.CENTER_LEFT);
         setPadding(new Insets(0, 30, 0, 30));
         setPrefHeight(80);
@@ -23,6 +24,14 @@ public class NavBar extends HBox {
         btnDanhMucNav = new ButtonSample("Danh mục","/com/thefourrestaurant/images/icon/danhMucNavIcon.png", 45, 16);
         btnXuLi = new ButtonSample("Xử lí","/com/thefourrestaurant/images/icon/xuLyIcon.png", 45, 16);
         btnTKDN = new ButtonSample("QL: Tâm GAY LORD", "/com/thefourrestaurant/images/icon/accountIcon.png", 45, 16);
+
+        btnDanhMucNav.setOnAction(e -> {
+            LoaiMonAn loaiMonAn = new LoaiMonAn();
+            VBox.setVgrow(loaiMonAn, Priority.ALWAYS);
+            rightBox.getChildren().set(1, loaiMonAn);
+        });
+
+        // Cho phép thanh điều hướng mở rộng chiều rộng
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
