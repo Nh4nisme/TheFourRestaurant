@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="com.obiscr.chatgpt.settings.EasyCodeState">
+    <option name="projectFiles" value="$PROJECT_DIR$/src/main/java/com/thefourrestaurant/DAO/TaiKhoanDAO.java;D:/Study/prj_PTUD/TheFourRestaurant/src/main/java/com/thefourrestaurant/util/ClockText.java;D:/Study/prj_PTUD/TheFourRestaurant/src/main/java/com/thefourrestaurant/view/components/ButtonSample.java;D:/Study/prj_PTUD/TheFourRestaurant/src/main/java/com/thefourrestaurant/view/components/NavBar.java;D:/Study/prj_PTUD/TheFourRestaurant/src/main/java/com/thefourrestaurant/view/components/SideBar.java;D:/Study/prj_PTUD/TheFourRestaurant/src/main/java/com/thefourrestaurant/view/QuanLy/LoaiMonAn.java;D:/Study/prj_PTUD/TheFourRestaurant/src/main/java/com/thefourrestaurant/view/GiaoDienChinh.java;D:/Study/prj_PTUD/TheFourRestaurant/src/main/java/com/thefourrestaurant/view/GiaoDienDangNhap.java;D:/Study/prj_PTUD/TheFourRestaurant/src/main/java/com/thefourrestaurant/MainApp.java;D:/Study/prj_PTUD/TheFourRestaurant/src/main/java/module-info.java;D:/Study/prj_PTUD/TheFourRestaurant/src/main/resources/com/thefourrestaurant/css/Application.css" />
+  </component>
+</project>
