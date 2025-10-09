@@ -1,5 +1,7 @@
 package com.thefourrestaurant.view.components;
 
+import java.util.function.Consumer;
+
 import com.thefourrestaurant.util.ClockText;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,6 +13,15 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public class SideBar extends VBox {
+	
+	// Field để lưu callback
+    private Consumer<String> onMenuClick;
+
+    // Setter để lớp ngoài (GiaoDienChinh) đăng ký callback
+    public void setOnMenuClick(Consumer<String> onMenuClick) {
+        this.onMenuClick = onMenuClick;
+    }
+	
     public SideBar(){
         Font montserrat = Font.loadFont(getClass().getResourceAsStream("com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"),16);
         setPrefWidth(90);
@@ -84,8 +95,14 @@ public class SideBar extends VBox {
         btnCaiDat.setStyle("-fx-background-color: transparent;");
         btnCaiDat.setOnMouseEntered(e -> {caiDatIcon.setScaleX(1.2);caiDatIcon.setScaleY(1.2);});
         btnCaiDat.setOnMouseExited(e -> {caiDatIcon.setScaleX(1);caiDatIcon.setScaleY(1);});
+        
+        Button btnPhieuDatMon = new Button("Phiếu Đặt Món");
+        btnPhieuDatMon.setStyle("-fx-background-color: transparent; -fx-text-fill: #DDB248; -fx-font-size: 14px;");
+        btnPhieuDatMon.setOnAction(e -> {
+            if (onMenuClick != null) onMenuClick.accept("phieudatmon");
+        });
 
-        groupButton.getChildren().addAll(btnThongKe,btnHoaDon,btnTaiKhoan,btnKhachHang, btnCaiDat);
+        groupButton.getChildren().addAll(btnThongKe,btnHoaDon,btnTaiKhoan,btnKhachHang, btnCaiDat,btnPhieuDatMon);
 
         // Tao Vbox rong
         VBox BoDemGio = new VBox();

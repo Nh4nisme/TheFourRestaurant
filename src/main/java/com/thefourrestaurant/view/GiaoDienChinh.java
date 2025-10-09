@@ -48,5 +48,14 @@ public class GiaoDienChinh {
 
 // Bind width theo Stage
         sideBar.prefWidthProperty().bind(scene.widthProperty().multiply(0.05));
+        
+     // === Xử lý khi nhấn các nút trong sidebar ===
+        sideBar.setOnMenuClick(menu -> {
+            if ("phieudatmon".equals(menu)) {
+                PhieuGoiMon phieu = new PhieuGoiMon();
+                rightBox.getChildren().set(1, phieu);
+            }
+        });
+
     }
 }
