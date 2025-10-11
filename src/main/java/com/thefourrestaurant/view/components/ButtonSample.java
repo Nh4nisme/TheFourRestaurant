@@ -42,24 +42,7 @@ public class ButtonSample extends Button {
         setMinHeight(height);
         setMaxHeight(height);
         setPadding(new Insets(5, 10, 5, 10));
-
-        // Border
-        BorderStroke borderStroke = new BorderStroke(
-                Color.rgb(249,213,149),
-                BorderStrokeStyle.SOLID,
-                new CornerRadii(5),
-                new BorderWidths(2),
-                Insets.EMPTY
-        );
-        setBorder(new Border(borderStroke));
         getStyleClass().add("button_sampleGamboge");
 
-        // DropShadow effect
-        DropShadow shadow = new DropShadow();
-        shadow.setRadius(4);
-        shadow.setOffsetX(2);
-        shadow.setOffsetY(2);
-        shadow.setColor(Color.GRAY);
-        setEffect(shadow);
     }
 }
