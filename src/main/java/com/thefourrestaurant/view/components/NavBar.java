@@ -15,7 +15,7 @@ public class NavBar extends HBox {
 
     private final DropDownButton btnHeThong, btnTimKiem,btnXuLi,btnDanhMucNav;
 
-    public NavBar() {
+    public NavBar(VBox rightBox) {
         setAlignment(Pos.CENTER_LEFT);
         setPadding(new Insets(0, 30, 0, 30));
         setPrefHeight(80);

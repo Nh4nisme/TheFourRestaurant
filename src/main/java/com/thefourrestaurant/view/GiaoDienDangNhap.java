@@ -1,7 +1,10 @@
 package com.thefourrestaurant.view;
 
+import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -10,6 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.Objects;
 
@@ -49,18 +53,12 @@ public class GiaoDienDangNhap {
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 4);"
         );
 
-        TextField txtTenDangNhap = new TextField();
-        txtTenDangNhap.setPromptText("Tài Khoản");
-        styleField(txtTenDangNhap);
-        hidePromptOnFocus(txtTenDangNhap);
-        txtTenDangNhap.setPrefWidth(480);
-        VBox.setMargin(txtTenDangNhap, new Insets(10, 0, 0, 0));
+        StackPane txtTenDangNhapContainer = createFloatingLabelField("Tài Khoản", false);
+        TextField txtTenDangNhap = (TextField) ((StackPane) txtTenDangNhapContainer.getChildren().get(1)).getChildren().get(0);
+        VBox.setMargin(txtTenDangNhapContainer, new Insets(15, 0, 0, 0));
 
-        PasswordField txtMatKhau = new PasswordField();
-        txtMatKhau.setPromptText("Mật Khẩu");
-        styleField(txtMatKhau);
-        hidePromptOnFocus(txtMatKhau); 
-        txtMatKhau.setPrefWidth(480);
+        StackPane txtMatKhauContainer = createFloatingLabelField("Mật Khẩu", true);
+        PasswordField txtMatKhau = (PasswordField) ((StackPane) txtMatKhauContainer.getChildren().get(1)).getChildren().get(0);
 
         Button btnDangNhap = new Button("Đăng Nhập");
         btnDangNhap.setFont(montserratExtrabold);
@@ -71,7 +69,26 @@ public class GiaoDienDangNhap {
             "-fx-background-radius: 10;" +
             "-fx-text-fill: #1E424D;"
         );
-        VBox.setMargin(txtTenDangNhap, new Insets(15, 0, 0, 0));
+        
+        addHoverAnimation(txtTenDangNhapContainer);
+        addHoverAnimation(txtMatKhauContainer);
+        
+        ScaleTransition btnDangNhapTransitionUp = new ScaleTransition(Duration.millis(150), btnDangNhap);
+        btnDangNhapTransitionUp.setToX(1.05);
+        btnDangNhapTransitionUp.setToY(1.05);
+        
+        ScaleTransition btnDangNhapTransitionDown = new ScaleTransition(Duration.millis(150), btnDangNhap);
+        btnDangNhapTransitionDown.setToX(1);
+        btnDangNhapTransitionDown.setToY(1);
+        
+        btnDangNhap.setOnMouseEntered(e -> {
+            btnDangNhap.setCursor(Cursor.HAND);
+            btnDangNhapTransitionUp.playFromStart();
+        });
+        
+        btnDangNhap.setOnMouseExited(e -> {
+            btnDangNhapTransitionDown.playFromStart();
+        });
 
         Runnable tryLogin = () -> {
             if (txtTenDangNhap.getText().trim().isEmpty() || txtMatKhau.getText().trim().isEmpty()) {
@@ -85,7 +102,7 @@ public class GiaoDienDangNhap {
         btnDangNhap.setOnAction(e -> tryLogin.run());
         txtMatKhau.setOnAction(e -> tryLogin.run());
 
-        cardDangNhap.getChildren().addAll(txtTenDangNhap, txtMatKhau, btnDangNhap);
+        cardDangNhap.getChildren().addAll(txtTenDangNhapContainer, txtMatKhauContainer, btnDangNhap);
         centerContent.getChildren().addAll(logo, cardDangNhap);
 
         StackPane rightPane = new StackPane();
@@ -116,28 +133,78 @@ public class GiaoDienDangNhap {
         rightPane.prefWidthProperty().bind(scene.widthProperty().multiply(0.4));
     }
 
-    private void styleField(TextField field) {
+    private StackPane createFloatingLabelField(String labelText, boolean isPassword) {
+        StackPane container = new StackPane();
+        container.setPrefWidth(480);
+        container.setPrefHeight(55);
+        
+        Label floatingLabel = new Label(labelText);
+        floatingLabel.setFont(Font.font(montserratSemibold.getFamily(), 14));
+        floatingLabel.setTextFill(Color.web(COLOR_GOLD));
+        floatingLabel.setMouseTransparent(true);
+        
+        StackPane fieldWrapper = new StackPane();
+        TextInputControl field;
+        if (isPassword) {
+            field = new PasswordField();
+        } else {
+            field = new TextField();
+        }
+        
         field.setPrefHeight(45);
+        field.setPrefWidth(480);
         field.setFont(montserratSemibold);
         field.setStyle(
             "-fx-background-color: " + COLOR_CARD_INNER + ";" +
             "-fx-background-radius: 20;" +
-            "-fx-prompt-text-fill: " + COLOR_GOLD + ";" + 
             "-fx-text-fill: white;" +
             "-fx-font-size: 14px;" +
             "-fx-padding: 0 14 0 14;"
         );
-    }
-
-    private void hidePromptOnFocus(TextInputControl field) {
-        final String originalPrompt = field.getPromptText();
+        
+        fieldWrapper.getChildren().add(field);
+        fieldWrapper.setAlignment(Pos.CENTER);
+        
+        container.getChildren().addAll(floatingLabel, fieldWrapper);
+        StackPane.setAlignment(floatingLabel, Pos.CENTER_LEFT);
+        StackPane.setMargin(floatingLabel, new Insets(0, 0, 0, 14));
+        
+        TranslateTransition labelUp = new TranslateTransition(Duration.millis(200), floatingLabel);
+        labelUp.setToY(-35);
+        
+        TranslateTransition labelDown = new TranslateTransition(Duration.millis(200), floatingLabel);
+        labelDown.setToY(0);
+        
         field.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-            if (isFocused) {
-                field.setPromptText(null);
-            } else if (field.getText().isEmpty()) {
-                field.setPromptText(originalPrompt);
+            if (isFocused || !field.getText().isEmpty()) {
+                labelUp.playFromStart();
+            } else {
+                labelDown.playFromStart();
             }
         });
+        
+        field.textProperty().addListener((obs, oldText, newText) -> {
+            if (!newText.isEmpty() && floatingLabel.getTranslateY() == 0) {
+                labelUp.playFromStart();
+            } else if (newText.isEmpty() && !field.isFocused()) {
+                labelDown.playFromStart();
+            }
+        });
+        
+        return container;
+    }
+
+    private void addHoverAnimation(StackPane fieldContainer) {
+        ScaleTransition scaleUp = new ScaleTransition(Duration.millis(150), fieldContainer);
+        scaleUp.setToX(1.05);
+        scaleUp.setToY(1.05);
+        
+        ScaleTransition scaleDown = new ScaleTransition(Duration.millis(150), fieldContainer);
+        scaleDown.setToX(1);
+        scaleDown.setToY(1);
+        
+        fieldContainer.setOnMouseEntered(e -> scaleUp.playFromStart());
+        fieldContainer.setOnMouseExited(e -> scaleDown.playFromStart());
     }
 
     private Image getImage(String path) {
