@@ -3,10 +3,8 @@ package com.thefourrestaurant.view.components;
 import com.thefourrestaurant.view.LoaiMonAn;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 
-import java.util.Objects;
 
 public class NavBar extends HBox {
 

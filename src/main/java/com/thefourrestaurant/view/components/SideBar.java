@@ -2,6 +2,8 @@ package com.thefourrestaurant.view.components;
 
 import com.thefourrestaurant.util.ClockText;
 import com.thefourrestaurant.view.LoaiMonAn;
+import com.thefourrestaurant.view.PhieuGoiMon;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -78,8 +80,9 @@ public class SideBar extends VBox {
         btnDanhMuc.setOnMouseExited(e -> {danhMucIcon.setScaleX(1);danhMucIcon.setScaleY(1);});
         btnDanhMuc.setOnAction(e -> {
             LoaiMonAn loaiMonAn = new LoaiMonAn();
-            VBox.setVgrow(loaiMonAn, Priority.ALWAYS);
-            rightBox.getChildren().set(1, loaiMonAn);
+            PhieuGoiMon phieuGoiMon = new PhieuGoiMon();
+            VBox.setVgrow(phieuGoiMon, Priority.ALWAYS);
+            rightBox.getChildren().set(1, phieuGoiMon);
         });
 
         ImageView caiDatIcon = new ImageView(new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/caiDatIcon.png")));
