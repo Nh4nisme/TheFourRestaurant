@@ -8,75 +8,77 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.geometry.HPos;
+
+import com.thefourrestaurant.view.components.ButtonSample;
+import com.thefourrestaurant.view.components.MonAnBox;
+
 import javafx.beans.property.SimpleStringProperty;
 
 public class PhieuGoiMon extends BorderPane {
 
-    public PhieuGoiMon() {
+    private ButtonSample btnTim, btnLamMoi;
+
+	public PhieuGoiMon() {
         this.setStyle("-fx-background-color: white;");
 
-        HBox topBar = createTopBar();
-        BorderPane.setMargin(topBar, Insets.EMPTY);
-        this.setTop(topBar);
+        HBox thanhTren = taoThanhTren();
+        this.setTop(thanhTren);
 
-        HBox mainContent = new HBox(20);
-        mainContent.setAlignment(Pos.TOP_CENTER);
+        HBox noiDungChinh = new HBox(20);
 
-        VBox leftPanel = createMenuGrid();
-        VBox rightPanel = createOrderPanel();
+        VBox khungTrai = taoLuoiMonAn();
+        VBox khungPhai = taoKhungPhieuGoiMon();
 
-        leftPanel.setAlignment(Pos.TOP_CENTER);
-        rightPanel.setAlignment(Pos.TOP_CENTER);
-        HBox.setMargin(leftPanel, new Insets(10, 10, 10, 10));
+        khungTrai.setAlignment(Pos.TOP_CENTER);
+        khungPhai.setAlignment(Pos.TOP_CENTER);
 
-        HBox.setHgrow(leftPanel, Priority.ALWAYS);
-        HBox.setHgrow(rightPanel, Priority.ALWAYS);
+        HBox.setHgrow(khungTrai, Priority.ALWAYS);
+        HBox.setHgrow(khungPhai, Priority.ALWAYS);
 
-        mainContent.getChildren().addAll(leftPanel, rightPanel);
-        this.setCenter(mainContent);
+        noiDungChinh.getChildren().addAll(khungTrai, khungPhai);
+        this.setCenter(noiDungChinh);
     }
 
-    private HBox createTopBar() {
-        HBox topBar = new HBox(15);
-        topBar.setPadding(new Insets(15, 20, 15, 20));
-        topBar.setAlignment(Pos.CENTER_LEFT);
-        topBar.setStyle("-fx-background-color: #1E424D;");
+    private HBox taoThanhTren() {
+        HBox thanhTren = new HBox(15);
+        thanhTren.setPadding(new Insets(15, 20, 15, 20));
+        thanhTren.setAlignment(Pos.CENTER_LEFT);
+        thanhTren.setStyle("-fx-background-color: #1E424D;");
 
-        MenuButton mealMenu = new MenuButton("Buổi Trưa");
-        mealMenu.setStyle("-fx-background-color: #D4A84A; -fx-text-fill: #2C5F5F; "
+        MenuButton menuBuaAn = new MenuButton("Buổi Trưa");
+        menuBuaAn.setStyle("-fx-background-color: #D4A84A; -fx-text-fill: #2C5F5F; "
                 + "-fx-font-size: 14px; -fx-font-weight: bold; -fx-pref-width: 150px;");
 
-        mealMenu.getItems().addAll(new MenuItem("Buổi Sáng"), new MenuItem("Buổi Trưa"), new MenuItem("Buổi Tối"));
+        menuBuaAn.getItems().addAll(
+                new MenuItem("Buổi Sáng"),
+                new MenuItem("Buổi Trưa"),
+                new MenuItem("Buổi Tối")
+        );
 
-        Label loaiMonLabel = new Label("Loại món:");
-        loaiMonLabel.setTextFill(Color.web("#D4A84A"));
-        loaiMonLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
+        Label lblLoaiMon = new Label("Loại món:");
+        lblLoaiMon.setTextFill(Color.web("#D4A84A"));
+        lblLoaiMon.setFont(Font.font("System", FontWeight.BOLD, 14));
 
-        TextField loaiMonField = new TextField();
-        loaiMonField.setPromptText("Tìm loại món...");
-        loaiMonField.setPrefWidth(200);
+        TextField txtLoaiMon = new TextField();
+        txtLoaiMon.setPromptText("Tìm loại món...");
+        txtLoaiMon.setPrefWidth(200);
 
-        Label tenMonLabel = new Label("Tên món:");
-        tenMonLabel.setTextFill(Color.web("#D4A84A"));
-        tenMonLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
+        Label lblTenMon = new Label("Tên món:");
+        lblTenMon.setTextFill(Color.web("#D4A84A"));
+        lblTenMon.setFont(Font.font("System", FontWeight.BOLD, 14));
 
-        TextField tenMonField = new TextField();
-        tenMonField.setPromptText("Tìm tên món...");
-        tenMonField.setPrefWidth(300);
+        TextField txtTenMon = new TextField();
+        txtTenMon.setPromptText("Tìm tên món...");
+        txtTenMon.setPrefWidth(300);
 
-        Button searchBtn = new Button("Tìm");
-        Button refreshBtn = new Button("Làm mới");
+        btnTim = new ButtonSample("Tìm kiếm", "", 35, 14);
+        btnLamMoi = new ButtonSample("Làm mới", "", 35, 14);
 
-        String btnStyle = "-fx-background-color: #D4A84A; -fx-text-fill: #2C5F5F; "
-                + "-fx-font-weight: bold; -fx-font-size: 14px; -fx-pref-height: 35px;";
-        searchBtn.setStyle(btnStyle);
-        refreshBtn.setStyle(btnStyle);
-
-        topBar.getChildren().addAll(mealMenu, loaiMonLabel, loaiMonField, tenMonLabel, tenMonField, searchBtn, refreshBtn);
-        return topBar;
+        thanhTren.getChildren().addAll(menuBuaAn, lblLoaiMon, txtLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi);
+        return thanhTren;
     }
 
-    private VBox createMenuGrid() {
+    private VBox taoLuoiMonAn() {
         VBox container = new VBox(10);
         container.setAlignment(Pos.CENTER);
         container.setPadding(new Insets(10));
@@ -95,162 +97,139 @@ public class PhieuGoiMon extends BorderPane {
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 4; col++) {
-                VBox menuItem = createMenuItem();
+                VBox menuItem = taoMonAn();
                 grid.add(menuItem, col, row);
             }
         }
 
-        HBox pagination = new HBox(10);
-        pagination.setAlignment(Pos.CENTER);
-        pagination.setPadding(new Insets(10));
+        HBox phanTrang = new HBox(10);
+        phanTrang.setAlignment(Pos.CENTER);
+        phanTrang.setPadding(new Insets(10));
 
-        Button firstBtn = new Button("⏮");
-        Button prevBtn = new Button("◀");
-        Label pageLabel = new Label("1");
-        pageLabel.setFont(Font.font(12));
-        Button nextBtn = new Button("▶");
-        Button lastBtn = new Button("⏭");
+        Button btnDau = new Button("⏮");
+        Button btnTruoc = new Button("◀");
+        Label lblTrang = new Label("1");
+        lblTrang.setFont(Font.font(12));
+        Button btnSau = new Button("▶");
+        Button btnCuoi = new Button("⏭");
 
-        String btnStyle = "-fx-background-color: white; -fx-text-fill: #2C5F5F; "
+        String kieuBtn = "-fx-background-color: white; -fx-text-fill: #2C5F5F; "
                 + "-fx-font-weight: bold; -fx-pref-width: 40px;";
-        firstBtn.setStyle(btnStyle);
-        prevBtn.setStyle(btnStyle);
-        nextBtn.setStyle(btnStyle);
-        lastBtn.setStyle(btnStyle);
+        btnDau.setStyle(kieuBtn);
+        btnTruoc.setStyle(kieuBtn);
+        btnSau.setStyle(kieuBtn);
+        btnCuoi.setStyle(kieuBtn);
 
-        pagination.getChildren().addAll(firstBtn, prevBtn, pageLabel, nextBtn, lastBtn);
+        phanTrang.getChildren().addAll(btnDau, btnTruoc, lblTrang, btnSau, btnCuoi);
 
-        container.getChildren().addAll(grid, pagination);
+        container.getChildren().addAll(grid, phanTrang);
         return container;
     }
 
-    private VBox createMenuItem() {
-        VBox item = new VBox(5);
-        item.setAlignment(Pos.CENTER);
-        item.setPadding(new Insets(10));
-        item.setStyle("-fx-background-color: white; -fx-border-color: #D4A84A; "
-                + "-fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;");
-        item.setPrefSize(150, 200);
-
-        Label foodLabel = new Label("🍲");
-        foodLabel.setFont(Font.font(40));
-
-        Label nameLabel = new Label("Cơm gà cay");
-        nameLabel.setFont(Font.font("System", FontWeight.BOLD, 13));
-        nameLabel.setTextFill(Color.web("#2C5F5F"));
-
-        Label priceLabel = new Label("45,000 VND");
-        priceLabel.setFont(Font.font(12));
-        priceLabel.setTextFill(Color.web("#2C5F5F"));
-
-        item.getChildren().addAll(foodLabel, nameLabel, priceLabel);
-        return item;
+    private VBox taoMonAn() {
+        return new MonAnBox("Cơm gà cay", "45,000", "🍲");
     }
 
-    private VBox createOrderPanel() {
+    private VBox taoKhungPhieuGoiMon() {
         VBox panel = new VBox(15);
         panel.setPadding(new Insets(10));
         panel.setStyle("-fx-background-color: #E8E8E8; -fx-background-radius: 8;");
         panel.setPrefWidth(650);
 
-        Label titleLabel = new Label("Phiếu gọi món");
-        titleLabel.setFont(Font.font("System", FontWeight.BOLD, 28));
-        titleLabel.setTextFill(Color.web("#D4A84A"));
-        titleLabel.setAlignment(Pos.CENTER);
-        titleLabel.setMaxWidth(Double.MAX_VALUE);
+        Label lblTieuDe = new Label("PHIẾU GỌI MÓN");
+        lblTieuDe.setFont(Font.font("System", FontWeight.BOLD, 28));
+        lblTieuDe.setTextFill(Color.web("#D4A84A"));
+        lblTieuDe.setAlignment(Pos.CENTER);
+        lblTieuDe.setMaxWidth(Double.MAX_VALUE);
 
-        Label tableLabel = new Label("Bàn: B101V");
-        tableLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
-        tableLabel.setTextFill(Color.web("#D4A84A"));
+        Label lblBan = new Label("Bàn: B101V");
+        lblBan.setFont(Font.font("System", FontWeight.BOLD, 18));
+        lblBan.setTextFill(Color.web("#D4A84A"));
 
-        TableView<OrderItem> table = new TableView<>();
-        table.setPrefHeight(450);
-        table.setStyle("-fx-background-color: white;");
+        TableView<OrderItem> bang = new TableView<>();
+        bang.setPrefHeight(450);
+        bang.setStyle("-fx-background-color: white;");
 
         TableColumn<OrderItem, String> sttCol = new TableColumn<>("STT");
-        TableColumn<OrderItem, String> nameCol = new TableColumn<>("Tên món");
-        TableColumn<OrderItem, String> priceCol = new TableColumn<>("Đơn giá");
-        TableColumn<OrderItem, String> qtyCol = new TableColumn<>("Số lượng");
-        TableColumn<OrderItem, String> totalCol = new TableColumn<>("Thành tiền");
-        TableColumn<OrderItem, Void> actionCol = new TableColumn<>("Hành động");
-        TableColumn<OrderItem, String> noteCol = new TableColumn<>("Ghi chú");
+        TableColumn<OrderItem, String> tenMonCol = new TableColumn<>("Tên món");
+        TableColumn<OrderItem, String> donGiaCol = new TableColumn<>("Đơn giá");
+        TableColumn<OrderItem, String> soLuongCol = new TableColumn<>("Số lượng");
+        TableColumn<OrderItem, String> thanhTienCol = new TableColumn<>("Thành tiền");
+        TableColumn<OrderItem, Void> hanhDongCol = new TableColumn<>("Thay đổi");
+        TableColumn<OrderItem, String> ghiChuCol = new TableColumn<>("Ghi chú");
 
-        sttCol.setCellValueFactory(cellData -> cellData.getValue().stt);
-        nameCol.setCellValueFactory(cellData -> cellData.getValue().name);
-        priceCol.setCellValueFactory(cellData -> cellData.getValue().price);
-        qtyCol.setCellValueFactory(cellData -> cellData.getValue().qty);
-        totalCol.setCellValueFactory(cellData -> cellData.getValue().total);
-        noteCol.setCellValueFactory(cellData -> cellData.getValue().note);
+        sttCol.setCellValueFactory(c -> c.getValue().stt);
+        tenMonCol.setCellValueFactory(c -> c.getValue().name);
+        donGiaCol.setCellValueFactory(c -> c.getValue().price);
+        soLuongCol.setCellValueFactory(c -> c.getValue().qty);
+        thanhTienCol.setCellValueFactory(c -> c.getValue().total);
+        ghiChuCol.setCellValueFactory(c -> c.getValue().note);
 
-        actionCol.setCellFactory(col -> new TableCell<OrderItem, Void>() {
-            private final Label minus = new Label("-");
-            private final Label plus = new Label("+");
-            private final Label qtyLabel = new Label();
+        hanhDongCol.setCellFactory(col -> new TableCell<>() {
+            private final Label btnTru = new Label("-");
+            private final Label btnCong = new Label("+");
+            private final Label lblSL = new Label();
 
             {
-                minus.setStyle("-fx-font-size: 18px; -fx-cursor: hand;");
-                plus.setStyle("-fx-font-size: 18px; -fx-cursor: hand;");
-                qtyLabel.setStyle("-fx-font-size: 14px; -fx-padding: 0 8;");
+                btnTru.setStyle("-fx-font-size: 18px; -fx-cursor: hand;");
+                btnCong.setStyle("-fx-font-size: 18px; -fx-cursor: hand;");
+                lblSL.setStyle("-fx-font-size: 14px; -fx-padding: 0 8;");
 
-                minus.setOnMouseClicked(e -> {
+                btnTru.setOnMouseClicked(e -> {
                     OrderItem item = getTableView().getItems().get(getIndex());
                     int q = Integer.parseInt(item.getQty());
                     if (q > 1) item.setQty(String.valueOf(q - 1));
-                    qtyLabel.setText(item.getQty());
+                    lblSL.setText(item.getQty());
                     getTableView().refresh();
                 });
 
-                plus.setOnMouseClicked(e -> {
+                btnCong.setOnMouseClicked(e -> {
                     OrderItem item = getTableView().getItems().get(getIndex());
                     int q = Integer.parseInt(item.getQty());
                     item.setQty(String.valueOf(q + 1));
-                    qtyLabel.setText(item.getQty());
+                    lblSL.setText(item.getQty());
                     getTableView().refresh();
                 });
             }
 
             @Override
-            protected void updateItem(Void item, boolean empty) {  // ✅ đổi String → Void
+            protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    OrderItem orderItem = getTableView().getItems().get(getIndex());
-                    qtyLabel.setText(orderItem.getQty());
-                    HBox box = new HBox(8, minus, qtyLabel, plus);
+                    OrderItem mon = getTableView().getItems().get(getIndex());
+                    lblSL.setText(mon.getQty());
+                    HBox box = new HBox(8, btnTru, lblSL, btnCong);
                     box.setAlignment(Pos.CENTER);
                     setGraphic(box);
                 }
             }
         });
 
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.getColumns().addAll(sttCol, nameCol, priceCol, qtyCol, totalCol, actionCol, noteCol);
+        bang.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        bang.getColumns().addAll(sttCol, tenMonCol, donGiaCol, soLuongCol, thanhTienCol, hanhDongCol, ghiChuCol);
 
-        table.getItems().addAll(
-            new OrderItem("1", "Cơm bò", "45,000", "2", "90,000", "Ít cay"),
-            new OrderItem("2", "Phở gà", "40,000", "1", "40,000", ""),
-            new OrderItem("3", "Bún chả", "50,000", "3", "150,000", "Không hành"),
-            new OrderItem("4", "Trà đào", "25,000", "2", "50,000", "Ít đá")
+        bang.getItems().addAll(
+                new OrderItem("1", "Cơm bò", "45,000", "2", "90,000", "Ít cay"),
+                new OrderItem("2", "Phở gà", "40,000", "1", "40,000", ""),
+                new OrderItem("3", "Bún chả", "50,000", "3", "150,000", "Không hành"),
+                new OrderItem("4", "Trà đào", "25,000", "2", "50,000", "Ít đá")
         );
 
-        HBox totalBox = new HBox();
-        totalBox.setAlignment(Pos.CENTER_RIGHT);
-        Label totalLabel = new Label("Tổng tiền: 330,000 VND");
-        totalLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
-        totalLabel.setTextFill(Color.web("#2C5F5F"));
-        totalBox.getChildren().add(totalLabel);
+        HBox tongTienBox = new HBox();
+        tongTienBox.setAlignment(Pos.CENTER_RIGHT);
+        Label lblTong = new Label("Tổng tiền: 330,000 VND");
+        lblTong.setFont(Font.font("System", FontWeight.BOLD, 16));
+        lblTong.setTextFill(Color.web("#2C5F5F"));
+        tongTienBox.getChildren().add(lblTong);
+        
+        ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", "", 35, 14);
 
-        Button orderBtn = new Button("Gửi bếp");
-        orderBtn.setStyle("-fx-background-color: #D4A84A; -fx-text-fill: #2C5F5F; "
-                + "-fx-font-weight: bold; -fx-font-size: 16px; -fx-pref-width: 150px; "
-                + "-fx-pref-height: 40px; -fx-background-radius: 8;");
+        VBox boxDuoi = new VBox(10, tongTienBox, btnGuiBep);
+        boxDuoi.setAlignment(Pos.CENTER_RIGHT);
 
-        VBox rightBottomBox = new VBox(10, totalBox, orderBtn);
-        rightBottomBox.setAlignment(Pos.CENTER_RIGHT);
-
-        panel.getChildren().addAll(titleLabel, tableLabel, table, rightBottomBox);
-
+        panel.getChildren().addAll(lblTieuDe, lblBan, bang, boxDuoi);
         return panel;
     }
 
