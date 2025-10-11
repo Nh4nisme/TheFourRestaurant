@@ -8,8 +8,8 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        GiaoDienDangNhap gd = new GiaoDienDangNhap();
-        // GiaoDienChinh gd = new GiaoDienChinh();
+//        GiaoDienDangNhap gd = new GiaoDienDangNhap();
+         GiaoDienChinh gd = new GiaoDienChinh();
         gd.show(primaryStage);
     }
 

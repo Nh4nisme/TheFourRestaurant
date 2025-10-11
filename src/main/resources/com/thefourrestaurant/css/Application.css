@@ -1,6 +1,58 @@
 .button_sampleGamboge{
     -fx-background-color: #CD7B3E;
+    -fx-border-color: #E5D595;
     -fx-text-fill: #E5D595;
-    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
     -fx-background-insets: 0;
 }
+
+.button_sampleIndigo{
+    -fx-background-color: #1E424D;
+    -fx-border-color: #1E424D;
+    -fx-text-fill: #DDB248;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
+    -fx-background-insets: 0;
+}
+
+/* --- DropDownButton.css (clean version) --- */
+.dropdown-button {
+    -fx-background-color: #CD7B3E;
+    -fx-border-color: #E5D595;
+    -fx-text-fill: #E5D595;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
+    -fx-background-insets: 0;
+}
+
+.dropdown-button:hover {
+    -fx-background-color: #D88A4D; /* Sáng hơn chút khi hover */
+}
+
+/* --- Context Menu (dropdown list) --- */
+.context-menu {
+    -fx-background-color: #CD7B3E;
+    -fx-border-color: #E5D595;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.menu-item > .label {
+    -fx-text-fill: #E5D595;  /* Màu chữ bạn muốn */
+    -fx-font-weight: Bold;
+    -fx-font-size: 16px;
+}
+
+.menu-item:hover {
+    -fx-background-color: white;
+    -fx-text-fill: white;    /* Màu khi hover */
+}
+
+
