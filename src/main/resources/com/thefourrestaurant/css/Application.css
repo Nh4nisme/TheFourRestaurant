@@ -56,3 +56,28 @@
 }
 
 
+/* === Custom checkbox, textarea, textfield style === */
+.custom-checkbox {
+    -fx-padding: 0.2em;
+}
+
+.custom-checkbox .box {
+    -fx-background-color: #1E424D;
+    -fx-border-color: #1E424D;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-min-width: 18;
+    -fx-min-height: 18;
+}
+
+.custom-checkbox:selected .mark {
+    -fx-background-color: #E19E11;
+    -fx-shape: "M0,5 L3,8 L8,0 L10,2 L3,10 L-1,6 Z";
+}
+.text-field:focused,
+.text-area:focused {
+    -fx-border-color: #1E424D;
+    -fx-border-width: 2px;
+    -fx-background-color: #FFFFFF;
+    -fx-border-radius: 4;
+}

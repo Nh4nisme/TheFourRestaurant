@@ -43,7 +43,7 @@ public class GiaoDienChinh {
 
 
 // Scene
-        Scene scene = new Scene(borderPane,1920,1080);
+        Scene scene = new Scene(borderPane,1366,768);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/thefourrestaurant/css/Application.css")).toExternalForm());
         stage.setFullScreen(true);
         stage.setScene(scene);
