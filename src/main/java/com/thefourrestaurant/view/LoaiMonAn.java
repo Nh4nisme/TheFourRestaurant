@@ -1,9 +1,11 @@
 package com.thefourrestaurant.view;
 
+import com.thefourrestaurant.controller.LoaiMonAnController;
 import com.thefourrestaurant.view.components.LoaiMonAnBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 
@@ -19,7 +21,12 @@ public class LoaiMonAn extends GridPane {
     private final int soCotMoiHang = 10;
     private int trangHienTai = 1;
 
+    private final LoaiMonAnController controller;
+
     public LoaiMonAn() {
+        // Khởi tạo controller
+        this.controller = new LoaiMonAnController();
+
         // GridPane
         this.setStyle("-fx-background-color: #F5F5F5;");
 
@@ -90,7 +97,20 @@ public class LoaiMonAn extends GridPane {
 
         // Thêm hộp thêm mục mới
         VBox hopThemMoi = LoaiMonAnBox.createThemMoiBox(); //Gọi trong components
+
+        // Tạo một button ẩn
+        Button themMoiButton = new Button();
+        themMoiButton.setVisible(false);
+        themMoiButton.setManaged(false);
+
+        // Gọi controller
+        themMoiButton.setOnAction(event -> controller.themMoiLoaiMonAn());
+
+        // Khi nhấn vào hopThemMoi, kích hoạt button ẩn
+        hopThemMoi.setOnMouseClicked(event -> themMoiButton.fire());
+
         luoiCacMucTren.add(hopThemMoi, 0, 0);
+        this.getChildren().add(themMoiButton); // Thêm button ẩn vào gridpane chính
 
         // Dữ liệu ban đầu
         capNhatLuoiMonAn(trangHienTai);

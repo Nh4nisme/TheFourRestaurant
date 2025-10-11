@@ -40,5 +40,4 @@ public class LoaiMonAnBox extends BaseBox {
         hop.getChildren().addAll(plusImageView, themMoiLabel);
         return hop;
     }
-
 }
