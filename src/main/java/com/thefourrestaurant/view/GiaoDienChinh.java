@@ -1,55 +1,58 @@
 package com.thefourrestaurant.view;
 
+import com.thefourrestaurant.controller.SideBarController;
 import com.thefourrestaurant.view.components.NavBar;
+import com.thefourrestaurant.view.components.sidebar.SideBar;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import com.thefourrestaurant.view.components.SideBar;
 
 import java.util.Objects;
 
 public class GiaoDienChinh {
     public void show(Stage stage) {
-        BorderPane borderPane = new BorderPane();
+        BorderPane root = new BorderPane();
 
-// Right VBox
-        Image giaoDienChinhIMG = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/thefourrestaurant/images/GiaoDienChinhImg.png")));
-        BackgroundSize giaoDienChinhSize = new BackgroundSize(100, 100, true, true, true, true);
-        BackgroundImage giaoDienChinhBackgroundIMG = new BackgroundImage(giaoDienChinhIMG,
+        // Background
+        Image bgImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream(
+                "/com/thefourrestaurant/images/GiaoDienChinhImg.png")));
+        BackgroundImage bg = new BackgroundImage(bgImg,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
-                giaoDienChinhSize
-                );
+                new BackgroundSize(100, 100, true, true, true, true)
+        );
+
+        // Right content (NavBar + Background)
         VBox rightBox = new VBox();
-        NavBar navBar = new NavBar(rightBox);
-        navBar.setMinHeight(80);
-        navBar.setMaxHeight(80);
-
-        Pane backgroundCenter =  new Pane();
-        VBox.setVgrow(backgroundCenter, Priority.ALWAYS);
-
-        backgroundCenter.setBackground(new Background(giaoDienChinhBackgroundIMG));
-
         rightBox.setAlignment(Pos.TOP_CENTER);
-        rightBox.getChildren().addAll(navBar,backgroundCenter);
-        borderPane.setCenter(rightBox); // dùng center thay vì right nếu muốn tỷ lệ dễ bind
 
-// SideBar
-        SideBar sideBar = new SideBar(rightBox);
-        borderPane.setLeft(sideBar);
+        NavBar navBar = new NavBar(rightBox);
+        navBar.setPrefHeight(80);
+        Pane backgroundCenter = new Pane();
+        backgroundCenter.setBackground(new Background(bg));
+        VBox.setVgrow(backgroundCenter, Priority.ALWAYS);
+        rightBox.getChildren().addAll(navBar, backgroundCenter);
 
+        // SideBar
+        SideBar sideBar = new SideBar();
 
-// Scene
-        Scene scene = new Scene(borderPane,1366,768);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/thefourrestaurant/css/Application.css")).toExternalForm());
-        stage.setFullScreen(true);
+        // Gộp lại thành HBox để panel mở rộng nằm giữa
+        HBox mainContainer = new HBox(sideBar, rightBox);
+        HBox.setHgrow(rightBox, Priority.ALWAYS);
+        root.setCenter(mainContainer);
+
+        // Controller
+        new SideBarController(sideBar, mainContainer);
+
+        // Scene
+        Scene scene = new Scene(root, 1366, 768);
+        scene.getStylesheets().add(Objects.requireNonNull(
+                getClass().getResource("/com/thefourrestaurant/css/Application.css")).toExternalForm());
+//        stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
-
-// Bind width theo Stage
-        sideBar.prefWidthProperty().bind(scene.widthProperty().multiply(0.05));
     }
 }
