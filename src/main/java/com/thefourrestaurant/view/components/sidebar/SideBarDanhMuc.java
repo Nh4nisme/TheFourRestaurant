@@ -1,29 +1,58 @@
 package com.thefourrestaurant.view.components.sidebar;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
-public class SideBarDanhMuc extends VBox {
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class SideBarDanhMuc extends BaseSideBar {
+
     public SideBarDanhMuc() {
-        setPrefWidth(400);
-        setStyle("-fx-background-color: #2E5C6E;");
-        setPadding(new Insets(20));
-        setSpacing(15);
+        super("Quản Lý");
+    }
 
-        Label lblTitle = new Label("Thống Kê");
-        lblTitle.setStyle("-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;");
+    @Override
+    protected void khoiTaoDanhMuc() {
+        themDanhMuc("Thực đơn");
+        themDanhMuc("Loại món ăn");
+        themDanhMuc("Món ăn", List.of("Cơm", "Bún"));
+        themDanhMuc("Thời gian sự kiện");
+        themDanhMuc("Tầng và bàn", List.of("Tầng 1", "Tầng 2", "Tầng 3", "Tầng 4", "Tầng 5", "Tầng 6", "Tầng 7"));
+    }
 
-        Button btnNgay = new Button("Theo ngày");
-        Button btnThang = new Button("Theo tháng");
-        Button btnNam = new Button("Theo năm");
+    private void themDanhMuc(String tenDanhMuc) {
+        themDanhMuc(tenDanhMuc, null);
+    }
 
-        for (Button btn : new Button[]{btnNgay, btnThang, btnNam}) {
-            btn.setStyle("-fx-background-color: #DDB248; -fx-text-fill: #1E424D; -fx-font-weight: bold;");
+    private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon) {
+        Label nhanChinh = taoNhanClick(tenDanhMuc, () -> xuLyChonMuc(tenDanhMuc), "muc-chinh");
+
+        if (danhSachCon != null && !danhSachCon.isEmpty()) {
+            VBox hopChua = new VBox(5);
+            hopChua.setPadding(new Insets(5, 0, 5, 20));
+            hopChua.setVisible(false);
+            hopChua.setManaged(false);
+            hopChua.getStyleClass().add("hop-chua-con");
+
+            for (String mucCon : danhSachCon) {
+                hopChua.getChildren().add(taoNhanClick(mucCon, () -> xuLyChonMuc(mucCon), "muc-con"));
+            }
+
+            nhanChinh.setOnMouseClicked(e -> moHoacDongMucCon(hopChua));
+            getChildren().addAll(nhanChinh, hopChua);
+        } else {
+            getChildren().add(nhanChinh);
         }
+    }
 
-        getChildren().addAll(lblTitle, btnNgay, btnThang, btnNam);
-        setUserData("Danh mục");
+    private void xuLyChonMuc(String tenMuc) {
+        System.out.println("Bạn đã chọn: " + tenMuc);
+        // TODO: load giao diện tương ứng
     }
 }

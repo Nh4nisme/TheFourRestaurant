@@ -23,10 +23,10 @@
 
         public SideBar(){
             Font montserrat = Font.loadFont(getClass().getResourceAsStream("com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"),16);
-            setPrefWidth(90);
+            setPrefWidth(50);
             setStyle("-fx-background-color: #1E424D");
             setAlignment(Pos.TOP_CENTER);
-            setPadding(new Insets(14,17,14,17));
+            setPadding(new Insets(-10,17,14,17));
             setSpacing(50);
 
 

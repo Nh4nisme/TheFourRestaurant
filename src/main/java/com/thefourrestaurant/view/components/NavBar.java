@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 import javafx.scene.layout.*;
+import javafx.scene.text.Font;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,12 +17,17 @@ public class NavBar extends HBox {
     private final DropDownButton btnHeThong, btnTimKiem,btnXuLi,btnDanhMucNav;
 
     public NavBar(VBox rightBox) {
+        Font montserrat = Font.loadFont(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf")),
+                16 // kích thước mặc định
+        );
+
         setAlignment(Pos.CENTER_LEFT);
         setPadding(new Insets(0, 30, 0, 30));
         setPrefHeight(80);
         setSpacing(10);
         setStyle("-fx-background-color: #E5D595");
-//        btnDanhMucNav = new ButtonSample("Danh mục","/com/thefourrestaurant/images/icon/danhMucNavIcon.png", 45, 16);
         ButtonSample btnTKDN = new ButtonSample("QL: Tâm ", "/com/thefourrestaurant/images/icon/accountIcon.png", 45, 16);
 
         btnDanhMucNav = new DropDownButton(
