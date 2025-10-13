@@ -51,7 +51,7 @@ public class GiaoDienChinh {
         Scene scene = new Scene(root, 1366, 768);
         scene.getStylesheets().add(Objects.requireNonNull(
                 getClass().getResource("/com/thefourrestaurant/css/Application.css")).toExternalForm());
-//        stage.setFullScreen(true);
+        stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
     }
