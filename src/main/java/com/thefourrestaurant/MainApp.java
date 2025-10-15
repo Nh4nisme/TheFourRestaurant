@@ -1,5 +1,8 @@
 package com.thefourrestaurant;
 
+import java.sql.Connection;
+
+import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.view.GiaoDienChinh;
 import com.thefourrestaurant.view.GiaoDienDangNhap;
 import com.thefourrestaurant.view.PhieuGoiMon;
@@ -27,6 +30,17 @@ public class MainApp extends Application {
     }
 
     public static void main(String[] args) {
+    	try (Connection conn = ConnectSQL.getConnection()) {
+            if (conn != null) {
+                System.out.println("✅ Kết nối SQL Server thành công!");
+            } else {
+                System.out.println("❌ Kết nối thất bại. Vui lòng kiểm tra lại thông tin kết nối.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Sau khi test xong thì mới chạy giao diện
         launch(args);
     }
 }
