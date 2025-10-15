@@ -2,6 +2,7 @@ package com.thefourrestaurant.view;
 
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.MonAnBox;
+import com.thefourrestaurant.view.components.NavBar;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -30,8 +31,25 @@ public class GiaoDienTaoThucDon extends VBox {
 
     public GiaoDienTaoThucDon() {
         setStyle("-fx-background-color: #FAFAFA;");
-        setPadding(new Insets(32, 32, 32, 32));
-        setSpacing(32);
+        setSpacing(0);
+
+        // NavBar vàng
+        NavBar navBar = new NavBar(this);
+        navBar.setPrefHeight(80);
+
+        // Bar vị trí
+        Label duongDan = new Label("Quản Lý > Thực Đơn > Tạo Thực Đơn");
+        duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
+        VBox khungDuongDan = new VBox(duongDan);
+        khungDuongDan.setStyle("-fx-background-color: #673E1F;");
+        khungDuongDan.setAlignment(Pos.CENTER_LEFT);
+        khungDuongDan.setPadding(new Insets(10, 20, 10, 20));
+        khungDuongDan.setPrefHeight(40);
+
+        VBox contentArea = new VBox(32);
+        contentArea.setStyle("-fx-background-color: #FAFAFA;");
+        contentArea.setPadding(new Insets(32, 32, 32, 32));
+        VBox.setVgrow(contentArea, Priority.ALWAYS);
 
         // Section: Đặt tên thực đơn
         GridPane paneTenThucDon = new GridPane();
@@ -122,7 +140,10 @@ public class GiaoDienTaoThucDon extends VBox {
         mainGrid.add(rightInputBox2, 1, 1);
         mainGrid.add(boxChonThucAn, 1, 2);
 
-        getChildren().add(mainGrid);
+        contentArea.getChildren().add(mainGrid);
+
+        // Add all sections to main VBox
+        getChildren().addAll(navBar, khungDuongDan, contentArea);
     }
 
     private void capNhatBoxChonThucAn() {
