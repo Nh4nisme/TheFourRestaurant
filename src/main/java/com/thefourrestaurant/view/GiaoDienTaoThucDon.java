@@ -9,6 +9,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -129,7 +131,6 @@ public class GiaoDienTaoThucDon extends VBox {
         header.getChildren().addAll(lblTen, lblSoLuong, spacer);
         boxChonThucAn.getChildren().add(header);
 
-        // Food rows
         for (FoodItem item : selectedFoods) {
             HBox row = new HBox();
             row.setStyle("-fx-background-color: #FFF; -fx-border-color: #E0E0E0; -fx-border-width: 0 1 1 1;");
@@ -137,14 +138,40 @@ public class GiaoDienTaoThucDon extends VBox {
             row.setSpacing(0);
             row.setPrefHeight(36);
 
-            Label icon = new Label(item.icon);
-            icon.setStyle("-fx-font-size: 18px; -fx-padding: 0 8 0 0;");
-            Label name = new Label(item.name);
-            name.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #444;");
-            name.setPrefWidth(220);
-            HBox nameBox = new HBox(icon, name);
-            nameBox.setSpacing(6);
-            nameBox.setPrefWidth(300);
+            HBox boxTenThucAn;
+            if (item.icon.startsWith("/")) {
+                try {
+                    ImageView iconThucAn = new ImageView(new Image(getClass().getResourceAsStream(item.icon)));
+                    iconThucAn.setFitHeight(24);
+                    iconThucAn.setFitWidth(24);
+                    iconThucAn.setPreserveRatio(true);
+                    
+                    Label name = new Label(item.name);
+                    name.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #444;");
+                    name.setPrefWidth(220);
+                    
+                    boxTenThucAn = new HBox(iconThucAn, name);
+                } catch (Exception e) {
+                    Label icon = new Label("□");
+                    icon.setStyle("-fx-font-size: 18px; -fx-padding: 0 8 0 0;");
+                    Label name = new Label(item.name);
+                    name.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #444;");
+                    name.setPrefWidth(220);
+                    boxTenThucAn = new HBox(icon, name);
+                    System.err.println("Failed to load icon: " + item.icon + " - " + e.getMessage());
+                }
+            } else {
+                Label icon = new Label(item.icon);
+                icon.setStyle("-fx-font-size: 18px; -fx-padding: 0 8 0 0;");
+                Label name = new Label(item.name);
+                name.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #444;");
+                name.setPrefWidth(220);
+                boxTenThucAn = new HBox(icon, name);
+            }
+            
+            boxTenThucAn.setSpacing(6);
+            boxTenThucAn.setPrefWidth(300);
+            boxTenThucAn.setAlignment(Pos.CENTER_LEFT);
 
             Label soLuong = new Label(String.valueOf(item.quantity));
             soLuong.setStyle("-fx-font-size: 15px; -fx-text-fill: #444;");
@@ -159,18 +186,18 @@ public class GiaoDienTaoThucDon extends VBox {
 
             Region rowSpacer = new Region();
             HBox.setHgrow(rowSpacer, Priority.ALWAYS);
-            row.getChildren().addAll(nameBox, soLuong, rowSpacer, btnDelete);
+            row.getChildren().addAll(boxTenThucAn, soLuong, rowSpacer, btnDelete);
             boxChonThucAn.getChildren().add(row);
         }
     }
 
     private String getFoodIcon(String name) {
         return switch (name) {
-            case "Coffee" -> "\u2615"; // ☕
-            case "Cơm" -> "\uD83C\uDF5A"; // 🍚
-            case "Nước giải khát" -> "\uD83C\uDF7A"; // 🍺
-            case "Đồ ăn nhanh" -> "\uD83C\uDF54"; // 🍔
-            default -> "\u25A1";
+            case "Coffee" -> "/com/thefourrestaurant/images/icon/food/coffee.png";
+            case "Cơm" -> "/com/thefourrestaurant/images/icon/food/rice.png";
+            case "Nước giải khát" -> "/com/thefourrestaurant/images/icon/food/coffee.png"; 
+            case "Đồ ăn nhanh" -> "/com/thefourrestaurant/images/icon/food/rice.png";
+            default -> "/com/thefourrestaurant/images/icon/food/coffee.png";
         };
     }
 
