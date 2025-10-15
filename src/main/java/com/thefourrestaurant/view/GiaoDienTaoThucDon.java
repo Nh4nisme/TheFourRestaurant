@@ -22,58 +22,170 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class GiaoDienTaoThucDon extends BorderPane {
-
-    private final VBox rightContent;
+public class GiaoDienTaoThucDon extends VBox {
     private final TextField txtTenThucDon;
     private final ComboBox<String> cbLoaiMonAn;
-    private final FlowPane pnMonAnContainer;
-    private final HBox bottomButtonPanel;
-    
+    private final VBox selectedFoodBox;
+    private final List<FoodItem> selectedFoods = new ArrayList<>();
+
     public GiaoDienTaoThucDon() {
-        setStyle("-fx-background-color: white;");
-        
-        VBox leftPanel = createLeftPanel();
-        rightContent = new VBox(20);
-        rightContent.setPadding(new Insets(20));
-        rightContent.setAlignment(Pos.TOP_LEFT);
-        
-        setLeft(leftPanel);
-        setCenter(rightContent);
-        
+        setStyle("-fx-background-color: #FAFAFA;");
+        setPadding(new Insets(32, 0, 0, 0));
+        setSpacing(32);
+
+        // Section: Mô tả thực đơn
+        GridPane menuNameSection = new GridPane();
+        menuNameSection.setHgap(24);
+        menuNameSection.setVgap(0);
+        menuNameSection.setPadding(new Insets(0, 0, 0, 0));
+
+        VBox leftLabelBox = new VBox(2);
+        Label lblMoTa = new Label("Mô tả thực đơn");
+        lblMoTa.setStyle("-fx-text-fill: #E19E11; -fx-font-size: 15px; -fx-font-weight: bold;");
+        Label lblMoTaDesc = new Label("Điền tên cho thực đơn mới");
+        lblMoTaDesc.setStyle("-fx-text-fill: #444; -fx-font-size: 13px;");
+        leftLabelBox.getChildren().addAll(lblMoTa, lblMoTaDesc);
+
+        VBox rightInputBox = new VBox(4);
+        Label lblTenThucDon = new Label("Tên thực đơn");
+        lblTenThucDon.setStyle("-fx-text-fill: #E19E11; -fx-font-size: 14px; -fx-font-weight: bold;");
         txtTenThucDon = new TextField();
-        txtTenThucDon.setPrefHeight(40);
-        txtTenThucDon.setStyle("-fx-background-radius: 5;");
-        
+        txtTenThucDon.setPromptText("");
+        txtTenThucDon.setStyle("-fx-background-color: #D9DEE2; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #B0B0B0; -fx-font-size: 15px; -fx-padding: 10 16; -fx-text-fill: #444;");
+        rightInputBox.getChildren().addAll(lblTenThucDon, txtTenThucDon);
+
+        menuNameSection.add(leftLabelBox, 0, 0);
+        menuNameSection.add(rightInputBox, 1, 0);
+        menuNameSection.setAlignment(Pos.TOP_LEFT);
+        menuNameSection.setPrefWidth(900);
+        menuNameSection.getColumnConstraints().addAll(
+                new ColumnConstraints(220),
+                new ColumnConstraints(600)
+        );
+
+        // Section: Chọn loại món ăn
+        GridPane foodTypeSection = new GridPane();
+        foodTypeSection.setHgap(24);
+        foodTypeSection.setVgap(0);
+        foodTypeSection.setPadding(new Insets(0, 0, 0, 0));
+
+        VBox leftLabelBox2 = new VBox(2);
+        Label lblChonLoai = new Label("Chọn loại món ăn");
+        lblChonLoai.setStyle("-fx-text-fill: #E19E11; -fx-font-size: 15px; -fx-font-weight: bold;");
+        Label lblChonLoaiDesc = new Label("Các loại món ăn được thêm sẽ xuất hiện khi mở thực đơn");
+        lblChonLoaiDesc.setStyle("-fx-text-fill: #444; -fx-font-size: 13px;");
+        leftLabelBox2.getChildren().addAll(lblChonLoai, lblChonLoaiDesc);
+
+        VBox rightInputBox2 = new VBox(4);
+        Label lblLoaiMonAn = new Label("Loại Món ăn");
+        lblLoaiMonAn.setStyle("-fx-text-fill: #E19E11; -fx-font-size: 14px; -fx-font-weight: bold;");
         cbLoaiMonAn = new ComboBox<>();
         cbLoaiMonAn.getItems().addAll("Coffee", "Cơm", "Nước giải khát", "Đồ ăn nhanh");
         cbLoaiMonAn.setPromptText("Chọn loại món ăn");
-        cbLoaiMonAn.setPrefWidth(Double.MAX_VALUE);
-        cbLoaiMonAn.setPrefHeight(40);
-        cbLoaiMonAn.setStyle("-fx-background-radius: 5;");
-        
-        pnMonAnContainer = new FlowPane();
-        pnMonAnContainer.setPadding(new Insets(10));
-        pnMonAnContainer.setHgap(15);
-        pnMonAnContainer.setVgap(15);
-        pnMonAnContainer.setPrefHeight(Region.USE_COMPUTED_SIZE);
-        
-        addDemoMonAn();
-        
-        bottomButtonPanel = new HBox(20);
-        bottomButtonPanel.setAlignment(Pos.CENTER);
-        bottomButtonPanel.setPadding(new Insets(20));
-        
-        Button btnHuy = new ButtonSample("Hủy", 40, 14, 1);
-        Button btnLuu = new ButtonSample("Lưu", 40, 14, 1);
-        
-        bottomButtonPanel.getChildren().addAll(btnHuy, btnLuu);
-        
-        rightContent.getChildren().addAll(
-                createThucDonInfoSection(),
-                createDanhSachMonAnSection(),
-                bottomButtonPanel
+        cbLoaiMonAn.setStyle("-fx-background-color: #D9DEE2; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #B0B0B0; -fx-font-size: 15px; -fx-padding: 10 16; -fx-text-fill: #444;");
+        cbLoaiMonAn.setPrefWidth(400);
+        rightInputBox2.getChildren().addAll(lblLoaiMonAn, cbLoaiMonAn);
+
+        foodTypeSection.add(leftLabelBox2, 0, 0);
+        foodTypeSection.add(rightInputBox2, 1, 0);
+        foodTypeSection.setAlignment(Pos.TOP_LEFT);
+        foodTypeSection.setPrefWidth(900);
+        foodTypeSection.getColumnConstraints().addAll(
+                new ColumnConstraints(220),
+                new ColumnConstraints(600)
         );
+
+        selectedFoodBox = new VBox(0);
+        selectedFoodBox.setPadding(new Insets(0, 0, 0, 220));
+        selectedFoodBox.setSpacing(0);
+        selectedFoodBox.setPrefWidth(700);
+        updateSelectedFoodBox();
+
+        cbLoaiMonAn.setOnAction(e -> {
+            String selected = cbLoaiMonAn.getValue();
+            if (selected != null && selectedFoods.stream().noneMatch(f -> f.name.equals(selected))) {
+                selectedFoods.add(new FoodItem(selected, getFoodIcon(selected), 15));
+                updateSelectedFoodBox();
+            }
+        });
+
+        getChildren().addAll(menuNameSection, foodTypeSection, selectedFoodBox);
+    }
+
+    private void updateSelectedFoodBox() {
+        selectedFoodBox.getChildren().clear();
+        if (selectedFoods.isEmpty()) return;
+
+        HBox header = new HBox();
+        header.setStyle("-fx-background-color: #F5F5F5; -fx-border-color: #E0E0E0; -fx-border-width: 1 1 0 1; -fx-border-radius: 8 8 0 0;");
+        header.setPadding(new Insets(8, 16, 8, 16));
+        header.setSpacing(0);
+        header.setPrefHeight(36);
+        Label lblTen = new Label("Tên");
+        lblTen.setStyle("-fx-font-weight: bold; -fx-text-fill: #444; -fx-font-size: 15px;");
+        lblTen.setPrefWidth(300);
+        Label lblSoLuong = new Label("Tổng số lượng");
+        lblSoLuong.setStyle("-fx-font-weight: bold; -fx-text-fill: #444; -fx-font-size: 15px;");
+        lblSoLuong.setPrefWidth(120);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        header.getChildren().addAll(lblTen, lblSoLuong, spacer);
+        selectedFoodBox.getChildren().add(header);
+
+        // Food rows
+        for (FoodItem item : selectedFoods) {
+            HBox row = new HBox();
+            row.setStyle("-fx-background-color: #FFF; -fx-border-color: #E0E0E0; -fx-border-width: 0 1 1 1;");
+            row.setPadding(new Insets(8, 16, 8, 16));
+            row.setSpacing(0);
+            row.setPrefHeight(36);
+
+            Label icon = new Label(item.icon);
+            icon.setStyle("-fx-font-size: 18px; -fx-padding: 0 8 0 0;");
+            Label name = new Label(item.name);
+            name.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #444;");
+            name.setPrefWidth(220);
+            HBox nameBox = new HBox(icon, name);
+            nameBox.setSpacing(6);
+            nameBox.setPrefWidth(300);
+
+            Label quantity = new Label(String.valueOf(item.quantity));
+            quantity.setStyle("-fx-font-size: 15px; -fx-text-fill: #444;");
+            quantity.setPrefWidth(120);
+
+            Button btnDelete = new ButtonSample("Xóa", 28, 13, 1);
+            btnDelete.setStyle("-fx-font-size: 13px; -fx-padding: 2 10; -fx-background-radius: 8; -fx-border-radius: 8;");
+            btnDelete.setOnAction(e -> {
+                selectedFoods.remove(item);
+                updateSelectedFoodBox();
+            });
+
+            Region rowSpacer = new Region();
+            HBox.setHgrow(rowSpacer, Priority.ALWAYS);
+            row.getChildren().addAll(nameBox, quantity, rowSpacer, btnDelete);
+            selectedFoodBox.getChildren().add(row);
+        }
+    }
+
+    private String getFoodIcon(String name) {
+        return switch (name) {
+            case "Coffee" -> "\u2615"; // ☕
+            case "Cơm" -> "\uD83C\uDF5A"; // 🍚
+            case "Nước giải khát" -> "\uD83C\uDF7A"; // 🍺
+            case "Đồ ăn nhanh" -> "\uD83C\uDF54"; // 🍔
+            default -> "\u25A1";
+        };
+    }
+
+    private static class FoodItem {
+        String name;
+        String icon;
+        int quantity;
+        FoodItem(String name, String icon, int quantity) {
+            this.name = name;
+            this.icon = icon;
+            this.quantity = quantity;
+        }
     }
     
     private VBox createLeftPanel() {
@@ -176,20 +288,13 @@ public class GiaoDienTaoThucDon extends BorderPane {
         lblDanhSachMonAn.setFont(Font.font("System", FontWeight.BOLD, 14));
         lblDanhSachMonAn.setPadding(new Insets(10, 0, 0, 0));
         
-        container.getChildren().addAll(grid, lblDanhSachMonAn, pnMonAnContainer);
+        container.getChildren().addAll(grid, lblDanhSachMonAn);
         
         return container;
     }
     
-    private void addDemoMonAn() {
-        pnMonAnContainer.getChildren().add(
-                new MonAnBox("Coffee", "25000", "☕")
-        );
-    }
-    
     public void addMonAn(String ten, String gia, String icon) {
         MonAnBox monAnBox = new MonAnBox(ten, gia, icon);
-        pnMonAnContainer.getChildren().add(monAnBox);
     }
     
     public void show(Stage stage) {
