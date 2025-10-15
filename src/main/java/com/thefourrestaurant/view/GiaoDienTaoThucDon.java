@@ -3,6 +3,7 @@ package com.thefourrestaurant.view;
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.MonAnBox;
 import com.thefourrestaurant.view.components.NavBar;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -123,6 +124,7 @@ public class GiaoDienTaoThucDon extends VBox {
                     selectedFoods.add(new FoodItem(selected, getFoodIcon(selected), 1));
                 }
                 capNhatBoxChonThucAn();
+                Platform.runLater(() -> cbLoaiMonAn.getSelectionModel().clearSelection());
             }
         });
 
