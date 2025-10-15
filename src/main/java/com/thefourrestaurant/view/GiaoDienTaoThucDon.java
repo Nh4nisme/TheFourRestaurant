@@ -1,8 +1,6 @@
 package com.thefourrestaurant.view;
 
 import com.thefourrestaurant.view.components.ButtonSample;
-import com.thefourrestaurant.view.components.DropDownButton;
-import com.thefourrestaurant.view.components.LoaiMonAnBox;
 import com.thefourrestaurant.view.components.MonAnBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,14 +16,13 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 public class GiaoDienTaoThucDon extends VBox {
     private final TextField txtTenThucDon;
     private final ComboBox<String> cbLoaiMonAn;
-    private final VBox selectedFoodBox;
+    private final VBox boxChonThucAn;
     private final List<FoodItem> selectedFoods = new ArrayList<>();
 
     public GiaoDienTaoThucDon() {
@@ -33,11 +30,11 @@ public class GiaoDienTaoThucDon extends VBox {
         setPadding(new Insets(32, 0, 0, 0));
         setSpacing(32);
 
-        // Section: Mô tả thực đơn
-        GridPane menuNameSection = new GridPane();
-        menuNameSection.setHgap(24);
-        menuNameSection.setVgap(0);
-        menuNameSection.setPadding(new Insets(0, 0, 0, 0));
+        // Section: Đặt tên thực đơn
+        GridPane paneTenThucDon = new GridPane();
+        paneTenThucDon.setHgap(24);
+        paneTenThucDon.setVgap(0);
+        paneTenThucDon.setPadding(new Insets(0, 0, 0, 0));
 
         VBox leftLabelBox = new VBox(2);
         Label lblMoTa = new Label("Mô tả thực đơn");
@@ -54,20 +51,20 @@ public class GiaoDienTaoThucDon extends VBox {
         txtTenThucDon.setStyle("-fx-background-color: #D9DEE2; -fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #B0B0B0; -fx-font-size: 15px; -fx-padding: 10 16; -fx-text-fill: #444;");
         rightInputBox.getChildren().addAll(lblTenThucDon, txtTenThucDon);
 
-        menuNameSection.add(leftLabelBox, 0, 0);
-        menuNameSection.add(rightInputBox, 1, 0);
-        menuNameSection.setAlignment(Pos.TOP_LEFT);
-        menuNameSection.setPrefWidth(900);
-        menuNameSection.getColumnConstraints().addAll(
+        paneTenThucDon.add(leftLabelBox, 0, 0);
+        paneTenThucDon.add(rightInputBox, 1, 0);
+        paneTenThucDon.setAlignment(Pos.TOP_LEFT);
+        paneTenThucDon.setPrefWidth(900);
+        paneTenThucDon.getColumnConstraints().addAll(
                 new ColumnConstraints(220),
                 new ColumnConstraints(600)
         );
 
         // Section: Chọn loại món ăn
-        GridPane foodTypeSection = new GridPane();
-        foodTypeSection.setHgap(24);
-        foodTypeSection.setVgap(0);
-        foodTypeSection.setPadding(new Insets(0, 0, 0, 0));
+        GridPane paneChonMonAn = new GridPane();
+        paneChonMonAn.setHgap(24);
+        paneChonMonAn.setVgap(0);
+        paneChonMonAn.setPadding(new Insets(0, 0, 0, 0));
 
         VBox leftLabelBox2 = new VBox(2);
         Label lblChonLoai = new Label("Chọn loại món ăn");
@@ -86,34 +83,34 @@ public class GiaoDienTaoThucDon extends VBox {
         cbLoaiMonAn.setPrefWidth(400);
         rightInputBox2.getChildren().addAll(lblLoaiMonAn, cbLoaiMonAn);
 
-        foodTypeSection.add(leftLabelBox2, 0, 0);
-        foodTypeSection.add(rightInputBox2, 1, 0);
-        foodTypeSection.setAlignment(Pos.TOP_LEFT);
-        foodTypeSection.setPrefWidth(900);
-        foodTypeSection.getColumnConstraints().addAll(
+        paneChonMonAn.add(leftLabelBox2, 0, 0);
+        paneChonMonAn.add(rightInputBox2, 1, 0);
+        paneChonMonAn.setAlignment(Pos.TOP_LEFT);
+        paneChonMonAn.setPrefWidth(900);
+        paneChonMonAn.getColumnConstraints().addAll(
                 new ColumnConstraints(220),
                 new ColumnConstraints(600)
         );
 
-        selectedFoodBox = new VBox(0);
-        selectedFoodBox.setPadding(new Insets(0, 0, 0, 220));
-        selectedFoodBox.setSpacing(0);
-        selectedFoodBox.setPrefWidth(700);
-        updateSelectedFoodBox();
+        boxChonThucAn = new VBox(0);
+        boxChonThucAn.setPadding(new Insets(0, 0, 0, 220));
+        boxChonThucAn.setSpacing(0);
+        boxChonThucAn.setPrefWidth(700);
+        capNhatBoxChonThucAn();
 
         cbLoaiMonAn.setOnAction(e -> {
             String selected = cbLoaiMonAn.getValue();
             if (selected != null && selectedFoods.stream().noneMatch(f -> f.name.equals(selected))) {
                 selectedFoods.add(new FoodItem(selected, getFoodIcon(selected), 15));
-                updateSelectedFoodBox();
+                capNhatBoxChonThucAn();
             }
         });
 
-        getChildren().addAll(menuNameSection, foodTypeSection, selectedFoodBox);
+        getChildren().addAll(paneTenThucDon, paneChonMonAn, boxChonThucAn);
     }
 
-    private void updateSelectedFoodBox() {
-        selectedFoodBox.getChildren().clear();
+    private void capNhatBoxChonThucAn() {
+        boxChonThucAn.getChildren().clear();
         if (selectedFoods.isEmpty()) return;
 
         HBox header = new HBox();
@@ -130,7 +127,7 @@ public class GiaoDienTaoThucDon extends VBox {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         header.getChildren().addAll(lblTen, lblSoLuong, spacer);
-        selectedFoodBox.getChildren().add(header);
+        boxChonThucAn.getChildren().add(header);
 
         // Food rows
         for (FoodItem item : selectedFoods) {
@@ -149,21 +146,21 @@ public class GiaoDienTaoThucDon extends VBox {
             nameBox.setSpacing(6);
             nameBox.setPrefWidth(300);
 
-            Label quantity = new Label(String.valueOf(item.quantity));
-            quantity.setStyle("-fx-font-size: 15px; -fx-text-fill: #444;");
-            quantity.setPrefWidth(120);
+            Label soLuong = new Label(String.valueOf(item.quantity));
+            soLuong.setStyle("-fx-font-size: 15px; -fx-text-fill: #444;");
+            soLuong.setPrefWidth(120);
 
             Button btnDelete = new ButtonSample("Xóa", 28, 13, 1);
             btnDelete.setStyle("-fx-font-size: 13px; -fx-padding: 2 10; -fx-background-radius: 8; -fx-border-radius: 8;");
             btnDelete.setOnAction(e -> {
                 selectedFoods.remove(item);
-                updateSelectedFoodBox();
+                capNhatBoxChonThucAn();
             });
 
             Region rowSpacer = new Region();
             HBox.setHgrow(rowSpacer, Priority.ALWAYS);
-            row.getChildren().addAll(nameBox, quantity, rowSpacer, btnDelete);
-            selectedFoodBox.getChildren().add(row);
+            row.getChildren().addAll(nameBox, soLuong, rowSpacer, btnDelete);
+            boxChonThucAn.getChildren().add(row);
         }
     }
 
@@ -205,7 +202,7 @@ public class GiaoDienTaoThucDon extends VBox {
         return leftPanel;
     }
     
-    private GridPane createThucDonInfoSection() {
+    private GridPane createPaneThucDonInfo() {
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(15);
