@@ -15,8 +15,10 @@ import java.util.Objects;
 public class NavBar extends HBox {
 
     private final DropDownButton btnHeThong, btnTimKiem,btnXuLi,btnDanhMucNav;
+    private VBox rightBox;
 
     public NavBar(VBox rightBox) {
+        this.rightBox = rightBox;
         Font montserrat = Font.loadFont(
                 Objects.requireNonNull(getClass().getResourceAsStream(
                         "/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf")),
@@ -32,7 +34,7 @@ public class NavBar extends HBox {
 
         btnDanhMucNav = new DropDownButton(
                 "Danh mục",
-                List.of("Món ăn", "Phiếu đặt bàn", "Khách hàng","Hóa đơn","Bàn","Tài khoản"),
+                List.of("Thực đơn", "Món ăn", "Phiếu đặt bàn", "Khách hàng","Hóa đơn","Bàn","Tài khoản"),
                 "/com/thefourrestaurant/images/icon/danhMucNavIcon.png",
                 45,
                 16

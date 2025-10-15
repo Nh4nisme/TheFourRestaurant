@@ -33,7 +33,7 @@ public class SideBarController {
         }
 
         Pane panelMoi = switch (loaiPanel) {
-            case "DanhMuc" -> new SideBarDanhMuc();
+            case "DanhMuc" -> new SideBarDanhMuc(mainContainer);
             case "ThongKe" -> {
                 SideBarThongKe tk = new SideBarThongKe();
                 tk.setMainContainer(mainContainer); // truyền container chính
