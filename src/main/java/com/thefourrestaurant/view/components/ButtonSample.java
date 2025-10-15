@@ -10,39 +10,58 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class ButtonSample extends Button {
-    public ButtonSample(String text, String iconPath, double height, double fontSize) {
+
+    private static final Map<Integer, String> styleMap = new HashMap<>();
+    static {
+        styleMap.put(1, "button_sampleGamboge");
+        styleMap.put(2, "button_sampleIndigo");
+        styleMap.put(3, "button_sampleIndigoV2");
+    }
+
+    public ButtonSample(String text, String iconPath, double height, double fontSize, int styleNum) {
         super(text);
 
+        // === Font ===
         Font montserrat = Font.loadFont(
                 getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"),
                 fontSize
         );
-        if (montserrat != null) {
-            setFont(montserrat);
-        } else {
-            System.out.println("Font Montserrat load failed!");
+        if (montserrat != null) setFont(montserrat);
+
+        // === Icon (nếu có) ===
+        if (iconPath != null && !iconPath.isBlank()) {
+            try {
+                ImageView icon = new ImageView(
+                        new Image(Objects.requireNonNull(getClass().getResourceAsStream(iconPath)))
+                );
+                icon.setFitWidth(40);
+                icon.setFitHeight(40);
+                icon.setPreserveRatio(true);
+                setGraphic(icon);
+                setContentDisplay(ContentDisplay.LEFT);
+            } catch (Exception e) {
+                System.out.println("⚠ Không thể load icon: " + iconPath);
+            }
         }
 
-        // Load icon
-        if (iconPath != null && !iconPath.isEmpty()) {
-            ImageView icon = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(iconPath))));
-            icon.setFitWidth(40);
-            icon.setFitHeight(40);
-            icon.setPreserveRatio(true);
-
-            setGraphic(icon);
-            setContentDisplay(ContentDisplay.LEFT);
-        }
-
-        // Kích thước button
+        // === Kích thước & padding ===
         setPrefHeight(height);
         setMinHeight(height);
         setMaxHeight(height);
         setPadding(new Insets(5, 10, 5, 10));
-        getStyleClass().add("button_sampleGamboge");
 
+        // === Gắn style CSS theo số ===
+        String cssClass = styleMap.getOrDefault(styleNum, "button-sample-gamboge");
+        getStyleClass().add(cssClass);
+    }
+
+    /* Constructor overload không icon */
+    public ButtonSample(String text, double height, double fontSize, int styleNum) {
+        this(text, null, height, fontSize, styleNum);
     }
 }

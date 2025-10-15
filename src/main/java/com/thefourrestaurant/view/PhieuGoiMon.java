@@ -71,8 +71,8 @@ public class PhieuGoiMon extends BorderPane {
         txtTenMon.setPromptText("Tìm tên món...");
         txtTenMon.setPrefWidth(300);
 
-        btnTim = new ButtonSample("Tìm kiếm", "", 35, 14);
-        btnLamMoi = new ButtonSample("Làm mới", "", 35, 14);
+        btnTim = new ButtonSample("Tìm kiếm", "", 35, 14,1);
+        btnLamMoi = new ButtonSample("Làm mới", "", 35, 14,1);
 
         thanhTren.getChildren().addAll(menuBuaAn, lblLoaiMon, txtLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi);
         return thanhTren;
@@ -224,7 +224,7 @@ public class PhieuGoiMon extends BorderPane {
         lblTong.setTextFill(Color.web("#2C5F5F"));
         tongTienBox.getChildren().add(lblTong);
         
-        ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", "", 35, 14);
+        ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", 45, 35, 14);
 
         VBox boxDuoi = new VBox(10, tongTienBox, btnGuiBep);
         boxDuoi.setAlignment(Pos.CENTER_RIGHT);

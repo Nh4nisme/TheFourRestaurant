@@ -22,23 +22,24 @@ public class SideBarController {
     }
 
     private void moHoacDongPanel(String loaiPanel) {
-        // Nếu panel đang mở cùng loại → đóng lại
         if (panelDangMo != null && panelDangMo.getUserData().equals(loaiPanel)) {
             mainContainer.getChildren().remove(panelDangMo);
             panelDangMo = null;
             return;
         }
 
-        // Nếu panel khác đang mở → đóng lại
         if (panelDangMo != null) {
             mainContainer.getChildren().remove(panelDangMo);
             panelDangMo = null;
         }
 
-        // Tạo panel mới theo loại
         Pane panelMoi = switch (loaiPanel) {
             case "DanhMuc" -> new SideBarDanhMuc();
-            case "ThongKe" -> new SideBarThongKe();
+            case "ThongKe" -> {
+                SideBarThongKe tk = new SideBarThongKe();
+                tk.setMainContainer(mainContainer); // truyền container chính
+                yield tk;
+            }
             default -> null;
         };
 

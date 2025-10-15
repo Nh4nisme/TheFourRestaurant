@@ -25,6 +25,17 @@
     -fx-background-insets: 0;
 }
 
+.button_sampleIndigoV2{
+    -fx-background-color: #DDB248;
+    -fx-border-color: #DDB248;
+    -fx-text-fill: #1E424D;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
+    -fx-background-insets: 0;
+}
+
 /* --- DropDownButton.css (clean version) --- */
 .dropdown-button {
     -fx-background-color: #CD7B3E;
@@ -133,4 +144,17 @@
 .muc-con:hover {
     -fx-background-color: #DDB248;
     -fx-text-fill: #1E424D;
+}
+
+/* base css cho ThongKeContent */
+.thongke-root {
+    -fx-background-color: white;
+    -fx-spacing: 10;
+}
+
+/* NavBar */
+.thongke-navbar {
+    -fx-background-color: #E5D595;
+    -fx-padding: 10;
+    -fx-spacing: 10;
 }

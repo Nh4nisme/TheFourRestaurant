@@ -1,19 +1,23 @@
 package com.thefourrestaurant.view.components.sidebar;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 
 import java.util.List;
 
 public class SideBarThongKe extends BaseSideBar {
 
+    private HBox mainContainer; // thêm biến này để truy cập container chính
+
     public SideBarThongKe() {
         super("Thống kê");
+    }
+
+    // thêm setter để controller truyền vào
+    public void setMainContainer(HBox mainContainer) {
+        this.mainContainer = mainContainer;
     }
 
     @Override
@@ -23,12 +27,8 @@ public class SideBarThongKe extends BaseSideBar {
         themDanhMuc("Tầng và bàn", List.of("Tầng 1"));
     }
 
-    private void themDanhMuc(String tenDanhMuc) {
-        themDanhMuc(tenDanhMuc, null);
-    }
-
     private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon) {
-        Label nhanChinh = taoNhanClick(tenDanhMuc, () -> xuLyChonMuc(tenDanhMuc), "muc-chinh");
+        Label nhanChinh = taoNhanClick(tenDanhMuc, null, "muc-chinh");
 
         if (danhSachCon != null && !danhSachCon.isEmpty()) {
             VBox hopChua = new VBox();
@@ -36,11 +36,10 @@ public class SideBarThongKe extends BaseSideBar {
             hopChua.setPadding(new Insets(5, 0, 5, 20));
             hopChua.setVisible(false);
             hopChua.setManaged(false);
-            hopChua.getStyleClass().add("hop-chua-con");
 
             for (String mucCon : danhSachCon) {
-                HBox mucConNhapLieu = taoMucConNhapLieu(mucCon);
-                hopChua.getChildren().add(mucConNhapLieu);
+                Label mucConLabel = taoNhanClick(mucCon, () -> xuLyChonMucCon(mucCon), "muc-con");
+                hopChua.getChildren().add(mucConLabel);
             }
 
             nhanChinh.setOnMouseClicked(e -> moHoacDongMucCon(hopChua));
@@ -50,28 +49,19 @@ public class SideBarThongKe extends BaseSideBar {
         }
     }
 
-    HBox taoMucConNhapLieu(String tenMuc) {
-        HBox box = new HBox(5);
-        box.setPadding(new Insets(2, 0, 2, 0));
+    private void xuLyChonMucCon(String mucCon) {
+        if (mainContainer == null) return;
 
-        Label lbl = new Label(tenMuc + ":");
-        lbl.getStyleClass().add("muc-con-label");
+        // Nếu đã có panel nội dung thống kê → xóa nó đi
+        if (mainContainer.getChildren().size() > 2)
+            mainContainer.getChildren().remove(2);
 
-        DatePicker datePicker = new DatePicker(); // ô nhập ngày
-        TextField tf = new TextField(); // ô nhập giá trị tùy ý
-        tf.setPromptText("Nhập giá trị");
+        // Tạo nội dung mới
+        ThongKeContent thongKeContent = new ThongKeContent(mucCon);
 
-        ComboBox<String> combo = new ComboBox<>();
-        combo.getItems().addAll("Ngày", "Tháng", "Năm"); // ví dụ
-        combo.setValue("Ngày");
+        // Cho phép chiếm hết không gian còn lại
+        HBox.setHgrow(thongKeContent, Priority.ALWAYS);
 
-        box.getChildren().addAll(lbl, datePicker, tf, combo);
-
-        return box;
-    }
-
-    private void xuLyChonMuc(String tenMuc) {
-        System.out.println("Bạn đã chọn: " + tenMuc);
-        // TODO: load giao diện tương ứng
+        mainContainer.getChildren().add(2, thongKeContent);
     }
 }

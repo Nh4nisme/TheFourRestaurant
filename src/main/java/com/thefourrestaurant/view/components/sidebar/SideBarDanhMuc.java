@@ -52,7 +52,6 @@ public class SideBarDanhMuc extends BaseSideBar {
     }
 
     private void xuLyChonMuc(String tenMuc) {
-        System.out.println("Bạn đã chọn: " + tenMuc);
-        // TODO: load giao diện tương ứng
+
     }
 }
