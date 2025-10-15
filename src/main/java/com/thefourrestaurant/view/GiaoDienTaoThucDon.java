@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class GiaoDienTaoThucDon extends VBox {
     private final TextField txtTenThucDon;
@@ -29,7 +30,7 @@ public class GiaoDienTaoThucDon extends VBox {
 
     public GiaoDienTaoThucDon() {
         setStyle("-fx-background-color: #FAFAFA;");
-        setPadding(new Insets(32, 0, 0, 0));
+        setPadding(new Insets(32, 32, 32, 32));
         setSpacing(32);
 
         // Section: Đặt tên thực đơn
@@ -102,8 +103,16 @@ public class GiaoDienTaoThucDon extends VBox {
 
         cbLoaiMonAn.setOnAction(e -> {
             String selected = cbLoaiMonAn.getValue();
-            if (selected != null && selectedFoods.stream().noneMatch(f -> f.name.equals(selected))) {
-                selectedFoods.add(new FoodItem(selected, getFoodIcon(selected), 15));
+            if (selected != null) {
+                Optional<FoodItem> existingItem = selectedFoods.stream()
+                        .filter(f -> f.name.equals(selected))
+                        .findFirst();
+
+                if (existingItem.isPresent()) {
+                    existingItem.get().quantity++;
+                } else {
+                    selectedFoods.add(new FoodItem(selected, getFoodIcon(selected), 1));
+                }
                 capNhatBoxChonThucAn();
             }
         });
@@ -123,7 +132,7 @@ public class GiaoDienTaoThucDon extends VBox {
         Label lblTen = new Label("Tên");
         lblTen.setStyle("-fx-font-weight: bold; -fx-text-fill: #444; -fx-font-size: 15px;");
         lblTen.setPrefWidth(300);
-        Label lblSoLuong = new Label("Tổng số lượng");
+        Label lblSoLuong = new Label("Số lượng");
         lblSoLuong.setStyle("-fx-font-weight: bold; -fx-text-fill: #444; -fx-font-size: 15px;");
         lblSoLuong.setPrefWidth(120);
         Region spacer = new Region();
@@ -136,6 +145,7 @@ public class GiaoDienTaoThucDon extends VBox {
             row.setStyle("-fx-background-color: #FFF; -fx-border-color: #E0E0E0; -fx-border-width: 0 1 1 1;");
             row.setPadding(new Insets(8, 16, 8, 16));
             row.setSpacing(0);
+            row.setAlignment(Pos.CENTER_LEFT);
             row.setPrefHeight(36);
 
             HBox boxTenThucAn;
