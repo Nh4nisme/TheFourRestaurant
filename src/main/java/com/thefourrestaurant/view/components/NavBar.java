@@ -28,7 +28,7 @@ public class NavBar extends HBox {
         setPrefHeight(80);
         setSpacing(10);
         setStyle("-fx-background-color: #E5D595");
-        ButtonSample btnTKDN = new ButtonSample("QL: Tâm ", "/com/thefourrestaurant/images/icon/accountIcon.png", 45, 16);
+        ButtonSample btnTKDN = new ButtonSample("QL: Tâm ", "/com/thefourrestaurant/images/icon/accountIcon.png",45, 16, 1);
 
         btnDanhMucNav = new DropDownButton(
                 "Danh mục",

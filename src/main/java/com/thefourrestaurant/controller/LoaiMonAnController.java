@@ -127,11 +127,11 @@ public class LoaiMonAnController {
         footerPart.setStyle(
                 "-fx-background-color: #F0F0F0; -fx-border-color: #E0E0E0; -fx-border-width: 1 0 0 0;");
 
-        Button btnXoa = new ButtonSample("Xóa", null, 35, 14);
+        Button btnXoa = new ButtonSample("Xóa", 35, 14,1);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        Button btnOke = new ButtonSample("Oke", null, 35, 14);
-        Button btnHuy = new ButtonSample("Hủy", null, 35, 14);
+        Button btnOke = new ButtonSample("Oke", 35, 14,1);
+        Button btnHuy = new ButtonSample("Hủy", 35, 14,1);
         footerPart.getChildren().addAll(btnXoa, spacer, btnOke, btnHuy);
 
         // --- Layout tổng ---
