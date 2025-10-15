@@ -1,48 +1,40 @@
 package com.thefourrestaurant.view.components.sidebar;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import com.thefourrestaurant.view.GiaoDienTaoThucDon;
+import com.thefourrestaurant.view.LoaiMonAn;
+import javafx.scene.Scene;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
-import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Objects;
 
 public class SideBarDanhMuc extends BaseSideBar {
+    private final HBox mainContainer;
 
-    public SideBarDanhMuc() {
-        super("Quản Lý");
+    public SideBarDanhMuc(HBox mainContainer) {
+        super("Danh mục");
+        this.mainContainer = mainContainer;
     }
 
     @Override
     protected void khoiTaoDanhMuc() {
-        themDanhMuc("Thực đơn");
-        themDanhMuc("Loại món ăn");
-        themDanhMuc("Món ăn", List.of("Cơm", "Bún"));
-        themDanhMuc("Thời gian sự kiện");
-        themDanhMuc("Tầng và bàn", List.of("Tầng 1", "Tầng 2", "Tầng 3", "Tầng 4", "Tầng 5", "Tầng 6", "Tầng 7"));
+        themDanhMuc("Thực đơn", null, () -> showThucDon());
+        themDanhMuc("Loại món ăn", null, () -> showLoaiMonAn());
+        themDanhMuc("Món ăn", null, () -> {});
+        themDanhMuc("Tầng và bàn", List.of("Tầng 1", "Tầng 2", "Tầng 3"), null);
     }
 
-    private void themDanhMuc(String tenDanhMuc) {
-        themDanhMuc(tenDanhMuc, null);
-    }
-
-    private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon) {
-        Label nhanChinh = taoNhanClick(tenDanhMuc, () -> xuLyChonMuc(tenDanhMuc), "muc-chinh");
+    private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon, Runnable hanhDong) {
+        var nhanChinh = taoNhanClick(tenDanhMuc, hanhDong, "muc-chinh");
 
         if (danhSachCon != null && !danhSachCon.isEmpty()) {
-            VBox hopChua = new VBox(5);
-            hopChua.setPadding(new Insets(5, 0, 5, 20));
+            VBox hopChua = new VBox();
+            hopChua.setSpacing(5);
             hopChua.setVisible(false);
             hopChua.setManaged(false);
-            hopChua.getStyleClass().add("hop-chua-con");
-
-            for (String mucCon : danhSachCon) {
-                hopChua.getChildren().add(taoNhanClick(mucCon, () -> xuLyChonMuc(mucCon), "muc-con"));
-            }
 
             nhanChinh.setOnMouseClicked(e -> moHoacDongMucCon(hopChua));
             getChildren().addAll(nhanChinh, hopChua);
@@ -51,7 +43,23 @@ public class SideBarDanhMuc extends BaseSideBar {
         }
     }
 
-    private void xuLyChonMuc(String tenMuc) {
+    private void showThucDon() {
+        if (mainContainer.getChildren().size() > 2) {
+            mainContainer.getChildren().remove(2);
+        }
 
+        GiaoDienTaoThucDon giaoDienTaoThucDon = new GiaoDienTaoThucDon();
+        HBox.setHgrow(giaoDienTaoThucDon, Priority.ALWAYS);
+        mainContainer.getChildren().add(giaoDienTaoThucDon);
+    }
+
+    private void showLoaiMonAn() {
+        if (mainContainer.getChildren().size() > 2) {
+            mainContainer.getChildren().remove(2);
+        }
+
+        LoaiMonAn loaiMonAn = new LoaiMonAn();
+        HBox.setHgrow(loaiMonAn, Priority.ALWAYS);
+        mainContainer.getChildren().add(loaiMonAn);
     }
 }
