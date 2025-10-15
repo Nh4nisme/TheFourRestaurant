@@ -24,6 +24,9 @@ public class SideBarController {
         if (panelDangMo != null && panelDangMo.getUserData().equals(loaiPanel)) {
             mainContainer.getChildren().remove(panelDangMo);
             panelDangMo = null;
+            // Khi đóng panel thống kê, đóng luôn nội dung bên phải
+            if (loaiPanel.equals("ThongKe") && mainContainer.getChildren().size() > 2)
+                mainContainer.getChildren().remove(2);
             return;
         }
 
@@ -36,7 +39,13 @@ public class SideBarController {
             case "DanhMuc" -> new SideBarDanhMuc(mainContainer);
             case "ThongKe" -> {
                 SideBarThongKe tk = new SideBarThongKe();
-                tk.setMainContainer(mainContainer); // truyền container chính
+                tk.setMainContainer(mainContainer);
+                // 👉 Khi mở Thống kê, mở luôn nội dung thống kê mặc định
+                if (mainContainer.getChildren().size() > 2)
+                    mainContainer.getChildren().remove(2);
+                ThongKeContent tkContent = new ThongKeContent("Doanh Thu");
+                HBox.setHgrow(tkContent, Priority.ALWAYS);
+                mainContainer.getChildren().add(tkContent);
                 yield tk;
             }
             default -> null;
