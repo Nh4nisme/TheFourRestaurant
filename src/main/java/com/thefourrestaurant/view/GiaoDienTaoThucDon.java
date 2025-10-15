@@ -73,6 +73,7 @@ public class GiaoDienTaoThucDon extends VBox {
         Label lblChonLoai = new Label("Chọn loại món ăn");
         lblChonLoai.setStyle("-fx-text-fill: #E19E11; -fx-font-size: 15px; -fx-font-weight: bold;");
         Label lblChonLoaiDesc = new Label("Các loại món ăn được thêm sẽ xuất hiện khi mở thực đơn");
+        lblChonLoaiDesc.setWrapText(true);
         lblChonLoaiDesc.setStyle("-fx-text-fill: #444; -fx-font-size: 13px;");
         leftLabelBox2.getChildren().addAll(lblChonLoai, lblChonLoaiDesc);
 
@@ -86,17 +87,7 @@ public class GiaoDienTaoThucDon extends VBox {
         cbLoaiMonAn.setPrefWidth(400);
         rightInputBox2.getChildren().addAll(lblLoaiMonAn, cbLoaiMonAn);
 
-        paneChonMonAn.add(leftLabelBox2, 0, 0);
-        paneChonMonAn.add(rightInputBox2, 1, 0);
-        paneChonMonAn.setAlignment(Pos.TOP_LEFT);
-        paneChonMonAn.setPrefWidth(900);
-        paneChonMonAn.getColumnConstraints().addAll(
-                new ColumnConstraints(220),
-                new ColumnConstraints(600)
-        );
-
         boxChonThucAn = new VBox(0);
-        boxChonThucAn.setPadding(new Insets(0, 0, 0, 220));
         boxChonThucAn.setSpacing(0);
         boxChonThucAn.setPrefWidth(700);
         capNhatBoxChonThucAn();
@@ -117,7 +108,21 @@ public class GiaoDienTaoThucDon extends VBox {
             }
         });
 
-        getChildren().addAll(paneTenThucDon, paneChonMonAn, boxChonThucAn);
+        GridPane mainGrid = new GridPane();
+        mainGrid.setHgap(24);
+        mainGrid.setVgap(20);
+        mainGrid.getColumnConstraints().addAll(
+                new ColumnConstraints(220),
+                new ColumnConstraints(600)
+        );
+
+        mainGrid.add(leftLabelBox, 0, 0);
+        mainGrid.add(rightInputBox, 1, 0);
+        mainGrid.add(leftLabelBox2, 0, 1);
+        mainGrid.add(rightInputBox2, 1, 1);
+        mainGrid.add(boxChonThucAn, 1, 2);
+
+        getChildren().add(mainGrid);
     }
 
     private void capNhatBoxChonThucAn() {
