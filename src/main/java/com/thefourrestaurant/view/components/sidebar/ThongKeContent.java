@@ -19,7 +19,8 @@ public class ThongKeContent extends VBox {
         // === NavBarSecondary ===
         navBar = new ToolBar(
                 new ButtonSample("Làm mới",45,16,1),
-                new ButtonSample("áp dụng",45,16,1)
+                new ButtonSample("Áp dụng",45,16,1),
+                new ButtonSample("Xuất hóa đơn",45,16,1)
         );
         navBar.getStyleClass().add("thongke-navbar");
 

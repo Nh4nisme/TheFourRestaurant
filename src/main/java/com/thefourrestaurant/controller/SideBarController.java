@@ -1,6 +1,5 @@
 package com.thefourrestaurant.controller;
 
-import com.thefourrestaurant.view.ThongKe;
 import com.thefourrestaurant.view.components.sidebar.*;
 import javafx.animation.*;
 import javafx.scene.layout.*;
