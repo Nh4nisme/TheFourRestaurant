@@ -19,12 +19,10 @@ public class MonAnBox extends BaseBox {
         ImageView imageView = createImageView(imagePath);
 
         Label tenMon = new Label(ten);
-        tenMon.setFont(Font.font("System", FontWeight.BOLD, 13));
-        tenMon.setTextFill(Color.web("#2C5F5F"));
+        tenMon.getStyleClass().add("monan-ten");
 
         Label lblGia = new Label(gia + " VND");
-        lblGia.setFont(Font.font(12));
-        lblGia.setTextFill(Color.web("#2C5F5F"));
+        lblGia.getStyleClass().add("monan-gia");
 
         this.getChildren().addAll(imageView, tenMon, lblGia);
     }

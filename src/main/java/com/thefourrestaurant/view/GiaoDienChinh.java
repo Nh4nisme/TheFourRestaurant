@@ -31,7 +31,7 @@ public class GiaoDienChinh {
 
         NavBar navBar = new NavBar(rightBox);
         navBar.setPrefHeight(80);
-
+        navBar.setMinHeight(80);
         Pane backgroundCenter = new Pane();
         backgroundCenter.setBackground(new Background(bg));
         VBox.setVgrow(backgroundCenter, Priority.ALWAYS);
