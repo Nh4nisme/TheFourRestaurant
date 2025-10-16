@@ -1,76 +1,86 @@
 package com.thefourrestaurant.view.components.sidebar;
 
-import com.thefourrestaurant.DAO.LoaiMonDAO;
-import com.thefourrestaurant.DAO.TangDAO;
-import com.thefourrestaurant.model.LoaiMon;
-import com.thefourrestaurant.model.Tang;
+import com.thefourrestaurant.view.GiaoDienTaoThucDon;
+import com.thefourrestaurant.view.LoaiMonAn;
+import com.thefourrestaurant.view.QuanLiBan;
+import com.thefourrestaurant.view.monan.MonAnBun;
+import com.thefourrestaurant.view.monan.MonAnCom;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class SideBarDanhMuc extends BaseSideBar {
-	
-	private HBox mainContainer;
 
-    private final TangDAO tangDAO = new TangDAO();
-    private final LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
+    private final HBox mainContainer;
 
-    private Consumer<String> tangClickListener;
-    private Consumer<String> loaiMonClickListener;
-    
     public SideBarDanhMuc(HBox mainContainer) {
-        this(); // gọi constructor mặc định để tạo danh mục
-        this.mainContainer = mainContainer;
-    }
-
-    // 🔹 Constructor mặc định
-    public SideBarDanhMuc() {
         super("Quản Lý");
-        // Tạo danh mục tầng và loại món
-        khoiTaoDanhMuc("Loại món", loaiMonDAO.getAllLoaiMon(), LoaiMon::getTenLoai, LoaiMon::getMaLoai, () -> loaiMonClickListener);
-        khoiTaoDanhMuc("Tầng và bàn", tangDAO.getAllTang(), Tang::getTenTang, Tang::getMaTang, () -> tangClickListener);
+        this.mainContainer = mainContainer;
     }
 
     @Override
     protected void khoiTaoDanhMuc() {
-        // Không cần
+        themDanhMuc("Thực đơn");
+        themDanhMuc("Loại món ăn");
+        themDanhMuc("Món ăn", List.of("Cơm", "Bún"));
+        themDanhMuc("Thời gian sự kiện");
+        themDanhMuc("Tầng và bàn", List.of("Tầng 1", "Tầng 2", "Tầng 3", "Tầng 4", "Tầng 5", "Tầng 6", "Tầng 7"));
     }
 
-    private <T> void khoiTaoDanhMuc(String tenDanhMuc, List<T> ds,
-                                     Function<T, String> layTen,
-                                     Function<T, String> layMa,
-                                     java.util.function.Supplier<Consumer<String>> listenerSupplier) {
-        Label nhanChinh = taoNhanClick(tenDanhMuc, null, "muc-chinh");
-        VBox hopChua = new VBox(5);
-        hopChua.setPadding(new Insets(5, 0, 5, 20));
-        hopChua.setVisible(false);
-        hopChua.setManaged(false);
+    private void themDanhMuc(String tenDanhMuc) {
+        themDanhMuc(tenDanhMuc, null);
+    }
 
-        for (T item : ds) {
-            Label nhanCon = taoNhanClick(layTen.apply(item), () -> {
-                Consumer<String> listener = listenerSupplier.get();
-                if (listener != null) {
-                    listener.accept(layMa.apply(item));
-                }
-            }, "muc-con");
-            hopChua.getChildren().add(nhanCon);
+    private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon) {
+        Label nhanChinh = taoNhanClick(tenDanhMuc, () -> xuLyChonMuc(tenDanhMuc), "muc-chinh");
+
+        if (danhSachCon != null && !danhSachCon.isEmpty()) {
+            VBox hopChua = new VBox(5);
+            hopChua.setPadding(new Insets(5, 0, 5, 20));
+            hopChua.setVisible(false);
+            hopChua.setManaged(false);
+            hopChua.getStyleClass().add("hop-chua-con");
+
+            for (String mucCon : danhSachCon) {
+                hopChua.getChildren().add(taoNhanClick(mucCon, () -> xuLyChonMuc(mucCon), "muc-con"));
+            }
+
+            nhanChinh.setOnMouseClicked(e -> moHoacDongMucCon(hopChua));
+            getChildren().addAll(nhanChinh, hopChua);
+        } else {
+            getChildren().add(nhanChinh);
+        }
+    }
+
+    private void xuLyChonMuc(String tenMuc) {
+        if (mainContainer == null) {
+            return;
         }
 
-        nhanChinh.setOnMouseClicked(e -> moHoacDongMucCon(hopChua));
-        getChildren().addAll(nhanChinh, hopChua);
-    }
+        Node newContent = switch (tenMuc) {
+            case "Thực đơn" -> new GiaoDienTaoThucDon();
+            case "Loại món ăn" -> new LoaiMonAn();
+            case "Cơm" -> new MonAnCom();
+            case "Bún" -> new MonAnBun();
+            case "Tầng 1" -> {
+                QuanLiBan qlBan = new QuanLiBan();
+                qlBan.hienThiBanTheoTang("TG000001"); // Gọi tầng 1 mặc định
+                yield qlBan;
+            }
+            default -> null;
+        };
 
-    // 🔹 Public setters
-    public void setTangClickListener(Consumer<String> listener) {
-        this.tangClickListener = listener;
-    }
-
-    public void setLoaiMonClickListener(Consumer<String> listener) {
-        this.loaiMonClickListener = listener;
+        if (newContent != null) {
+            HBox.setHgrow(newContent, Priority.ALWAYS);
+            if (mainContainer.getChildren().size() > 2) {
+                mainContainer.getChildren().set(2, newContent);
+            } else {
+                mainContainer.getChildren().add(newContent);
+            }
+        }
     }
 }

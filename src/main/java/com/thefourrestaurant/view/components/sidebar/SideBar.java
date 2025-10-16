@@ -8,6 +8,8 @@
     import javafx.scene.control.Button;
     import javafx.scene.image.Image;
     import javafx.scene.image.ImageView;
+    import javafx.scene.layout.Priority;
+    import javafx.scene.layout.Region;
     import javafx.scene.layout.VBox;
     import javafx.scene.text.Font;
     import javafx.util.Duration;
@@ -44,9 +46,6 @@
             // Array các nút: {tên biến, đường dẫn icon}
             String[][] buttonData = {
                     {"ThongKe", "/com/thefourrestaurant/images/icon/thongKeIcon.png"},
-                    {"HoaDon", "/com/thefourrestaurant/images/icon/hoaDonIcon.png"},
-                    {"TaiKhoan", "/com/thefourrestaurant/images/icon/taiKhoanIcon.png"},
-                    {"KhachHang", "/com/thefourrestaurant/images/icon/khachHangIcon.png"},
                     {"DanhMuc", "/com/thefourrestaurant/images/icon/danhMucIcon.png"},
                     {"CaiDat", "/com/thefourrestaurant/images/icon/caiDatIcon.png"}
             };
@@ -56,6 +55,9 @@
                 buttons.put(b[0], btn);
                 groupButton.getChildren().add(btn);
             }
+
+            Region spacer = new Region();
+            VBox.setVgrow(spacer, Priority.ALWAYS);
 
             // Tao Vbox rong
             VBox BoDemGio = new VBox();
@@ -70,7 +72,7 @@
 
 
             //Them vao VBox sidebar chinh
-            getChildren().addAll(logoImg,groupButton,BoDemGio);
+            getChildren().addAll(logoImg,groupButton,spacer,BoDemGio);
         }
 
         private Button createIconButton(String imagePath, double width, double height) {

@@ -49,28 +49,7 @@ public class SideBarController {
         }
 
         Pane panelMoi = switch (loaiPanel) {
-            case "DanhMuc" -> {
-                SideBarDanhMuc danhMuc = new SideBarDanhMuc();
-
-                // Listener click tầng -> hiển thị bàn trong backgroundCenter
-                danhMuc.setTangClickListener(maTang -> {
-                    if (backgroundCenter instanceof QuanLiBan) {
-                        ((QuanLiBan) backgroundCenter).hienThiBanTheoTang(maTang);
-                    } else {
-                        QuanLiBan quanLiBan = new QuanLiBan();
-                        quanLiBan.hienThiBanTheoTang(maTang);
-
-                        VBox parent = (VBox) backgroundCenter.getParent();
-                        int index = parent.getChildren().indexOf(backgroundCenter);
-                        parent.getChildren().set(index, quanLiBan);
-                        VBox.setVgrow(quanLiBan, Priority.ALWAYS);
-
-                        backgroundCenter = quanLiBan; // cập nhật lại reference
-                    }
-                });
-
-                yield danhMuc;
-            }
+            case "DanhMuc" -> new SideBarDanhMuc(mainContainer);
             case "ThongKe" -> new SideBarThongKe(mainContainer);
             default -> null;
         };

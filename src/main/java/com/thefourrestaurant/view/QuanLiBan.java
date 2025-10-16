@@ -1,42 +1,55 @@
 package com.thefourrestaurant.view;
 
-import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.model.Ban;
 import javafx.geometry.Insets;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.control.Label;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class QuanLiBan extends Pane {
-
-    private BanDAO banDAO = new BanDAO();
 
     public QuanLiBan() {
         this.setPadding(new Insets(20));
         this.setStyle("-fx-background-color: #F5F5F5;");
     }
 
-    // 🔹 Hiển thị bàn theo mã tầng (ví dụ: "TANG01")
     public void hienThiBanTheoTang(String maTang) {
-        this.getChildren().clear(); // Xóa bàn cũ
+        this.getChildren().clear();
+        List<Ban> dsBan = taoDanhSachBanCung(maTang);
 
-        List<Ban> dsBan = banDAO.getByTang(maTang);
         for (Ban b : dsBan) {
             taoBan(this, b);
         }
     }
 
-    // 🪑 Tạo bàn từ model
+    private List<Ban> taoDanhSachBanCung(String maTang) {
+        List<Ban> list = new ArrayList<>();
+
+        if (maTang.equals("TG000001")) { // 🔸 Tầng 1
+            list.add(new Ban("BA000001", "Bàn 1-T1", "Trống", 100, 100, "TG000001", "LB000001", "/com/thefourrestaurant/images/Ban/Ban_8.png"));
+            list.add(new Ban("BA000002", "Bàn 2-T1", "Trống", 100, 300, "TG000001", "LB000001", "/com/thefourrestaurant/images/Ban/Ban_8.png"));
+            list.add(new Ban("BA000003", "Bàn 3-T1", "Trống", 100, 500, "TG000001", "LB000001", "/com/thefourrestaurant/images/Ban/Ban_8.png"));
+            list.add(new Ban("BA000004", "Bàn 4-T1", "Trống", 400, 100, "TG000001", "LB000002", "/com/thefourrestaurant/images/Ban/Ban_6.png"));
+            list.add(new Ban("BA000005", "Bàn 5-T1", "Trống", 400, 300, "TG000001", "LB000002", "/com/thefourrestaurant/images/Ban/Ban_6.png"));
+            list.add(new Ban("BA000006", "Bàn 6-T1", "Trống", 400, 500, "TG000001", "LB000002", "/com/thefourrestaurant/images/Ban/Ban_6.png"));
+            list.add(new Ban("BA000007", "Bàn 7-T1", "Trống", 700, 150, "TG000001", "LB000003", "/com/thefourrestaurant/images/Ban/Ban_4.png"));
+            list.add(new Ban("BA000008", "Bàn 8-T1", "Trống", 700, 350, "TG000001", "LB000003", "/com/thefourrestaurant/images/Ban/Ban_4.png"));
+        }
+
+
+        return list;
+    }
+
     private void taoBan(Pane pane, Ban ban) {
-        // Sử dụng link ảnh từ model
         Image img;
         try {
             img = new Image(getClass().getResourceAsStream(ban.getAnhBan()));
         } catch (Exception e) {
-            // Nếu không tìm thấy ảnh, dùng ảnh mặc định
             img = new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/Ban/Ban_8.png"));
         }
 
@@ -57,5 +70,4 @@ public class QuanLiBan extends Pane {
 
         pane.getChildren().add(khungBan);
     }
-
 }

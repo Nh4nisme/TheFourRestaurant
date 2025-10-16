@@ -2,6 +2,7 @@ package com.thefourrestaurant.view.components;
 
 import com.thefourrestaurant.view.GiaoDienTaoThucDon;
 import com.thefourrestaurant.view.LoaiMonAn;
+import com.thefourrestaurant.view.PhieuGoiMon;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -39,7 +40,8 @@ public class NavBar extends HBox {
                 List.of("Thực đơn", "Món ăn", "Phiếu đặt bàn", "Khách hàng","Hóa đơn","Bàn","Tài khoản"),
                 "/com/thefourrestaurant/images/icon/danhMucNavIcon.png",
                 45,
-                16
+                16,
+                1
         );
 
         btnXuLi = new DropDownButton(
@@ -47,7 +49,8 @@ public class NavBar extends HBox {
                 List.of("Đặt bàn","Đặt món"),
                 "/com/thefourrestaurant/images/icon/xuLyIcon.png",
                 45,
-                16
+                16,
+                1
         );
 
         btnTimKiem = new DropDownButton(
@@ -55,7 +58,8 @@ public class NavBar extends HBox {
                 List.of("Món ăn", "Phiếu đặt bàn", "Khách hàng","Hóa đơn","Bàn","Tài khoản"),
                 "/com/thefourrestaurant/images/icon/timKiemIcon.png",
                 45,
-                16
+                16,
+                1
         );
 
         btnHeThong = new DropDownButton(
@@ -63,7 +67,8 @@ public class NavBar extends HBox {
                 List.of("Trang chủ","Trợ giúp","Thoát","Đăng xuất"),
                 "/com/thefourrestaurant/images/icon/heThongIcon.png",
                 45,
-                16
+                16,
+                1
         );
 
         Region spacer = new Region();
@@ -72,6 +77,7 @@ public class NavBar extends HBox {
         getChildren().addAll(btnDanhMucNav,btnXuLi,btnTimKiem,btnHeThong,spacer,btnTKDN);
 
         btnDanhMucNav.setOnItemSelected(this::showPanel);
+        btnXuLi.setOnItemSelected(this::showPanel);
     }
 
     private void showPanel(String s) {
@@ -80,6 +86,7 @@ public class NavBar extends HBox {
         switch (s) {
             case "Thực đơn" -> mainContainer.getChildren().add(new GiaoDienTaoThucDon());
             case "Món ăn" -> mainContainer.getChildren().add(new LoaiMonAn());
+            case "Đặt món" -> mainContainer.getChildren().add(new PhieuGoiMon());
 //            case "Nguyên liệu" -> mainContainer.getChildren().add(new IngredientPanel());
             default -> System.out.println("Không tìm thấy panel: " + s);
         }
