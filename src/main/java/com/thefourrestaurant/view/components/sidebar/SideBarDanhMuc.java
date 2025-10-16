@@ -4,8 +4,9 @@ import com.thefourrestaurant.view.LoaiMonAn;
 import com.thefourrestaurant.view.MonAnBun;
 import com.thefourrestaurant.view.MonAnCom;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -14,11 +15,12 @@ import java.util.List;
 
 public class SideBarDanhMuc extends BaseSideBar {
 
-    private final VBox rightBox;
+//    private final VBox rightBox;
+      private final HBox mainContainer;
 
-    public SideBarDanhMuc(VBox rightBox) {
+    public SideBarDanhMuc(HBox mainContainer) {
         super("Quản Lý");
-        this.rightBox = rightBox;
+        this.mainContainer = mainContainer;
     }
 
     @Override
@@ -56,30 +58,23 @@ public class SideBarDanhMuc extends BaseSideBar {
     }
 
     private void xuLyChonMuc(String tenMuc) {
-        if (rightBox == null) {
+        if (mainContainer == null) {
             return;
         }
 
-        GridPane newContent = null;
-
-        switch (tenMuc) {
-            case "Loại món ăn":
-                newContent = new LoaiMonAn();
-                break;
-            case "Cơm":
-                newContent = new MonAnCom();
-                break;
-            case "Bún":
-                newContent = new MonAnBun();
-                break;
-        }
+        Node newContent = switch (tenMuc) {
+            case "Loại món ăn" -> new LoaiMonAn();
+            case "Cơm" -> new MonAnCom();
+            case "Bún" -> new MonAnBun();
+            default -> null;
+        };
 
         if (newContent != null) {
-            VBox.setVgrow(newContent, Priority.ALWAYS);
-            if (rightBox.getChildren().size() > 1) {
-                rightBox.getChildren().set(1, newContent);
+            HBox.setHgrow(newContent, Priority.ALWAYS);
+            if (mainContainer.getChildren().size() > 2) {
+                mainContainer.getChildren().set(2, newContent);
             } else {
-                rightBox.getChildren().add(newContent);
+                mainContainer.getChildren().add(newContent);
             }
         }
     }
