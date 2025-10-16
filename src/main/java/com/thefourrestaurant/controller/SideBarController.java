@@ -1,5 +1,6 @@
 package com.thefourrestaurant.controller;
 
+import com.thefourrestaurant.view.GiaoDienChinh;
 import com.thefourrestaurant.view.components.sidebar.SideBar;
 import com.thefourrestaurant.view.components.sidebar.SideBarDanhMuc;
 import com.thefourrestaurant.view.components.sidebar.SideBarThongKe;
@@ -7,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class SideBarController {
     private final SideBar sideBar;
@@ -51,6 +53,8 @@ public class SideBarController {
 
         if (panelMoi != null) {
             panelMoi.setPrefWidth(300);
+            panelMoi.setMaxWidth(300);
+            panelMoi.setMinWidth(300);
             panelMoi.setUserData(loaiPanel);
             mainContainer.getChildren().add(1, panelMoi);
             panelDangMo = panelMoi;
