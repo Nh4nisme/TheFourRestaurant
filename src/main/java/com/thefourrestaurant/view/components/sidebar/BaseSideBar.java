@@ -10,12 +10,14 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
+import java.util.Objects;
+
 public abstract class BaseSideBar extends VBox {
     protected final Label tieuDe;
 
     public BaseSideBar(String tenTieuDe) {
         getStyleClass().add("base-sidebar");
-        getStylesheets().add(getClass().getResource("/com/thefourrestaurant/css/Application.css").toExternalForm());
+        getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/thefourrestaurant/css/Application.css")).toExternalForm());
 
         setPadding(new Insets(20));
         setSpacing(10);

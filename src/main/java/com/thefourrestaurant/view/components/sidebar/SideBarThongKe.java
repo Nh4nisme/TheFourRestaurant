@@ -1,33 +1,28 @@
 package com.thefourrestaurant.view.components.sidebar;
 
+import com.thefourrestaurant.view.LoaiMonAn;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 
 import java.util.List;
 
 public class SideBarThongKe extends BaseSideBar {
+    private HBox mainContainer;
 
-    private HBox mainContainer; // thêm biến này để truy cập container chính
-
-    public SideBarThongKe() {
+    public SideBarThongKe(HBox mainContainer) {
         super("Thống kê");
-    }
-
-    // thêm setter để controller truyền vào
-    public void setMainContainer(HBox mainContainer) {
         this.mainContainer = mainContainer;
     }
 
     @Override
     protected void khoiTaoDanhMuc() {
-        themDanhMuc("Doanh Thu", List.of("Cơm"));
-        themDanhMuc("Món ăn", List.of("Cơm"));
-        themDanhMuc("Tầng và bàn", List.of("Tầng 1"));
+        themDanhMuc("Doanh Thu", List.of("Theo ngày","Theo tháng","Theo năm"),this::showThongKeContent);
+        themDanhMuc("Món ăn", List.of("Cơm"),this::showThongKeContent);
+        themDanhMuc("Tầng và bàn", List.of("Tầng 1"),this::showThongKeContent);
     }
 
-    private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon) {
+    private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon, Runnable hanhDong) {
         Label nhanChinh = taoNhanClick(tenDanhMuc, null, "muc-chinh");
 
         if (danhSachCon != null && !danhSachCon.isEmpty()) {
@@ -42,26 +37,34 @@ public class SideBarThongKe extends BaseSideBar {
                 hopChua.getChildren().add(mucConLabel);
             }
 
-            nhanChinh.setOnMouseClicked(e -> moHoacDongMucCon(hopChua));
+            nhanChinh.setOnMouseClicked(e -> {
+                moHoacDongMucCon(hopChua);
+                showThongKeContent();
+            });
             getChildren().addAll(nhanChinh, hopChua);
         } else {
             getChildren().add(nhanChinh);
         }
     }
 
-    private void xuLyChonMucCon(String mucCon) {
-        if (mainContainer == null) return;
-
-        // Nếu đã có panel nội dung thống kê → xóa nó đi
-        if (mainContainer.getChildren().size() > 2)
+    private void showThongKeContent() {
+        if (mainContainer.getChildren().size() > 2) {
             mainContainer.getChildren().remove(2);
+        }
 
-        // Tạo nội dung mới
-        ThongKeContent thongKeContent = new ThongKeContent(mucCon);
-
-        // Cho phép chiếm hết không gian còn lại
+        ThongKeContent thongKeContent = new ThongKeContent();
         HBox.setHgrow(thongKeContent, Priority.ALWAYS);
+        mainContainer.getChildren().add(thongKeContent);
+    }
 
-        mainContainer.getChildren().add(2, thongKeContent);
+    private void xuLyChonMucCon(String mucCon) {
+//        if (mainContainer.getChildren().size() > 2) {
+//            mainContainer.getChildren().remove(2);
+//        }
+//
+//        ThongKeContent thongKeContent = new ThongKeContent();
+//        HBox.setHgrow(thongKeContent, Priority.ALWAYS);
+//
+//        mainContainer.getChildren().add(thongKeContent);
     }
 }

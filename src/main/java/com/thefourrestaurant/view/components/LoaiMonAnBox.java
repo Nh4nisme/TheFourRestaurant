@@ -4,6 +4,8 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.util.Objects;
+
 public class LoaiMonAnBox extends BaseBox {
 
     private LoaiMonAnBox() {
@@ -30,7 +32,7 @@ public class LoaiMonAnBox extends BaseBox {
         hop.setSpacing(5); // Thêm khoảng cách giữa ảnh và chữ
         hop.getStyleClass().add("add-item-box");
 
-        Image plusImage = new Image(LoaiMonAnBox.class.getResourceAsStream("/com/thefourrestaurant/images/icon/Them.png"));
+        Image plusImage = new Image(Objects.requireNonNull(LoaiMonAnBox.class.getResourceAsStream("/com/thefourrestaurant/images/icon/Them.png")));
         ImageView plusImageView = new ImageView(plusImage);
         plusImageView.setFitWidth(50);
         plusImageView.setFitHeight(50);

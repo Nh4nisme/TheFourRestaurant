@@ -1,145 +1,58 @@
 package com.thefourrestaurant.view.components.sidebar;
 
+import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.*;
-import javafx.scene.chart.*;
+
 
 public class ThongKeContent extends VBox {
-    private final ToolBar navBar;
-    private final GridPane grid;
 
-    public ThongKeContent(String tenMucCon) {
-        setSpacing(10);
-        getStyleClass().add("thongke-root");
+    private final ToolBar TKNavBar;
+    private final GridPane gridBieuDo;
 
-        navBar = new ToolBar(
-                new Label("📊 Thống kê " + tenMucCon)
+    public ThongKeContent() {
+        TKNavBar = new ToolBar(
+                new ButtonSample("Làm mới",45,16,1),
+                new ButtonSample("Áp dụng",45,16,1),
+                new ButtonSample("Xuất hóa đơn",45,16,1)
         );
-        navBar.getStyleClass().add("thongke-navbar");
+        TKNavBar.getStyleClass().add("thongke-navbar");
 
-        grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(10));
-        grid.setAlignment(Pos.CENTER);
-        grid.setGridLinesVisible(true);
-        grid.getStyleClass().add("thongke-grid");
+        //gridPane chứa các biểu đồ
+        gridBieuDo = new GridPane();
+        VBox.setVgrow(gridBieuDo, Priority.ALWAYS);
+        gridBieuDo.setPadding(new Insets(10));
+        gridBieuDo.setHgap(10);
+        gridBieuDo.setVgap(10);
 
-        // 2x2 layout
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(50);
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPercentWidth(50);
-        grid.getColumnConstraints().addAll(col1, col2);
+        VBox box1 = new VBox(5);
+        box1.setStyle("-fx-background-color: lightblue; -fx-padding: 10; -fx-border-radius: 5;");
 
-        RowConstraints row1 = new RowConstraints();
-        row1.setPercentHeight(50);
-        RowConstraints row2 = new RowConstraints();
-        row2.setPercentHeight(50);
-        grid.getRowConstraints().addAll(row1, row2);
+        VBox box2 = new VBox(5);
+        box2.setStyle("-fx-background-color: lightgreen; -fx-padding: 10;");
 
-        VBox.setVgrow(grid, Priority.ALWAYS);
+        VBox box3 = new VBox(5);
+        box3.setStyle("-fx-background-color: lightcoral; -fx-padding: 10;");
 
-        // === Gọi hàm tạo biểu đồ ===
-        taoBieuDoDoanhThu();
+        VBox box4 = new VBox(5);
+        box4.setStyle("-fx-background-color: lightyellow; -fx-padding: 10;");
 
-        getChildren().addAll(navBar, grid);
-    }
+        ColumnConstraints col = new ColumnConstraints();
+        col.setPercentWidth(50);
+        gridBieuDo.getColumnConstraints().addAll(col, col);
 
-    private void taoBieuDoDoanhThu() {
-        // 1️⃣ Biểu đồ đường - Doanh thu theo ngày
-        LineChart<String, Number> lineChart = taoLineChart();
+        RowConstraints row = new RowConstraints();
+        row.setPercentHeight(50);
+        gridBieuDo.getRowConstraints().addAll(row, row);
 
-        // 2️⃣ Biểu đồ cột - Doanh thu theo tháng
-        BarChart<String, Number> barChart = taoBarChart();
 
-        // 3️⃣ Biểu đồ tròn - Tỷ lệ món theo doanh thu
-        PieChart pieChart = taoPieChart();
+        gridBieuDo.add(box1,0,0);
+        gridBieuDo.add(box2,1,0);
+        gridBieuDo.add(box3,0,1);
+        gridBieuDo.add(box4,1,1);
 
-        // 4️⃣ Biểu đồ vùng - Tổng doanh thu theo năm
-        AreaChart<String, Number> areaChart = taoAreaChart();
-
-        grid.add(lineChart, 0, 0);
-        grid.add(barChart, 1, 0);
-        grid.add(pieChart, 0, 1);
-        grid.add(areaChart, 1, 1);
-
-        // Cho biểu đồ fit vừa ô
-        GridPane.setHgrow(lineChart, Priority.ALWAYS);
-        GridPane.setVgrow(lineChart, Priority.ALWAYS);
-        GridPane.setHgrow(barChart, Priority.ALWAYS);
-        GridPane.setVgrow(barChart, Priority.ALWAYS);
-        GridPane.setHgrow(pieChart, Priority.ALWAYS);
-        GridPane.setVgrow(pieChart, Priority.ALWAYS);
-        GridPane.setHgrow(areaChart, Priority.ALWAYS);
-        GridPane.setVgrow(areaChart, Priority.ALWAYS);
-    }
-
-    private LineChart<String, Number> taoLineChart() {
-        CategoryAxis xAxis = new CategoryAxis();
-        NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Ngày");
-        yAxis.setLabel("Doanh thu (triệu)");
-
-        LineChart<String, Number> chart = new LineChart<>(xAxis, yAxis);
-        chart.setTitle("Doanh thu theo ngày");
-
-        XYChart.Series<String, Number> data = new XYChart.Series<>();
-        data.setName("Tháng 10");
-        data.getData().add(new XYChart.Data<>("01", 5));
-        data.getData().add(new XYChart.Data<>("02", 8));
-        data.getData().add(new XYChart.Data<>("03", 6));
-        data.getData().add(new XYChart.Data<>("04", 10));
-        chart.getData().add(data);
-        return chart;
-    }
-
-    private BarChart<String, Number> taoBarChart() {
-        CategoryAxis xAxis = new CategoryAxis();
-        NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Tháng");
-        yAxis.setLabel("Doanh thu (triệu)");
-
-        BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
-        chart.setTitle("Doanh thu theo tháng");
-
-        XYChart.Series<String, Number> data = new XYChart.Series<>();
-        data.getData().add(new XYChart.Data<>("1", 50));
-        data.getData().add(new XYChart.Data<>("2", 65));
-        data.getData().add(new XYChart.Data<>("3", 80));
-        chart.getData().add(data);
-        return chart;
-    }
-
-    private PieChart taoPieChart() {
-        PieChart chart = new PieChart();
-        chart.setTitle("Tỷ lệ doanh thu theo món");
-        chart.getData().addAll(
-                new PieChart.Data("Cơm", 40),
-                new PieChart.Data("Phở", 30),
-                new PieChart.Data("Bún", 20),
-                new PieChart.Data("Khác", 10)
-        );
-        return chart;
-    }
-
-    private AreaChart<String, Number> taoAreaChart() {
-        CategoryAxis xAxis = new CategoryAxis();
-        NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Năm");
-        yAxis.setLabel("Doanh thu (triệu)");
-
-        AreaChart<String, Number> chart = new AreaChart<>(xAxis, yAxis);
-        chart.setTitle("Tổng doanh thu theo năm");
-
-        XYChart.Series<String, Number> data = new XYChart.Series<>();
-        data.getData().add(new XYChart.Data<>("2022", 600));
-        data.getData().add(new XYChart.Data<>("2023", 800));
-        data.getData().add(new XYChart.Data<>("2024", 1000));
-        chart.getData().add(data);
-        return chart;
+        getChildren().addAll(TKNavBar,gridBieuDo);
     }
 }

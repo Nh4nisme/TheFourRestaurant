@@ -1,8 +1,10 @@
 package com.thefourrestaurant.controller;
 
+import com.thefourrestaurant.view.GiaoDienChinh;
 import com.thefourrestaurant.view.components.sidebar.*;
 import javafx.animation.*;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
 public class SideBarController {
     private final SideBar sideBar;
@@ -18,6 +20,11 @@ public class SideBarController {
     private void khoiTaoSuKien() {
         sideBar.getButton("DanhMuc").setOnAction(e -> moHoacDongPanel("DanhMuc"));
         sideBar.getButton("ThongKe").setOnAction(e -> moHoacDongPanel("ThongKe"));
+        sideBar.getButton("CaiDat").setOnAction(e -> {
+            Stage stage = (Stage) mainContainer.getScene().getWindow();
+            new GiaoDienChinh().show(stage);
+            // ???????????????????????????????????????
+        });
     }
 
     private void moHoacDongPanel(String loaiPanel) {
@@ -37,17 +44,7 @@ public class SideBarController {
 
         Pane panelMoi = switch (loaiPanel) {
             case "DanhMuc" -> new SideBarDanhMuc(mainContainer);
-            case "ThongKe" -> {
-                SideBarThongKe tk = new SideBarThongKe();
-                tk.setMainContainer(mainContainer);
-                // 👉 Khi mở Thống kê, mở luôn nội dung thống kê mặc định
-                if (mainContainer.getChildren().size() > 2)
-                    mainContainer.getChildren().remove(2);
-                ThongKeContent tkContent = new ThongKeContent("Doanh Thu");
-                HBox.setHgrow(tkContent, Priority.ALWAYS);
-                mainContainer.getChildren().add(tkContent);
-                yield tk;
-            }
+            case "ThongKe" -> new SideBarThongKe(mainContainer);
             default -> null;
         };
 

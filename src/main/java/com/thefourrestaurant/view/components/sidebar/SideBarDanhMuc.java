@@ -2,14 +2,10 @@ package com.thefourrestaurant.view.components.sidebar;
 
 import com.thefourrestaurant.view.GiaoDienTaoThucDon;
 import com.thefourrestaurant.view.LoaiMonAn;
-import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-
 import java.util.List;
-import java.util.Objects;
 
 public class SideBarDanhMuc extends BaseSideBar {
     private final HBox mainContainer;
@@ -21,8 +17,8 @@ public class SideBarDanhMuc extends BaseSideBar {
 
     @Override
     protected void khoiTaoDanhMuc() {
-        themDanhMuc("Thực đơn", null, () -> showThucDon());
-        themDanhMuc("Loại món ăn", null, () -> showLoaiMonAn());
+        themDanhMuc("Thực đơn", null, this::showThucDon);
+        themDanhMuc("Loại món ăn", null, this::showLoaiMonAn);
         themDanhMuc("Món ăn", null, () -> {});
         themDanhMuc("Tầng và bàn", List.of("Tầng 1", "Tầng 2", "Tầng 3"), null);
     }
