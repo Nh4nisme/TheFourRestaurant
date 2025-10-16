@@ -12,7 +12,7 @@ public class BanDAO {
     // 🔹 Lấy tất cả bàn
     public List<Ban> getAll() {
         List<Ban> ds = new ArrayList<>();
-        String sql = "SELECT maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan FROM Ban";
+        String sql = "SELECT maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan FROM Ban";
 
         try (Connection conn = ConnectSQL.getConnection();
              Statement st = conn.createStatement();
@@ -20,13 +20,14 @@ public class BanDAO {
 
             while (rs.next()) {
                 ds.add(new Ban(
-                    rs.getString("maBan"),
-                    rs.getString("tenBan"),
-                    rs.getString("trangThai"),
-                    rs.getInt("toaDoX"),
-                    rs.getInt("toaDoY"),
-                    rs.getString("maTang"),
-                    rs.getString("maLoaiBan")
+                        rs.getString("maBan"),
+                        rs.getString("tenBan"),
+                        rs.getString("trangThai"),
+                        rs.getInt("toaDoX"),
+                        rs.getInt("toaDoY"),
+                        rs.getString("maTang"),
+                        rs.getString("maLoaiBan"),
+                        rs.getString("anhBan")
                 ));
             }
         } catch (Exception e) {
@@ -37,7 +38,7 @@ public class BanDAO {
 
     // 🔹 Lấy bàn theo mã
     public Ban getById(String maBan) {
-        String sql = "SELECT maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan FROM Ban WHERE maBan = ?";
+        String sql = "SELECT maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan FROM Ban WHERE maBan = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -46,13 +47,14 @@ public class BanDAO {
 
             if (rs.next()) {
                 return new Ban(
-                    rs.getString("maBan"),
-                    rs.getString("tenBan"),
-                    rs.getString("trangThai"),
-                    rs.getInt("toaDoX"),
-                    rs.getInt("toaDoY"),
-                    rs.getString("maTang"),
-                    rs.getString("maLoaiBan")
+                        rs.getString("maBan"),
+                        rs.getString("tenBan"),
+                        rs.getString("trangThai"),
+                        rs.getInt("toaDoX"),
+                        rs.getInt("toaDoY"),
+                        rs.getString("maTang"),
+                        rs.getString("maLoaiBan"),
+                        rs.getString("anhBan")
                 );
             }
         } catch (Exception e) {
@@ -76,7 +78,7 @@ public class BanDAO {
         return false;
     }
 
-    // 🔹 Cập nhật vị trí bàn (nếu bạn cho phép kéo thả bàn trong giao diện)
+    // 🔹 Cập nhật tọa độ bàn
     public boolean updateToaDo(String maBan, int toaDoX, int toaDoY) {
         String sql = "UPDATE Ban SET toaDoX = ?, toaDoY = ? WHERE maBan = ?";
         try (Connection conn = ConnectSQL.getConnection();
@@ -90,5 +92,34 @@ public class BanDAO {
             e.printStackTrace();
         }
         return false;
+    }
+
+    // 🔹 Lấy danh sách bàn theo tầng
+    public List<Ban> getByTang(String maTang) {
+        List<Ban> ds = new ArrayList<>();
+        String sql = "SELECT maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan FROM Ban WHERE maTang = ?";
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maTang);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                ds.add(new Ban(
+                        rs.getString("maBan"),
+                        rs.getString("tenBan"),
+                        rs.getString("trangThai"),
+                        rs.getInt("toaDoX"),
+                        rs.getInt("toaDoY"),
+                        rs.getString("maTang"),
+                        rs.getString("maLoaiBan"),
+                        rs.getString("anhBan")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ds;
     }
 }
