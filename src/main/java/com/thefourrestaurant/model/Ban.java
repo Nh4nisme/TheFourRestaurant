@@ -8,11 +8,12 @@ public class Ban {
     private int toaDoY;
     private String maTang;     // Khóa ngoại đến bảng Tang
     private String maLoaiBan;  // Khóa ngoại đến bảng LoaiBan
+    private String anhBan;     // Link ảnh bàn
 
     public Ban() {
     }
 
-    public Ban(String maBan, String tenBan, String trangThai, int toaDoX, int toaDoY, String maTang, String maLoaiBan) {
+    public Ban(String maBan, String tenBan, String trangThai, int toaDoX, int toaDoY, String maTang, String maLoaiBan, String anhBan) {
         this.maBan = maBan;
         this.tenBan = tenBan;
         this.trangThai = trangThai;
@@ -20,6 +21,7 @@ public class Ban {
         this.toaDoY = toaDoY;
         this.maTang = maTang;
         this.maLoaiBan = maLoaiBan;
+        this.anhBan = anhBan;
     }
 
     // Getters & Setters
@@ -77,6 +79,14 @@ public class Ban {
 
     public void setMaLoaiBan(String maLoaiBan) {
         this.maLoaiBan = maLoaiBan;
+    }
+
+    public String getAnhBan() {
+        return anhBan;
+    }
+
+    public void setAnhBan(String anhBan) {
+        this.anhBan = anhBan;
     }
 
     @Override
