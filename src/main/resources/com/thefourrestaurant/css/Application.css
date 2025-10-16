@@ -37,7 +37,7 @@
 }
 
 /* --- DropDownButton.css (clean version) --- */
-.dropdown-button {
+.dropdown-buttonGamboge {
     -fx-background-color: #CD7B3E;
     -fx-border-color: #E5D595;
     -fx-text-fill: #E5D595;
@@ -48,8 +48,26 @@
     -fx-background-insets: 0;
 }
 
-.dropdown-button:hover {
-    -fx-background-color: #D88A4D; /* Sáng hơn chút khi hover */
+.dropdown-buttonIndigo {
+    -fx-background-color: #1E424D;
+    -fx-border-color: #1E424D;
+    -fx-text-fill: #DDB248;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
+    -fx-background-insets: 0;
+}
+
+.dropdown-buttonIndigoV2 {
+    -fx-background-color: #DDB248;
+    -fx-border-color: #DDB248;
+    -fx-text-fill: #1E424D;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
+    -fx-background-insets: 0;
 }
 
 /* --- Context Menu (dropdown list) --- */

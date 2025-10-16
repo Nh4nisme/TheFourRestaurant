@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view;
 
+import com.thefourrestaurant.view.components.DropDownButton;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -13,6 +14,8 @@ import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.MonAnBox;
 
 import javafx.beans.property.SimpleStringProperty;
+
+import java.util.List;
 
 public class PhieuGoiMon extends BorderPane {
 
@@ -45,14 +48,23 @@ public class PhieuGoiMon extends BorderPane {
         thanhTren.setAlignment(Pos.CENTER_LEFT);
         thanhTren.setStyle("-fx-background-color: #1E424D;");
 
-        MenuButton menuBuaAn = new MenuButton("Buổi Trưa");
-        menuBuaAn.setStyle("-fx-background-color: #D4A84A; -fx-text-fill: #2C5F5F; "
-                + "-fx-font-size: 14px; -fx-font-weight: bold; -fx-pref-width: 150px;");
+//        MenuButton menuBuaAn = new MenuButton("Buổi Trưa");
+//        menuBuaAn.setStyle("-fx-background-color: #D4A84A; -fx-text-fill: #2C5F5F; "
+//                + "-fx-font-size: 14px; -fx-font-weight: bold; -fx-pref-width: 150px;");
+//
+//        menuBuaAn.getItems().addAll(
+//                new MenuItem("Buổi Sáng"),
+//                new MenuItem("Buổi Trưa"),
+//                new MenuItem("Buổi Tối")
+//        );
 
-        menuBuaAn.getItems().addAll(
-                new MenuItem("Buổi Sáng"),
-                new MenuItem("Buổi Trưa"),
-                new MenuItem("Buổi Tối")
+        DropDownButton menuThucDon = new DropDownButton(
+                "Thực đơn  ▼",
+                List.of("Buổi Sáng  ▼","Buổi Trưa  ▼","Buổi Tối  ▼","Khai Vị  ▼"),
+                null,
+                45,
+                16,
+                3
         );
 
         Label lblLoaiMon = new Label("Loại món:");
@@ -74,7 +86,7 @@ public class PhieuGoiMon extends BorderPane {
         btnTim = new ButtonSample("Tìm kiếm", "", 35, 14,1);
         btnLamMoi = new ButtonSample("Làm mới", "", 35, 14,1);
 
-        thanhTren.getChildren().addAll(menuBuaAn, lblLoaiMon, txtLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi);
+        thanhTren.getChildren().addAll(menuThucDon, lblLoaiMon, txtLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi);
         return thanhTren;
     }
 

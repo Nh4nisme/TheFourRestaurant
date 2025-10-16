@@ -19,7 +19,7 @@ public class DropDownButton extends Button {
     private String selectedValue;
     private Consumer<String> onItemSelected; // callback khi chọn item
 
-    public DropDownButton(String promptText, List<String> options, String iconPath, double height, double fontSize) {
+    public DropDownButton(String promptText, List<String> options, String iconPath, double height, double fontSize, int styleNumber) {
         super(promptText);
 
         // Font Montserrat
@@ -89,7 +89,11 @@ public class DropDownButton extends Button {
         setMinHeight(height);
         setMaxHeight(height);
         setPadding(new Insets(5, 10, 5, 10));
-        getStyleClass().add("dropdown-button");
+        switch (styleNumber) {
+            case 1 -> getStyleClass().add("dropdown-buttonGamboge");
+            case 2 -> getStyleClass().add("dropdown-buttonIndigo");
+            case 3 -> getStyleClass().add("dropdown-buttonIndigoV2");
+        }
     }
 
     // Setter callback

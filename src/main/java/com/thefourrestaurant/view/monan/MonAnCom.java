@@ -1,4 +1,4 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.monan;
 
 import com.thefourrestaurant.controller.MonAnController;
 import com.thefourrestaurant.view.components.LoaiMonAnBox;

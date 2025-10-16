@@ -1,8 +1,8 @@
 package com.thefourrestaurant.view.components.sidebar;
 
 import com.thefourrestaurant.view.LoaiMonAn;
-import com.thefourrestaurant.view.MonAnBun;
-import com.thefourrestaurant.view.MonAnCom;
+import com.thefourrestaurant.view.monan.MonAnBun;
+import com.thefourrestaurant.view.monan.MonAnCom;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
