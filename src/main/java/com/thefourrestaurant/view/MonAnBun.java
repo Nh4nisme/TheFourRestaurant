@@ -1,7 +1,8 @@
 package com.thefourrestaurant.view;
 
-import com.thefourrestaurant.controller.LoaiMonAnController;
+import com.thefourrestaurant.controller.MonAnController;
 import com.thefourrestaurant.view.components.LoaiMonAnBox;
+import com.thefourrestaurant.view.components.MonAnBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -15,19 +16,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LoaiMonAn extends GridPane {
+public class MonAnBun extends GridPane {
 
-    private GridPane luoiCacMucDuoi;
+    private GridPane luoiCacMonAn;
     private HBox boChuyenTrang;
-    private List<Map<String, String>> danhSachLoaiMonAn;
-    private final int soMucMoiTrang = 20;
-    private final int soCotMoiHang = 10;
+    private List<Map<String, String>> danhSachMonAn;
+    private final int soMucMoiTrang = 14; // 2 hàng x 7 cột
+    private final int soCotMoiHang = 7;
     private int trangHienTai = 1;
+    private final MonAnController controller;
 
-    private final LoaiMonAnController controller;
-
-    public LoaiMonAn() {
-        this.controller = new LoaiMonAnController();
+    public MonAnBun() {
+        this.controller = new MonAnController();
         khoiTaoDuLieuGia();
 
         this.setStyle("-fx-background-color: #F5F5F5;");
@@ -38,7 +38,7 @@ public class LoaiMonAn extends GridPane {
         hangDuoi.setPercentHeight(95);
         this.getRowConstraints().addAll(hangTren, hangDuoi);
 
-        Label duongDan = new Label("Quản Lý > Loại Món Ăn");
+        Label duongDan = new Label("Quản Lý > Món Ăn > Bún");
         duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
         VBox khungTren = new VBox(duongDan);
         khungTren.setStyle("-fx-background-color: #673E1F;");
@@ -57,40 +57,39 @@ public class LoaiMonAn extends GridPane {
         GridPane.setMargin(khungDuoi, new Insets(10, 10, 10, 10));
         this.add(khungDuoi, 0, 1);
 
-        VBox dsLoaiMonAn = new VBox(20);
-        dsLoaiMonAn.setStyle("-fx-background-color: #F0F2F3; -fx-background-radius: 10;");
-        dsLoaiMonAn.setAlignment(Pos.TOP_CENTER);
-        dsLoaiMonAn.setPadding(new Insets(20));
-        GridPane.setMargin(dsLoaiMonAn, new Insets(20, 20, 20, 20));
-        khungDuoi.getChildren().add(dsLoaiMonAn);
-        dsLoaiMonAn.setPrefWidth(800);
-        dsLoaiMonAn.setPrefHeight(800);
+        VBox dsMonAn = new VBox(20);
+        dsMonAn.setStyle("-fx-background-color: #F0F2F3; -fx-background-radius: 10;");
+        dsMonAn.setAlignment(Pos.TOP_CENTER);
+        dsMonAn.setPadding(new Insets(20));
+        khungDuoi.getChildren().add(dsMonAn);
+        dsMonAn.setPrefWidth(800);
+        dsMonAn.setPrefHeight(800);
 
-        VBox khungTrenLoaiMonAn = new VBox();
-        khungTrenLoaiMonAn.setPrefHeight(250);
-        khungTrenLoaiMonAn.setAlignment(Pos.CENTER_LEFT);
-        khungTrenLoaiMonAn.setPadding(new Insets(10, 20, 10, 20));
-        khungTrenLoaiMonAn.setStyle("-fx-background-color: #F0F2F3");
+        VBox phanTren = new VBox();
+        phanTren.setPrefHeight(250);
+        phanTren.setAlignment(Pos.CENTER_LEFT);
+        phanTren.setPadding(new Insets(10, 20, 10, 20));
+        phanTren.setStyle("-fx-background-color: #F0F2F3");
 
-        BorderPane khungDuoiLoaiMonAn = new BorderPane();
-        khungDuoiLoaiMonAn.setPadding(new Insets(10, 0, 0, 0));
+        BorderPane phanDuoi = new BorderPane();
+        phanDuoi.setPadding(new Insets(10, 0, 0, 0));
 
-        luoiCacMucDuoi = new GridPane();
-        luoiCacMucDuoi.setAlignment(Pos.CENTER);
-        luoiCacMucDuoi.setHgap(20);
-        luoiCacMucDuoi.setVgap(20);
-        luoiCacMucDuoi.getStyleClass().add("grid-pane");
+        luoiCacMonAn = new GridPane();
+        luoiCacMonAn.setAlignment(Pos.CENTER);
+        luoiCacMonAn.setHgap(20);
+        luoiCacMonAn.setVgap(20);
+        luoiCacMonAn.getStyleClass().add("grid-pane");
 
         boChuyenTrang = new HBox(10);
         boChuyenTrang.setAlignment(Pos.CENTER);
         boChuyenTrang.setPadding(new Insets(15, 0, 0, 0));
 
-        GridPane luoiCacMucTren = new GridPane();
-        luoiCacMucTren.setAlignment(Pos.BASELINE_LEFT);
-        luoiCacMucTren.setHgap(20);
-        luoiCacMucTren.setVgap(20);
-        luoiCacMucTren.getStyleClass().add("grid-pane");
-        luoiCacMucTren.setPadding(new Insets(0, 0, 0, 5));
+        GridPane luoiThemMon = new GridPane();
+        luoiThemMon.setAlignment(Pos.BASELINE_LEFT);
+        luoiThemMon.setHgap(20);
+        luoiThemMon.setVgap(20);
+        luoiThemMon.getStyleClass().add("grid-pane");
+        luoiThemMon.setPadding(new Insets(0, 0, 0, 5));
 
         VBox hopThemMoi = LoaiMonAnBox.createThemMoiBox();
 
@@ -99,31 +98,31 @@ public class LoaiMonAn extends GridPane {
         themMoiButton.setManaged(false);
 
         themMoiButton.setOnAction(event -> {
-            Map<String, Object> duLieuMoi = controller.themMoiLoaiMonAn();
-            if (duLieuMoi != null) {
-                Map<String, String> mucMoi = new HashMap<>();
-                mucMoi.put("name", (String) duLieuMoi.get("name"));
-                mucMoi.put("imagePath", (String) duLieuMoi.get("imagePath"));
-
-                danhSachLoaiMonAn.add(0, mucMoi);
-                capNhatLuoiMonAn(1);
+            Map<String, Object> result = controller.themMoiMonAn();
+            if (result != null) {
+                Map<String, String> newItem = new HashMap<>();
+                newItem.put("name", (String) result.get("ten"));
+                newItem.put("price", (String) result.get("gia"));
+                newItem.put("imagePath", (String) result.get("imagePath"));
+                danhSachMonAn.add(newItem);
+                capNhatLuoiMonAn(trangHienTai);
             }
         });
 
         hopThemMoi.setOnMouseClicked(event -> themMoiButton.fire());
 
-        luoiCacMucTren.add(hopThemMoi, 0, 0);
+        luoiThemMon.add(hopThemMoi, 0, 0);
         this.getChildren().add(themMoiButton);
 
         capNhatLuoiMonAn(trangHienTai);
         thietLapPhanTrang();
-        khungTrenLoaiMonAn.getChildren().add(luoiCacMucTren);
+        phanTren.getChildren().add(luoiThemMon);
 
-        khungDuoiLoaiMonAn.setCenter(luoiCacMucDuoi);
-        khungDuoiLoaiMonAn.setBottom(boChuyenTrang);
+        phanDuoi.setCenter(luoiCacMonAn);
+        phanDuoi.setBottom(boChuyenTrang);
 
-        dsLoaiMonAn.getChildren().addAll(khungTrenLoaiMonAn, khungDuoiLoaiMonAn);
-        VBox.setVgrow(khungDuoiLoaiMonAn, Priority.ALWAYS);
+        dsMonAn.getChildren().addAll(phanTren, phanDuoi);
+        VBox.setVgrow(phanDuoi, Priority.ALWAYS);
 
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
@@ -134,39 +133,40 @@ public class LoaiMonAn extends GridPane {
     }
 
     private void khoiTaoDuLieuGia() {
-        danhSachLoaiMonAn = new ArrayList<>();
+        danhSachMonAn = new ArrayList<>();
         for (int i = 1; i <= 25; i++) {
             Map<String, String> item = new HashMap<>();
-            item.put("name", "Loại Món Ăn " + i);
-            item.put("imagePath", null);
-            danhSachLoaiMonAn.add(item);
+            item.put("name", "Bún " + i);
+            item.put("price", (25 + i) + ",000");
+            item.put("imagePath", null); // Sử dụng imagePath và để null để hiển thị ảnh mặc định
+            danhSachMonAn.add(item);
         }
     }
 
     private void capNhatLuoiMonAn(int trang) {
         trangHienTai = trang;
-        luoiCacMucDuoi.getChildren().clear();
+        luoiCacMonAn.getChildren().clear();
 
-        int tongHop = danhSachLoaiMonAn.size();
+        int tongHop = danhSachMonAn.size();
         int batDau = (trang - 1) * soMucMoiTrang;
         int ketThuc = Math.min(batDau + soMucMoiTrang, tongHop);
 
         for (int i = batDau; i < ketThuc; i++) {
-            Map<String, String> item = danhSachLoaiMonAn.get(i);
-            VBox hopLoaiMonAn = LoaiMonAnBox.createLoaiMonAnBox(item.get("name"), item.get("imagePath"));
+            Map<String, String> item = danhSachMonAn.get(i);
+            MonAnBox hopMonAn = new MonAnBox(item.get("name"), item.get("price"), item.get("imagePath"));
 
             int chiSoTrongTrang = i - batDau;
             int col = chiSoTrongTrang % soCotMoiHang;
             int row = chiSoTrongTrang / soCotMoiHang;
 
-            luoiCacMucDuoi.add(hopLoaiMonAn, col, row);
+            luoiCacMonAn.add(hopMonAn, col, row);
         }
         thietLapPhanTrang();
     }
 
     private void thietLapPhanTrang() {
         boChuyenTrang.getChildren().clear();
-        int tongHop = danhSachLoaiMonAn.size();
+        int tongHop = danhSachMonAn.size();
 
         if (tongHop <= soMucMoiTrang) {
             return;

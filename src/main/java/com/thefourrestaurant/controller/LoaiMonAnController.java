@@ -15,25 +15,39 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoaiMonAnController {
 
+    private Map<String, Object> result = null;
     private File selectedImageFile = null;
 
-    public void themMoiLoaiMonAn() {
+    public Map<String, Object> themMoiLoaiMonAn() {
+        this.result = null;
+        this.selectedImageFile = null;
+
         Stage popupStage = new Stage();
         popupStage.initModality(Modality.APPLICATION_MODAL);
         popupStage.setTitle("Thêm Loại Món Ăn Mới");
 
         // --- Font ---
-        Font montserratFont = Font.loadFont(
-                getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 14);
+        Font montserratFont = null;
+        try (InputStream fontStream = getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf")) {
+            if (fontStream != null) {
+                montserratFont = Font.loadFont(fontStream, 14);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tải font: " + e.getMessage());
+        }
+
         String fontStyle = "";
         if (montserratFont != null) {
             fontStyle = "-fx-font-family: '" + montserratFont.getFamily() + "';";
         } else {
-            System.err.println("Không tìm thấy font Montserrat-SemiBold.ttf");
+            System.err.println("Không tìm thấy font Montserrat-SemiBold.ttf. Sử dụng font mặc định.");
         }
 
         String labelStyle = fontStyle + "-fx-text-fill: #E19E11; -fx-font-size: 14px;";
@@ -51,8 +65,8 @@ public class LoaiMonAnController {
 
         // --- Phần Ảnh ---
         HBox topPart = new HBox();
-        topPart.setAlignment(Pos.CENTER_LEFT); // căn giữa nhưng lệch trái
-        topPart.setPadding(new Insets(20, 0, 10, 150)); // dịch sang trái 60px, bạn có thể tinh chỉnh số này
+        topPart.setAlignment(Pos.CENTER_LEFT);
+        topPart.setPadding(new Insets(20, 0, 10, 150));
 
         VBox imageBox = new VBox(5);
         imageBox.setAlignment(Pos.CENTER);
@@ -63,29 +77,35 @@ public class LoaiMonAnController {
                 + "-fx-border-radius: 10; -fx-background-radius: 10; -fx-border-style: dashed;");
         imageBox.setCursor(Cursor.HAND);
 
-        ImageView anhImageView = new ImageView(
-                new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/ThayAnh.png")));
+        ImageView anhImageView = new ImageView();
+        try (InputStream imageStream = getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/ThayAnh.png")) {
+            if (imageStream != null) {
+                anhImageView.setImage(new Image(imageStream));
+            } else {
+                System.err.println("Không tìm thấy ảnh mặc định.");
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tải ảnh mặc định: " + e.getMessage());
+        }
+
         anhImageView.setFitWidth(150);
         anhImageView.setFitHeight(150);
-
-        //Label chonAnhLabel = new Label("Chọn Ảnh");
-        //chonAnhLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888888;");
 
         imageBox.getChildren().addAll(anhImageView);
         topPart.getChildren().add(imageBox);
 
         // --- Form ---
         VBox centerPart = new VBox(15);
-        centerPart.setPadding(new Insets(10, 20, 20, 20)); // padding hợp lý
-        centerPart.setAlignment(Pos.TOP_LEFT); // không căn giữa nữa, căn trên-trái
+        centerPart.setPadding(new Insets(10, 20, 20, 20));
+        centerPart.setAlignment(Pos.TOP_LEFT);
 
         GridPane formGrid = new GridPane();
         formGrid.setHgap(15);
         formGrid.setVgap(15);
         formGrid.setAlignment(Pos.TOP_LEFT);
-        ColumnConstraints col1 = new ColumnConstraints(80); // nhãn
+        ColumnConstraints col1 = new ColumnConstraints(80);
         ColumnConstraints col2 = new ColumnConstraints();
-        col2.setHgrow(Priority.ALWAYS); // cho phép fill chiều ngang
+        col2.setHgrow(Priority.ALWAYS);
         formGrid.getColumnConstraints().addAll(col1, col2);
 
         Label tenLabel = new Label("Tên:");
@@ -93,7 +113,7 @@ public class LoaiMonAnController {
         TextField tenTextField = new TextField();
         tenTextField.setPromptText("Nhập tên loại món ăn");
         tenTextField.setStyle(inputStyle);
-        tenTextField.setMaxWidth(Double.MAX_VALUE); // fill width
+        tenTextField.setMaxWidth(Double.MAX_VALUE);
         tenTextField.getStyleClass().add("text-field");
 
         Label moTaLabel = new Label("Mô tả:");
@@ -124,14 +144,13 @@ public class LoaiMonAnController {
         HBox footerPart = new HBox(10);
         footerPart.setPadding(new Insets(10));
         footerPart.setAlignment(Pos.CENTER_LEFT);
-        footerPart.setStyle(
-                "-fx-background-color: #F0F0F0; -fx-border-color: #E0E0E0; -fx-border-width: 1 0 0 0;");
+        footerPart.setStyle("-fx-background-color: #F0F0F0; -fx-border-color: #E0E0E0; -fx-border-width: 1 0 0 0;");
 
-        Button btnXoa = new ButtonSample("Xóa", 35, 14,1);
+        Button btnXoa = new ButtonSample("Xóa", 35, 14, 2);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        Button btnOke = new ButtonSample("Oke", 35, 14,1);
-        Button btnHuy = new ButtonSample("Hủy", 35, 14,1);
+        Button btnOke = new ButtonSample("Oke", 35, 14, 2);
+        Button btnHuy = new ButtonSample("Hủy", 35, 14, 2);
         footerPart.getChildren().addAll(btnXoa, spacer, btnOke, btnHuy);
 
         // --- Layout tổng ---
@@ -144,58 +163,57 @@ public class LoaiMonAnController {
         imageBox.setOnMouseClicked(event -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Chọn Ảnh");
-            fileChooser.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
+            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
             File file = fileChooser.showOpenDialog(popupStage);
             if (file != null) {
                 selectedImageFile = file;
-                Image image = new Image(file.toURI().toString());
-                anhImageView.setImage(image);
-                anhImageView.setFitWidth(120);
-                anhImageView.setFitHeight(120);
-                imageBox.getChildren().clear();
-                imageBox.getChildren().add(anhImageView);
-                imageBox.setStyle(
-                        "-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 10; -fx-background-radius: 10;");
+                try {
+                    Image image = new Image(file.toURI().toString());
+                    anhImageView.setImage(image);
+                    anhImageView.setFitWidth(120);
+                    anhImageView.setFitHeight(120);
+                    imageBox.getChildren().clear();
+                    imageBox.getChildren().add(anhImageView);
+                    imageBox.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 10; -fx-background-radius: 10;");
+                } catch (Exception ex) {
+                    System.err.println("Lỗi khi tải ảnh đã chọn: " + ex.getMessage());
+                }
             }
         });
 
         btnHuy.setOnAction(e -> popupStage.close());
 
-        btnXoa.setOnAction(e -> {
-            System.out.println("Chức năng Xóa được gọi.");
-        });
-
         btnOke.setOnAction(e -> {
             String tenLoaiMonAn = tenTextField.getText();
             if (tenLoaiMonAn == null || tenLoaiMonAn.trim().isEmpty()) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Tên loại món ăn không được để trống!", ButtonType.OK);
                 alert.setTitle("Thiếu thông tin");
                 alert.setHeaderText(null);
-                alert.setContentText("Tên loại món ăn không được để trống!");
                 alert.showAndWait();
             } else {
-                System.out.println("Lưu loại món ăn mới:");
-                System.out.println(" - Tên: " + tenLoaiMonAn);
-                System.out.println(" - Mô tả: " + moTaTextArea.getText());
-                System.out.println(" - Hiện: " + hienCheckBox.isSelected());
+                result = new HashMap<>();
+                result.put("name", tenLoaiMonAn);
+                result.put("description", moTaTextArea.getText());
+                result.put("is_shown", hienCheckBox.isSelected());
                 if (selectedImageFile != null) {
-                    System.out.println(" - Ảnh: " + selectedImageFile.getAbsolutePath());
+                    result.put("imagePath", selectedImageFile.toURI().toString());
                 }
                 popupStage.close();
             }
         });
 
         // --- Scene ---
-        Scene popupScene = new Scene(mainLayout, 580, 415);
+        Scene popupScene = new Scene(mainLayout, 580, 435);
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
             popupScene.getStylesheets().add(urlCSS.toExternalForm());
         } else {
-            System.err.println("Không tìm thấy tệp CSS: Application.css");
+            System.err.println("Không tìm thấy tệp CSS.");
         }
 
         popupStage.setScene(popupScene);
         popupStage.showAndWait();
+
+        return result;
     }
 }

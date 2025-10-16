@@ -1,8 +1,12 @@
 package com.thefourrestaurant.controller;
 
-import com.thefourrestaurant.view.components.sidebar.*;
-import javafx.animation.*;
-import javafx.scene.layout.*;
+import com.thefourrestaurant.view.components.sidebar.SideBar;
+import com.thefourrestaurant.view.components.sidebar.SideBarDanhMuc;
+import com.thefourrestaurant.view.components.sidebar.SideBarThongKe;
+import javafx.scene.Node;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 public class SideBarController {
     private final SideBar sideBar;
@@ -21,7 +25,7 @@ public class SideBarController {
     }
 
     private void moHoacDongPanel(String loaiPanel) {
-        if (panelDangMo != null && panelDangMo.getUserData().equals(loaiPanel)) {
+        if (panelDangMo != null && panelDangMo.getUserData() != null && panelDangMo.getUserData().equals(loaiPanel)) {
             mainContainer.getChildren().remove(panelDangMo);
             panelDangMo = null;
             return;
@@ -29,14 +33,22 @@ public class SideBarController {
 
         if (panelDangMo != null) {
             mainContainer.getChildren().remove(panelDangMo);
-            panelDangMo = null;
         }
 
         Pane panelMoi = switch (loaiPanel) {
-            case "DanhMuc" -> new SideBarDanhMuc(mainContainer);
+            case "DanhMuc" -> {
+                VBox rightBox = null;
+                if (mainContainer.getChildren().size() > 1) {
+                    Node node = mainContainer.getChildren().get(1);
+                    if (node instanceof VBox) {
+                        rightBox = (VBox) node;
+                    }
+                }
+                yield new SideBarDanhMuc(rightBox);
+            }
             case "ThongKe" -> {
                 SideBarThongKe tk = new SideBarThongKe();
-                tk.setMainContainer(mainContainer); // truyền container chính
+                tk.setMainContainer(mainContainer);
                 yield tk;
             }
             default -> null;
