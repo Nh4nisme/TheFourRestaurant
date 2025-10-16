@@ -9,12 +9,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
 
+import javax.swing.event.ChangeListener;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class DropDownButton extends Button {
     private final ContextMenu contextMenu = new ContextMenu();
     private String selectedValue;
+    private Consumer<String> onItemSelected; // callback khi chọn item
 
     public DropDownButton(String promptText, List<String> options, String iconPath, double height, double fontSize) {
         super(promptText);
@@ -28,6 +31,7 @@ public class DropDownButton extends Button {
             setFont(montserrat);
         }
 
+        // Icon nếu có
         if (iconPath != null && !iconPath.isEmpty()) {
             ImageView icon = new ImageView(new Image(
                     Objects.requireNonNull(getClass().getResourceAsStream(iconPath))
@@ -37,7 +41,7 @@ public class DropDownButton extends Button {
             setGraphic(icon);
         }
 
-         //Tạo menu items
+        // Tạo menu items
         for (String option : options) {
             Label label = new Label(option);
             label.setPadding(new Insets(8, 10, 8, 10));
@@ -47,24 +51,29 @@ public class DropDownButton extends Button {
             item.setOnAction(e -> {
                 selectedValue = option;
                 setText(option);
+
+                // Gọi callback nếu có
+                if (onItemSelected != null) {
+                    onItemSelected.accept(selectedValue);
+                }
             });
+
             contextMenu.getItems().add(item);
         }
 
+        // Hiển thị context menu khi click button
         setOnAction(e -> {
             if (!contextMenu.isShowing()) {
                 double buttonWidth = getWidth();
+                double fixedWidth = buttonWidth - 15; // trừ padding
 
-                // 🔹 Tính trừ 2px padding do ContextMenu render
-                double fixedWidth = buttonWidth - 12;
-
-                for (MenuItem item : contextMenu.getItems()) {
-                    if (item instanceof CustomMenuItem custom) {
+                for (var menuItem : contextMenu.getItems()) {
+                    if (menuItem instanceof CustomMenuItem custom) {
                         Node node = custom.getContent();
                         if (node instanceof Label lbl) {
                             lbl.setPrefWidth(fixedWidth);
                             lbl.setMaxWidth(fixedWidth);
-                            lbl.setAlignment(Pos.CENTER_LEFT); // canh text cho đẹp
+                            lbl.setAlignment(Pos.CENTER_LEFT);
                         }
                     }
                 }
@@ -75,6 +84,7 @@ public class DropDownButton extends Button {
             }
         });
 
+        // Kích thước button
         setPrefHeight(height);
         setMinHeight(height);
         setMaxHeight(height);
@@ -82,6 +92,12 @@ public class DropDownButton extends Button {
         getStyleClass().add("dropdown-button");
     }
 
+    // Setter callback
+    public void setOnItemSelected(Consumer<String> action) {
+        this.onItemSelected = action;
+    }
+
+    // Getter giá trị đang chọn
     public String getSelectedValue() {
         return selectedValue;
     }

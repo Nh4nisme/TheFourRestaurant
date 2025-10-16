@@ -1,5 +1,7 @@
 package com.thefourrestaurant.view.components;
 
+import com.thefourrestaurant.view.GiaoDienTaoThucDon;
+import com.thefourrestaurant.view.LoaiMonAn;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -15,10 +17,10 @@ import java.util.Objects;
 public class NavBar extends HBox {
 
     private final DropDownButton btnHeThong, btnTimKiem,btnXuLi,btnDanhMucNav;
-    private VBox rightBox;
+    private final VBox mainContainer;
 
-    public NavBar(VBox rightBox) {
-        this.rightBox = rightBox;
+    public NavBar(VBox mainContainer) {
+        this.mainContainer = mainContainer;
         Font montserrat = Font.loadFont(
                 Objects.requireNonNull(getClass().getResourceAsStream(
                         "/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf")),
@@ -68,5 +70,18 @@ public class NavBar extends HBox {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         getChildren().addAll(btnDanhMucNav,btnXuLi,btnTimKiem,btnHeThong,spacer,btnTKDN);
+
+        btnDanhMucNav.setOnItemSelected(this::showPanel);
+    }
+
+    private void showPanel(String s) {
+        mainContainer.getChildren().clear();
+
+        switch (s) {
+            case "Thực đơn" -> mainContainer.getChildren().add(new GiaoDienTaoThucDon());
+            case "Món ăn" -> mainContainer.getChildren().add(new LoaiMonAn());
+//            case "Nguyên liệu" -> mainContainer.getChildren().add(new IngredientPanel());
+            default -> System.out.println("Không tìm thấy panel: " + s);
+        }
     }
 }
