@@ -5,91 +5,118 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Paint;
 
 import java.util.Objects;
 
 public class LoaiMonAnBox extends BaseBox {
 
     private LoaiMonAnBox() {
-        super(); // Gọi BaseBox
-        setPrefSize(145, 180);
-        setMaxSize(145, 180);
-        // VBox sẽ chỉ chứa một StackPane, vì vậy không cần khoảng cách và padding
+        super();
+        setPrefSize(150, 200);
+        setMaxSize(150, 200);
         setSpacing(0);
         setPadding(Insets.EMPTY);
+        setAlignment(Pos.CENTER);
     }
 
-    public static LoaiMonAnBox createLoaiMonAnBox(String ten) {
-        return createLoaiMonAnBox(ten, null);
-    }
-
+    // --- Tạo Box hiển thị loại món ăn ---
     public static LoaiMonAnBox createLoaiMonAnBox(String ten, String imagePath) {
         LoaiMonAnBox hopLoaiMonAn = new LoaiMonAnBox();
         hopLoaiMonAn.getStyleClass().add("loai-mon-an-box");
 
-        ImageView imageView;
-        if (imagePath != null && !imagePath.isEmpty()) {
-            try {
-                imageView = new ImageView(new Image(imagePath));
-            } catch (Exception e) {
-                System.err.println("Không thể tải ảnh: " + imagePath);
-                imageView = createDefaultIcon();
+
+        // ----- Panel trên: chứa background ảnh hoặc màu -----
+        StackPane topPane = new StackPane();
+        topPane.setPrefHeight(150);
+        topPane.setMaxWidth(Double.MAX_VALUE);
+        topPane.setAlignment(Pos.CENTER);
+
+        // Bo góc trên
+        topPane.setBackground(new Background(
+                new BackgroundFill(Paint.valueOf("#5E3A1C"), new CornerRadii(5, 5, 0, 0, false), Insets.EMPTY)
+        ));
+        // Set background ảnh nếu có
+        try {
+            if (imagePath != null && !imagePath.isEmpty()) {
+                Image image = new Image(imagePath, true);
+                if (!image.isError()) {
+                    topPane.setBackground(new Background(
+                            new BackgroundImage(image,
+                                    BackgroundRepeat.NO_REPEAT,
+                                    BackgroundRepeat.NO_REPEAT,
+                                    BackgroundPosition.CENTER,
+                                    new BackgroundSize(
+                                            100, 100, true, true, false, true))
+                    ));
+                } else {
+                    setDefaultBackground(topPane);
+                }
+            } else {
+                setDefaultBackground(topPane);
             }
-        } else {
-            imageView = createDefaultIcon();
+        } catch (Exception e) {
+            setDefaultBackground(topPane);
         }
 
-        // Cho ảnh lấp đầy toàn bộ box
-        imageView.setFitWidth(145);
-        imageView.setFitHeight(180);
 
-        Label nhanTen = new Label(ten);
-        nhanTen.getStyleClass().add("loai-mon-an-name");
-        nhanTen.setMaxWidth(Double.MAX_VALUE); // Cho nhãn rộng tối đa
-        nhanTen.setAlignment(Pos.CENTER);
-        // Thêm style để chữ dễ đọc trên nền ảnh
-        nhanTen.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5); -fx-padding: 8px;");
-        nhanTen.setTextFill(Color.WHITE);
 
-        // Dùng StackPane để xếp chữ lên trên ảnh
-        StackPane stack = new StackPane();
-        stack.getChildren().addAll(imageView, nhanTen);
-        StackPane.setAlignment(nhanTen, Pos.BOTTOM_CENTER);
+        // ----- Panel dưới: chứa label -----
+        StackPane bottomPane = new StackPane();
+        bottomPane.setPrefHeight(50);
+        bottomPane.setAlignment(Pos.CENTER);
+        bottomPane.setBackground(new Background(
+                new BackgroundFill(Paint.valueOf("#f5f5f5"), new CornerRadii(0, 0, 5, 5, false), Insets.EMPTY)
+        ));
 
-        // Bo tròn góc của nội dung để khớp với viền
-        Rectangle clip = new Rectangle(145, 180);
-        clip.setArcWidth(20); // Tương ứng với radius 10
-        clip.setArcHeight(20); // Tương ứng với radius 10
-        stack.setClip(clip);
+        Label tenLoaiMon = new Label(ten);
+        tenLoaiMon.getStyleClass().add("monan-ten");
+        bottomPane.getChildren().add(tenLoaiMon);
 
-        hopLoaiMonAn.getChildren().add(stack);
+        // ----- Hiệu ứng hover -----
+        hopLoaiMonAn.setOnMouseEntered(e -> {
+            topPane.setOpacity(0.85);
+            hopLoaiMonAn.setStyle("-fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 6, 0, 0, 3);");
+        });
+        hopLoaiMonAn.setOnMouseExited(e -> {
+            topPane.setOpacity(1.0);
+            hopLoaiMonAn.setStyle("-fx-effect: none;");
+        });
 
+        hopLoaiMonAn.getChildren().addAll(topPane, bottomPane);
         return hopLoaiMonAn;
     }
 
+    // --- Tạo Box "Thêm loại mới" ---
     public static LoaiMonAnBox createThemMoiBox() {
         LoaiMonAnBox hop = new LoaiMonAnBox();
         hop.setAlignment(Pos.CENTER);
         hop.setSpacing(5);
         hop.getStyleClass().add("add-item-box");
 
-        Image plusImage = new Image(Objects.requireNonNull(LoaiMonAnBox.class.getResourceAsStream("/com/thefourrestaurant/images/icon/Them.png")));
+        Image plusImage = new Image(Objects.requireNonNull(
+                LoaiMonAnBox.class.getResourceAsStream("/com/thefourrestaurant/images/icon/Them.png")));
         ImageView plusImageView = new ImageView(plusImage);
         plusImageView.setFitWidth(50);
         plusImageView.setFitHeight(50);
 
         Label themMoiLabel = new Label("Thêm loại mới");
+        themMoiLabel.getStyleClass().add("monan-ten");
 
         hop.getChildren().addAll(plusImageView, themMoiLabel);
         return hop;
     }
 
-    private static ImageView createDefaultIcon() {
-        Image anhMacDinh = new Image(LoaiMonAnBox.class.getResourceAsStream("/com/thefourrestaurant/images/icon/ThayAnh.png"));
-        ImageView anhHienThi = new ImageView(anhMacDinh);
-        return anhHienThi;
+    // --- Hàm phụ: set background mặc định ---
+    private static void setDefaultBackground(StackPane topPane) {
+        topPane.setBackground(new Background(
+                new BackgroundFill(Paint.valueOf("#5E3A1C"), new CornerRadii(5, 5, 0, 0, false), Insets.EMPTY)
+        ));
+    }
+
+    // --- Hàm phụ: ảnh mặc định (nếu cần dùng cho các component khác) ---
+    private static Image getDefaultImage() {
+        return new Image(LoaiMonAnBox.class.getResourceAsStream("/com/thefourrestaurant/images/icon/ThayAnh.png"));
     }
 }
