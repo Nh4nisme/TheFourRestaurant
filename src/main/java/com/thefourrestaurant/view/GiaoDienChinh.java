@@ -25,7 +25,7 @@ public class GiaoDienChinh {
                 new BackgroundSize(100, 100, true, true, true, true)
         );
 
-        // Right content (NavBar + Background)
+     // Tạo rightBox và backgroundCenter
         VBox rightBox = new VBox();
         rightBox.setAlignment(Pos.TOP_CENTER);
 
@@ -35,18 +35,20 @@ public class GiaoDienChinh {
         Pane backgroundCenter = new Pane();
         backgroundCenter.setBackground(new Background(bg));
         VBox.setVgrow(backgroundCenter, Priority.ALWAYS);
+
         rightBox.getChildren().addAll(navBar, backgroundCenter);
 
         // SideBar
         SideBar sideBar = new SideBar();
 
-        // Gộp lại thành HBox để panel mở rộng nằm giữa
+        // mainContainer = sideBar + rightBox
         HBox mainContainer = new HBox(sideBar, rightBox);
         HBox.setHgrow(rightBox, Priority.ALWAYS);
         root.setCenter(mainContainer);
 
         // Controller
-        new SideBarController(sideBar, mainContainer);
+        new SideBarController(sideBar, mainContainer, backgroundCenter);
+
 
         // Scene
         Scene scene = new Scene(root, 1366, 768);

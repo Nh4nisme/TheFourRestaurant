@@ -1,6 +1,8 @@
 package com.thefourrestaurant.view.components.sidebar;
 
+import com.thefourrestaurant.view.GiaoDienTaoThucDon;
 import com.thefourrestaurant.view.LoaiMonAn;
+import com.thefourrestaurant.view.QuanLiBan;
 import com.thefourrestaurant.view.monan.MonAnBun;
 import com.thefourrestaurant.view.monan.MonAnCom;
 import javafx.geometry.Insets;
@@ -9,14 +11,11 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import java.util.List;
-
 
 public class SideBarDanhMuc extends BaseSideBar {
 
-//    private final VBox rightBox;
-      private final HBox mainContainer;
+    private final HBox mainContainer;
 
     public SideBarDanhMuc(HBox mainContainer) {
         super("Quản Lý");
@@ -63,9 +62,15 @@ public class SideBarDanhMuc extends BaseSideBar {
         }
 
         Node newContent = switch (tenMuc) {
+            case "Thực đơn" -> new GiaoDienTaoThucDon();
             case "Loại món ăn" -> new LoaiMonAn();
             case "Cơm" -> new MonAnCom();
             case "Bún" -> new MonAnBun();
+            case "Tầng 1" -> {
+                QuanLiBan qlBan = new QuanLiBan();
+                qlBan.hienThiBanTheoTang("TG000001"); // Gọi tầng 1 mặc định
+                yield qlBan;
+            }
             default -> null;
         };
 

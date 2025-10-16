@@ -1,23 +1,27 @@
 package com.thefourrestaurant.controller;
 
 import com.thefourrestaurant.view.GiaoDienChinh;
+import com.thefourrestaurant.view.QuanLiBan;
 import com.thefourrestaurant.view.components.sidebar.SideBar;
 import com.thefourrestaurant.view.components.sidebar.SideBarDanhMuc;
 import com.thefourrestaurant.view.components.sidebar.SideBarThongKe;
-import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class SideBarController {
+
     private final SideBar sideBar;
     private final HBox mainContainer;
     private Pane panelDangMo;
+    private Pane backgroundCenter; // Pane trung tâm sẽ thay đổi
 
-    public SideBarController(SideBar sideBar, HBox mainContainer) {
+    public SideBarController(SideBar sideBar, HBox mainContainer, Pane backgroundCenter) {
         this.sideBar = sideBar;
         this.mainContainer = mainContainer;
+        this.backgroundCenter = backgroundCenter;
         khoiTaoSuKien();
     }
 
@@ -26,21 +30,20 @@ public class SideBarController {
         sideBar.getButton("ThongKe").setOnAction(e -> moHoacDongPanel("ThongKe"));
         sideBar.getButton("CaiDat").setOnAction(e -> {
             Stage stage = (Stage) mainContainer.getScene().getWindow();
-            new GiaoDienChinh().show(stage);
-            // ???????????????????????????????????????
+            new GiaoDienChinh().show(stage); // Load lại giao diện
         });
     }
 
     private void moHoacDongPanel(String loaiPanel) {
-        if (panelDangMo != null && panelDangMo.getUserData() != null && panelDangMo.getUserData().equals(loaiPanel)) {
+        // Nếu panel đang mở và trùng loại => đóng
+        if (panelDangMo != null && panelDangMo.getUserData() != null
+                && panelDangMo.getUserData().equals(loaiPanel)) {
             mainContainer.getChildren().remove(panelDangMo);
             panelDangMo = null;
-            // Khi đóng panel thống kê, đóng luôn nội dung bên phải
-            if (loaiPanel.equals("ThongKe") && mainContainer.getChildren().size() > 2)
-                mainContainer.getChildren().remove(2);
             return;
         }
 
+        // Đóng panel cũ nếu có
         if (panelDangMo != null) {
             mainContainer.getChildren().remove(panelDangMo);
         }
@@ -56,8 +59,13 @@ public class SideBarController {
             panelMoi.setMaxWidth(300);
             panelMoi.setMinWidth(300);
             panelMoi.setUserData(loaiPanel);
-            mainContainer.getChildren().add(1, panelMoi);
+            mainContainer.getChildren().add(1, panelMoi); // Thêm panel trượt vào giữa sideBar và rightBox
             panelDangMo = panelMoi;
         }
+    }
+
+    // Nếu muốn thay backgroundCenter sau này (ví dụ load giao diện khác)
+    public void setBackgroundCenter(Pane backgroundCenter) {
+        this.backgroundCenter = backgroundCenter;
     }
 }
