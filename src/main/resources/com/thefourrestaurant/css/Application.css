@@ -155,6 +155,18 @@
 /* NavBar */
 .thongke-navbar {
     -fx-background-color: #E5D595;
-    -fx-padding: 18 10 18 10;
+    -fx-padding: 10;
     -fx-spacing: 10;
+}
+
+.monan-ten {
+    -fx-font-family: "System";
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: black;
+}
+
+.monan-gia {
+    -fx-font-size: 12px;
+    -fx-text-fill: black;
 }
