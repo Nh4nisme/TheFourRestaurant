@@ -31,7 +31,7 @@
 
 
             // Phan nay la Logo cua sideBar
-            ImageView logoImg = new ImageView(new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/logoIcon.png")));
+            ImageView logoImg = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/logoIcon.png"))));
             logoImg.setFitWidth(100);
             logoImg.setFitHeight(100);
             logoImg.setPreserveRatio(true);

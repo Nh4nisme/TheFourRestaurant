@@ -9,6 +9,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+import java.util.Objects;
+
 public class LoaiMonAnBox extends BaseBox {
 
     private LoaiMonAnBox() {
@@ -74,7 +76,7 @@ public class LoaiMonAnBox extends BaseBox {
         hop.setSpacing(5);
         hop.getStyleClass().add("add-item-box");
 
-        Image plusImage = new Image(LoaiMonAnBox.class.getResourceAsStream("/com/thefourrestaurant/images/icon/Them.png"));
+        Image plusImage = new Image(Objects.requireNonNull(LoaiMonAnBox.class.getResourceAsStream("/com/thefourrestaurant/images/icon/Them.png")));
         ImageView plusImageView = new ImageView(plusImage);
         plusImageView.setFitWidth(50);
         plusImageView.setFitHeight(50);

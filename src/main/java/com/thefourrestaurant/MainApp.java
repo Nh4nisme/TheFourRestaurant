@@ -30,15 +30,15 @@ public class MainApp extends Application {
     }
 
     public static void main(String[] args) {
-    	try (Connection conn = ConnectSQL.getConnection()) {
-            if (conn != null) {
-                System.out.println("✅ Kết nối SQL Server thành công!");
-            } else {
-                System.out.println("❌ Kết nối thất bại. Vui lòng kiểm tra lại thông tin kết nối.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//    	try (Connection conn = ConnectSQL.getConnection()) {
+//            if (conn != null) {
+//                System.out.println("✅ Kết nối SQL Server thành công!");
+//            } else {
+//                System.out.println("❌ Kết nối thất bại. Vui lòng kiểm tra lại thông tin kết nối.");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         // Sau khi test xong thì mới chạy giao diện
         launch(args);

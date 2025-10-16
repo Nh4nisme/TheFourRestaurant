@@ -155,6 +155,6 @@
 /* NavBar */
 .thongke-navbar {
     -fx-background-color: #E5D595;
-    -fx-padding: 10;
+    -fx-padding: 18 10 18 10;
     -fx-spacing: 10;
 }

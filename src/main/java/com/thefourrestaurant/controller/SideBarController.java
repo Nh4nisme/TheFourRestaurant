@@ -22,12 +22,20 @@ public class SideBarController {
     private void khoiTaoSuKien() {
         sideBar.getButton("DanhMuc").setOnAction(e -> moHoacDongPanel("DanhMuc"));
         sideBar.getButton("ThongKe").setOnAction(e -> moHoacDongPanel("ThongKe"));
+        sideBar.getButton("CaiDat").setOnAction(e -> {
+            Stage stage = (Stage) mainContainer.getScene().getWindow();
+            new GiaoDienChinh().show(stage);
+            // ???????????????????????????????????????
+        });
     }
 
     private void moHoacDongPanel(String loaiPanel) {
         if (panelDangMo != null && panelDangMo.getUserData() != null && panelDangMo.getUserData().equals(loaiPanel)) {
             mainContainer.getChildren().remove(panelDangMo);
             panelDangMo = null;
+            // Khi đóng panel thống kê, đóng luôn nội dung bên phải
+            if (loaiPanel.equals("ThongKe") && mainContainer.getChildren().size() > 2)
+                mainContainer.getChildren().remove(2);
             return;
         }
 
@@ -36,21 +44,8 @@ public class SideBarController {
         }
 
         Pane panelMoi = switch (loaiPanel) {
-            case "DanhMuc" -> {
-                VBox rightBox = null;
-                if (mainContainer.getChildren().size() > 1) {
-                    Node node = mainContainer.getChildren().get(1);
-                    if (node instanceof VBox) {
-                        rightBox = (VBox) node;
-                    }
-                }
-                yield new SideBarDanhMuc(rightBox);
-            }
-            case "ThongKe" -> {
-                SideBarThongKe tk = new SideBarThongKe();
-                tk.setMainContainer(mainContainer);
-                yield tk;
-            }
+            case "DanhMuc" -> new SideBarDanhMuc(mainContainer);
+            case "ThongKe" -> new SideBarThongKe(mainContainer);
             default -> null;
         };
 
