@@ -1,10 +1,12 @@
 package com.thefourrestaurant.controller;
 
-import com.thefourrestaurant.view.GiaoDienChinh;
-import com.thefourrestaurant.view.components.sidebar.*;
-import javafx.animation.*;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
+import com.thefourrestaurant.view.components.sidebar.SideBar;
+import com.thefourrestaurant.view.components.sidebar.SideBarDanhMuc;
+import com.thefourrestaurant.view.components.sidebar.SideBarThongKe;
+import javafx.scene.Node;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 public class SideBarController {
     private final SideBar sideBar;
@@ -28,7 +30,7 @@ public class SideBarController {
     }
 
     private void moHoacDongPanel(String loaiPanel) {
-        if (panelDangMo != null && panelDangMo.getUserData().equals(loaiPanel)) {
+        if (panelDangMo != null && panelDangMo.getUserData() != null && panelDangMo.getUserData().equals(loaiPanel)) {
             mainContainer.getChildren().remove(panelDangMo);
             panelDangMo = null;
             // Khi đóng panel thống kê, đóng luôn nội dung bên phải
@@ -39,7 +41,6 @@ public class SideBarController {
 
         if (panelDangMo != null) {
             mainContainer.getChildren().remove(panelDangMo);
-            panelDangMo = null;
         }
 
         Pane panelMoi = switch (loaiPanel) {
