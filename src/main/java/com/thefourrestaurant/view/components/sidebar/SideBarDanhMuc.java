@@ -1,7 +1,7 @@
 package com.thefourrestaurant.view.components.sidebar;
 
 import com.thefourrestaurant.view.GiaoDienTaoThucDon;
-import com.thefourrestaurant.view.LoaiMonAn;
+import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.QuanLiBan;
 import com.thefourrestaurant.view.monan.MonAnBun;
 import com.thefourrestaurant.view.monan.MonAnCom;
