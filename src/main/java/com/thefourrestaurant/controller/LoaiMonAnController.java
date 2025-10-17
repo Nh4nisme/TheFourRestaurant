@@ -1,6 +1,6 @@
 package com.thefourrestaurant.controller;
 
-import com.thefourrestaurant.view.LoaiMonAnThemLoai;
+import com.thefourrestaurant.view.loaimonan.LoaiMonAnThemLoai;
 
 import java.util.Map;
 

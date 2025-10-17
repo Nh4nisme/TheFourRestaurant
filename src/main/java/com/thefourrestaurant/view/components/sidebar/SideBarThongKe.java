@@ -1,6 +1,5 @@
 package com.thefourrestaurant.view.components.sidebar;
 
-import com.thefourrestaurant.view.LoaiMonAn;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
