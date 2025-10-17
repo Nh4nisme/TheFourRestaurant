@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.components;
 
 import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
+import com.thefourrestaurant.view.GiaoDienChiTietBan;
 import com.thefourrestaurant.view.GiaoDienDatBan;
 import com.thefourrestaurant.view.GiaoDienDatBanTruoc;
 import com.thefourrestaurant.view.GiaoDienTaoThucDon;
@@ -46,7 +47,7 @@ public class NavBar extends HBox {
 
         btnXuLi = new DropDownButton(
                 "Xử lí",
-                List.of("Đặt bàn","Đặt món", "Đặt bàn trước", "Thêm khách hàng"),
+                List.of("Đặt bàn","Đặt món", "Đặt bàn trước", "Thêm khách hàng", "Chi tiết bàn"),
                 "/com/thefourrestaurant/images/icon/xuLyIcon.png",
                 45,
                 16,
@@ -90,6 +91,7 @@ public class NavBar extends HBox {
             case "Đặt bàn" -> mainContainer.getChildren().add(new GiaoDienDatBan());
             case "Đặt bàn trước" -> mainContainer.getChildren().add(new GiaoDienDatBanTruoc());
             case "Thêm khách hàng" -> mainContainer.getChildren().add(new GiaoDienThemKhachHang());
+            case "Chi tiết bàn" -> mainContainer.getChildren().add(new GiaoDienChiTietBan());
             case "Hóa đơn" -> mainContainer.getChildren().add(new GiaoDienHoaDon());
 //            case "Nguyên liệu" -> mainContainer.getChildren().add(new IngredientPanel());
             default -> System.out.println("Không tìm thấy panel: " + s);
