@@ -1,4 +1,4 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.ban;
 
 import javafx.animation.ScaleTransition;
 import javafx.beans.value.ChangeListener;

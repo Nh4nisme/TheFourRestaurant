@@ -1,13 +1,13 @@
 package com.thefourrestaurant.view.components;
 
 import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
-import com.thefourrestaurant.view.GiaoDienChiTietBan;
-import com.thefourrestaurant.view.GiaoDienDatBan;
-import com.thefourrestaurant.view.GiaoDienDatBanTruoc;
+import com.thefourrestaurant.view.ban.GiaoDienChiTietBan;
+import com.thefourrestaurant.view.ban.GiaoDienDatBan;
+import com.thefourrestaurant.view.ban.GiaoDienDatBanTruoc;
 import com.thefourrestaurant.view.GiaoDienTaoThucDon;
 import com.thefourrestaurant.view.GiaoDienThemKhachHang;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
-import com.thefourrestaurant.view.PhieuGoiMon;
+import com.thefourrestaurant.view.monan.PhieuGoiMon;
 import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

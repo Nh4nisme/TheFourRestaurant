@@ -1,4 +1,4 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.ban;
 
 import com.thefourrestaurant.model.Ban;
 import javafx.geometry.Insets;

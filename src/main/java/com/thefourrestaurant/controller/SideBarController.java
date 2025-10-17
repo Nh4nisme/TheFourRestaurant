@@ -1,14 +1,11 @@
 package com.thefourrestaurant.controller;
 
 import com.thefourrestaurant.view.GiaoDienChinh;
-import com.thefourrestaurant.view.QuanLiBan;
 import com.thefourrestaurant.view.components.sidebar.SideBar;
 import com.thefourrestaurant.view.components.sidebar.SideBarDanhMuc;
 import com.thefourrestaurant.view.components.sidebar.SideBarThongKe;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class SideBarController {
