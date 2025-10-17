@@ -2,6 +2,7 @@ package com.thefourrestaurant;
 
 import com.thefourrestaurant.view.GiaoDienChinh;
 import com.thefourrestaurant.view.PhieuGoiMon;
+import com.thefourrestaurant.view.ThanhToan;
 
 import javafx.application.Application;
 
@@ -19,9 +20,10 @@ public class MainApp extends Application {
         PhieuGoiMon phieuGoiMon = new PhieuGoiMon();
 
     	GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
-
-        // Hiển thị giao diện
-        giaoDienChinh.show(primaryStage);
+    	
+    	ThanhToan thanhToan = new ThanhToan();
+    	
+        thanhToan.show(primaryStage);
     }
 
     public static void main(String[] args) {
