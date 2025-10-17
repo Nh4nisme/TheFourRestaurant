@@ -1,13 +1,13 @@
 package com.thefourrestaurant.view.monan;
 
-import com.thefourrestaurant.controller.MonAnController;
-import com.thefourrestaurant.view.components.*;
+import com.thefourrestaurant.view.components.ButtonSample;
+import com.thefourrestaurant.view.components.DropDownButton;
+import com.thefourrestaurant.view.components.NavBar;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAnBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -16,24 +16,15 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MonAnBun extends VBox {
 
-    private GridPane luoiCacMonAn;
-    private List<Map<String, String>> danhSachMonAn;
-    private final int soCotMoiHang = 8;
-
-    private final MonAnController controller;
-    private ButtonSample btnTim, btnLamMoi;
+    private VBox dsMonAn; // Container for grid/list view
+    private Node gridView;
+    private Node listView;
 
     public MonAnBun() {
-        this.controller = new MonAnController();
-        khoiTaoDuLieuGia();
-
         this.setAlignment(Pos.TOP_CENTER);
 
         NavBar navBar = new NavBar(this);
@@ -71,60 +62,19 @@ public class MonAnBun extends VBox {
         GridPane.setHgrow(khungDuoi, Priority.ALWAYS);
         GridPane.setVgrow(khungDuoi, Priority.ALWAYS);
 
-        VBox dsMonAn = new VBox(20);
+        dsMonAn = new VBox(20);
         dsMonAn.setStyle("-fx-background-color: #F0F2F3; -fx-background-radius: 10;");
         dsMonAn.setAlignment(Pos.TOP_CENTER);
         dsMonAn.setPadding(new Insets(20));
         khungDuoi.getChildren().add(dsMonAn);
         VBox.setVgrow(dsMonAn, Priority.ALWAYS);
 
-        luoiCacMonAn = new GridPane();
-        luoiCacMonAn.setAlignment(Pos.CENTER);
-        luoiCacMonAn.setHgap(20);
-        luoiCacMonAn.setVgap(20);
-        luoiCacMonAn.getStyleClass().add("grid-pane");
+        // Initialize the views
+        gridView = new MonAnBunGrid();
+        listView = new MonAnBunList();
 
-        ScrollPane scrollPane = new ScrollPane(luoiCacMonAn);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-
-        GridPane luoiThemMon = new GridPane();
-        luoiThemMon.setAlignment(Pos.BASELINE_LEFT);
-        luoiThemMon.setHgap(20);
-        luoiThemMon.setVgap(20);
-        luoiThemMon.getStyleClass().add("grid-pane");
-        luoiThemMon.setPadding(new Insets(0, 0, 0, 5));
-        luoiThemMon.setMinHeight(200);
-
-        VBox hopThemMoi = LoaiMonAnBox.createThemMoiBox();
-
-        Button themMoiButton = new Button();
-        themMoiButton.setVisible(false);
-        themMoiButton.setManaged(false);
-
-        themMoiButton.setOnAction(event -> {
-            Map<String, Object> result = controller.themMoiMonAn();
-            if (result != null) {
-                Map<String, String> newItem = new HashMap<>();
-                newItem.put("name", (String) result.get("ten"));
-                newItem.put("price", (String) result.get("gia"));
-                newItem.put("imagePath", (String) result.get("imagePath"));
-                danhSachMonAn.add(0, newItem);
-                capNhatLuoiMonAn();
-            }
-        });
-
-        hopThemMoi.setOnMouseClicked(event -> themMoiButton.fire());
-
-        luoiThemMon.add(hopThemMoi, 0, 0);
-        contentPane.getChildren().add(themMoiButton);
-
-        capNhatLuoiMonAn();
-
-        dsMonAn.getChildren().addAll(luoiThemMon, scrollPane);
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        // Set default view
+        dsMonAn.getChildren().add(gridView);
 
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
@@ -136,56 +86,44 @@ public class MonAnBun extends VBox {
         this.getChildren().addAll(navBar, contentPane);
     }
 
-    // ==== Sửa: chỉ có một phương thức taoKhungGiua() duy nhất ====
     private HBox taoKhungGiua() {
         HBox khungGiua = new HBox(10);
         khungGiua.setPadding(new Insets(10, 20, 10, 20));
         khungGiua.setAlignment(Pos.CENTER_LEFT);
         khungGiua.setStyle("-fx-background-color: #1E424D;");
 
-        /// === Tạo ảnh cho nút List và Grid ===
         ImageView iconList = new ImageView(getClass().getResource("/com/thefourrestaurant/images/icon/List.png").toExternalForm());
         ImageView iconGrid = new ImageView(getClass().getResource("/com/thefourrestaurant/images/icon/Grid.png").toExternalForm());
-
         iconList.setFitWidth(20);
         iconList.setFitHeight(20);
         iconGrid.setFitWidth(20);
         iconGrid.setFitHeight(20);
 
-        // === Nút chuyển kiểu hiển thị ===
         ButtonSample btnList = new ButtonSample("", "", 35, 16, 3);
         ButtonSample btnGrid = new ButtonSample("", "", 35, 16, 3);
-
-        // Gắn icon vào nút
         btnList.setGraphic(iconList);
         btnGrid.setGraphic(iconGrid);
-
         btnList.setPrefSize(35, 35);
         btnGrid.setPrefSize(35, 35);
+
+        btnList.setOnAction(event -> {
+            if (!dsMonAn.getChildren().contains(listView)) {
+                dsMonAn.getChildren().setAll(listView);
+            }
+        });
+
+        btnGrid.setOnAction(event -> {
+            if (!dsMonAn.getChildren().contains(gridView)) {
+                dsMonAn.getChildren().setAll(gridView);
+            }
+        });
 
         Label lblSapXep = new Label("Sắp xếp:");
         lblSapXep.setTextFill(Color.web("#E5D595"));
         lblSapXep.setFont(Font.font("System", FontWeight.BOLD, 14));
 
-        // --- Thay đổi: dùng DropDownButton cho hai lựa chọn sắp xếp ---
-        DropDownButton btnTheoChuCai = new DropDownButton(
-                "Theo bảng chữ cái  ▼",
-                List.of("A → Z", "Z → A"),
-                null,
-                35,
-                16,
-                3
-        );
-
-        DropDownButton btnTheoGia = new DropDownButton(
-                "Theo giá  ▼",
-                List.of("Tăng dần", "Giảm dần"),
-                null,
-                35,
-                16,
-                3
-        );
-
+        DropDownButton btnTheoChuCai = new DropDownButton("Theo bảng chữ cái  ▼", List.of("A → Z", "Z → A"), null, 35, 16, 3);
+        DropDownButton btnTheoGia = new DropDownButton("Theo giá  ▼", List.of("Tăng dần", "Giảm dần"), null, 35, 16, 3);
         ButtonSample btnApDung = new ButtonSample("Áp dụng", "", 35, 13, 3);
 
         Region space = new Region();
@@ -196,54 +134,10 @@ public class MonAnBun extends VBox {
         txtTimKiem.setPrefWidth(300);
         txtTimKiem.setStyle("-fx-background-radius: 8;");
 
-        // Gán cho trường lớp để dùng ở chỗ khác nếu cần
-        this.btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
+        ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
 
-        khungGiua.getChildren().addAll(
-                btnList, btnGrid,
-                lblSapXep,
-                btnTheoChuCai, btnTheoGia, btnApDung,
-                space,
-                txtTimKiem, btnTim
-        );
+        khungGiua.getChildren().addAll(btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnApDung, space, txtTimKiem, btnTim);
 
         return khungGiua;
-    }
-
-    private void khoiTaoDuLieuGia() {
-        danhSachMonAn = new ArrayList<>();
-        for (int i = 1; i <= 50; i++) {
-            Map<String, String> item = new HashMap<>();
-            item.put("name", "Bún " + i);
-            item.put("price", (25 + i) + ",000");
-            item.put("imagePath", null);
-            danhSachMonAn.add(item);
-        }
-    }
-
-    private void capNhatLuoiMonAn() {
-        luoiCacMonAn.getChildren().clear();
-
-        for (int i = 0; i < danhSachMonAn.size(); i++) {
-            Map<String, String> item = danhSachMonAn.get(i);
-            MonAnBox hopMonAn = new MonAnBox(item.get("name"), item.get("price"), item.get("imagePath"));
-
-            hopMonAn.setOnMouseClicked(event -> {
-                MonAnTuyChinh tuyChinh = new MonAnTuyChinh();
-                tuyChinh.showAndWait();
-
-                Map<String, Object> ketQua = tuyChinh.layKetQua();
-                if (ketQua != null) {
-                    item.put("name", (String) ketQua.get("ten"));
-                    item.put("price", (String) ketQua.get("gia"));
-                    item.put("imagePath", (String) ketQua.get("imagePath"));
-                    capNhatLuoiMonAn();
-                }
-            });
-            int col = i % soCotMoiHang;
-            int row = i / soCotMoiHang;
-
-            luoiCacMonAn.add(hopMonAn, col, row);
-        }
     }
 }
