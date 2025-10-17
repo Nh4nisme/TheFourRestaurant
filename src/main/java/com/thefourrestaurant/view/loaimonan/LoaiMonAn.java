@@ -141,6 +141,27 @@ public class LoaiMonAn extends VBox {
             Map<String, String> item = danhSachLoaiMonAn.get(i);
             VBox hopLoaiMonAn = LoaiMonAnBox.createLoaiMonAnBox(item.get("name"), item.get("imagePath"));
 
+            hopLoaiMonAn.setOnMouseClicked(event -> {
+                LoaiMonAnTuyChinh tuyChinh = new LoaiMonAnTuyChinh();
+                tuyChinh.showAndWait();
+
+                Map<String, Object> ketQua = tuyChinh.layKetQua();
+                if (ketQua != null) {
+                    // Cập nhật dữ liệu món ăn trong danh sách
+                    item.put("name", (String) ketQua.get("name"));
+                    item.put("imagePath", (String) ketQua.get("imagePath"));
+
+                    // Cập nhật lại ô hiển thị
+                    VBox hopMoi = LoaiMonAnBox.createLoaiMonAnBox(item.get("name"), item.get("imagePath"));
+                    int col = GridPane.getColumnIndex(hopLoaiMonAn);
+                    int row = GridPane.getRowIndex(hopLoaiMonAn);
+
+                    luoiCacMucDuoi.getChildren().remove(hopLoaiMonAn);
+                    luoiCacMucDuoi.add(hopMoi, col, row);
+                }
+            });
+
+
             int col = i % soCotMoiHang;
             int row = i / soCotMoiHang;
 

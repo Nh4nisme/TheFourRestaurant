@@ -1,6 +1,7 @@
 package com.thefourrestaurant.controller;
 
 import com.thefourrestaurant.view.loaimonan.LoaiMonAnThemLoai;
+import com.thefourrestaurant.view.loaimonan.LoaiMonAnTuyChinh;
 
 import java.util.Map;
 
@@ -10,5 +11,11 @@ public class LoaiMonAnController {
         LoaiMonAnThemLoai themLoaiView = new LoaiMonAnThemLoai();
         themLoaiView.showAndWait();
         return themLoaiView.layKetQua();
+    }
+
+    public Map<String, Object> tuyChinhLoaiMonAn() {
+        LoaiMonAnTuyChinh tuyChinhView = new LoaiMonAnTuyChinh();
+        tuyChinhView.showAndWait();
+        return tuyChinhView.layKetQua();
     }
 }
