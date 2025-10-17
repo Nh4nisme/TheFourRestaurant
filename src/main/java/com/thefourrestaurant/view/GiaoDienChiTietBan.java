@@ -16,9 +16,9 @@ public class GiaoDienChiTietBan extends BorderPane {
 	public GiaoDienChiTietBan() {
 		setStyle("-fx-background-color: #F5F5F5;");
 
-		setTop(taoHeader());
-		setCenter(taoNoiDung());
-		setBottom(taoFooter());
+	setTop(buildHeader());
+	setCenter(buildCenter());
+	setBottom(buildFooter());
 
 		ChangeListener<javafx.scene.Parent> ganKichThuoc = (obs, cu, moi) -> {
 			if (moi instanceof Region r) {
@@ -29,7 +29,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 		parentProperty().addListener(ganKichThuoc);
 	}
 
-	private HBox taoHeader() {
+	private HBox buildHeader() {
 		HBox header = new HBox();
 		header.setAlignment(Pos.CENTER);
 		header.setPadding(new Insets(8, 20, 8, 20));
@@ -41,7 +41,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 		return header;
 	}
 
-	private HBox taoFooter() {
+	private HBox buildFooter() {
 		HBox footer = new HBox();
 		footer.setAlignment(Pos.CENTER);
 		footer.setPadding(new Insets(12, 20, 12, 20));
@@ -55,12 +55,12 @@ public class GiaoDienChiTietBan extends BorderPane {
 		return footer;
 	}
 
-	private HBox taoNoiDung() {
+	private HBox buildCenter() {
 		HBox trungTam = new HBox(28);
 		trungTam.setPadding(new Insets(20));
 
-		VBox cotTrai = taoCotTraiThongTin();
-		VBox cotPhai = taoCotPhaiHoaDon();
+		VBox cotTrai = buildLeftColumn();
+		VBox cotPhai = buildRightInvoice();
 
 		HBox.setHgrow(cotPhai, Priority.ALWAYS);
 		cotPhai.setMaxWidth(Double.MAX_VALUE);
@@ -69,7 +69,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 		return trungTam;
 	}
 
-	private VBox taoCotTraiThongTin() {
+	private VBox buildLeftColumn() {
 		// cột trái chứa thẻ thông tin.
 		VBox trai = new VBox(16);
 		trai.setPrefWidth(380);
@@ -78,32 +78,36 @@ public class GiaoDienChiTietBan extends BorderPane {
 		tieuDeTtb.setMaxWidth(Double.MAX_VALUE);
 		tieuDeTtb.setAlignment(Pos.CENTER);
 		tieuDeTtb.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
-		VBox theTtb = taoTheThongTin(new String[]{"Trạng Thái:", "Loại bàn:", "Số người:"});
+	VBox theTtb = buildInfoCard(new String[]{"Trạng Thái:", "Loại bàn:", "Số người:"}, true);
 
 		Label tieuDePdb = new Label("Phiếu đặt bàn");
 		tieuDePdb.setMaxWidth(Double.MAX_VALUE);
 		tieuDePdb.setAlignment(Pos.CENTER);
 		tieuDePdb.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
-		VBox thePdb = taoTheThongTin(new String[]{"Tên khách:", "Số điện thoại:", "Giờ nhận bàn:"});
+	VBox thePdb = buildInfoCard(new String[]{"Tên khách:", "Số điện thoại:", "Giờ nhận bàn:"}, true);
 
 		trai.getChildren().addAll(tieuDeTtb, theTtb, tieuDePdb, thePdb);
 		return trai;
 	}
 
-	private VBox taoTheThongTin(String[] dong) {
+	private VBox buildInfoCard(String[] dong) {
+		return buildInfoCard(dong, false);
+	}
+
+	private VBox buildInfoCard(String[] dong, boolean dam) {
 		VBox the = new VBox(8);
 		the.setPadding(new Insets(12));
-		the.setStyle("-fx-background-color: white; -fx-border-color: #000000 -fx-border-radius: 10; -fx-background-radius: 10;");
+		the.setStyle("-fx-background-color: white; -fx-border-color: #000000; -fx-border-radius: 10; -fx-background-radius: 10;");
 
 		for (String s : dong) {
 			Label nhan = new Label(s);
-			nhan.setStyle("-fx-font-size: 16px; -fx-text-fill: #DDB248;");
+			nhan.setStyle("-fx-font-size: 16px; -fx-text-fill: #DDB248;" + (dam ? "-fx-font-weight: bold;" : ""));
 			the.getChildren().add(nhan);
 		}
 		return the;
 	}
 
-	private VBox taoCotPhaiHoaDon() {
+	private VBox buildRightInvoice() {
 		// cột phải.
 		VBox phai = new VBox(10);
 		phai.setPadding(new Insets(0, 6, 0, 6));
@@ -124,12 +128,12 @@ public class GiaoDienChiTietBan extends BorderPane {
 		ColumnConstraints c1 = new ColumnConstraints(); c1.setPercentWidth(50);
 		ColumnConstraints c2 = new ColumnConstraints(); c2.setPercentWidth(50);
 		thongTinNho.getColumnConstraints().addAll(c1, c2);
-        
-		Label n1 = new Label("Mã CTPDB:"); n1.setStyle("-fx-text-fill: #DDB248;");
-		Label n2 = new Label("Mã HD:"); n2.setStyle("-fx-text-fill: #DDB248;");
-		Label n3 = new Label("SDT khách hàng:"); n3.setStyle("-fx-text-fill: #DDB248;");
-		Label n4 = new Label("Tên khách hàng:"); n4.setStyle("-fx-text-fill: #DDB248;");
-		Label n5 = new Label("Giờ vào:"); n5.setStyle("-fx-text-fill: #DDB248;");
+
+	Label n1 = new Label("Mã CTPDB:"); n1.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
+	Label n2 = new Label("Mã HD:"); n2.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
+	Label n3 = new Label("SDT khách hàng:"); n3.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
+	Label n4 = new Label("Tên khách hàng:"); n4.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
+	Label n5 = new Label("Giờ vào:"); n5.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
 
 		thongTinNho.add(n1, 0, 0);
 		thongTinNho.add(n2, 1, 0);
@@ -142,23 +146,23 @@ public class GiaoDienChiTietBan extends BorderPane {
 		hopDen.setPadding(new Insets(8));
 		VBox.setVgrow(hopDen, Priority.ALWAYS);
 
-		HBox dongTieuDe = taoDong("STT", "Tên món", "Đơn giá", "Số lượng", "Thành tiền", "Hành động", true);
+	HBox dongTieuDe = buildRow("STT", "Tên món", "Đơn giá", "Số lượng", "Thành tiền", "Hành động", true);
 
-		VBox danhSachDong = new VBox(0);
-		danhSachDong.getChildren().addAll(
-				taoDongDuLieu(1, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
-				taoDongDuLieu(2, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
-				taoDongDuLieu(3, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
-				taoDongDuLieu(4, "Cơm bò", "45,000 VND", "2", "90,000 VND")
-		);
+	VBox danhSachDong = new VBox(0);
+	danhSachDong.getChildren().addAll(
+		buildDataRow(1, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
+		buildDataRow(2, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
+		buildDataRow(3, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
+		buildDataRow(4, "Cơm bò", "45,000 VND", "2", "90,000 VND")
+	);
 
 		hopDen.getChildren().addAll(dongTieuDe, danhSachDong);
 
 		HBox thanhMaGiamGia = new HBox(12);
 		thanhMaGiamGia.setAlignment(Pos.CENTER_LEFT);
 		thanhMaGiamGia.setPadding(new Insets(12, 0, 0, 0));
-		Label lblMa = new Label("Mã giảm giá:");
-		lblMa.setStyle("-fx-text-fill: #DDB248;");
+	Label lblMa = new Label("Mã giảm giá:");
+	lblMa.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
 		TextField txtMa = new TextField();
 		txtMa.setPrefWidth(220);
 		txtMa.setPrefHeight(40);
@@ -176,11 +180,11 @@ public class GiaoDienChiTietBan extends BorderPane {
 		ColumnConstraints tk1 = new ColumnConstraints(); tk1.setPercentWidth(50);
 		ColumnConstraints tk2 = new ColumnConstraints(); tk2.setPercentWidth(50);
 		tongKet.getColumnConstraints().addAll(tk1, tk2);
-		Label l1 = new Label("Chiết khấu:"); l1.setStyle("-fx-text-fill: #DDB248;");
-		Label l2 = new Label("Thuế VAT:"); l2.setStyle("-fx-text-fill: #DDB248;");
-		Label l3 = new Label("Tạm tính:"); l3.setStyle("-fx-text-fill: #DDB248;");
-		Label r1 = new Label("Tiền đặt cọc trước:"); r1.setStyle("-fx-text-fill: #DDB248;");
-		Label r2 = new Label("Tổng cộng:"); r2.setStyle("-fx-text-fill: #DDB248;");
+	Label l1 = new Label("Chiết khấu:"); l1.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
+	Label l2 = new Label("Thuế VAT:"); l2.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
+	Label l3 = new Label("Tạm tính:"); l3.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
+	Label r1 = new Label("Tiền đặt cọc trước:"); r1.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
+	Label r2 = new Label("Tổng cộng:"); r2.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
 		tongKet.add(l1, 0, 0);
 		tongKet.add(l2, 0, 1);
 		tongKet.add(l3, 0, 2);
@@ -193,18 +197,18 @@ public class GiaoDienChiTietBan extends BorderPane {
 	}
 
 	// headers
-	private HBox taoDong(String c1, String c2, String c3, String c4, String c5, String c6, boolean laTieuDe) {
+	private HBox buildRow(String c1, String c2, String c3, String c4, String c5, String c6, boolean laTieuDe) {
 		HBox dong = new HBox();
 		dong.setAlignment(Pos.CENTER_LEFT);
 		dong.setStyle("-fx-background-color: " + (laTieuDe ? "#EFEFEF" : "white") + "; -fx-border-color: black transparent transparent transparent; -fx-border-width: 1 0 0 0;");
 		dong.setPadding(new Insets(8, 10, 8, 10));
 
-		Region o1 = oChu(c1, 50, Pos.CENTER_LEFT, laTieuDe);
-		Region o2 = oChu(c2, 300, Pos.CENTER_LEFT, laTieuDe);
-		Region o3 = oChu(c3, 130, Pos.CENTER_LEFT, laTieuDe);
-		Region o4 = oChu(c4, 110, Pos.CENTER_LEFT, laTieuDe);
-		Region o5 = oChu(c5, 140, Pos.CENTER_LEFT, laTieuDe);
-		Region o6 = oChu(c6, 140, Pos.CENTER, laTieuDe);
+		Region o1 = cellText(c1, 50, Pos.CENTER_LEFT, false);
+		Region o2 = cellText(c2, 300, Pos.CENTER_LEFT, false);
+		Region o3 = cellText(c3, 130, Pos.CENTER_LEFT, false);
+		Region o4 = cellText(c4, 110, Pos.CENTER_LEFT, false);
+		Region o5 = cellText(c5, 140, Pos.CENTER_LEFT, false);
+		Region o6 = cellText(c6, 140, Pos.CENTER, false);
 		HBox.setHgrow(o2, Priority.ALWAYS);
 
 		dong.getChildren().addAll(o1, o2, o3, o4, o5, o6);
@@ -212,39 +216,39 @@ public class GiaoDienChiTietBan extends BorderPane {
 	}
 
 	// + -
-	private HBox taoDongDuLieu(int stt, String ten, String donGia, String soLuong, String thanhTien) {
+	private HBox buildDataRow(int stt, String ten, String donGia, String soLuong, String thanhTien) {
 		HBox dong = new HBox();
 		dong.setAlignment(Pos.CENTER_LEFT);
 		dong.setPadding(new Insets(8, 10, 8, 10));
 		dong.setStyle("-fx-border-color: black transparent transparent transparent; -fx-border-width: 1 0 0 0;");
 
-		Region o1 = oChu(String.valueOf(stt), 50, Pos.CENTER_LEFT, false);
-		Region o2 = oChu(ten, 300, Pos.CENTER_LEFT, false);
-		Region o3 = oChu(donGia, 130, Pos.CENTER_LEFT, false);
-		Region o4 = oChu(soLuong, 110, Pos.CENTER_LEFT, false);
-		Region o5 = oChu(thanhTien, 140, Pos.CENTER_LEFT, false);
+		Region o1 = cellText(String.valueOf(stt), 50, Pos.CENTER_LEFT, false);
+		Region o2 = cellText(ten, 300, Pos.CENTER_LEFT, false);
+		Region o3 = cellText(donGia, 130, Pos.CENTER_LEFT, false);
+		Region o4 = cellText(soLuong, 110, Pos.CENTER_LEFT, false);
+		Region o5 = cellText(thanhTien, 140, Pos.CENTER_LEFT, false);
 
 		HBox hopHanhDong = new HBox(10);
 		hopHanhDong.setAlignment(Pos.CENTER);
-		Button nutTru = taoNutTrongSot("−");
+		Button nutTru = transparentIconButton("−");
 		Label soLuongHienThi = new Label("0");
 		soLuongHienThi.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000;");
-		Button nutCong = taoNutTrongSot("+");
+		Button nutCong = transparentIconButton("+");
 		hopHanhDong.getChildren().addAll(nutTru, soLuongHienThi, nutCong);
-		Region o6 = oNode(hopHanhDong, 140, Pos.CENTER);
+		Region o6 = cellNode(hopHanhDong, 140, Pos.CENTER);
 
 		HBox.setHgrow(o2, Priority.ALWAYS);
 		dong.getChildren().addAll(o1, o2, o3, o4, o5, o6);
 		return dong;
 	}
 
-	private Region oChu(String text, double width, Pos align, boolean dam) {
+	private Region cellText(String text, double width, Pos align, boolean dam) {
 		Label nhan = new Label(text);
 		nhan.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000;" + (dam ? "-fx-font-weight: bold;" : ""));
-		return oNode(nhan, width, align);
+		return cellNode(nhan, width, align);
 	}
 
-	private Region oNode(javafx.scene.Node node, double width, Pos align) {
+	private Region cellNode(javafx.scene.Node node, double width, Pos align) {
 		StackPane p = new StackPane(node);
 		p.setAlignment(align);
 		p.setMinWidth(width);
@@ -252,7 +256,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 		return p;
 	}
 
-	private Button taoNutTrongSot(String text) {
+	private Button transparentIconButton(String text) {
 		Button b = new Button(text);
 		b.setFocusTraversable(false);
 		b.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-font-size: 16px; -fx-text-fill: #000000;");
