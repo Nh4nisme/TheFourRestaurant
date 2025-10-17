@@ -1,8 +1,7 @@
 package com.thefourrestaurant.view.monan;
 
 import com.thefourrestaurant.controller.MonAnController;
-import com.thefourrestaurant.view.components.LoaiMonAnBox;
-import com.thefourrestaurant.view.components.MonAnBox;
+import com.thefourrestaurant.view.loaimonan.LoaiMonAnBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
