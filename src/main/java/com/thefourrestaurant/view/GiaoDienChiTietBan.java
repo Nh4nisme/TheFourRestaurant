@@ -1,13 +1,16 @@
 package com.thefourrestaurant.view;
 
-import com.thefourrestaurant.view.components.ButtonSample;
+import javafx.animation.ScaleTransition;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 public class GiaoDienChiTietBan extends BorderPane {
 
@@ -49,10 +52,10 @@ public class GiaoDienChiTietBan extends BorderPane {
 		footer.setPadding(new Insets(12, 20, 12, 20));
 		footer.setStyle("-fx-background-color: " + MAU_THANH + ";");
 
-		ButtonSample nutQuayLai = new ButtonSample("Quay lại", 45, 16, 1);
+		Button nutQuayLai = createButton("Quay lại");
 		Region dayCach = new Region();
 		HBox.setHgrow(dayCach, Priority.ALWAYS);
-		ButtonSample nutTinhTien = new ButtonSample("Tính tiền", 45, 16, 1);
+		Button nutTinhTien = createButton("Tính tiền");
 		footer.getChildren().addAll(nutQuayLai, dayCach, nutTinhTien);
 		return footer;
 	}
@@ -72,104 +75,107 @@ public class GiaoDienChiTietBan extends BorderPane {
 	}
 
 	private VBox taoCotTraiThongTin() {
-	// cột trái chứa thẻ thông tin.
-	VBox trai = new VBox(18);
-	trai.setPrefWidth(360);
+		// cột trái chứa thẻ thông tin.
+		VBox trai = new VBox(16);
+		trai.setPrefWidth(380);
 
-	Label tieuDeTtb = new Label("Thông tin bàn");
-	tieuDeTtb.setStyle("-fx-text-fill: " + MAU_VANG + "; -fx-font-size: 20px; -fx-font-weight: bold;");
-	tieuDeTtb.setPadding(new Insets(6, 0, 6, 6));
-	VBox theTtb = taoTheThongTin(new String[]{"Trạng Thái:", "Loại bàn:", "Số người:"});
+		Label tieuDeTtb = new Label("Thông tin bàn");
+		tieuDeTtb.setMaxWidth(Double.MAX_VALUE);
+		tieuDeTtb.setAlignment(Pos.CENTER);
+		tieuDeTtb.setStyle("-fx-text-fill: " + MAU_VANG + "; -fx-font-size: 18px; -fx-font-weight: bold;");
+		VBox theTtb = taoTheThongTin(new String[]{"Trạng Thái:", "Loại bàn:", "Số người:"});
 
-	Label tieuDePdb = new Label("Phiếu đặt bàn");
-	tieuDePdb.setStyle("-fx-text-fill: " + MAU_VANG + "; -fx-font-size: 20px; -fx-font-weight: bold;");
-	tieuDePdb.setPadding(new Insets(6, 0, 6, 6));
-	VBox thePdb = taoTheThongTin(new String[]{"Tên khách:", "Số điện thoại:", "Giờ nhận bàn:"});
+		Label tieuDePdb = new Label("Phiếu đặt bàn");
+		tieuDePdb.setMaxWidth(Double.MAX_VALUE);
+		tieuDePdb.setAlignment(Pos.CENTER);
+		tieuDePdb.setStyle("-fx-text-fill: " + MAU_VANG + "; -fx-font-size: 18px; -fx-font-weight: bold;");
+		VBox thePdb = taoTheThongTin(new String[]{"Tên khách:", "Số điện thoại:", "Giờ nhận bàn:"});
 
-	trai.getChildren().addAll(tieuDeTtb, theTtb, tieuDePdb, thePdb);
-	return trai;
+		trai.getChildren().addAll(tieuDeTtb, theTtb, tieuDePdb, thePdb);
+		return trai;
 	}
 
 	private VBox taoTheThongTin(String[] dong) {
 		VBox the = new VBox(8);
-		the.setPadding(new Insets(14));
-		the.setPrefHeight(160);
+		the.setPadding(new Insets(12));
 		the.setStyle("-fx-background-color: white; -fx-border-color: " + MAU_VIEN_DEN + "; -fx-border-radius: 10; -fx-background-radius: 10;");
 
 		for (String s : dong) {
 			Label nhan = new Label(s);
-			nhan.setStyle("-fx-font-size: 15px; -fx-text-fill: #333333;");
+			nhan.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
 			the.getChildren().add(nhan);
 		}
 		return the;
 	}
 
 	private VBox taoCotPhaiHoaDon() {
-	// cột phải
-	VBox phai = new VBox(10);
-	phai.setPadding(new Insets(0, 6, 0, 6));
+		// cột phải.
+		VBox phai = new VBox(10);
+		phai.setPadding(new Insets(0, 6, 0, 6));
 
-	VBox khungPhai = new VBox(12);
-	khungPhai.setPadding(new Insets(16));
-	khungPhai.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;");
-	VBox.setVgrow(khungPhai, Priority.ALWAYS);
+		VBox khungPhai = new VBox(12);
+		khungPhai.setPadding(new Insets(16));
+		khungPhai.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 2; -fx-border-radius: 10; -fx-background-radius: 10;");
+		VBox.setVgrow(khungPhai, Priority.ALWAYS);
 
-	Label tieuDe = new Label("Hóa đơn tạm tính");
-	tieuDe.setStyle("-fx-text-fill: " + MAU_VANG + "; -fx-font-size: 20px; -fx-font-weight: bold;");
+		Label tieuDe = new Label("Hóa đơn tạm tính");
+		tieuDe.setMaxWidth(Double.MAX_VALUE);
+		tieuDe.setAlignment(Pos.CENTER);
+		tieuDe.setStyle("-fx-text-fill: " + MAU_VANG + "; -fx-font-size: 20px; -fx-font-weight: bold;");
 
-	GridPane thongTinNho = new GridPane();
-	thongTinNho.setHgap(50);
-	thongTinNho.setVgap(6);
-	ColumnConstraints c1 = new ColumnConstraints(); c1.setPercentWidth(50);
-	ColumnConstraints c2 = new ColumnConstraints(); c2.setPercentWidth(50);
-	thongTinNho.getColumnConstraints().addAll(c1, c2);
-	thongTinNho.add(new Label("Mã CTPDB:"), 0, 0);
-	thongTinNho.add(new Label("Mã HD:"), 1, 0);
-	thongTinNho.add(new Label("SDT khách hàng:"), 0, 1);
-	thongTinNho.add(new Label("Tên khách hàng:"), 1, 1);
-	thongTinNho.add(new Label("Giờ vào:"), 0, 2);
+		GridPane thongTinNho = new GridPane();
+		thongTinNho.setHgap(50);
+		thongTinNho.setVgap(6);
+		ColumnConstraints c1 = new ColumnConstraints(); c1.setPercentWidth(50);
+		ColumnConstraints c2 = new ColumnConstraints(); c2.setPercentWidth(50);
+		thongTinNho.getColumnConstraints().addAll(c1, c2);
+		thongTinNho.add(new Label("Mã CTPDB:"), 0, 0);
+		thongTinNho.add(new Label("Mã HD:"), 1, 0);
+		thongTinNho.add(new Label("SDT khách hàng:"), 0, 1);
+		thongTinNho.add(new Label("Tên khách hàng:"), 1, 1);
+		thongTinNho.add(new Label("Giờ vào:"), 0, 2);
 
-	VBox hopDen = new VBox(0);
-	hopDen.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1.5; -fx-border-radius: 6; -fx-background-radius: 6;");
-	hopDen.setPadding(new Insets(8));
-	VBox.setVgrow(hopDen, Priority.ALWAYS);
+		VBox hopDen = new VBox(0);
+		hopDen.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1.5; -fx-border-radius: 6; -fx-background-radius: 6;");
+		hopDen.setPadding(new Insets(8));
+		VBox.setVgrow(hopDen, Priority.ALWAYS);
 
-	HBox dongTieuDe = taoDong("STT", "Tên món", "Đơn giá", "Số lượng", "Thành tiền", "Hành động", true);
+		HBox dongTieuDe = taoDong("STT", "Tên món", "Đơn giá", "Số lượng", "Thành tiền", "Hành động", true);
 
-	VBox danhSachDong = new VBox(0);
-	danhSachDong.getChildren().addAll(
-		taoDongDuLieu(1, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
-		taoDongDuLieu(2, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
-		taoDongDuLieu(3, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
-		taoDongDuLieu(4, "Cơm bò", "45,000 VND", "2", "90,000 VND")
-	);
+		VBox danhSachDong = new VBox(0);
+		danhSachDong.getChildren().addAll(
+				taoDongDuLieu(1, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
+				taoDongDuLieu(2, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
+				taoDongDuLieu(3, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
+				taoDongDuLieu(4, "Cơm bò", "45,000 VND", "2", "90,000 VND")
+		);
 
-	hopDen.getChildren().addAll(dongTieuDe, danhSachDong);
+		hopDen.getChildren().addAll(dongTieuDe, danhSachDong);
 
-	HBox thanhMaGiamGia = new HBox(10);
-	thanhMaGiamGia.setPadding(new Insets(12, 0, 0, 0));
-	Label lblMa = new Label("Mã giảm giá:");
-	TextField txtMa = new TextField();
-	txtMa.setPrefWidth(180);
-	ButtonSample nutKiemTra = new ButtonSample("Kiểm tra", 45, 16, 1);
-	ButtonSample nutGoiMon = new ButtonSample("Gọi thêm món", 45, 16, 1);
-	Region dayPhai = new Region();
-	HBox.setHgrow(dayPhai, Priority.ALWAYS);
-	thanhMaGiamGia.getChildren().addAll(lblMa, txtMa, nutKiemTra, dayPhai, nutGoiMon);
+		HBox thanhMaGiamGia = new HBox(10);
+		thanhMaGiamGia.setPadding(new Insets(12, 0, 0, 0));
+		Label lblMa = new Label("Mã giảm giá:");
+		TextField txtMa = new TextField();
+		txtMa.setPrefWidth(180);
+		Button nutKiemTra = createButton("Kiểm tra");
+		Button nutGoiMon = createButton("Gọi thêm món");
+		Region dayPhai = new Region();
+		HBox.setHgrow(dayPhai, Priority.ALWAYS);
+		thanhMaGiamGia.getChildren().addAll(lblMa, txtMa, nutKiemTra, dayPhai, nutGoiMon);
 
-	GridPane tongKet = new GridPane();
-	tongKet.setHgap(40);
-	tongKet.setVgap(6);
-	tongKet.setPadding(new Insets(8, 0, 0, 0));
-	tongKet.add(new Label("Chiết khấu:"), 0, 0);
-	tongKet.add(new Label("Thuế VAT:"), 0, 1);
-	tongKet.add(new Label("Tạm tính:"), 0, 2);
-	tongKet.add(new Label("Tiền đặt cọc trước:"), 1, 0);
-	tongKet.add(new Label("Tổng cộng:"), 1, 1);
+		GridPane tongKet = new GridPane();
+		tongKet.setHgap(40);
+		tongKet.setVgap(6);
+		tongKet.setPadding(new Insets(8, 0, 0, 0));
+		tongKet.add(new Label("Chiết khấu:"), 0, 0);
+		tongKet.add(new Label("Thuế VAT:"), 0, 1);
+		tongKet.add(new Label("Tạm tính:"), 0, 2);
+		tongKet.add(new Label("Tiền đặt cọc trước:"), 1, 0);
+		tongKet.add(new Label("Tổng cộng:"), 1, 1);
 
-	khungPhai.getChildren().addAll(tieuDe, thongTinNho, hopDen, thanhMaGiamGia, tongKet);
-	phai.getChildren().add(khungPhai);
-	return phai;
+		khungPhai.getChildren().addAll(tieuDe, thongTinNho, hopDen, thanhMaGiamGia, tongKet);
+		phai.getChildren().add(khungPhai);
+		return phai;
 	}
 
 	// headers
@@ -237,6 +243,43 @@ public class GiaoDienChiTietBan extends BorderPane {
 		b.setFocusTraversable(false);
 		b.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-font-size: 16px; -fx-text-fill: #000000;");
 		return b;
+	}
+
+	private Button createButton(String text) {
+		Button button = new Button(text);
+		button.setStyle(
+				"-fx-background-color: #DDB248; " +
+						"-fx-text-fill: #1E424D; " +
+						"-fx-font-weight: bold; " +
+						"-fx-font-size: 14px; " +
+						"-fx-background-radius: 10; " +
+						"-fx-cursor: hand;"
+		);
+		button.setPrefHeight(40);
+		button.setPrefWidth(120);
+
+		DropShadow dropShadow = new DropShadow();
+		dropShadow.setRadius(4);
+		dropShadow.setOffsetX(0);
+		dropShadow.setOffsetY(4);
+		dropShadow.setColor(Color.rgb(0, 0, 0, 0.25));
+		button.setEffect(dropShadow);
+
+		button.setOnMouseEntered(e -> {
+			ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
+			st.setToX(1.05);
+			st.setToY(1.05);
+			st.play();
+		});
+
+		button.setOnMouseExited(e -> {
+			ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
+			st.setToX(1.0);
+			st.setToY(1.0);
+			st.play();
+		});
+
+		return button;
 	}
 }
 
