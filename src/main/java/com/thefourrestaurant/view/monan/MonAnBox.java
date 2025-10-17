@@ -5,10 +5,22 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 
+import java.util.Objects;
+
 public class MonAnBox extends BaseBox {
+
+    private MonAnBox() {
+        super();
+        setPrefSize(150, 200);
+        setMaxSize(150, 200);
+        setSpacing(0);
+        setPadding(Insets.EMPTY);
+        setAlignment(Pos.CENTER);
+    }
 
     public MonAnBox(String ten, String gia, String imagePath) {
         // Cấu hình chung cho ô món ăn
@@ -77,6 +89,26 @@ public class MonAnBox extends BaseBox {
 
         // Gộp phần trên và dưới vào box chính
         this.getChildren().addAll(topPane, bottomPane);
+    }
+
+    // --- Tạo Box "Thêm món mới" ---
+    public static MonAnBox createThemMoiBox() {
+        MonAnBox hop = new MonAnBox();
+        hop.setAlignment(Pos.CENTER);
+        hop.setSpacing(5);
+        hop.getStyleClass().add("add-item-box");
+
+        Image plusImage = new Image(Objects.requireNonNull(
+                MonAnBox.class.getResourceAsStream("/com/thefourrestaurant/images/icon/Them.png")));
+        ImageView plusImageView = new ImageView(plusImage);
+        plusImageView.setFitWidth(50);
+        plusImageView.setFitHeight(50);
+
+        Label themMoiLabel = new Label("Thêm món mới");
+        themMoiLabel.getStyleClass().add("monan-ten");
+
+        hop.getChildren().addAll(plusImageView, themMoiLabel);
+        return hop;
     }
 
     // --- Màu nền mặc định khi không có ảnh ---
