@@ -70,7 +70,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 	}
 
 	private VBox buildLeftColumn() {
-		// cột trái chứa thẻ thông tin.
+		// cột trái
 		VBox trai = new VBox(16);
 		trai.setPrefWidth(380);
 
