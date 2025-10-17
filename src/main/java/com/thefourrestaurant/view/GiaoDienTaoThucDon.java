@@ -1,7 +1,7 @@
 package com.thefourrestaurant.view;
 
 import com.thefourrestaurant.view.components.ButtonSample;
-import com.thefourrestaurant.view.components.MonAnBox;
+import com.thefourrestaurant.view.monan.MonAnBox;
 import com.thefourrestaurant.view.components.NavBar;
 import javafx.application.Platform;
 import javafx.geometry.Insets;

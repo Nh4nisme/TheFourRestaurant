@@ -1,7 +1,8 @@
-package com.thefourrestaurant.view.monan;
+package com.thefourrestaurant.view;
 
 import com.thefourrestaurant.view.components.DropDownButton;
 import com.thefourrestaurant.view.components.NavBar;
+import com.thefourrestaurant.view.monan.MonAnBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -12,7 +13,6 @@ import javafx.scene.text.FontWeight;
 import javafx.geometry.HPos;
 
 import com.thefourrestaurant.view.components.ButtonSample;
-import com.thefourrestaurant.view.components.MonAnBox;
 
 import javafx.beans.property.SimpleStringProperty;
 

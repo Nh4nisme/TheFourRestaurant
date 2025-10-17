@@ -1,7 +1,6 @@
 package com.thefourrestaurant.view.loaimonan;
 
 import com.thefourrestaurant.controller.LoaiMonAnController;
-import com.thefourrestaurant.view.components.LoaiMonAnBox;
 import com.thefourrestaurant.view.components.NavBar;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
