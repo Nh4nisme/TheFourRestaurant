@@ -4,7 +4,7 @@ import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
 import com.thefourrestaurant.view.ban.GiaoDienChiTietBan;
 import com.thefourrestaurant.view.ban.GiaoDienDatBan;
 import com.thefourrestaurant.view.ban.GiaoDienDatBanTruoc;
-import com.thefourrestaurant.view.GiaoDienTaoThucDon;
+import com.thefourrestaurant.view.thucdon.GiaoDienTaoThucDon;
 import com.thefourrestaurant.view.GiaoDienThemKhachHang;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.PhieuGoiMon;
