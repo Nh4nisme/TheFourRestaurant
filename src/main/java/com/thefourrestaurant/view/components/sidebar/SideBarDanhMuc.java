@@ -1,10 +1,10 @@
 package com.thefourrestaurant.view.components.sidebar;
 
-import com.thefourrestaurant.view.GiaoDienTaoThucDon;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.ban.QuanLiBan;
 import com.thefourrestaurant.view.monan.MonAnBun;
 import com.thefourrestaurant.view.monan.MonAnCom;
+import com.thefourrestaurant.view.thucdon.ThucDon;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -62,7 +62,7 @@ public class SideBarDanhMuc extends BaseSideBar {
         }
 
         Node newContent = switch (tenMuc) {
-            case "Thực đơn" -> new GiaoDienTaoThucDon();
+            case "Thực đơn" -> new ThucDon();
             case "Loại món ăn" -> new LoaiMonAn();
             case "Cơm" -> new MonAnCom();
             case "Bún" -> new MonAnBun();

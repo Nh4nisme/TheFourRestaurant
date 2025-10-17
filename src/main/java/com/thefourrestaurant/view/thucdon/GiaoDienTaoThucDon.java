@@ -1,4 +1,4 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.thucdon;
 
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.monan.MonAnBox;
