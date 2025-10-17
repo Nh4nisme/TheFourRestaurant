@@ -1,7 +1,6 @@
 package com.thefourrestaurant.view.monan;
 
 import com.thefourrestaurant.controller.MonAnController;
-import com.thefourrestaurant.view.loaimonan.LoaiMonAnBox;
 import com.thefourrestaurant.view.monan.MonAnBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -52,7 +51,7 @@ public class MonAnBunGrid extends VBox {
         luoiThemMon.setPadding(new Insets(0, 0, 0, 15));
         luoiThemMon.setMinHeight(200);
 
-        VBox hopThemMoi = LoaiMonAnBox.createThemMoiBox();
+        VBox hopThemMoi = MonAnBox.createThemMoiBox();
 
         Button themMoiButton = new Button();
         themMoiButton.setVisible(false);
