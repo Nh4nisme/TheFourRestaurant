@@ -1,4 +1,4 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.monan;
 
 import com.thefourrestaurant.view.components.DropDownButton;
 import com.thefourrestaurant.view.components.NavBar;

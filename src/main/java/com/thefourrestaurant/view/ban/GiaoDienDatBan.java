@@ -1,4 +1,4 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.ban;
 
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
@@ -9,26 +9,24 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-public class GiaoDienDatBanTruoc extends VBox {
+public class GiaoDienDatBan extends VBox {
 
     private TextField txtTrangThai;
     private ComboBox<String> cbLoaiBan;
     private TextField txtSoNguoi;
     private ComboBox<String> cbGiaTien;
-    private TextField txtNgayNhanBan;
-    private TextField txtGioNhanBan;
     private TextField txtSDTKhachDat;
     private Label lblTenKhachDat;
     private Button btnKiemTra;
     private Button btnDatBan;
     private Button btnQuayLai;
 
-    public GiaoDienDatBanTruoc() {
+    public GiaoDienDatBan() {
         setStyle("-fx-background-color: #F5F5F5;");
         setSpacing(0);
         setAlignment(Pos.TOP_CENTER);
 
-        Label lblTitle = new Label("Đặt bàn trước");
+        Label lblTitle = new Label("Đặt bàn");
         lblTitle.setStyle("-fx-font-size: 18px; -fx-text-fill: #E19E11; -fx-font-weight: bold;");
         HBox titleBar = new HBox(lblTitle);
         titleBar.setAlignment(Pos.CENTER_LEFT);
@@ -80,42 +78,26 @@ public class GiaoDienDatBanTruoc extends VBox {
         
         row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, lblGiaTien, cbGiaTien);
 
-        // Row 3: Ngày nhận bàn and Giờ nhận bàn
-        HBox row3 = new HBox(20);
+        // Row 3: SDT khách đặt
+        HBox row3 = new HBox(10);
         row3.setAlignment(Pos.CENTER_LEFT);
-        
-        Label lblNgayNhanBan = createLabel("Ngày nhận bàn:");
-        lblNgayNhanBan.setPrefWidth(120);
-        txtNgayNhanBan = createTextField();
-        txtNgayNhanBan.setPrefWidth(230);
-        
-        Label lblGioNhanBan = createLabel("Giờ nhận bàn:");
-        lblGioNhanBan.setPrefWidth(100);
-        txtGioNhanBan = createTextField();
-        txtGioNhanBan.setPrefWidth(230);
-        
-        row3.getChildren().addAll(lblNgayNhanBan, txtNgayNhanBan, lblGioNhanBan, txtGioNhanBan);
-
-        // Row 4: SDT khách đặt
-        HBox row4 = new HBox(10);
-        row4.setAlignment(Pos.CENTER_LEFT);
         Label lblSDT = createLabel("SDT khách đặt:");
         lblSDT.setPrefWidth(120);
         txtSDTKhachDat = createTextField();
         HBox.setHgrow(txtSDTKhachDat, Priority.ALWAYS);
         btnKiemTra = createButton("Kiểm tra");
-        row4.getChildren().addAll(lblSDT, txtSDTKhachDat, btnKiemTra);
+        row3.getChildren().addAll(lblSDT, txtSDTKhachDat, btnKiemTra);
 
-        // Row 5: Tên khách đặt
-        HBox row5 = new HBox(10);
-        row5.setAlignment(Pos.CENTER_LEFT);
+        // Row 4: Tên khách đặt
+        HBox row4 = new HBox(10);
+        row4.setAlignment(Pos.CENTER_LEFT);
         Label lblTenKhach = createLabel("Tên khách đặt:");
         lblTenKhach.setPrefWidth(120);
         lblTenKhachDat = new Label("");
         lblTenKhachDat.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
-        row5.getChildren().addAll(lblTenKhach, lblTenKhachDat);
+        row4.getChildren().addAll(lblTenKhach, lblTenKhachDat);
 
-        formBox.getChildren().addAll(row1, row2, row3, row4, row5);
+        formBox.getChildren().addAll(row1, row2, row3, row4);
 
         HBox buttonBar = new HBox(20);
         buttonBar.setAlignment(Pos.CENTER_LEFT);
@@ -203,8 +185,6 @@ public class GiaoDienDatBanTruoc extends VBox {
     public ComboBox<String> getCbLoaiBan() { return cbLoaiBan; }
     public TextField getTxtSoNguoi() { return txtSoNguoi; }
     public ComboBox<String> getCbGiaTien() { return cbGiaTien; }
-    public TextField getTxtNgayNhanBan() { return txtNgayNhanBan; }
-    public TextField getTxtGioNhanBan() { return txtGioNhanBan; }
     public TextField getTxtSDTKhachDat() { return txtSDTKhachDat; }
     public Label getLblTenKhachDat() { return lblTenKhachDat; }
     public Button getBtnKiemTra() { return btnKiemTra; }

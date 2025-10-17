@@ -1,12 +1,7 @@
 package com.thefourrestaurant;
 
-import java.sql.Connection;
-
-import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.view.GiaoDienChinh;
-import com.thefourrestaurant.view.GiaoDienDangNhap;
-import com.thefourrestaurant.view.PhieuGoiMon;
-import javafx.scene.Scene;
+import com.thefourrestaurant.view.monan.PhieuGoiMon;
 
 import javafx.application.Application;
 
