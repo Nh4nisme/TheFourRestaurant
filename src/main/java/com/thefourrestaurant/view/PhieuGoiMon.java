@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view;
 
 import com.thefourrestaurant.view.components.DropDownButton;
+import com.thefourrestaurant.view.components.NavBar;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -20,12 +21,16 @@ import java.util.List;
 public class PhieuGoiMon extends BorderPane {
 
     private ButtonSample btnTim, btnLamMoi;
+    private VBox mainContainer;
 
 	public PhieuGoiMon() {
         this.setStyle("-fx-background-color: white;");
 
+        NavBar nb = new NavBar(mainContainer);
         HBox thanhTren = taoThanhTren();
-        this.setTop(thanhTren);
+
+        VBox topContainer = new VBox(nb, thanhTren);
+        this.setTop(topContainer);
 
         HBox noiDungChinh = new HBox(20);
 
@@ -43,20 +48,11 @@ public class PhieuGoiMon extends BorderPane {
     }
 
     private HBox taoThanhTren() {
+
         HBox thanhTren = new HBox(15);
         thanhTren.setPadding(new Insets(15, 20, 15, 20));
         thanhTren.setAlignment(Pos.CENTER_LEFT);
         thanhTren.setStyle("-fx-background-color: #1E424D;");
-
-//        MenuButton menuBuaAn = new MenuButton("Buổi Trưa");
-//        menuBuaAn.setStyle("-fx-background-color: #D4A84A; -fx-text-fill: #2C5F5F; "
-//                + "-fx-font-size: 14px; -fx-font-weight: bold; -fx-pref-width: 150px;");
-//
-//        menuBuaAn.getItems().addAll(
-//                new MenuItem("Buổi Sáng"),
-//                new MenuItem("Buổi Trưa"),
-//                new MenuItem("Buổi Tối")
-//        );
 
         DropDownButton menuThucDon = new DropDownButton(
                 "Thực đơn  ▼",
