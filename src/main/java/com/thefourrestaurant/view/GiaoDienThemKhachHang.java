@@ -32,9 +32,9 @@ public class GiaoDienThemKhachHang extends VBox {
         titleBar.setStyle("-fx-background-color: #1E424D;");
         titleBar.setPrefHeight(50);
 
-        VBox contentCard = new VBox(25);
+        VBox contentCard = new VBox(20);
         contentCard.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #CCCCCC; -fx-border-radius: 15;");
-        contentCard.setPadding(new Insets(40));
+        contentCard.setPadding(new Insets(30));
         contentCard.setMaxWidth(650);
         contentCard.setAlignment(Pos.TOP_CENTER);
 
@@ -44,33 +44,42 @@ public class GiaoDienThemKhachHang extends VBox {
         VBox formBox = new VBox(15);
         formBox.setAlignment(Pos.CENTER_LEFT);
 
-        HBox row1 = new HBox(5);
+        // Row 1: Tên khách hàng
+        HBox row1 = new HBox(10);
         row1.setAlignment(Pos.CENTER_LEFT);
         Label lblTenKhachHang = createLabel("Tên khách hàng:");
+        lblTenKhachHang.setPrefWidth(120);
         txtTenKhachHang = createTextField();
-        txtTenKhachHang.setPrefWidth(450);
+        HBox.setHgrow(txtTenKhachHang, Priority.ALWAYS);
         row1.getChildren().addAll(lblTenKhachHang, txtTenKhachHang);
 
-        HBox row2 = new HBox(5);
+        // Row 2: Số ĐT
+        HBox row2 = new HBox(10);
         row2.setAlignment(Pos.CENTER_LEFT);
         Label lblSoDT = createLabel("Số ĐT:");
+        lblSoDT.setPrefWidth(120);
         txtSoDT = createTextField();
-        txtSoDT.setPrefWidth(450);
+        HBox.setHgrow(txtSoDT, Priority.ALWAYS);
         row2.getChildren().addAll(lblSoDT, txtSoDT);
 
-        HBox row3 = new HBox(5);
+        // Row 3: Ngày sinh and Giới tính
+        HBox row3 = new HBox(20);
         row3.setAlignment(Pos.CENTER_LEFT);
+        
         Label lblNgaySinh = createLabel("Ngày sinh:");
+        lblNgaySinh.setPrefWidth(120);
         dpNgaySinh = new DatePicker();
         dpNgaySinh.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 10; -fx-background-radius: 10;");
         dpNgaySinh.setPrefHeight(35);
-        dpNgaySinh.setPrefWidth(180);
+        dpNgaySinh.setPrefWidth(230);
         dpNgaySinh.setEditable(false);
         
         Label lblGioiTinh = createLabel("Giới tính:");
+        lblGioiTinh.setPrefWidth(100);
         txtGioiTinh = createTextField();
-        txtGioiTinh.setPrefWidth(180);
-        row3.getChildren().addAll(lblNgaySinh, dpNgaySinh, createSpacer(20), lblGioiTinh, txtGioiTinh);
+        txtGioiTinh.setPrefWidth(230);
+        
+        row3.getChildren().addAll(lblNgaySinh, dpNgaySinh, lblGioiTinh, txtGioiTinh);
 
         formBox.getChildren().addAll(row1, row2, row3);
 
@@ -79,12 +88,6 @@ public class GiaoDienThemKhachHang extends VBox {
         buttonBar.setPadding(new Insets(20, 0, 0, 0));
         
         btnQuayLai = createButton("Quay lại");
-        btnQuayLai.setOnAction(e -> {
-            if (getParent() != null && getParent().getParent() instanceof VBox) {
-                VBox parent = (VBox) getParent().getParent();
-                parent.getChildren().clear();
-            }
-        });
         
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -116,12 +119,6 @@ public class GiaoDienThemKhachHang extends VBox {
         textField.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 10; -fx-background-radius: 10;");
         textField.setPrefHeight(35);
         return textField;
-    }
-
-    private Region createSpacer(double width) {
-        Region spacer = new Region();
-        spacer.setPrefWidth(width);
-        return spacer;
     }
 
     private Button createButton(String text) {

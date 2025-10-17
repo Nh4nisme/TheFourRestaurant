@@ -48,47 +48,69 @@ public class GiaoDienDatBanTruoc extends VBox {
         VBox formBox = new VBox(15);
         formBox.setAlignment(Pos.CENTER_LEFT);
 
-        HBox row1 = new HBox(5);
+        // Row 1: Trạng thái and Loại bàn
+        HBox row1 = new HBox(20);
         row1.setAlignment(Pos.CENTER_LEFT);
+        
         Label lblTrangThai = createLabel("Trạng Thái:");
+        lblTrangThai.setPrefWidth(120);
         txtTrangThai = createTextField();
-        txtTrangThai.setPrefWidth(150);
+        txtTrangThai.setPrefWidth(230);
+        
         Label lblLoaiBan = createLabel("Loại bàn:");
+        lblLoaiBan.setPrefWidth(100);
         cbLoaiBan = createComboBox();
-        cbLoaiBan.setPrefWidth(150);
-        row1.getChildren().addAll(lblTrangThai, txtTrangThai, createSpacer(20), lblLoaiBan, cbLoaiBan);
+        cbLoaiBan.setPrefWidth(230);
+        
+        row1.getChildren().addAll(lblTrangThai, txtTrangThai, lblLoaiBan, cbLoaiBan);
 
-        HBox row2 = new HBox(5);
+        // Row 2: Số người and Giá tiền
+        HBox row2 = new HBox(20);
         row2.setAlignment(Pos.CENTER_LEFT);
+        
         Label lblSoNguoi = createLabel("Số người:");
+        lblSoNguoi.setPrefWidth(120);
         txtSoNguoi = createTextField();
-        txtSoNguoi.setPrefWidth(150);
+        txtSoNguoi.setPrefWidth(230);
+        
         Label lblGiaTien = createLabel("Giá tiền:");
+        lblGiaTien.setPrefWidth(100);
         cbGiaTien = createComboBox();
-        cbGiaTien.setPrefWidth(150);
-        row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, createSpacer(20), lblGiaTien, cbGiaTien);
+        cbGiaTien.setPrefWidth(230);
+        
+        row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, lblGiaTien, cbGiaTien);
 
-        HBox row3 = new HBox(5);
+        // Row 3: Ngày nhận bàn and Giờ nhận bàn
+        HBox row3 = new HBox(20);
         row3.setAlignment(Pos.CENTER_LEFT);
+        
         Label lblNgayNhanBan = createLabel("Ngày nhận bàn:");
+        lblNgayNhanBan.setPrefWidth(120);
         txtNgayNhanBan = createTextField();
-        txtNgayNhanBan.setPrefWidth(120);
+        txtNgayNhanBan.setPrefWidth(230);
+        
         Label lblGioNhanBan = createLabel("Giờ nhận bàn:");
+        lblGioNhanBan.setPrefWidth(100);
         txtGioNhanBan = createTextField();
-        txtGioNhanBan.setPrefWidth(120);
-        row3.getChildren().addAll(lblNgayNhanBan, txtNgayNhanBan, createSpacer(20), lblGioNhanBan, txtGioNhanBan);
+        txtGioNhanBan.setPrefWidth(230);
+        
+        row3.getChildren().addAll(lblNgayNhanBan, txtNgayNhanBan, lblGioNhanBan, txtGioNhanBan);
 
-        HBox row4 = new HBox(5);
+        // Row 4: SDT khách đặt
+        HBox row4 = new HBox(10);
         row4.setAlignment(Pos.CENTER_LEFT);
         Label lblSDT = createLabel("SDT khách đặt:");
+        lblSDT.setPrefWidth(120);
         txtSDTKhachDat = createTextField();
-        txtSDTKhachDat.setPrefWidth(300);
+        HBox.setHgrow(txtSDTKhachDat, Priority.ALWAYS);
         btnKiemTra = createButton("Kiểm tra");
         row4.getChildren().addAll(lblSDT, txtSDTKhachDat, btnKiemTra);
 
-        HBox row5 = new HBox(5);
+        // Row 5: Tên khách đặt
+        HBox row5 = new HBox(10);
         row5.setAlignment(Pos.CENTER_LEFT);
         Label lblTenKhach = createLabel("Tên khách đặt:");
+        lblTenKhach.setPrefWidth(120);
         lblTenKhachDat = new Label("");
         lblTenKhachDat.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
         row5.getChildren().addAll(lblTenKhach, lblTenKhachDat);
@@ -100,12 +122,6 @@ public class GiaoDienDatBanTruoc extends VBox {
         buttonBar.setPadding(new Insets(20, 0, 0, 0));
         
         btnQuayLai = createButton("Quay lại");
-        btnQuayLai.setOnAction(e -> {
-            if (getParent() != null && getParent().getParent() instanceof VBox) {
-                VBox parent = (VBox) getParent().getParent();
-                parent.getChildren().clear();
-            }
-        });
         
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -142,13 +158,8 @@ public class GiaoDienDatBanTruoc extends VBox {
         ComboBox<String> comboBox = new ComboBox<>();
         comboBox.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 10; -fx-background-radius: 10;");
         comboBox.setPrefHeight(35);
+        comboBox.setMaxWidth(Double.MAX_VALUE);
         return comboBox;
-    }
-
-    private Region createSpacer(double width) {
-        Region spacer = new Region();
-        spacer.setPrefWidth(width);
-        return spacer;
     }
 
     private Button createButton(String text) {
