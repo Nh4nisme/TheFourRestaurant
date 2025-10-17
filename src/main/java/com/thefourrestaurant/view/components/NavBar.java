@@ -1,17 +1,14 @@
 package com.thefourrestaurant.view.components;
 
+import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
 import com.thefourrestaurant.view.GiaoDienTaoThucDon;
-import com.thefourrestaurant.view.LoaiMonAn;
+import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.PhieuGoiMon;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuButton;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -87,6 +84,7 @@ public class NavBar extends HBox {
             case "Thực đơn" -> mainContainer.getChildren().add(new GiaoDienTaoThucDon());
             case "Món ăn" -> mainContainer.getChildren().add(new LoaiMonAn());
             case "Đặt món" -> mainContainer.getChildren().add(new PhieuGoiMon());
+            case "Hóa đơn" -> mainContainer.getChildren().add(new GiaoDienHoaDon());
 //            case "Nguyên liệu" -> mainContainer.getChildren().add(new IngredientPanel());
             default -> System.out.println("Không tìm thấy panel: " + s);
         }
