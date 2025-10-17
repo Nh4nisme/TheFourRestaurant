@@ -188,3 +188,31 @@
     -fx-font-size: 12px;
     -fx-text-fill: black;
 }
+
+/* Css của GiaoDienThucThe (Hoadon, taikhoan, khachhang, Phieudatban) */
+.giaodienthucthe {
+    -fx-background-color: #F5F5F5;
+}
+
+.toolbar {
+    -fx-background-color: #1E424D;
+    -fx-padding: 10;
+    -fx-alignment: center-left;
+}
+
+.toolbar-title {
+    -fx-font-size: 20;
+    -fx-text-fill: #DDB248;
+    -fx-font-weight: bold;
+}
+
+.split-pane {
+    -fx-padding: 10;
+}
+
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #CCCCCC;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
