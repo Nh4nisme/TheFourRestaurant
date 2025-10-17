@@ -82,7 +82,7 @@ public class LoaiMonAn extends VBox {
         luoiCacMucTren.setHgap(20);
         luoiCacMucTren.setVgap(20);
         luoiCacMucTren.getStyleClass().add("grid-pane");
-        luoiCacMucTren.setPadding(new Insets(0, 0, 0, 5));
+        luoiCacMucTren.setPadding(new Insets(0, 0, 0, 15));
         luoiCacMucTren.setMinHeight(200);
 
         VBox hopThemMoi = LoaiMonAnBox.createThemMoiBox();
@@ -150,13 +150,8 @@ public class LoaiMonAn extends VBox {
                     item.put("name", (String) ketQua.get("name"));
                     item.put("imagePath", (String) ketQua.get("imagePath"));
 
-                    // Cập nhật lại ô hiển thị
-                    VBox hopMoi = LoaiMonAnBox.createLoaiMonAnBox(item.get("name"), item.get("imagePath"));
-                    int col = GridPane.getColumnIndex(hopLoaiMonAn);
-                    int row = GridPane.getRowIndex(hopLoaiMonAn);
-
-                    luoiCacMucDuoi.getChildren().remove(hopLoaiMonAn);
-                    luoiCacMucDuoi.add(hopMoi, col, row);
+                    // Vẽ lại toàn bộ lưới để gán lại sự kiện
+                    capNhatLuoiMonAn();
                 }
             });
 
