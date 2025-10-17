@@ -1,5 +1,6 @@
-package com.thefourrestaurant.view.components;
+package com.thefourrestaurant.view.monan;
 
+import com.thefourrestaurant.view.components.BaseBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;

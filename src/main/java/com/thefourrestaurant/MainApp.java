@@ -1,7 +1,7 @@
 package com.thefourrestaurant;
 
 import com.thefourrestaurant.view.GiaoDienChinh;
-import com.thefourrestaurant.view.monan.PhieuGoiMon;
+import com.thefourrestaurant.view.PhieuGoiMon;
 
 import javafx.application.Application;
 

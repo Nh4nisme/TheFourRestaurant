@@ -1,6 +1,6 @@
 package com.thefourrestaurant.view.taikhoan;
 
-import com.thefourrestaurant.view.GiaoDienThucThe;
+import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 

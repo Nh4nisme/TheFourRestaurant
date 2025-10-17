@@ -1,7 +1,5 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.components;
 
-import com.thefourrestaurant.view.components.ButtonSample;
-import com.thefourrestaurant.view.components.NavBar;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
