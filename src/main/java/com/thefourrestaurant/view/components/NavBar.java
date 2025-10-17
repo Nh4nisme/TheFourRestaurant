@@ -7,6 +7,7 @@ import com.thefourrestaurant.view.GiaoDienTaoThucDon;
 import com.thefourrestaurant.view.GiaoDienThemKhachHang;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.PhieuGoiMon;
+import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
@@ -91,6 +92,7 @@ public class NavBar extends HBox {
             case "Đặt bàn trước" -> mainContainer.getChildren().add(new GiaoDienDatBanTruoc());
             case "Thêm khách hàng" -> mainContainer.getChildren().add(new GiaoDienThemKhachHang());
             case "Hóa đơn" -> mainContainer.getChildren().add(new GiaoDienHoaDon());
+            case "Tài khoản" -> mainContainer.getChildren().add(new GiaoDienTaiKhoan());
 //            case "Nguyên liệu" -> mainContainer.getChildren().add(new IngredientPanel());
             default -> System.out.println("Không tìm thấy panel: " + s);
         }
