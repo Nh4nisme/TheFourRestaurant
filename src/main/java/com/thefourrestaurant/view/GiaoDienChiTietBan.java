@@ -13,11 +13,6 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class GiaoDienChiTietBan extends BorderPane {
-
-	private static final String MAU_THANH = "#1E424D";
-	private static final String MAU_VANG = "#DDB248";
-	private static final String MAU_VIEN_DEN = "#000000";
-
 	public GiaoDienChiTietBan() {
 		setStyle("-fx-background-color: #F5F5F5;");
 
@@ -38,10 +33,10 @@ public class GiaoDienChiTietBan extends BorderPane {
 		HBox header = new HBox();
 		header.setAlignment(Pos.CENTER);
 		header.setPadding(new Insets(8, 20, 8, 20));
-		header.setStyle("-fx-background-color: " + MAU_THANH + ";");
+		header.setStyle("-fx-background-color: #1E424D ;");
 
 		Label tieuDe = new Label("Chi tiết bàn");
-		tieuDe.setStyle("-fx-text-fill: " + MAU_VANG + "; -fx-font-size: 22px; -fx-font-weight: bold;");
+		tieuDe.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 22px; -fx-font-weight: bold;");
 		header.getChildren().add(tieuDe);
 		return header;
 	}
@@ -50,7 +45,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 		HBox footer = new HBox();
 		footer.setAlignment(Pos.CENTER);
 		footer.setPadding(new Insets(12, 20, 12, 20));
-		footer.setStyle("-fx-background-color: " + MAU_THANH + ";");
+		footer.setStyle("-fx-background-color: #1E424D ;");
 
 		Button nutQuayLai = createButton("Quay lại");
 		Region dayCach = new Region();
@@ -82,13 +77,13 @@ public class GiaoDienChiTietBan extends BorderPane {
 		Label tieuDeTtb = new Label("Thông tin bàn");
 		tieuDeTtb.setMaxWidth(Double.MAX_VALUE);
 		tieuDeTtb.setAlignment(Pos.CENTER);
-		tieuDeTtb.setStyle("-fx-text-fill: " + MAU_VANG + "; -fx-font-size: 18px; -fx-font-weight: bold;");
+		tieuDeTtb.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
 		VBox theTtb = taoTheThongTin(new String[]{"Trạng Thái:", "Loại bàn:", "Số người:"});
 
 		Label tieuDePdb = new Label("Phiếu đặt bàn");
 		tieuDePdb.setMaxWidth(Double.MAX_VALUE);
 		tieuDePdb.setAlignment(Pos.CENTER);
-		tieuDePdb.setStyle("-fx-text-fill: " + MAU_VANG + "; -fx-font-size: 18px; -fx-font-weight: bold;");
+		tieuDePdb.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
 		VBox thePdb = taoTheThongTin(new String[]{"Tên khách:", "Số điện thoại:", "Giờ nhận bàn:"});
 
 		trai.getChildren().addAll(tieuDeTtb, theTtb, tieuDePdb, thePdb);
@@ -98,11 +93,11 @@ public class GiaoDienChiTietBan extends BorderPane {
 	private VBox taoTheThongTin(String[] dong) {
 		VBox the = new VBox(8);
 		the.setPadding(new Insets(12));
-		the.setStyle("-fx-background-color: white; -fx-border-color: " + MAU_VIEN_DEN + "; -fx-border-radius: 10; -fx-background-radius: 10;");
+		the.setStyle("-fx-background-color: white; -fx-border-color: #000000 -fx-border-radius: 10; -fx-background-radius: 10;");
 
 		for (String s : dong) {
 			Label nhan = new Label(s);
-			nhan.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
+			nhan.setStyle("-fx-font-size: 16px; -fx-text-fill: #DDB248;");
 			the.getChildren().add(nhan);
 		}
 		return the;
@@ -121,7 +116,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 		Label tieuDe = new Label("Hóa đơn tạm tính");
 		tieuDe.setMaxWidth(Double.MAX_VALUE);
 		tieuDe.setAlignment(Pos.CENTER);
-		tieuDe.setStyle("-fx-text-fill: " + MAU_VANG + "; -fx-font-size: 20px; -fx-font-weight: bold;");
+		tieuDe.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 20px; -fx-font-weight: bold;");
 
 		GridPane thongTinNho = new GridPane();
 		thongTinNho.setHgap(50);
@@ -129,11 +124,18 @@ public class GiaoDienChiTietBan extends BorderPane {
 		ColumnConstraints c1 = new ColumnConstraints(); c1.setPercentWidth(50);
 		ColumnConstraints c2 = new ColumnConstraints(); c2.setPercentWidth(50);
 		thongTinNho.getColumnConstraints().addAll(c1, c2);
-		thongTinNho.add(new Label("Mã CTPDB:"), 0, 0);
-		thongTinNho.add(new Label("Mã HD:"), 1, 0);
-		thongTinNho.add(new Label("SDT khách hàng:"), 0, 1);
-		thongTinNho.add(new Label("Tên khách hàng:"), 1, 1);
-		thongTinNho.add(new Label("Giờ vào:"), 0, 2);
+        
+		Label n1 = new Label("Mã CTPDB:"); n1.setStyle("-fx-text-fill: #DDB248;");
+		Label n2 = new Label("Mã HD:"); n2.setStyle("-fx-text-fill: #DDB248;");
+		Label n3 = new Label("SDT khách hàng:"); n3.setStyle("-fx-text-fill: #DDB248;");
+		Label n4 = new Label("Tên khách hàng:"); n4.setStyle("-fx-text-fill: #DDB248;");
+		Label n5 = new Label("Giờ vào:"); n5.setStyle("-fx-text-fill: #DDB248;");
+
+		thongTinNho.add(n1, 0, 0);
+		thongTinNho.add(n2, 1, 0);
+		thongTinNho.add(n3, 0, 1);
+		thongTinNho.add(n4, 1, 1);
+		thongTinNho.add(n5, 0, 2);
 
 		VBox hopDen = new VBox(0);
 		hopDen.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1.5; -fx-border-radius: 6; -fx-background-radius: 6;");
@@ -152,11 +154,15 @@ public class GiaoDienChiTietBan extends BorderPane {
 
 		hopDen.getChildren().addAll(dongTieuDe, danhSachDong);
 
-		HBox thanhMaGiamGia = new HBox(10);
+		HBox thanhMaGiamGia = new HBox(12);
+		thanhMaGiamGia.setAlignment(Pos.CENTER_LEFT);
 		thanhMaGiamGia.setPadding(new Insets(12, 0, 0, 0));
 		Label lblMa = new Label("Mã giảm giá:");
+		lblMa.setStyle("-fx-text-fill: #DDB248;");
 		TextField txtMa = new TextField();
-		txtMa.setPrefWidth(180);
+		txtMa.setPrefWidth(220);
+		txtMa.setPrefHeight(40);
+		txtMa.setStyle("-fx-background-color: white; -fx-border-color: #C9C9C9; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 0 12 0 12;");
 		Button nutKiemTra = createButton("Kiểm tra");
 		Button nutGoiMon = createButton("Gọi thêm món");
 		Region dayPhai = new Region();
@@ -164,14 +170,22 @@ public class GiaoDienChiTietBan extends BorderPane {
 		thanhMaGiamGia.getChildren().addAll(lblMa, txtMa, nutKiemTra, dayPhai, nutGoiMon);
 
 		GridPane tongKet = new GridPane();
-		tongKet.setHgap(40);
-		tongKet.setVgap(6);
+		tongKet.setHgap(60);
+		tongKet.setVgap(10);
 		tongKet.setPadding(new Insets(8, 0, 0, 0));
-		tongKet.add(new Label("Chiết khấu:"), 0, 0);
-		tongKet.add(new Label("Thuế VAT:"), 0, 1);
-		tongKet.add(new Label("Tạm tính:"), 0, 2);
-		tongKet.add(new Label("Tiền đặt cọc trước:"), 1, 0);
-		tongKet.add(new Label("Tổng cộng:"), 1, 1);
+		ColumnConstraints tk1 = new ColumnConstraints(); tk1.setPercentWidth(50);
+		ColumnConstraints tk2 = new ColumnConstraints(); tk2.setPercentWidth(50);
+		tongKet.getColumnConstraints().addAll(tk1, tk2);
+		Label l1 = new Label("Chiết khấu:"); l1.setStyle("-fx-text-fill: #DDB248;");
+		Label l2 = new Label("Thuế VAT:"); l2.setStyle("-fx-text-fill: #DDB248;");
+		Label l3 = new Label("Tạm tính:"); l3.setStyle("-fx-text-fill: #DDB248;");
+		Label r1 = new Label("Tiền đặt cọc trước:"); r1.setStyle("-fx-text-fill: #DDB248;");
+		Label r2 = new Label("Tổng cộng:"); r2.setStyle("-fx-text-fill: #DDB248;");
+		tongKet.add(l1, 0, 0);
+		tongKet.add(l2, 0, 1);
+		tongKet.add(l3, 0, 2);
+		tongKet.add(r1, 1, 0);
+		tongKet.add(r2, 1, 1);
 
 		khungPhai.getChildren().addAll(tieuDe, thongTinNho, hopDen, thanhMaGiamGia, tongKet);
 		phai.getChildren().add(khungPhai);
