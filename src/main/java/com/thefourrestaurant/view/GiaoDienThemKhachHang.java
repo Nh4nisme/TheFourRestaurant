@@ -3,9 +3,15 @@ package com.thefourrestaurant.view;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
@@ -65,7 +71,7 @@ public class GiaoDienThemKhachHang extends VBox {
         // Row 3: Ngày sinh and Giới tính
         HBox row3 = new HBox(20);
         row3.setAlignment(Pos.CENTER_LEFT);
-        
+
         Label lblNgaySinh = createLabel("Ngày sinh:");
         lblNgaySinh.setPrefWidth(120);
         dpNgaySinh = new DatePicker();
@@ -73,12 +79,12 @@ public class GiaoDienThemKhachHang extends VBox {
         dpNgaySinh.setPrefHeight(35);
         dpNgaySinh.setPrefWidth(230);
         dpNgaySinh.setEditable(false);
-        
+
         Label lblGioiTinh = createLabel("Giới tính:");
         lblGioiTinh.setPrefWidth(100);
         txtGioiTinh = createTextField();
         txtGioiTinh.setPrefWidth(230);
-        
+
         row3.getChildren().addAll(lblNgaySinh, dpNgaySinh, lblGioiTinh, txtGioiTinh);
 
         formBox.getChildren().addAll(row1, row2, row3);
@@ -86,15 +92,15 @@ public class GiaoDienThemKhachHang extends VBox {
         HBox buttonBar = new HBox(20);
         buttonBar.setAlignment(Pos.CENTER_LEFT);
         buttonBar.setPadding(new Insets(20, 0, 0, 0));
-        
+
         btnQuayLai = createButton("Quay lại");
-        
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        
+
         btnLamMoi = createButton("Làm mới");
         btnThem = createButton("Thêm");
-        
+
         buttonBar.getChildren().addAll(btnQuayLai, spacer, btnLamMoi, btnThem);
 
         contentCard.getChildren().addAll(lblBanHeader, formBox, buttonBar);
@@ -133,28 +139,28 @@ public class GiaoDienThemKhachHang extends VBox {
         );
         button.setPrefHeight(40);
         button.setPrefWidth(100);
-        
+
         DropShadow dropShadow = new DropShadow();
         dropShadow.setRadius(4);
         dropShadow.setOffsetX(0);
         dropShadow.setOffsetY(4);
         dropShadow.setColor(Color.rgb(0, 0, 0, 0.25));
         button.setEffect(dropShadow);
-        
+
         button.setOnMouseEntered(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
             st.setToX(1.05);
             st.setToY(1.05);
             st.play();
         });
-        
+
         button.setOnMouseExited(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
             st.setToX(1.0);
             st.setToY(1.0);
             st.play();
         });
-        
+
         return button;
     }
 

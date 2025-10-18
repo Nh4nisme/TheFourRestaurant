@@ -3,9 +3,15 @@ package com.thefourrestaurant.view.ban;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
@@ -49,33 +55,33 @@ public class GiaoDienDatBan extends VBox {
         // Row 1: Trạng thái and Loại bàn
         HBox row1 = new HBox(20);
         row1.setAlignment(Pos.CENTER_LEFT);
-        
+
         Label lblTrangThai = createLabel("Trạng Thái:");
         lblTrangThai.setPrefWidth(120);
         txtTrangThai = createTextField();
         txtTrangThai.setPrefWidth(230);
-        
+
         Label lblLoaiBan = createLabel("Loại bàn:");
         lblLoaiBan.setPrefWidth(100);
         cbLoaiBan = createComboBox();
         cbLoaiBan.setPrefWidth(230);
-        
+
         row1.getChildren().addAll(lblTrangThai, txtTrangThai, lblLoaiBan, cbLoaiBan);
 
         // Row 2: Số người and Giá tiền
         HBox row2 = new HBox(20);
         row2.setAlignment(Pos.CENTER_LEFT);
-        
+
         Label lblSoNguoi = createLabel("Số người:");
         lblSoNguoi.setPrefWidth(120);
         txtSoNguoi = createTextField();
         txtSoNguoi.setPrefWidth(230);
-        
+
         Label lblGiaTien = createLabel("Giá tiền:");
         lblGiaTien.setPrefWidth(100);
         cbGiaTien = createComboBox();
         cbGiaTien.setPrefWidth(230);
-        
+
         row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, lblGiaTien, cbGiaTien);
 
         // Row 3: SDT khách đặt
@@ -102,14 +108,14 @@ public class GiaoDienDatBan extends VBox {
         HBox buttonBar = new HBox(20);
         buttonBar.setAlignment(Pos.CENTER_LEFT);
         buttonBar.setPadding(new Insets(20, 0, 0, 0));
-        
+
         btnQuayLai = createButton("Quay lại");
-        
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        
+
         btnDatBan = createButton("Đặt bàn");
-        
+
         buttonBar.getChildren().addAll(btnQuayLai, spacer, btnDatBan);
 
         contentCard.getChildren().addAll(lblBanHeader, formBox, buttonBar);
@@ -156,28 +162,28 @@ public class GiaoDienDatBan extends VBox {
         );
         button.setPrefHeight(40);
         button.setPrefWidth(100);
-        
+
         DropShadow dropShadow = new DropShadow();
         dropShadow.setRadius(4);
         dropShadow.setOffsetX(0);
         dropShadow.setOffsetY(4);
         dropShadow.setColor(Color.rgb(0, 0, 0, 0.25));
         button.setEffect(dropShadow);
-        
+
         button.setOnMouseEntered(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
             st.setToX(1.05);
             st.setToY(1.05);
             st.play();
         });
-        
+
         button.setOnMouseExited(e -> {
             ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
             st.setToX(1.0);
             st.setToY(1.0);
             st.play();
         });
-        
+
         return button;
     }
 

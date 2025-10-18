@@ -1,10 +1,14 @@
 package com.thefourrestaurant.view.components.sidebar;
 
 import com.thefourrestaurant.view.components.ButtonSample;
+
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
-import javafx.scene.layout.*;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.VBox;
 
 
 public class ThongKeContent extends VBox {

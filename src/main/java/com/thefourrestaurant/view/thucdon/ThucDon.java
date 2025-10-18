@@ -1,15 +1,20 @@
 package com.thefourrestaurant.view.thucdon;
 
+import java.net.URL;
+
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.NavBar;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.*;
-
-import java.net.URL;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 public class ThucDon extends VBox {
 

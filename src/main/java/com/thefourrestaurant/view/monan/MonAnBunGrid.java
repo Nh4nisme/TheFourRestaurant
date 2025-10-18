@@ -1,7 +1,12 @@
 package com.thefourrestaurant.view.monan;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.thefourrestaurant.controller.MonAnController;
-import com.thefourrestaurant.view.monan.MonAnBox;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -9,11 +14,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class MonAnBunGrid extends VBox {
 
@@ -91,7 +91,9 @@ public class MonAnBunGrid extends VBox {
     }
 
     private void capNhatLuoiMonAn() {
-        if (luoiCacMonAn == null) return;
+        if (luoiCacMonAn == null) {
+			return;
+		}
         luoiCacMonAn.getChildren().clear();
 
         for (int i = 0; i < danhSachMonAn.size(); i++) {

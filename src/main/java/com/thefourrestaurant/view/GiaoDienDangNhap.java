@@ -1,21 +1,36 @@
 package com.thefourrestaurant.view;
 
+import java.util.Objects;
+
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import java.util.Objects;
 
 public class GiaoDienDangNhap {
 
@@ -69,23 +84,23 @@ public class GiaoDienDangNhap {
             "-fx-background-radius: 10;" +
             "-fx-text-fill: #1E424D;"
         );
-        
+
         addHoverAnimation(txtTenDangNhapContainer);
         addHoverAnimation(txtMatKhauContainer);
-        
+
         ScaleTransition btnDangNhapTransitionUp = new ScaleTransition(Duration.millis(150), btnDangNhap);
         btnDangNhapTransitionUp.setToX(1.05);
         btnDangNhapTransitionUp.setToY(1.05);
-        
+
         ScaleTransition btnDangNhapTransitionDown = new ScaleTransition(Duration.millis(150), btnDangNhap);
         btnDangNhapTransitionDown.setToX(1);
         btnDangNhapTransitionDown.setToY(1);
-        
+
         btnDangNhap.setOnMouseEntered(e -> {
             btnDangNhap.setCursor(Cursor.HAND);
             btnDangNhapTransitionUp.playFromStart();
         });
-        
+
         btnDangNhap.setOnMouseExited(e -> {
             btnDangNhapTransitionDown.playFromStart();
         });
@@ -111,17 +126,17 @@ public class GiaoDienDangNhap {
         rightPane.setBackground(new Background(new BackgroundImage(
             anhNenDangNhap, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, bgs
         )));
-        
+
         HBox mainContainer = new HBox();
         VBox leftPane = new VBox();
         leftPane.setAlignment(Pos.CENTER);
         leftPane.getChildren().add(centerContent);
         leftPane.setStyle("-fx-background-color: " + COLOR_TEAL + ";");
-        
+
         mainContainer.getChildren().addAll(leftPane, rightPane);
         HBox.setHgrow(leftPane, Priority.ALWAYS);
         HBox.setHgrow(rightPane, Priority.ALWAYS);
-        
+
         root.setCenter(mainContainer);
 
         Scene scene = new Scene(root, 1024, 768);
@@ -137,12 +152,12 @@ public class GiaoDienDangNhap {
         StackPane container = new StackPane();
         container.setPrefWidth(480);
         container.setPrefHeight(55);
-        
+
         Label floatingLabel = new Label(labelText);
         floatingLabel.setFont(Font.font(montserratSemibold.getFamily(), 14));
         floatingLabel.setTextFill(Color.web(COLOR_GOLD));
         floatingLabel.setMouseTransparent(true);
-        
+
         StackPane fieldWrapper = new StackPane();
         TextInputControl field;
         if (isPassword) {
@@ -150,7 +165,7 @@ public class GiaoDienDangNhap {
         } else {
             field = new TextField();
         }
-        
+
         field.setPrefHeight(45);
         field.setPrefWidth(480);
         field.setFont(montserratSemibold);
@@ -161,20 +176,20 @@ public class GiaoDienDangNhap {
             "-fx-font-size: 14px;" +
             "-fx-padding: 0 14 0 14;"
         );
-        
+
         fieldWrapper.getChildren().add(field);
         fieldWrapper.setAlignment(Pos.CENTER);
-        
+
         container.getChildren().addAll(floatingLabel, fieldWrapper);
         StackPane.setAlignment(floatingLabel, Pos.CENTER_LEFT);
         StackPane.setMargin(floatingLabel, new Insets(0, 0, 0, 14));
-        
+
         TranslateTransition labelUp = new TranslateTransition(Duration.millis(200), floatingLabel);
         labelUp.setToY(-35);
-        
+
         TranslateTransition labelDown = new TranslateTransition(Duration.millis(200), floatingLabel);
         labelDown.setToY(0);
-        
+
         field.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
             if (isFocused || !field.getText().isEmpty()) {
                 labelUp.playFromStart();
@@ -182,7 +197,7 @@ public class GiaoDienDangNhap {
                 labelDown.playFromStart();
             }
         });
-        
+
         field.textProperty().addListener((obs, oldText, newText) -> {
             if (!newText.isEmpty() && floatingLabel.getTranslateY() == 0) {
                 labelUp.playFromStart();
@@ -190,7 +205,7 @@ public class GiaoDienDangNhap {
                 labelDown.playFromStart();
             }
         });
-        
+
         return container;
     }
 
@@ -198,11 +213,11 @@ public class GiaoDienDangNhap {
         ScaleTransition scaleUp = new ScaleTransition(Duration.millis(150), fieldContainer);
         scaleUp.setToX(1.05);
         scaleUp.setToY(1.05);
-        
+
         ScaleTransition scaleDown = new ScaleTransition(Duration.millis(150), fieldContainer);
         scaleDown.setToX(1);
         scaleDown.setToY(1);
-        
+
         fieldContainer.setOnMouseEntered(e -> scaleUp.playFromStart());
         fieldContainer.setOnMouseExited(e -> scaleDown.playFromStart());
     }

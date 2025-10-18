@@ -1,15 +1,25 @@
 package com.thefourrestaurant.view;
 
+import java.util.Objects;
+
 import com.thefourrestaurant.controller.SideBarController;
 import com.thefourrestaurant.view.components.NavBar;
 import com.thefourrestaurant.view.components.sidebar.SideBar;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import java.util.Objects;
 
 public class GiaoDienChinh {
     public void show(Stage stage) {

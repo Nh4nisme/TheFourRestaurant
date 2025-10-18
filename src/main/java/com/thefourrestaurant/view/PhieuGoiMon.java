@@ -1,22 +1,31 @@
 package com.thefourrestaurant.view;
 
+import java.util.List;
+
+import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.DropDownButton;
 import com.thefourrestaurant.view.components.NavBar;
 import com.thefourrestaurant.view.monan.MonAnBox;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.geometry.HPos;
-
-import com.thefourrestaurant.view.components.ButtonSample;
-
-import javafx.beans.property.SimpleStringProperty;
-
-import java.util.List;
 
 public class PhieuGoiMon extends BorderPane {
 
@@ -186,7 +195,9 @@ public class PhieuGoiMon extends BorderPane {
                 btnTru.setOnMouseClicked(e -> {
                     OrderItem item = getTableView().getItems().get(getIndex());
                     int q = Integer.parseInt(item.getQty());
-                    if (q > 1) item.setQty(String.valueOf(q - 1));
+                    if (q > 1) {
+						item.setQty(String.valueOf(q - 1));
+					}
                     lblSL.setText(item.getQty());
                     getTableView().refresh();
                 });
@@ -231,7 +242,7 @@ public class PhieuGoiMon extends BorderPane {
         lblTong.setFont(Font.font("System", FontWeight.BOLD, 16));
         lblTong.setTextFill(Color.web("#2C5F5F"));
         tongTienBox.getChildren().add(lblTong);
-        
+
         ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", 45, 35, 14);
 
         VBox boxDuoi = new VBox(10, tongTienBox, btnGuiBep);

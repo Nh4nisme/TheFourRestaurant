@@ -1,15 +1,16 @@
 package com.thefourrestaurant.view.ban;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.thefourrestaurant.model.Ban;
+
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class QuanLiBan extends Pane {
 

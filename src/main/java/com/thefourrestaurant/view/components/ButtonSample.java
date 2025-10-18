@@ -1,18 +1,15 @@
 package com.thefourrestaurant.view.components;
 
-import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.text.Font;
 
 public class ButtonSample extends Button {
 
@@ -31,7 +28,9 @@ public class ButtonSample extends Button {
                 getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"),
                 fontSize
         );
-        if (montserrat != null) setFont(montserrat);
+        if (montserrat != null) {
+			setFont(montserrat);
+		}
 
         // === Icon (nếu có) ===
         if (iconPath != null && !iconPath.isBlank()) {
