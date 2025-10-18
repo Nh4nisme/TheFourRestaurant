@@ -1,6 +1,12 @@
 package com.thefourrestaurant.view.thoigiansukien;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.thefourrestaurant.controller.ThoiGianSuKienController;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -8,11 +14,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ThoiGianSuKienGrid extends VBox {
 
@@ -89,7 +90,9 @@ public class ThoiGianSuKienGrid extends VBox {
     }
 
     private void capNhatLuoiSuKien() {
-        if (luoiCacSuKien == null) return;
+        if (luoiCacSuKien == null) {
+			return;
+		}
         luoiCacSuKien.getChildren().clear();
 
         for (int i = 0; i < danhSachSuKien.size(); i++) {

@@ -1,6 +1,218 @@
+.root {
+    -fx-font-family: "Montserrat Regular";
+    -fx-font-size: 14px;
+}
+
 .button_sampleGamboge{
     -fx-background-color: #CD7B3E;
+    -fx-border-color: #E5D595;
     -fx-text-fill: #E5D595;
-    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
     -fx-background-insets: 0;
+}
+
+.button_sampleIndigo{
+    -fx-background-color: #1E424D;
+    -fx-border-color: #1E424D;
+    -fx-text-fill: #DDB248;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
+    -fx-background-insets: 0;
+}
+
+.button_sampleIndigoV2{
+    -fx-background-color: #DDB248;
+    -fx-border-color: #DDB248;
+    -fx-text-fill: #1E424D;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
+    -fx-background-insets: 0;
+}
+
+/* --- DropDownButton.css (clean version) --- */
+.dropdown-buttonGamboge {
+    -fx-background-color: #CD7B3E;
+    -fx-border-color: #E5D595;
+    -fx-text-fill: #E5D595;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
+    -fx-background-insets: 0;
+}
+
+.dropdown-buttonIndigo {
+    -fx-background-color: #1E424D;
+    -fx-border-color: #1E424D;
+    -fx-text-fill: #DDB248;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
+    -fx-background-insets: 0;
+}
+
+.dropdown-buttonIndigoV2 {
+    -fx-background-color: #DDB248;
+    -fx-border-color: #DDB248;
+    -fx-text-fill: #1E424D;
+    -fx-border-radius: 5;
+    -fx-background-radius: 7;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
+    -fx-background-insets: 0;
+}
+
+/* --- Context Menu (dropdown list) --- */
+.context-menu {
+    -fx-background-color: #CD7B3E;
+    -fx-border-color: #E5D595;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.menu-item > .label {
+    -fx-text-fill: #E5D595;  /* Màu chữ bạn muốn */
+    -fx-font-weight: Bold;
+    -fx-font-size: 16px;
+}
+
+.menu-item:hover {
+    -fx-background-color: white;
+    -fx-text-fill: white;    /* Màu khi hover */
+}
+
+/* === Custom checkbox, textarea, textfield style === */
+.custom-checkbox {
+    -fx-padding: 0.2em;
+}
+
+.custom-checkbox .box {
+    -fx-background-color: #1E424D;
+    -fx-border-color: #1E424D;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-min-width: 18;
+    -fx-min-height: 18;
+}
+
+.custom-checkbox:selected .mark {
+    -fx-background-color: #E19E11;
+    -fx-shape: "M0,5 L3,8 L8,0 L10,2 L3,10 L-1,6 Z";
+}
+.text-field:focused,
+.text-area:focused {
+    -fx-border-color: #1E424D;
+    -fx-border-width: 2px;
+    -fx-background-color: #FFFFFF;
+    -fx-border-radius: 4;
+}
+
+
+/* BaseSideBar css */
+
+.base-sidebar {
+    -fx-background-color: #1E424D;
+    -fx-opacity: 0.9;
+    -fx-padding: 10 20 20 20;
+    -fx-spacing: 10;
+}
+
+.sidebar-title {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #DDB248;
+    -fx-padding: 10 0 20 0;
+    -fx-font-family: "Montserrat Bold";
+}
+
+.muc-chinh {
+    -fx-text-fill: #DDB248;
+    -fx-font-size: 20px;
+    -fx-padding: 8 10 8 10;
+    -fx-background-radius: 10;
+    -fx-background-color: transparent;
+    -fx-font-family: "Montserrat SemiBold";
+}
+
+.muc-chinh:hover {
+    -fx-background-color: #DDB248;
+    -fx-text-fill: #1E424D;
+}
+
+.hop-chua-con {
+    -fx-background-color: transparent;
+}
+
+.muc-con {
+    -fx-background-radius: 10;
+    -fx-text-fill: #DDB248;
+    -fx-font-size: 16px;
+    -fx-padding: 10;
+    -fx-font-family: "Montserrat SemiBold";
+}
+
+.muc-con:hover {
+    -fx-background-color: #DDB248;
+    -fx-text-fill: #1E424D;
+}
+
+/* base css cho ThongKeContent */
+.thongke-root {
+    -fx-background-color: white;
+    -fx-spacing: 10;
+}
+
+/* NavBar */
+.thongke-navbar {
+    -fx-background-color: #E5D595;
+    -fx-padding: 10;
+    -fx-spacing: 10;
+}
+
+.monan-ten {
+    -fx-font-family: "System";
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: black;
+}
+
+.monan-gia {
+    -fx-font-size: 12px;
+    -fx-text-fill: black;
+}
+
+/* Css của GiaoDienThucThe (Hoadon, taikhoan, khachhang, Phieudatban) */
+.giaodienthucthe {
+    -fx-background-color: #F5F5F5;
+}
+
+.toolbar {
+    -fx-background-color: #1E424D;
+    -fx-padding: 10;
+    -fx-alignment: center-left;
+}
+
+.toolbar-title {
+    -fx-font-size: 20;
+    -fx-text-fill: #DDB248;
+    -fx-font-weight: bold;
+}
+
+.split-pane {
+    -fx-padding: 10;
+}
+
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #CCCCCC;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
 }

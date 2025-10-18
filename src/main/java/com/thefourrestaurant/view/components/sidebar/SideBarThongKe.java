@@ -1,10 +1,12 @@
 package com.thefourrestaurant.view.components.sidebar;
 
-import javafx.geometry.Insets;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-
 import java.util.List;
+
+import javafx.geometry.Insets;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 public class SideBarThongKe extends BaseSideBar {
     private HBox mainContainer;

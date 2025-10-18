@@ -1,21 +1,25 @@
 package com.thefourrestaurant.view.components;
 
-import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
+import java.util.List;
+import java.util.Objects;
+
+import com.thefourrestaurant.view.GiaoDienThemKhachHang;
+import com.thefourrestaurant.view.PhieuGoiMon;
 import com.thefourrestaurant.view.ban.GiaoDienChiTietBan;
 import com.thefourrestaurant.view.ban.GiaoDienDatBan;
 import com.thefourrestaurant.view.ban.GiaoDienDatBanTruoc;
-import com.thefourrestaurant.view.thucdon.GiaoDienTaoThucDon;
-import com.thefourrestaurant.view.GiaoDienThemKhachHang;
+import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
-import com.thefourrestaurant.view.PhieuGoiMon;
 import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
+import com.thefourrestaurant.view.thucdon.GiaoDienTaoThucDon;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-
-import java.util.List;
-import java.util.Objects;
 
 public class NavBar extends HBox {
 

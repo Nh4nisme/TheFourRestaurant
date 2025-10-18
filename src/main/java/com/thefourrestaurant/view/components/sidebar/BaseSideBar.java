@@ -1,16 +1,15 @@
 package com.thefourrestaurant.view.components.sidebar;
 
+import java.util.Objects;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-
-import java.util.Objects;
 
 public abstract class BaseSideBar extends VBox {
     protected final Label tieuDe;
@@ -35,7 +34,9 @@ public abstract class BaseSideBar extends VBox {
     protected Label taoNhanClick(String noiDung, Runnable hanhDong, String tenLopCSS) {
         Label nhan = new Label(noiDung);
         nhan.getStyleClass().add(tenLopCSS);
-        nhan.setOnMouseClicked(e -> { if (hanhDong != null) hanhDong.run(); });
+        nhan.setOnMouseClicked(e -> { if (hanhDong != null) {
+			hanhDong.run();
+		} });
         return nhan;
     }
 

@@ -1,9 +1,9 @@
 package com.thefourrestaurant.controller;
 
+import java.util.Map;
+
 import com.thefourrestaurant.view.loaimonan.LoaiMonAnThemLoai;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAnTuyChinh;
-
-import java.util.Map;
 
 public class LoaiMonAnController {
 

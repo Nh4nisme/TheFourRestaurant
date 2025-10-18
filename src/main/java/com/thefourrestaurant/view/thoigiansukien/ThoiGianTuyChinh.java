@@ -1,21 +1,34 @@
 package com.thefourrestaurant.view.thoigiansukien;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.thefourrestaurant.view.components.ButtonSample;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.scene.text.Font;
-import java.io.InputStream;
-import java.net.URL;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ThoiGianTuyChinh extends Stage {
 
@@ -161,7 +174,9 @@ public class ThoiGianTuyChinh extends Stage {
             boChonTep.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"));
             File tep = boChonTep.showOpenDialog(this);
-            if (tep != null) tepAnhDaChon = tep;
+            if (tep != null) {
+				tepAnhDaChon = tep;
+			}
         });
 
         nutHuy.setOnAction(e -> this.close());
@@ -178,7 +193,9 @@ public class ThoiGianTuyChinh extends Stage {
                 ketQua.put("moTa", truongMoTa.getText());
                 ketQua.put("soLuong", truongSoLuong.getText());
                 ketQua.put("hienThi", hopKiemHienThi.isSelected());
-                if (tepAnhDaChon != null) ketQua.put("imagePath", tepAnhDaChon.toURI().toString());
+                if (tepAnhDaChon != null) {
+					ketQua.put("imagePath", tepAnhDaChon.toURI().toString());
+				}
                 this.close();
             }
         });

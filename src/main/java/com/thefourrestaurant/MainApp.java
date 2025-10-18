@@ -1,11 +1,13 @@
 package com.thefourrestaurant;
 
+import java.sql.Connection;
+
+import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.view.GiaoDienChinh;
 import com.thefourrestaurant.view.PhieuGoiMon;
 import com.thefourrestaurant.view.ThanhToan;
 
 import javafx.application.Application;
-
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
@@ -20,22 +22,22 @@ public class MainApp extends Application {
         PhieuGoiMon phieuGoiMon = new PhieuGoiMon();
 
     	GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
-    	
+
     	ThanhToan thanhToan = new ThanhToan();
-    	
-        thanhToan.show(primaryStage);
+
+    	giaoDienChinh.show(primaryStage);
     }
 
     public static void main(String[] args) {
-//    	try (Connection conn = ConnectSQL.getConnection()) {
-//            if (conn != null) {
-//                System.out.println("✅ Kết nối SQL Server thành công!");
-//            } else {
-//                System.out.println("❌ Kết nối thất bại. Vui lòng kiểm tra lại thông tin kết nối.");
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+    	try (Connection conn = ConnectSQL.getConnection()) {
+            if (conn != null) {
+                System.out.println("✅ Kết nối SQL Server thành công!");
+            } else {
+                System.out.println("❌ Kết nối thất bại. Vui lòng kiểm tra lại thông tin kết nối.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Sau khi test xong thì mới chạy giao diện
         launch(args);

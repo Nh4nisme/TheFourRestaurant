@@ -1,11 +1,14 @@
 package com.thefourrestaurant.DAO;
 
-import com.thefourrestaurant.model.LoaiMon;
-import com.thefourrestaurant.connect.ConnectSQL;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.thefourrestaurant.connect.ConnectSQL;
+import com.thefourrestaurant.model.LoaiMon;
 
 public class LoaiMonDAO {
 

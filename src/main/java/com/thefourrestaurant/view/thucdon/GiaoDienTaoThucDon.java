@@ -1,8 +1,14 @@
 package com.thefourrestaurant.view.thucdon;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import com.thefourrestaurant.view.components.ButtonSample;
-import com.thefourrestaurant.view.monan.MonAnBox;
 import com.thefourrestaurant.view.components.NavBar;
+import com.thefourrestaurant.view.monan.MonAnBox;
+
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,16 +19,16 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 public class GiaoDienTaoThucDon extends VBox {
     private final TextField txtTenThucDon;
@@ -150,7 +156,9 @@ public class GiaoDienTaoThucDon extends VBox {
 
     private void capNhatBoxChonThucAn() {
         boxChonThucAn.getChildren().clear();
-        if (selectedFoods.isEmpty()) return;
+        if (selectedFoods.isEmpty()) {
+			return;
+		}
 
         HBox header = new HBox();
         header.setStyle("-fx-background-color: #F5F5F5; -fx-border-color: #E0E0E0; -fx-border-width: 1 1 0 1; -fx-border-radius: 8 8 0 0;");
@@ -183,11 +191,11 @@ public class GiaoDienTaoThucDon extends VBox {
                     iconThucAn.setFitHeight(24);
                     iconThucAn.setFitWidth(24);
                     iconThucAn.setPreserveRatio(true);
-                    
+
                     Label name = new Label(item.name);
                     name.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #444;");
                     name.setPrefWidth(220);
-                    
+
                     boxTenThucAn = new HBox(iconThucAn, name);
                 } catch (Exception e) {
                     Label icon = new Label("□");
@@ -206,7 +214,7 @@ public class GiaoDienTaoThucDon extends VBox {
                 name.setPrefWidth(220);
                 boxTenThucAn = new HBox(icon, name);
             }
-            
+
             boxTenThucAn.setSpacing(6);
             boxTenThucAn.setPrefWidth(300);
             boxTenThucAn.setAlignment(Pos.CENTER_LEFT);
@@ -233,7 +241,7 @@ public class GiaoDienTaoThucDon extends VBox {
         return switch (name) {
             case "Coffee" -> "/com/thefourrestaurant/images/icon/food/coffee.png";
             case "Cơm" -> "/com/thefourrestaurant/images/icon/food/rice.png";
-            case "Nước giải khát" -> "/com/thefourrestaurant/images/icon/food/coffee.png"; 
+            case "Nước giải khát" -> "/com/thefourrestaurant/images/icon/food/coffee.png";
             case "Đồ ăn nhanh" -> "/com/thefourrestaurant/images/icon/food/rice.png";
             default -> "/com/thefourrestaurant/images/icon/food/coffee.png";
         };
@@ -249,121 +257,121 @@ public class GiaoDienTaoThucDon extends VBox {
             this.quantity = quantity;
         }
     }
-    
+
     private VBox createLeftPanel() {
         VBox leftPanel = new VBox(10);
         leftPanel.setPadding(new Insets(20));
         leftPanel.setStyle("-fx-background-color: #F5F5F5;");
         leftPanel.setPrefWidth(220);
         leftPanel.setAlignment(Pos.TOP_CENTER);
-        
+
         Label titleLabel = new Label("Tạo Thực Đơn");
         titleLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
         titleLabel.setTextFill(Color.web("#1E424D"));
-        
+
         VBox.setMargin(titleLabel, new Insets(20, 0, 30, 0));
         leftPanel.getChildren().add(titleLabel);
-        
+
         return leftPanel;
     }
-    
+
     private GridPane createPaneThucDonInfo() {
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(15);
         grid.setPadding(new Insets(10));
-        
+
         VBox labelsBox = new VBox(55);
-        
+
         Label lblMoTa = new Label("Mô tả thực đơn");
         lblMoTa.setFont(Font.font("System", FontWeight.BOLD, 14));
         lblMoTa.setTextFill(Color.web("#DDB248"));
-        
+
         Label lblDienTen = new Label("Điền tên cho thực đơn mới");
         lblDienTen.setFont(Font.font("System", 12));
         lblDienTen.setTextFill(Color.web("#DDB248"));
-        
+
         labelsBox.getChildren().addAll(lblMoTa, lblDienTen);
-        
+
         VBox inputsBox = new VBox(10);
-        
+
         Label lblTenThucDon = new Label("Tên thực đơn");
         lblTenThucDon.setFont(Font.font("System", 14));
-        
+
         inputsBox.getChildren().addAll(lblTenThucDon, txtTenThucDon);
-        
+
         grid.add(labelsBox, 0, 0);
         grid.add(inputsBox, 1, 0);
-        
+
         ColumnConstraints column1 = new ColumnConstraints();
         column1.setPercentWidth(25);
         ColumnConstraints column2 = new ColumnConstraints();
         column2.setPercentWidth(75);
         grid.getColumnConstraints().addAll(column1, column2);
-        
+
         return grid;
     }
-    
+
     private VBox createDanhSachMonAnSection() {
         VBox container = new VBox(15);
-        
+
         HBox loaiMonAnHeader = new HBox();
         loaiMonAnHeader.setAlignment(Pos.CENTER_LEFT);
-        
+
         VBox labelsBox = new VBox(10);
-        
+
         Label lblChonLoai = new Label("Chọn loại món ăn");
         lblChonLoai.setFont(Font.font("System", FontWeight.BOLD, 14));
         lblChonLoai.setTextFill(Color.web("#DDB248"));
-        
+
         Label lblMoTaLoai = new Label("Các loại món ăn được thêm sẽ xuất hiện khi mở thực đơn");
         lblMoTaLoai.setFont(Font.font("System", 12));
         lblMoTaLoai.setTextFill(Color.web("#DDB248"));
-        
+
         labelsBox.getChildren().addAll(lblChonLoai, lblMoTaLoai);
-        
+
         VBox dropdownBox = new VBox(10);
-        
+
         Label lblLoaiMonAn = new Label("Loại Món ăn");
         lblLoaiMonAn.setFont(Font.font("System", 14));
-        
+
         HBox dropdownContainer = new HBox();
         dropdownContainer.getChildren().add(cbLoaiMonAn);
         HBox.setHgrow(cbLoaiMonAn, Priority.ALWAYS);
-        
+
         dropdownBox.getChildren().addAll(lblLoaiMonAn, dropdownContainer);
-        
+
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(15);
         grid.setPadding(new Insets(10));
         grid.add(labelsBox, 0, 0);
         grid.add(dropdownBox, 1, 0);
-        
+
         ColumnConstraints column1 = new ColumnConstraints();
         column1.setPercentWidth(25);
         ColumnConstraints column2 = new ColumnConstraints();
         column2.setPercentWidth(75);
         grid.getColumnConstraints().addAll(column1, column2);
-        
+
         Label lblDanhSachMonAn = new Label("Danh sách món ăn đã chọn");
         lblDanhSachMonAn.setFont(Font.font("System", FontWeight.BOLD, 14));
         lblDanhSachMonAn.setPadding(new Insets(10, 0, 0, 0));
-        
+
         container.getChildren().addAll(grid, lblDanhSachMonAn);
-        
+
         return container;
     }
-    
+
     public void addMonAn(String ten, String gia, String icon) {
         MonAnBox monAnBox = new MonAnBox(ten, gia, icon);
     }
-    
+
     public void show(Stage stage) {
         Scene scene = new Scene(this, 1000, 700);
         scene.getStylesheets().add(Objects.requireNonNull(
                 getClass().getResource("/com/thefourrestaurant/css/Application.css")).toExternalForm());
-        
+
         stage.setTitle("Tạo Thực Đơn");
         stage.setScene(scene);
     }

@@ -1,13 +1,14 @@
 package com.thefourrestaurant.util;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class ClockText extends Text {
 
@@ -20,7 +21,7 @@ public class ClockText extends Text {
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), e -> updateTime())
         );
-        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
 
         // Cập nhật ngay khi khởi tạo
