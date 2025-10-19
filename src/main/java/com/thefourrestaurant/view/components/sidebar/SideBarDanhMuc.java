@@ -7,8 +7,7 @@ import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.ban.QuanLiBan;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
-import com.thefourrestaurant.view.monan.MonAnBun;
-import com.thefourrestaurant.view.monan.MonAnCom;
+import com.thefourrestaurant.view.monan.MonAnView;
 import com.thefourrestaurant.view.QuanLyThucDon;
 import com.thefourrestaurant.view.thoigiansukien.ThoiGianSuKien;
 import javafx.geometry.Insets;
@@ -97,8 +96,8 @@ public class SideBarDanhMuc extends BaseSideBar {
         Node newContent = switch (tenMuc) {
             case "Thực đơn" -> new QuanLyThucDon();
             case "Loại món ăn" -> new LoaiMonAn();
-            case "Cơm" -> new MonAnCom();
-            case "Bún" -> new MonAnBun();
+            case "Cơm" -> new MonAnView("Cơm", "🍚");
+            case "Bún" -> new MonAnView("Bún", "🍜");
             case "Thời gian sự kiện" -> new ThoiGianSuKien();
             default -> {
                 TangDAO tangDAO = new TangDAO();

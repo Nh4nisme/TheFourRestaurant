@@ -30,14 +30,16 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class MonAnThemMon extends Stage {
+public class MonAnDialog extends Stage {
 
     private Map<String, Object> ketQua = null;
     private File tepAnhDaChon = null;
+    private final boolean isEditMode;
 
-    public MonAnThemMon() {
+    public MonAnDialog(Map<String, String> monAnHienTai) {
+        this.isEditMode = monAnHienTai != null;
         this.initModality(Modality.APPLICATION_MODAL);
-        this.setTitle("Thêm Món Ăn");
+        this.setTitle(isEditMode ? "Tùy chỉnh món ăn" : "Thêm Món Ăn");
 
         // --- Font ---
         Font fontMontserrat = null;
@@ -59,7 +61,7 @@ public class MonAnThemMon extends Stage {
         BorderPane layoutChinh = new BorderPane();
 
         // ===== PHẦN ĐẦU =====
-        Label nhanTieuDe = new Label("Thêm món ăn");
+        Label nhanTieuDe = new Label(isEditMode ? "Tùy chỉnh món ăn" : "Thêm món ăn");
         nhanTieuDe.setStyle(kieuFontStyle + "-fx-text-fill: #D4A017; -fx-font-size: 18px; -fx-font-weight: bold;");
         HBox hopTieuDe = new HBox(nhanTieuDe);
         hopTieuDe.setAlignment(Pos.CENTER_LEFT);
@@ -151,6 +153,15 @@ public class MonAnThemMon extends Stage {
 
         khungNangCao.setContent(luoiNangCao);
 
+        if (isEditMode) {
+            truongTen.setText(monAnHienTai.getOrDefault("name", ""));
+            truongGia.setText(monAnHienTai.getOrDefault("price", ""));
+            truongVAT.setText(monAnHienTai.getOrDefault("vat", ""));
+            truongMoTa.setText(monAnHienTai.getOrDefault("moTa", ""));
+            truongSoLuong.setText(monAnHienTai.getOrDefault("soLuong", ""));
+            hopKiemHienThi.setSelected(Boolean.parseBoolean(monAnHienTai.getOrDefault("hienThi", "false")));
+        }
+
         VBox hopGiua = new VBox(10, luoiForm, khungNangCao);
         hopGiua.setPadding(new Insets(10, 20, 20, 20));
 
@@ -195,7 +206,9 @@ public class MonAnThemMon extends Stage {
                 ketQua.put("hienThi", hopKiemHienThi.isSelected());
                 if (tepAnhDaChon != null) {
 					ketQua.put("imagePath", tepAnhDaChon.toURI().toString());
-				}
+				} else if (isEditMode) {
+                    ketQua.put("imagePath", monAnHienTai.get("imagePath"));
+                }
                 this.close();
             }
         });
@@ -217,8 +230,6 @@ public class MonAnThemMon extends Stage {
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
             khungCanh.getStylesheets().add(urlCSS.toExternalForm());
-        } else {
-            System.err.println("Không tìm thấy tệp CSS.");
         }
         this.setScene(khungCanh);
     }
