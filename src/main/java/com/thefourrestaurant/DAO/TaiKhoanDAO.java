@@ -13,7 +13,7 @@ public class TaiKhoanDAO {
         List<TaiKhoan> list = new ArrayList<>();
         String sql = "SELECT TK.maTK, TK.tenDangNhap, TK.matKhau, VT.tenVaiTro\n" +
                 "FROM TaiKhoan TK\n" +
-                "JOIN VaiTro VT ON TK.maVT = VT.maVT";
+                "JOIN VaiTro VT ON TK.maVT = VT.maVT    ";
 
         try (Connection conn = ConnectSQL.getConnection();
              Statement stmt = conn.createStatement();
