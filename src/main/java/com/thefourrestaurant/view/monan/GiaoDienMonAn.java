@@ -29,7 +29,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-public class MonAnView extends VBox {
+public class GiaoDienMonAn extends VBox {
 
     private final String categoryName;
     private final String categoryIcon;
@@ -42,7 +42,7 @@ public class MonAnView extends VBox {
     private List<Map<String, String>> danhSachMonAn;
     private final int soCotMoiHang = 8;
 
-    public MonAnView(String categoryName, String categoryIcon) {
+    public GiaoDienMonAn(String categoryName, String categoryIcon) {
         this.categoryName = categoryName;
         this.categoryIcon = categoryIcon;
         this.controller = new MonAnController();
