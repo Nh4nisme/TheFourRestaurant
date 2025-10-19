@@ -7,19 +7,21 @@ import com.thefourrestaurant.view.components.sidebar.SideBarThongKe;
 
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
 
 public class SideBarController {
 
     private final SideBar sideBar;
-    private final HBox mainContainer;
+    private final VBox sideBarExtended;
+    private final Pane mainContent;
     private Pane panelDangMo;
-    private Pane backgroundCenter; // Pane trung tâm sẽ thay đổi
 
-    public SideBarController(SideBar sideBar, HBox mainContainer, Pane backgroundCenter) {
+    public SideBarController(SideBar sideBar, VBox sideBarExtended, Pane mainContent) {
         this.sideBar = sideBar;
-        this.mainContainer = mainContainer;
-        this.backgroundCenter = backgroundCenter;
+        this.sideBarExtended = sideBarExtended;
+        this.mainContent = mainContent;
         khoiTaoSuKien();
     }
 
@@ -27,8 +29,8 @@ public class SideBarController {
         sideBar.getButton("DanhMuc").setOnAction(e -> moHoacDongPanel("DanhMuc"));
         sideBar.getButton("ThongKe").setOnAction(e -> moHoacDongPanel("ThongKe"));
         sideBar.getButton("CaiDat").setOnAction(e -> {
-            Stage stage = (Stage) mainContainer.getScene().getWindow();
-            new GiaoDienChinh().show(stage); // Load lại giao diện
+            Stage stage = (Stage) sideBar.getScene().getWindow();
+            new GiaoDienChinh().show(stage); // Reload lại giao diện
         });
     }
 
@@ -36,19 +38,14 @@ public class SideBarController {
         // Nếu panel đang mở và trùng loại => đóng
         if (panelDangMo != null && panelDangMo.getUserData() != null
                 && panelDangMo.getUserData().equals(loaiPanel)) {
-            mainContainer.getChildren().remove(panelDangMo);
-            panelDangMo = null;
+            dongSideBarMoRong();
             return;
         }
 
-        // Đóng panel cũ nếu có
-        if (panelDangMo != null) {
-            mainContainer.getChildren().remove(panelDangMo);
-        }
-
+        // Tạo panel mới theo loại
         Pane panelMoi = switch (loaiPanel) {
-            case "DanhMuc" -> new SideBarDanhMuc(mainContainer);
-            case "ThongKe" -> new SideBarThongKe(mainContainer);
+            case "DanhMuc" -> new SideBarDanhMuc(mainContent);
+            case "ThongKe" -> new SideBarThongKe(mainContent);
             default -> null;
         };
 
@@ -57,13 +54,19 @@ public class SideBarController {
             panelMoi.setMaxWidth(300);
             panelMoi.setMinWidth(300);
             panelMoi.setUserData(loaiPanel);
-            mainContainer.getChildren().add(1, panelMoi); // Thêm panel trượt vào giữa sideBar và rightBox
+
+            // Hiển thị panel mới
+            sideBarExtended.getChildren().setAll(panelMoi);
+            sideBarExtended.setVisible(true);
+            sideBarExtended.setManaged(true);
             panelDangMo = panelMoi;
         }
     }
 
-    // Nếu muốn thay backgroundCenter sau này (ví dụ load giao diện khác)
-    public void setBackgroundCenter(Pane backgroundCenter) {
-        this.backgroundCenter = backgroundCenter;
+    private void dongSideBarMoRong() {
+        sideBarExtended.setVisible(false);
+        sideBarExtended.setManaged(false);
+        sideBarExtended.getChildren().clear();
+        panelDangMo = null;
     }
 }

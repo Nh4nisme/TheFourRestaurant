@@ -28,9 +28,6 @@ public class QuanLiBan extends VBox {
         this.setAlignment(Pos.TOP_CENTER);
         this.setStyle("-fx-background-color: #F5F5F5;");
 
-        // === Thanh điều hướng ===
-        NavBar navBar = new NavBar(this);
-
         // === Breadcrumb ===
         lblBreadcrumb.setText("Trang chủ / Quản lý bàn");
         lblBreadcrumb.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
@@ -49,7 +46,7 @@ public class QuanLiBan extends VBox {
         toolBar.setStyle("-fx-background-color: #1E424D");
         toolBar.setPadding(new Insets(10, 10, 10, 10));
 
-        VBox thanhTren = new VBox(navBar, khungDuongDan,toolBar);
+        VBox thanhTren = new VBox(khungDuongDan,toolBar);
         thanhTren.setSpacing(0);
         thanhTren.setAlignment(Pos.CENTER_LEFT);
         thanhTren.setPrefWidth(Double.MAX_VALUE);

@@ -9,24 +9,24 @@ import com.thefourrestaurant.view.ban.QuanLiBan;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.MonAnBun;
 import com.thefourrestaurant.view.monan.MonAnCom;
-
 import com.thefourrestaurant.view.QuanLyThucDon;
 import com.thefourrestaurant.view.thoigiansukien.ThoiGianSuKien;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+
+import javafx.scene.layout.*;
 
 public class SideBarDanhMuc extends BaseSideBar {
 
-    private final HBox mainContainer;
-    private Label mucDangChon = null; // Lưu lại mục đang được chọn
+    private final Pane mainContent;
+    private Label mucDangChon = null; // Lưu lại mục đang chọn
 
-    public SideBarDanhMuc(HBox mainContainer) {
+    public SideBarDanhMuc(Pane mainContent) {
         super("Quản Lý");
-        this.mainContainer = mainContainer;
+        this.mainContent = mainContent;
+        VBox.setVgrow(mainContent, Priority.ALWAYS);
     }
 
     @Override
@@ -36,12 +36,12 @@ public class SideBarDanhMuc extends BaseSideBar {
         themDanhMuc("Món ăn", List.of("Cơm", "Bún"));
         themDanhMuc("Thời gian sự kiện");
 
+        // Tầng & Bàn
         TangDAO tangDAO = new TangDAO();
         List<Tang> dsTang = tangDAO.getAllTang();
         List<String> danhSachTang = dsTang.stream()
-                                          .map(Tang::getTenTang)
-                                          .collect(Collectors.toList());
-
+                .map(Tang::getTenTang)
+                .collect(Collectors.toList());
         themDanhMuc("Tầng và bàn", danhSachTang);
     }
 
@@ -72,20 +72,28 @@ public class SideBarDanhMuc extends BaseSideBar {
     }
 
     private void xuLyChonMuc(String tenMuc) {
-        if (mainContainer == null) return;
+        if (mainContent == null) return;
 
-        // Đổi màu highlight mục được chọn
+        // Reset highlight cũ
         for (Node node : lookupAll(".muc-con, .muc-chinh")) {
-            node.setStyle(""); // reset màu cũ
+            node.setStyle("");
         }
 
+        // Highlight mục đang chọn
         for (Node node : lookupAll(".muc-con, .muc-chinh")) {
             if (node instanceof Label lbl && lbl.getText().equals(tenMuc)) {
-                lbl.setStyle("-fx-text-fill: #2b7cff; -fx-font-weight: bold; -fx-border-width: 0 0 0 4; -fx-border-color: #2b7cff; -fx-padding: 0 0 0 4;");
+                lbl.setStyle("""
+                    -fx-text-fill: #2b7cff;
+                    -fx-font-weight: bold;
+                    -fx-border-width: 0 0 0 4;
+                    -fx-border-color: #2b7cff;
+                    -fx-padding: 0 0 0 4;
+                """);
                 mucDangChon = lbl;
             }
         }
 
+        // Tạo nội dung mới tương ứng
         Node newContent = switch (tenMuc) {
             case "Thực đơn" -> new QuanLyThucDon();
             case "Loại món ăn" -> new LoaiMonAn();
@@ -108,13 +116,10 @@ public class SideBarDanhMuc extends BaseSideBar {
             }
         };
 
+        // Hiển thị trong mainContent (thay thế nội dung cũ)
         if (newContent != null) {
-            HBox.setHgrow(newContent, Priority.ALWAYS);
-            if (mainContainer.getChildren().size() > 2) {
-                mainContainer.getChildren().set(2, newContent);
-            } else {
-                mainContainer.getChildren().add(newContent);
-            }
+            mainContent.getChildren().setAll(newContent);
+            StackPane.setAlignment(newContent, Pos.CENTER);
         }
     }
 }

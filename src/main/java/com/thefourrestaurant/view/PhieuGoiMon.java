@@ -34,12 +34,9 @@ public class PhieuGoiMon extends BorderPane {
 
 	public PhieuGoiMon() {
         this.setStyle("-fx-background-color: white;");
-        mainContainer = new VBox();
-        VBox.setVgrow(this, Priority.ALWAYS);
-        NavBar nb = new NavBar(mainContainer);
         HBox thanhTren = taoThanhTren();
 
-        VBox topContainer = new VBox(nb, thanhTren);
+        VBox topContainer = new VBox(thanhTren);
         this.setTop(topContainer);
 
         HBox noiDungChinh = new HBox(20);

@@ -3,37 +3,31 @@ package com.thefourrestaurant.view.components;
 import java.util.List;
 import java.util.Objects;
 
-import com.thefourrestaurant.view.GiaoDienThemKhachHang;
-import com.thefourrestaurant.view.PhieuGoiMon;
-import com.thefourrestaurant.view.ban.GiaoDienChiTietBan;
-import com.thefourrestaurant.view.ban.GiaoDienDatBan;
-import com.thefourrestaurant.view.ban.GiaoDienDatBanTruoc;
-import com.thefourrestaurant.view.ban.QuanLiBan;
+import com.thefourrestaurant.view.*;
+import com.thefourrestaurant.view.ban.*;
 import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 
-import com.thefourrestaurant.view.QuanLyThucDon;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.control.Label;
 import javafx.scene.text.Font;
+import javafx.scene.Node;
 
 public class NavBar extends HBox {
 
-    private final DropDownButton btnHeThong, btnTimKiem,btnXuLi,btnDanhMucNav;
-    private final VBox mainContainer;
+    private final DropDownButton btnHeThong, btnTimKiem, btnXuLi, btnDanhMucNav;
+    private final Pane mainContent; // Pane trung tâm dưới navBar
 
-    public NavBar(VBox mainContainer) {
-        this.mainContainer = mainContainer;
-        VBox.setVgrow(mainContainer, Priority.ALWAYS);
+    public NavBar(Pane mainContent) {
+        this.mainContent = mainContent;
+
         Font montserrat = Font.loadFont(
                 Objects.requireNonNull(getClass().getResourceAsStream(
                         "/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf")),
-                16 // kích thước mặc định
+                16
         );
 
         setAlignment(Pos.CENTER_LEFT);
@@ -41,6 +35,7 @@ public class NavBar extends HBox {
         setPrefHeight(80);
         setSpacing(10);
         setStyle("-fx-background-color: #E5D595");
+
         ButtonSample btnTKDN = new ButtonSample("QL: Tâm ", "/com/thefourrestaurant/images/icon/accountIcon.png",45, 16, 1);
 
         btnDanhMucNav = new DropDownButton(
@@ -82,32 +77,42 @@ public class NavBar extends HBox {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        getChildren().addAll(btnDanhMucNav,btnXuLi,btnTimKiem,btnHeThong,spacer,btnTKDN);
+        getChildren().addAll(btnDanhMucNav, btnXuLi, btnTimKiem, btnHeThong, spacer, btnTKDN);
 
+        // Event handler load nội dung vào mainContent
         btnDanhMucNav.setOnItemSelected(this::showPanel);
         btnXuLi.setOnItemSelected(this::showPanel);
     }
 
     private void showPanel(String s) {
-        mainContainer.getChildren().clear();
+        if (mainContent == null) return;
 
-        switch (s) {
-            case "Thực đơn" -> mainContainer.getChildren().add(new QuanLyThucDon());
-            case "Món ăn" -> mainContainer.getChildren().add(new LoaiMonAn());
-            case "Đặt món" -> mainContainer.getChildren().add(new PhieuGoiMon());
-                        case "Đặt bàn" -> mainContainer.getChildren().add(new GiaoDienDatBan());
-                        case "Đặt bàn trước" -> mainContainer.getChildren().add(new GiaoDienDatBanTruoc());
-                        case "Thêm khách hàng" -> mainContainer.getChildren().add(new GiaoDienThemKhachHang());
-                        case "Chi tiết bàn" -> mainContainer.getChildren().add(new GiaoDienChiTietBan());
+        Node newContent = switch (s) {
+            case "Thực đơn" -> new QuanLyThucDon();
+            case "Món ăn" -> new LoaiMonAn();
+            case "Đặt món" -> new PhieuGoiMon();
+            case "Đặt bàn" -> new GiaoDienDatBan();
+            case "Đặt bàn trước" -> new GiaoDienDatBanTruoc();
+            case "Thêm khách hàng" -> new GiaoDienThemKhachHang();
+            case "Chi tiết bàn" -> new GiaoDienChiTietBan();
             case "Bàn" -> {
                 QuanLiBan giaoDienBan = new QuanLiBan();
-                giaoDienBan.hienThiBanTheoTang("TG000001"); // Ví dụ: hiển thị tầng 1 mặc định
-                mainContainer.getChildren().setAll(giaoDienBan);
+                giaoDienBan.hienThiBanTheoTang("TG000001");
+                yield giaoDienBan;
             }
-            case "Hóa đơn" -> mainContainer.getChildren().add(new GiaoDienHoaDon());
-            case "Tài khoản" -> mainContainer.getChildren().add(new GiaoDienTaiKhoan());
-//            case "Nguyên liệu" -> mainContainer.getChildren().add(new IngredientPanel());
-            default -> System.out.println("Không tìm thấy panel: " + s);
+            case "Hóa đơn" -> new GiaoDienHoaDon();
+            case "Tài khoản" -> new GiaoDienTaiKhoan();
+            default -> null;
+        };
+
+        if (newContent != null) {
+            // Bind size cho full mainContent
+            if (newContent instanceof Region region) {
+                region.prefWidthProperty().bind(mainContent.widthProperty());
+                region.prefHeightProperty().bind(mainContent.heightProperty());
+            }
+
+            mainContent.getChildren().setAll(newContent);
         }
     }
 }
