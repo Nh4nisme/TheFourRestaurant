@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class ConnectSQL {
-	private static final String URL = "jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=NhaHangDB;encrypt=false";
+    private static final String URL = "jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=NhaHangDB;encrypt=true;trustServerCertificate=true;";
     private static final String USER = "sa";
     private static final String PASS = "sapassword";
 

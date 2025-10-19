@@ -8,11 +8,12 @@ import com.thefourrestaurant.view.PhieuGoiMon;
 import com.thefourrestaurant.view.ban.GiaoDienChiTietBan;
 import com.thefourrestaurant.view.ban.GiaoDienDatBan;
 import com.thefourrestaurant.view.ban.GiaoDienDatBanTruoc;
+import com.thefourrestaurant.view.ban.QuanLiBan;
 import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
-import com.thefourrestaurant.view.thucdon.GiaoDienTaoThucDon;
 
+import com.thefourrestaurant.view.QuanLyThucDon;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
@@ -28,6 +29,7 @@ public class NavBar extends HBox {
 
     public NavBar(VBox mainContainer) {
         this.mainContainer = mainContainer;
+        VBox.setVgrow(mainContainer, Priority.ALWAYS);
         Font montserrat = Font.loadFont(
                 Objects.requireNonNull(getClass().getResourceAsStream(
                         "/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf")),
@@ -90,13 +92,14 @@ public class NavBar extends HBox {
         mainContainer.getChildren().clear();
 
         switch (s) {
-            case "Thực đơn" -> mainContainer.getChildren().add(new GiaoDienTaoThucDon());
+            case "Thực đơn" -> mainContainer.getChildren().add(new QuanLyThucDon());
             case "Món ăn" -> mainContainer.getChildren().add(new LoaiMonAn());
             case "Đặt món" -> mainContainer.getChildren().add(new PhieuGoiMon());
-            case "Đặt bàn" -> mainContainer.getChildren().add(new GiaoDienDatBan());
-            case "Đặt bàn trước" -> mainContainer.getChildren().add(new GiaoDienDatBanTruoc());
-            case "Thêm khách hàng" -> mainContainer.getChildren().add(new GiaoDienThemKhachHang());
-            case "Chi tiết bàn" -> mainContainer.getChildren().add(new GiaoDienChiTietBan());
+            case "Bàn" -> {
+                QuanLiBan giaoDienBan = new QuanLiBan();
+                giaoDienBan.hienThiBanTheoTang("TG000001"); // Ví dụ: hiển thị tầng 1 mặc định
+                mainContainer.getChildren().setAll(giaoDienBan);
+            }
             case "Hóa đơn" -> mainContainer.getChildren().add(new GiaoDienHoaDon());
             case "Tài khoản" -> mainContainer.getChildren().add(new GiaoDienTaiKhoan());
 //            case "Nguyên liệu" -> mainContainer.getChildren().add(new IngredientPanel());

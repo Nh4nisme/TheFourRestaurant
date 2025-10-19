@@ -1,51 +1,139 @@
 package com.thefourrestaurant.view.ban;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.model.Ban;
-
+import com.thefourrestaurant.view.components.ButtonSample;
+import com.thefourrestaurant.view.components.NavBar;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 
-public class QuanLiBan extends Pane {
+public class QuanLiBan extends VBox {
+
+    private final BanDAO banDAO = new BanDAO();
+    private final Pane khuVucBan = new Pane(); // nơi hiển thị bàn
+    private final Label lblBreadcrumb = new Label();
 
     public QuanLiBan() {
-        this.setPadding(new Insets(20));
+        // === Cấu hình chính cho layout ===
+        this.setPrefSize(1200, 700);
+        this.setSpacing(0);
+        this.setAlignment(Pos.TOP_CENTER);
         this.setStyle("-fx-background-color: #F5F5F5;");
+
+        // === Thanh điều hướng ===
+        NavBar navBar = new NavBar(this);
+
+        // === Breadcrumb ===
+        lblBreadcrumb.setText("Trang chủ / Quản lý bàn");
+        lblBreadcrumb.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
+        VBox khungDuongDan = new VBox(lblBreadcrumb);
+        khungDuongDan.setStyle("-fx-background-color: #673E1F;");
+        khungDuongDan.setAlignment(Pos.CENTER_LEFT);
+        khungDuongDan.setPadding(new Insets(10, 20, 10, 20));
+        khungDuongDan.setPrefHeight(40);
+        khungDuongDan.setMaxWidth(Double.MAX_VALUE);
+
+        //Toolbar
+        ToolBar toolBar = new ToolBar(
+                new ButtonSample("Thêm bàn",45,16,3),
+                new ButtonSample("Lưu sơ đồ",45,16,3)
+        );
+        toolBar.setStyle("-fx-background-color: #1E424D");
+        toolBar.setPadding(new Insets(10, 10, 10, 10));
+
+        VBox thanhTren = new VBox(navBar, khungDuongDan,toolBar);
+        thanhTren.setSpacing(0);
+        thanhTren.setAlignment(Pos.CENTER_LEFT);
+        thanhTren.setPrefWidth(Double.MAX_VALUE);
+        HBox.setHgrow(thanhTren, Priority.ALWAYS);
+
+        // === Khu vực hiển thị bàn ===
+        khuVucBan.setPadding(new Insets(20));
+        khuVucBan.setPrefSize(1000, 600);
+        khuVucBan.setStyle("-fx-background-color: #F5F5F5;");
+        VBox.setVgrow(khuVucBan, Priority.ALWAYS);
+
+        // === Gắn vào layout ===
+        this.getChildren().addAll(thanhTren, khuVucBan);
     }
 
+    // Hiển thị bàn theo tầng
     public void hienThiBanTheoTang(String maTang) {
-        this.getChildren().clear();
-        List<Ban> dsBan = taoDanhSachBanCung(maTang);
+        khuVucBan.getChildren().clear();
+
+        lblBreadcrumb.setText("Trang chủ / Quản lý bàn / Tầng " + maTang.replace("TG00000", ""));
+
+        Platform.runLater(() -> {
+            if (khuVucBan.getWidth() > 0 && khuVucBan.getHeight() > 0) {
+                setBackgroundTheoTang(maTang);
+            } else {
+                khuVucBan.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> setBackgroundTheoTang(maTang));
+            }
+        });
+
+        List<Ban> dsBan = banDAO.getByTang(maTang);
+
+        if (dsBan.isEmpty()) {
+            Label lblThongBao = new Label("⚠️ Không có bàn nào trong tầng này.");
+            lblThongBao.setStyle("-fx-font-size: 18px; -fx-text-fill: #666;");
+            khuVucBan.getChildren().add(lblThongBao);
+            return;
+        }
 
         for (Ban b : dsBan) {
-            taoBan(this, b);
+            taoBan(khuVucBan, b);
         }
     }
 
-    private List<Ban> taoDanhSachBanCung(String maTang) {
-        List<Ban> list = new ArrayList<>();
+    // 🔹 Đặt background theo tầng
+    private void setBackgroundTheoTang(String maTang) {
+        String path = switch (maTang) {
+            case "TG000001" -> "/com/thefourrestaurant/images/BG_Tang1.png";
+            case "TG000002" -> "/com/thefourrestaurant/images/BG_Tang2.png";
+            case "TG000003" -> "/com/thefourrestaurant/images/BG_Tang3.png";
+            case "TG000004" -> "/com/thefourrestaurant/images/BG_Tang4.png";
+            case "TG000005" -> "/com/thefourrestaurant/images/BG_Tang5.png";
+            case "TG000006" -> "/com/thefourrestaurant/images/BG_Tang6.png";
+            case "TG000007" -> "/com/thefourrestaurant/images/BG_Tang7.png";
+            default -> "/com/thefourrestaurant/images/background/bg_default.jpg";
+        };
 
-        if (maTang.equals("TG000001")) { // 🔸 Tầng 1
-            list.add(new Ban("BA000001", "Bàn 1-T1", "Trống", 100, 100, "TG000001", "LB000001", "/com/thefourrestaurant/images/Ban/Ban_8.png"));
-            list.add(new Ban("BA000002", "Bàn 2-T1", "Trống", 100, 300, "TG000001", "LB000001", "/com/thefourrestaurant/images/Ban/Ban_8.png"));
-            list.add(new Ban("BA000003", "Bàn 3-T1", "Trống", 100, 500, "TG000001", "LB000001", "/com/thefourrestaurant/images/Ban/Ban_8.png"));
-            list.add(new Ban("BA000004", "Bàn 4-T1", "Trống", 400, 100, "TG000001", "LB000002", "/com/thefourrestaurant/images/Ban/Ban_6.png"));
-            list.add(new Ban("BA000005", "Bàn 5-T1", "Trống", 400, 300, "TG000001", "LB000002", "/com/thefourrestaurant/images/Ban/Ban_6.png"));
-            list.add(new Ban("BA000006", "Bàn 6-T1", "Trống", 400, 500, "TG000001", "LB000002", "/com/thefourrestaurant/images/Ban/Ban_6.png"));
-            list.add(new Ban("BA000007", "Bàn 7-T1", "Trống", 700, 150, "TG000001", "LB000003", "/com/thefourrestaurant/images/Ban/Ban_4.png"));
-            list.add(new Ban("BA000008", "Bàn 8-T1", "Trống", 700, 350, "TG000001", "LB000003", "/com/thefourrestaurant/images/Ban/Ban_4.png"));
+        try {
+            Image anhNen = new Image(getClass().getResource(path).toExternalForm());
+
+            Runnable updateBackground = () -> {
+                BackgroundSize bgs = new BackgroundSize(
+                        khuVucBan.getWidth(), khuVucBan.getHeight(), false, false, false, false
+                );
+                BackgroundImage bgImg = new BackgroundImage(
+                        anhNen,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER,
+                        bgs
+                );
+                khuVucBan.setBackground(new Background(bgImg));
+            };
+
+            updateBackground.run();
+            khuVucBan.widthProperty().addListener((obs, oldVal, newVal) -> updateBackground.run());
+            khuVucBan.heightProperty().addListener((obs, oldVal, newVal) -> updateBackground.run());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            khuVucBan.setStyle("-fx-background-color: lightgray;");
         }
-
-
-        return list;
     }
 
+    // 🔹 Tạo từng bàn
     private void taoBan(Pane pane, Ban ban) {
         Image img;
         try {
@@ -55,7 +143,7 @@ public class QuanLiBan extends Pane {
         }
 
         ImageView imgBan = new ImageView(img);
-        imgBan.setFitWidth(200);
+        imgBan.setFitWidth(180);
         imgBan.setFitHeight(150);
         imgBan.setPreserveRatio(true);
 
