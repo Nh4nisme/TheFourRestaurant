@@ -1,13 +1,13 @@
 package com.thefourrestaurant.view.ban;
 
-import javafx.animation.ScaleTransition;
+import com.thefourrestaurant.view.components.ButtonSample2;
+import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -16,7 +16,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class GiaoDienChiTietBan extends BorderPane {
@@ -54,10 +53,10 @@ public class GiaoDienChiTietBan extends BorderPane {
 		footer.setPadding(new Insets(12, 20, 12, 20));
 		footer.setStyle("-fx-background-color: #1E424D ;");
 
-		Button nutQuayLai = createButton("Quay lại");
+	Button nutQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 120);
 		Region dayCach = new Region();
 		HBox.setHgrow(dayCach, Priority.ALWAYS);
-		Button nutTinhTien = createButton("Tính tiền");
+	Button nutTinhTien = new ButtonSample2("Tính tiền", Variant.YELLOW, 120);
 		footer.getChildren().addAll(nutQuayLai, dayCach, nutTinhTien);
 		return footer;
 	}
@@ -174,8 +173,8 @@ public class GiaoDienChiTietBan extends BorderPane {
 		txtMa.setPrefWidth(220);
 		txtMa.setPrefHeight(40);
 		txtMa.setStyle("-fx-background-color: white; -fx-border-color: #C9C9C9; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 0 12 0 12;");
-		Button nutKiemTra = createButton("Kiểm tra");
-		Button nutGoiMon = createButton("Gọi thêm món");
+	Button nutKiemTra = new ButtonSample2("Kiểm tra", Variant.YELLOW, 120);
+	Button nutGoiMon = new ButtonSample2("Gọi thêm món", Variant.YELLOW, 120);
 		Region dayPhai = new Region();
 		HBox.setHgrow(dayPhai, Priority.ALWAYS);
 		thanhMaGiamGia.getChildren().addAll(lblMa, txtMa, nutKiemTra, dayPhai, nutGoiMon);
@@ -270,41 +269,6 @@ public class GiaoDienChiTietBan extends BorderPane {
 		return b;
 	}
 
-	private Button createButton(String text) {
-		Button button = new Button(text);
-		button.setStyle(
-				"-fx-background-color: #DDB248; " +
-						"-fx-text-fill: #1E424D; " +
-						"-fx-font-weight: bold; " +
-						"-fx-font-size: 14px; " +
-						"-fx-background-radius: 10; " +
-						"-fx-cursor: hand;"
-		);
-		button.setPrefHeight(40);
-		button.setPrefWidth(120);
-
-		DropShadow dropShadow = new DropShadow();
-		dropShadow.setRadius(4);
-		dropShadow.setOffsetX(0);
-		dropShadow.setOffsetY(4);
-		dropShadow.setColor(Color.rgb(0, 0, 0, 0.25));
-		button.setEffect(dropShadow);
-
-		button.setOnMouseEntered(e -> {
-			ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
-			st.setToX(1.05);
-			st.setToY(1.05);
-			st.play();
-		});
-
-		button.setOnMouseExited(e -> {
-			ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
-			st.setToX(1.0);
-			st.setToY(1.0);
-			st.play();
-		});
-
-		return button;
-	}
+    
 }
 

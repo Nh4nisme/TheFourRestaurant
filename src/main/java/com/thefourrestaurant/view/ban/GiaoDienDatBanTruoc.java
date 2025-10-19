@@ -1,5 +1,7 @@
 package com.thefourrestaurant.view.ban;
 
+import com.thefourrestaurant.view.components.ButtonSample2;
+import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -7,7 +9,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -109,7 +110,7 @@ public class GiaoDienDatBanTruoc extends VBox {
         lblSDT.setPrefWidth(120);
         txtSDTKhachDat = createTextField();
         HBox.setHgrow(txtSDTKhachDat, Priority.ALWAYS);
-        btnKiemTra = createButton("Kiểm tra");
+    btnKiemTra = new ButtonSample2("Kiểm tra", Variant.YELLOW, 100);
         row4.getChildren().addAll(lblSDT, txtSDTKhachDat, btnKiemTra);
 
         // Row 5: Tên khách đặt
@@ -127,12 +128,12 @@ public class GiaoDienDatBanTruoc extends VBox {
         buttonBar.setAlignment(Pos.CENTER_LEFT);
         buttonBar.setPadding(new Insets(20, 0, 0, 0));
 
-        btnQuayLai = createButton("Quay lại");
+    btnQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 100);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        btnDatBan = createButton("Đặt bàn");
+    btnDatBan = new ButtonSample2("Đặt bàn", Variant.YELLOW, 100);
 
         buttonBar.getChildren().addAll(btnQuayLai, spacer, btnDatBan);
 
@@ -168,42 +169,7 @@ public class GiaoDienDatBanTruoc extends VBox {
         return comboBox;
     }
 
-    private Button createButton(String text) {
-        Button button = new Button(text);
-        button.setStyle(
-            "-fx-background-color: #DDB248; " +
-            "-fx-text-fill: #1E424D; " +
-            "-fx-font-weight: bold; " +
-            "-fx-font-size: 14px; " +
-            "-fx-background-radius: 10; " +
-            "-fx-cursor: hand;"
-        );
-        button.setPrefHeight(40);
-        button.setPrefWidth(100);
-
-        DropShadow dropShadow = new DropShadow();
-        dropShadow.setRadius(4);
-        dropShadow.setOffsetX(0);
-        dropShadow.setOffsetY(4);
-        dropShadow.setColor(Color.rgb(0, 0, 0, 0.25));
-        button.setEffect(dropShadow);
-
-        button.setOnMouseEntered(e -> {
-            ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
-            st.setToX(1.05);
-            st.setToY(1.05);
-            st.play();
-        });
-
-        button.setOnMouseExited(e -> {
-            ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
-            st.setToX(1.0);
-            st.setToY(1.0);
-            st.play();
-        });
-
-        return button;
-    }
+    
 
     public TextField getTxtTrangThai() { return txtTrangThai; }
     public ComboBox<String> getCbLoaiBan() { return cbLoaiBan; }

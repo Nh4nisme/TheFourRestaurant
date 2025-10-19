@@ -95,6 +95,10 @@ public class NavBar extends HBox {
             case "Thực đơn" -> mainContainer.getChildren().add(new QuanLyThucDon());
             case "Món ăn" -> mainContainer.getChildren().add(new LoaiMonAn());
             case "Đặt món" -> mainContainer.getChildren().add(new PhieuGoiMon());
+                        case "Đặt bàn" -> mainContainer.getChildren().add(new GiaoDienDatBan());
+                        case "Đặt bàn trước" -> mainContainer.getChildren().add(new GiaoDienDatBanTruoc());
+                        case "Thêm khách hàng" -> mainContainer.getChildren().add(new GiaoDienThemKhachHang());
+                        case "Chi tiết bàn" -> mainContainer.getChildren().add(new GiaoDienChiTietBan());
             case "Bàn" -> {
                 QuanLiBan giaoDienBan = new QuanLiBan();
                 giaoDienBan.hienThiBanTheoTang("TG000001"); // Ví dụ: hiển thị tầng 1 mặc định
