@@ -5,12 +5,13 @@ import java.util.stream.Collectors;
 
 import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.model.Tang;
-import com.thefourrestaurant.view.QuanLiBan;
+import com.thefourrestaurant.view.ban.QuanLiBan;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.MonAnBun;
 import com.thefourrestaurant.view.monan.MonAnCom;
-import com.thefourrestaurant.view.thucdon.ThucDon;
 
+import com.thefourrestaurant.view.QuanLyThucDon;
+import com.thefourrestaurant.view.thoigiansukien.ThoiGianSuKien;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -21,7 +22,7 @@ import javafx.scene.layout.VBox;
 public class SideBarDanhMuc extends BaseSideBar {
 
     private final HBox mainContainer;
-    private Label mucDangChon = null; // ✅ Lưu lại mục đang được chọn
+    private Label mucDangChon = null; // Lưu lại mục đang được chọn
 
     public SideBarDanhMuc(HBox mainContainer) {
         super("Quản Lý");
@@ -73,7 +74,7 @@ public class SideBarDanhMuc extends BaseSideBar {
     private void xuLyChonMuc(String tenMuc) {
         if (mainContainer == null) return;
 
-        // ✅ Đổi màu highlight mục được chọn
+        // Đổi màu highlight mục được chọn
         for (Node node : lookupAll(".muc-con, .muc-chinh")) {
             node.setStyle(""); // reset màu cũ
         }
@@ -86,10 +87,11 @@ public class SideBarDanhMuc extends BaseSideBar {
         }
 
         Node newContent = switch (tenMuc) {
-            case "Thực đơn" -> new ThucDon();
+            case "Thực đơn" -> new QuanLyThucDon();
             case "Loại món ăn" -> new LoaiMonAn();
             case "Cơm" -> new MonAnCom();
             case "Bún" -> new MonAnBun();
+            case "Thời gian sự kiện" -> new ThoiGianSuKien();
             default -> {
                 TangDAO tangDAO = new TangDAO();
                 Tang tang = tangDAO.getAllTang().stream()

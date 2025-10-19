@@ -34,7 +34,8 @@ public class PhieuGoiMon extends BorderPane {
 
 	public PhieuGoiMon() {
         this.setStyle("-fx-background-color: white;");
-
+        mainContainer = new VBox();
+        VBox.setVgrow(this, Priority.ALWAYS);
         NavBar nb = new NavBar(mainContainer);
         HBox thanhTren = taoThanhTren();
 
@@ -112,7 +113,7 @@ public class PhieuGoiMon extends BorderPane {
             grid.getColumnConstraints().add(cc);
         }
 
-        for (int row = 0; row < 3; row++) {
+        for (int row = 0; row < 4; row++) {
             for (int col = 0; col < 4; col++) {
                 VBox menuItem = taoMonAn();
                 grid.add(menuItem, col, row);
