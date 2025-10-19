@@ -89,8 +89,8 @@ public class PhieuGoiMon extends BorderPane {
         txtTenMon.setPromptText("Tìm tên món...");
         txtTenMon.setPrefWidth(300);
 
-        btnTim = new ButtonSample("Tìm kiếm", "", 35, 14,1);
-        btnLamMoi = new ButtonSample("Làm mới", "", 35, 14,1);
+        btnTim = new ButtonSample("Tìm kiếm", "", 35, 14,3);
+        btnLamMoi = new ButtonSample("Làm mới", "", 35, 14,3);
 
         thanhTren.getChildren().addAll(menuThucDon, lblLoaiMon, txtLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi);
         return thanhTren;
