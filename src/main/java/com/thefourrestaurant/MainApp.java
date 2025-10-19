@@ -3,10 +3,8 @@ package com.thefourrestaurant;
 import java.sql.Connection;
 
 import com.thefourrestaurant.connect.ConnectSQL;
-import com.thefourrestaurant.view.DatBan;
+import com.thefourrestaurant.view.ban.GiaoDienDatBan;
 import com.thefourrestaurant.view.GiaoDienChinh;
-import com.thefourrestaurant.view.PhieuGoiMon;
-import com.thefourrestaurant.view.ThanhToan;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -25,13 +23,14 @@ public class MainApp extends Application {
 
         // Hiển thị giao diện chính ngay lập tức
         GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
-        DatBan datBan = new com.thefourrestaurant.view.DatBan();
+        GiaoDienDatBan datBan = new GiaoDienDatBan();
 
+        giaoDienChinh.show(primaryStage);
         // Tạo Scene với DatBan
-        javafx.scene.Scene scene = new javafx.scene.Scene(datBan, 1400, 800);
-        primaryStage.setTitle("Quản lý Nhà hàng - Đặt bàn");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+//        Scene scene = new javafx.scene.Scene(datBan, 1400, 800);
+//        primaryStage.setTitle("Quản lý Nhà hàng - Đặt bàn");
+//        primaryStage.setScene(scene);
+//        primaryStage.show();
 
         // Sau khi giao diện đã mở, chạy kết nối DB ở thread riêng
         Task<Connection> ketNoiTask = new Task<>() {

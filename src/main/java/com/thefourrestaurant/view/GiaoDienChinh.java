@@ -35,13 +35,6 @@ public class GiaoDienChinh {
         mainContent.setBackground(new Background(bg));
         VBox.setVgrow(mainContent, Priority.ALWAYS);
 
-        //Tạo NavBar, truyền đúng mainContent
-        NavBar navBar = new NavBar(mainContent);
-        navBar.setPrefHeight(80);
-        navBar.setMinHeight(80);
-
-        //Thêm NavBar + mainContent vào VBox
-        rightSection.getChildren().addAll(navBar, mainContent);
 
         // === LEFT: gồm SideBar + SideBar mở rộng ===
         SideBar sideBar = new SideBar();
@@ -59,6 +52,14 @@ public class GiaoDienChinh {
         HBox mainLayout = new HBox(leftSection, rightSection);
         HBox.setHgrow(rightSection, Priority.ALWAYS);
         root.setCenter(mainLayout);
+
+        //Tạo NavBar, truyền đúng mainContent
+        NavBar navBar = new NavBar(mainContent,sideBar,sideBarExtended);
+        navBar.setPrefHeight(80);
+        navBar.setMinHeight(80);
+
+        //Thêm NavBar + mainContent vào VBox
+        rightSection.getChildren().addAll(navBar, mainContent);
 
         // === Controller quản lý sidebar (ẩn/hiện) ===
         new SideBarController(sideBar, sideBarExtended, mainContent);
