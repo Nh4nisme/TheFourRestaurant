@@ -28,9 +28,6 @@ public abstract class GiaoDienThucThe extends VBox {
         getStylesheets().add(getClass().getResource("/com/thefourrestaurant/css/Application.css").toExternalForm());
         this.getStyleClass().add("giaodienthucthe");
 
-        // === NavBar ===
-        NavBar navBar = new NavBar(this);
-
         // === Toolbar ===
         HBox toolbar = taoToolbar(tieuDe);
 
@@ -38,7 +35,7 @@ public abstract class GiaoDienThucThe extends VBox {
         SplitPane splitPane = taoSplitPane();
 
         VBox.setVgrow(splitPane, Priority.ALWAYS);
-        getChildren().addAll(navBar, toolbar, splitPane);
+        getChildren().addAll(toolbar, splitPane);
     }
 
     /** Tạo Toolbar chung */

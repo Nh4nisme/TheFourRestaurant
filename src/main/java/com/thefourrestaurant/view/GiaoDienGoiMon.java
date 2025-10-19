@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.DropDownButton;
-import com.thefourrestaurant.view.components.NavBar;
 import com.thefourrestaurant.view.monan.MonAnBox;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -27,12 +26,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-public class PhieuGoiMon extends BorderPane {
+public class GiaoDienGoiMon extends BorderPane {
 
     private ButtonSample btnTim, btnLamMoi;
     private VBox mainContainer;
 
-	public PhieuGoiMon() {
+	public GiaoDienGoiMon() {
         this.setStyle("-fx-background-color: white;");
         HBox thanhTren = taoThanhTren();
 

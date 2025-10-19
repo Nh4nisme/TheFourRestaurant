@@ -12,7 +12,6 @@ import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
-import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 import javafx.scene.Node;
 
@@ -20,9 +19,13 @@ public class NavBar extends HBox {
 
     private final DropDownButton btnHeThong, btnTimKiem, btnXuLi, btnDanhMucNav;
     private final Pane mainContent; // Pane trung tâm dưới navBar
+    private final Pane sideBar;
+    private final Pane sideBarExtended;
 
-    public NavBar(Pane mainContent) {
+    public NavBar(Pane mainContent, Pane sideBar, Pane sideBarExtended) {
         this.mainContent = mainContent;
+        this.sideBar = sideBar;
+        this.sideBarExtended = sideBarExtended;
 
         Font montserrat = Font.loadFont(
                 Objects.requireNonNull(getClass().getResourceAsStream(
@@ -87,10 +90,32 @@ public class NavBar extends HBox {
     private void showPanel(String s) {
         if (mainContent == null) return;
 
+        if ("Đặt bàn".equals(s)) {
+            // Ẩn sidebar, không chiếm layout
+            if (sideBar != null) {
+                sideBar.setVisible(false);
+                sideBar.setManaged(false);
+            }
+            if (sideBarExtended != null) {
+                sideBarExtended.setVisible(false);
+                sideBarExtended.setManaged(false);
+            }
+        } else {
+            // Hiện lại sidebar
+            if (sideBar != null) {
+                sideBar.setVisible(true);
+                sideBar.setManaged(true);
+            }
+            if (sideBarExtended != null) {
+                sideBarExtended.setVisible(true);
+                sideBarExtended.setManaged(true);
+            }
+        }
+
         Node newContent = switch (s) {
             case "Thực đơn" -> new QuanLyThucDon();
             case "Món ăn" -> new LoaiMonAn();
-            case "Đặt món" -> new PhieuGoiMon();
+            case "Đặt món" -> new GiaoDienGoiMon();
             case "Đặt bàn" -> new GiaoDienDatBan();
             case "Đặt bàn trước" -> new GiaoDienDatBanTruoc();
             case "Thêm khách hàng" -> new GiaoDienThemKhachHang();
@@ -106,12 +131,10 @@ public class NavBar extends HBox {
         };
 
         if (newContent != null) {
-            // Bind size cho full mainContent
             if (newContent instanceof Region region) {
                 region.prefWidthProperty().bind(mainContent.widthProperty());
                 region.prefHeightProperty().bind(mainContent.heightProperty());
             }
-
             mainContent.getChildren().setAll(newContent);
         }
     }

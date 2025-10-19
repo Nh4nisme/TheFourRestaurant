@@ -1,165 +1,246 @@
 package com.thefourrestaurant.view.ban;
 
+import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.ButtonSample2;
-import com.thefourrestaurant.view.components.ButtonSample2.Variant;
-import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.util.Duration;
+import javafx.scene.shape.Circle;
 
-public class GiaoDienDatBan extends VBox {
+import java.util.List;
 
-    private TextField txtTrangThai;
-    private ComboBox<String> cbLoaiBan;
-    private TextField txtSoNguoi;
-    private ComboBox<String> cbGiaTien;
-    private TextField txtSDTKhachDat;
-    private Label lblTenKhachDat;
-    private Button btnKiemTra;
-    private Button btnDatBan;
-    private Button btnQuayLai;
+public class GiaoDienDatBan extends BorderPane {
+
+    private static final String COLOR_BACKGROUND_MAIN = "#f0f0f0";
+    private static final String COLOR_BACKGROUND_SIDE = "#1E424D";
+    private static final String COLOR_TEXT = "#DDB248";
 
     public GiaoDienDatBan() {
-        setStyle("-fx-background-color: #F5F5F5;");
-        setSpacing(0);
-        setAlignment(Pos.TOP_CENTER);
+        this.setLeft(taoThanhBen());
+        this.setCenter(taoNoiDungChinh());
+    }
 
-        Label lblTitle = new Label("Đặt bàn");
-        lblTitle.setStyle("-fx-font-size: 18px; -fx-text-fill: #E19E11; -fx-font-weight: bold;");
-        HBox titleBar = new HBox(lblTitle);
-        titleBar.setAlignment(Pos.CENTER_LEFT);
-        titleBar.setPadding(new Insets(10, 20, 10, 20));
-        titleBar.setStyle("-fx-background-color: #1E424D;");
-        titleBar.setPrefHeight(50);
+    private VBox taoThanhBen() {
+        VBox thanhBen = new VBox();
+        thanhBen.setPrefWidth(250);
+        thanhBen.setStyle("-fx-background-color: " + COLOR_BACKGROUND_SIDE + ";");
 
-        VBox contentCard = new VBox(20);
-        contentCard.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #CCCCCC; -fx-border-radius: 15;");
-        contentCard.setPadding(new Insets(30));
-        contentCard.setMaxWidth(650);
-        contentCard.setAlignment(Pos.TOP_CENTER);
+        thanhBen.getChildren().addAll(
+                taoHeaderThanhBen(),
+                taoNutChucNang(),
+                taoSpacer(),
+                taoChuThichThanhBen()
+        );
 
-        Label lblBanHeader = new Label("Bàn B101");
-        lblBanHeader.setStyle("-fx-font-size: 22px; -fx-text-fill: #DDB248; -fx-font-weight: bold;");
+        return thanhBen;
+    }
 
-        VBox formBox = new VBox(15);
-        formBox.setAlignment(Pos.CENTER_LEFT);
+    private VBox taoHeaderThanhBen() {
+        VBox header = new VBox(5);
+        header.setPadding(new Insets(15));
+        header.setStyle("-fx-background-color: " + COLOR_BACKGROUND_SIDE + ";");
 
-        // Row 1: Trạng thái and Loại bàn
-        HBox row1 = new HBox(20);
-        row1.setAlignment(Pos.CENTER_LEFT);
+        Label lblDanhSachBan = taoLabel("Danh sách bàn", 20, true);
+        Label lblNgay = taoLabel("Thứ hai - 03/06/2025", 16, false);
+        Label lblGio = taoLabel("12:36:36", 16, false);
 
-        Label lblTrangThai = createLabel("Trạng Thái:");
-        lblTrangThai.setPrefWidth(120);
-        txtTrangThai = createTextField();
-        txtTrangThai.setPrefWidth(230);
+        header.getChildren().addAll(lblDanhSachBan, lblNgay, lblGio);
+        return header;
+    }
 
-        Label lblLoaiBan = createLabel("Loại bàn:");
-        lblLoaiBan.setPrefWidth(100);
-        cbLoaiBan = createComboBox();
-        cbLoaiBan.setPrefWidth(230);
+    private VBox taoNutChucNang() {
+        VBox cacNut = new VBox(15);
+        cacNut.setPadding(new Insets(20, 10, 10, 10));
 
-        row1.getChildren().addAll(lblTrangThai, txtTrangThai, lblLoaiBan, cbLoaiBan);
+        // Danh sách nút: [Text chính, Phím tắt]
+        List<String[]> nutTitles = List.of(
+                new String[]{"Đặt bàn ngay", "F1"},
+                new String[]{"Đặt bàn trước", "F2"},
+                new String[]{"Nhận bàn", "F3"},
+                new String[]{"Hủy bàn đặt trước", "F4"},
+                new String[]{"Đặt món", "F5"},
+                new String[]{"Tính tiền", "F6"},
+                new String[]{"Tầng trước", "F7"},
+                new String[]{"Tầng sau", "F88"}
+        );
 
-        // Row 2: Số người and Giá tiền
-        HBox row2 = new HBox(20);
-        row2.setAlignment(Pos.CENTER_LEFT);
+        for (String[] title : nutTitles) {
+            ButtonSample2 btn = new ButtonSample2("", ButtonSample2.Variant.YELLOW, 220, 55);
 
-        Label lblSoNguoi = createLabel("Số người:");
-        lblSoNguoi.setPrefWidth(120);
-        txtSoNguoi = createTextField();
-        txtSoNguoi.setPrefWidth(230);
+            HBox content = new HBox();
+            content.setPadding(new Insets(0, 10, 0, 10));
+            content.setAlignment(Pos.CENTER_LEFT);
 
-        Label lblGiaTien = createLabel("Giá tiền:");
-        lblGiaTien.setPrefWidth(100);
-        cbGiaTien = createComboBox();
-        cbGiaTien.setPrefWidth(230);
+            // Lấy text và phím tắt từ title
+            Label lblText = new Label(title[0]);
+            lblText.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
 
-        row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, lblGiaTien, cbGiaTien);
+            Label lblShortcut = new Label(title[1]);
+            lblShortcut.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
 
-        // Row 3: SDT khách đặt
-        HBox row3 = new HBox(10);
-        row3.setAlignment(Pos.CENTER_LEFT);
-        Label lblSDT = createLabel("SDT khách đặt:");
-        lblSDT.setPrefWidth(120);
-        txtSDTKhachDat = createTextField();
-        HBox.setHgrow(txtSDTKhachDat, Priority.ALWAYS);
-        btnKiemTra = new ButtonSample2("Kiểm tra", Variant.YELLOW, 100);
-        row3.getChildren().addAll(lblSDT, txtSDTKhachDat, btnKiemTra);
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Row 4: Tên khách đặt
-        HBox row4 = new HBox(10);
-        row4.setAlignment(Pos.CENTER_LEFT);
-        Label lblTenKhach = createLabel("Tên khách đặt:");
-        lblTenKhach.setPrefWidth(120);
-        lblTenKhachDat = new Label("");
-        lblTenKhachDat.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
-        row4.getChildren().addAll(lblTenKhach, lblTenKhachDat);
+            content.getChildren().addAll(lblText, spacer, lblShortcut);
 
-        formBox.getChildren().addAll(row1, row2, row3, row4);
+            btn.setGraphic(content); // gán HBox vào button
 
-        HBox buttonBar = new HBox(20);
-        buttonBar.setAlignment(Pos.CENTER_LEFT);
-        buttonBar.setPadding(new Insets(20, 0, 0, 0));
+            cacNut.getChildren().add(btn);
+        }
 
-        btnQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 100);
+        return cacNut;
+    }
 
+    private Region taoSpacer() {
         Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        btnDatBan = new ButtonSample2("Đặt bàn", Variant.YELLOW, 100);
-
-        buttonBar.getChildren().addAll(btnQuayLai, spacer, btnDatBan);
-
-        contentCard.getChildren().addAll(lblBanHeader, formBox, buttonBar);
-
-        VBox centerWrapper = new VBox(contentCard);
-        centerWrapper.setAlignment(Pos.CENTER);
-        centerWrapper.setPadding(new Insets(40));
-        VBox.setVgrow(centerWrapper, Priority.ALWAYS);
-
-        getChildren().addAll(titleBar, centerWrapper);
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        return spacer;
     }
 
-    private Label createLabel(String text) {
-        Label label = new Label(text);
-        label.setStyle("-fx-font-size: 14px; -fx-text-fill: #E19E11; -fx-font-weight: bold;");
-        label.setMinWidth(Region.USE_PREF_SIZE);
-        return label;
+    private Region taoSpacerH(double width) {
+        Region spacer = new Region();
+        spacer.setPrefWidth(width);
+        HBox.setHgrow(spacer, Priority.NEVER); // spacer không giãn thêm
+        return spacer;
     }
 
-    private TextField createTextField() {
-        TextField textField = new TextField();
-        textField.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 10; -fx-background-radius: 10;");
-        textField.setPrefHeight(35);
-        return textField;
+    private VBox taoChuThichThanhBen() {
+        VBox chuThich = new VBox(10);
+        chuThich.setPadding(new Insets(30, 10, 10, 10));
+
+        List<LegendItem> items = List.of(
+                new LegendItem("Bàn trống", Color.WHITE),
+                new LegendItem("Bàn đã được đặt trước", Color.web("#87CEEB")),
+                new LegendItem("Bàn đang sử dụng", Color.web("#FFB347"))
+        );
+
+        for (LegendItem item : items) {
+            chuThich.getChildren().add(taoChuThich(item.text, item.color));
+        }
+
+        return chuThich;
     }
 
-    private ComboBox<String> createComboBox() {
-        ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.setStyle("-fx-background-color: white; -fx-border-color: #CCCCCC; -fx-border-radius: 10; -fx-background-radius: 10;");
-        comboBox.setPrefHeight(35);
-        comboBox.setMaxWidth(Double.MAX_VALUE);
-        return comboBox;
+    private HBox taoChuThich(String text, Color color) {
+        HBox legend = new HBox(10);
+        legend.setAlignment(Pos.CENTER_LEFT);
+
+        Circle circle = new Circle(8, color);
+        Label lbl = taoLabel(text, 16, false);
+
+        legend.getChildren().addAll(circle, lbl);
+        return legend;
     }
 
-    
+    private VBox taoNoiDungChinh() {
+        VBox noiDungChinh = new VBox();
+        noiDungChinh.setStyle("-fx-background-color: " + COLOR_BACKGROUND_MAIN + ";");
 
-    public TextField getTxtTrangThai() { return txtTrangThai; }
-    public ComboBox<String> getCbLoaiBan() { return cbLoaiBan; }
-    public TextField getTxtSoNguoi() { return txtSoNguoi; }
-    public ComboBox<String> getCbGiaTien() { return cbGiaTien; }
-    public TextField getTxtSDTKhachDat() { return txtSDTKhachDat; }
-    public Label getLblTenKhachDat() { return lblTenKhachDat; }
-    public Button getBtnKiemTra() { return btnKiemTra; }
-    public Button getBtnDatBan() { return btnDatBan; }
-    public Button getBtnQuayLai() { return btnQuayLai; }
+        VBox thanhDieuHuong = taoThanhDieuHuong();
+
+        Pane khuVucBan = new Pane();
+        khuVucBan.setStyle("-fx-background-color: white;");
+        VBox.setVgrow(khuVucBan, Priority.ALWAYS);
+
+        noiDungChinh.getChildren().addAll(thanhDieuHuong, khuVucBan);
+        return noiDungChinh;
+    }
+
+    private VBox taoThanhDieuHuong() {
+        VBox thanhDieuHuong = new VBox(10);
+        thanhDieuHuong.setPadding(new Insets(10));
+        thanhDieuHuong.setStyle(
+                "-fx-background-color: " + COLOR_BACKGROUND_SIDE + ";" +
+                        "-fx-border-color: #cccccc; -fx-border-width: 0 0 1 0;"
+        );
+
+        thanhDieuHuong.getChildren().addAll(taoHang1(), taoHang2());
+        return thanhDieuHuong;
+    }
+
+    private HBox taoHang1() {
+        HBox hang1 = new HBox(10);
+        hang1.setPadding(new Insets(0,0,0,20));
+        hang1.setAlignment(Pos.CENTER_LEFT);
+
+        Label lblBanDatTruoc = taoLabel("Bàn đặt trước:", 16, true);
+        lblBanDatTruoc.setPrefWidth(120);
+
+        ComboBox<String> cboBanDatTruoc = new ComboBox<>();
+        cboBanDatTruoc.setPrefHeight(45);
+        cboBanDatTruoc.getItems().add("Bàn đặt trước");
+        cboBanDatTruoc.setValue("Bàn đặt trước");
+        styleComboBox(cboBanDatTruoc, 150);
+
+        Label lblSoTang = taoLabel("Số tầng:", 16, true);
+        lblSoTang.setPrefWidth(70);
+
+        ComboBox<String> cboSoTang = new ComboBox<>();
+        cboSoTang.getItems().addAll("4", "6", "8", "10");
+        cboSoTang.setPromptText("Chọn");
+        cboSoTang.setPrefWidth(250);
+
+        Label lblMaBan = taoLabel("Mã bàn:", 16, true);
+        lblMaBan.setPrefWidth(70);
+
+        TextField txtMaBan = new TextField();
+        txtMaBan.setPrefWidth(300);
+
+        ButtonSample2 btnTim = new ButtonSample2("Tìm", ButtonSample2.Variant.YELLOW, 120, 45);
+
+        hang1.getChildren().addAll(lblBanDatTruoc, cboBanDatTruoc, taoSpacerH(60), lblSoTang, cboSoTang, taoSpacerH(60), lblMaBan, txtMaBan, taoSpacerH(60), btnTim);
+        return hang1;
+    }
+
+    private HBox taoHang2() {
+        HBox hang2 = new HBox(10);
+        hang2.setPadding(new Insets(0,0,0,20));
+        hang2.setAlignment(Pos.CENTER_LEFT);
+
+
+        Label lblLoaiBan = taoLabel("Loại bàn:", 16, true);
+        lblLoaiBan.setPrefWidth(70);
+
+        ComboBox<String> cboLoaiBan = new ComboBox<>();
+        cboLoaiBan.getItems().addAll("Tất cả", "Bàn tròn", "Bàn vuông");
+        cboLoaiBan.setPromptText("Chọn");
+        cboLoaiBan.setPrefWidth(250);
+
+        Label lblSoGhe = taoLabel("Số ghế:", 16, true);
+        lblSoGhe.setPrefWidth(70);
+
+        ComboBox<String> cboSoGhe = new ComboBox<>();
+        cboSoGhe.getItems().addAll("Tất cả", "Có ghi chú", "Không ghi chú");
+        cboSoGhe.setPromptText("Chọn");
+        cboSoGhe.setPrefWidth(300);
+
+        ButtonSample2 btnLamMoi = new ButtonSample2("Làm mới", ButtonSample2.Variant.YELLOW, 120, 45);
+
+        hang2.getChildren().addAll(taoSpacerH(350),lblLoaiBan, cboLoaiBan, taoSpacerH(60),lblSoGhe, cboSoGhe, taoSpacerH(60),btnLamMoi);
+        return hang2;
+    }
+
+    private void styleComboBox(ComboBox<String> comboBox, double width) {
+        comboBox.setStyle("-fx-background-color: " + COLOR_TEXT + "; -fx-text-fill: " + COLOR_BACKGROUND_SIDE + "; -fx-font-weight: bold;");
+        comboBox.setPrefWidth(width);
+        HBox.setHgrow(comboBox, Priority.ALWAYS);
+    }
+
+    private Label taoLabel(String text, int fontSize, boolean bold) {
+        Label lbl = new Label(text);
+        lbl.setStyle("-fx-text-fill: " + COLOR_TEXT + ";" + (bold ? "-fx-font-weight: bold;" : "") + "-fx-font-size: " + fontSize + "px;");
+        return lbl;
+    }
+
+    private static class LegendItem {
+        String text;
+        Color color;
+
+        LegendItem(String text, Color color) {
+            this.text = text;
+            this.color = color;
+        }
+    }
 }
