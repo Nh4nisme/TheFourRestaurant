@@ -1,5 +1,7 @@
 package com.thefourrestaurant.view;
 
+import com.thefourrestaurant.view.components.ButtonSample2;
+import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -93,13 +95,13 @@ public class GiaoDienThemKhachHang extends VBox {
         buttonBar.setAlignment(Pos.CENTER_LEFT);
         buttonBar.setPadding(new Insets(20, 0, 0, 0));
 
-        btnQuayLai = createButton("Quay lại");
+    btnQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 100);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        btnLamMoi = createButton("Làm mới");
-        btnThem = createButton("Thêm");
+    btnLamMoi = new ButtonSample2("Làm mới", Variant.YELLOW, 100);
+    btnThem = new ButtonSample2("Thêm", Variant.YELLOW, 100);
 
         buttonBar.getChildren().addAll(btnQuayLai, spacer, btnLamMoi, btnThem);
 
@@ -127,42 +129,7 @@ public class GiaoDienThemKhachHang extends VBox {
         return textField;
     }
 
-    private Button createButton(String text) {
-        Button button = new Button(text);
-        button.setStyle(
-            "-fx-background-color: #DDB248; " +
-            "-fx-text-fill: #1E424D; " +
-            "-fx-font-weight: bold; " +
-            "-fx-font-size: 14px; " +
-            "-fx-background-radius: 10; " +
-            "-fx-cursor: hand;"
-        );
-        button.setPrefHeight(40);
-        button.setPrefWidth(100);
-
-        DropShadow dropShadow = new DropShadow();
-        dropShadow.setRadius(4);
-        dropShadow.setOffsetX(0);
-        dropShadow.setOffsetY(4);
-        dropShadow.setColor(Color.rgb(0, 0, 0, 0.25));
-        button.setEffect(dropShadow);
-
-        button.setOnMouseEntered(e -> {
-            ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
-            st.setToX(1.05);
-            st.setToY(1.05);
-            st.play();
-        });
-
-        button.setOnMouseExited(e -> {
-            ScaleTransition st = new ScaleTransition(Duration.millis(200), button);
-            st.setToX(1.0);
-            st.setToY(1.0);
-            st.play();
-        });
-
-        return button;
-    }
+    
 
     public TextField getTxtTenKhachHang() { return txtTenKhachHang; }
     public TextField getTxtSoDT() { return txtSoDT; }
