@@ -9,23 +9,14 @@ import com.thefourrestaurant.view.components.sidebar.SideBar;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 public class GiaoDienChinh {
     public void show(Stage stage) {
         BorderPane root = new BorderPane();
 
-        // Background
+        // === Background trung tâm ===
         Image bgImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream(
                 "/com/thefourrestaurant/images/GiaoDienChinhImg.png")));
         BackgroundImage bg = new BackgroundImage(bgImg,
@@ -35,33 +26,44 @@ public class GiaoDienChinh {
                 new BackgroundSize(100, 100, true, true, true, true)
         );
 
-     // Tạo rightBox và backgroundCenter
-        VBox rightBox = new VBox();
-        rightBox.setAlignment(Pos.TOP_CENTER);
+        // === RIGHT: gồm NavBar + mainContent ===
+        VBox rightSection = new VBox();
+        rightSection.setAlignment(Pos.TOP_CENTER);
 
-        NavBar navBar = new NavBar(rightBox);
+        // Tạo StackPane mainContent (chứa nội dung chính)
+        StackPane mainContent = new StackPane();
+        mainContent.setBackground(new Background(bg));
+        VBox.setVgrow(mainContent, Priority.ALWAYS);
+
+        //Tạo NavBar, truyền đúng mainContent
+        NavBar navBar = new NavBar(mainContent);
         navBar.setPrefHeight(80);
         navBar.setMinHeight(80);
 
-        Pane backgroundCenter = new Pane();
-        backgroundCenter.setBackground(new Background(bg));
-        VBox.setVgrow(backgroundCenter, Priority.ALWAYS);
+        //Thêm NavBar + mainContent vào VBox
+        rightSection.getChildren().addAll(navBar, mainContent);
 
-        rightBox.getChildren().addAll(navBar, backgroundCenter);
-
-        // SideBar
+        // === LEFT: gồm SideBar + SideBar mở rộng ===
         SideBar sideBar = new SideBar();
 
-        // mainContainer = sideBar + rightBox
-        HBox mainContainer = new HBox(sideBar, rightBox);
-        HBox.setHgrow(rightBox, Priority.ALWAYS);
-        root.setCenter(mainContainer);
+        VBox sideBarExtended = new VBox();
+        sideBarExtended.setVisible(false); // ban đầu ẩn
+        sideBarExtended.setManaged(false);
+        VBox.setVgrow(sideBarExtended, Priority.ALWAYS);
 
-        // Controller
-        new SideBarController(sideBar, mainContainer, backgroundCenter);
+        // === LEFT Container (gom 2 phần) ===
+        HBox leftSection = new HBox(sideBar, sideBarExtended);
+        VBox.setVgrow(leftSection, Priority.ALWAYS);
 
+        // === Tổng thể: LEFT + RIGHT ===
+        HBox mainLayout = new HBox(leftSection, rightSection);
+        HBox.setHgrow(rightSection, Priority.ALWAYS);
+        root.setCenter(mainLayout);
 
-        // Scene
+        // === Controller quản lý sidebar (ẩn/hiện) ===
+        new SideBarController(sideBar, sideBarExtended, mainContent);
+
+        // === Scene ===
         Scene scene = new Scene(root, 1366, 768);
         scene.getStylesheets().add(Objects.requireNonNull(
                 getClass().getResource("/com/thefourrestaurant/css/Application.css")).toExternalForm());

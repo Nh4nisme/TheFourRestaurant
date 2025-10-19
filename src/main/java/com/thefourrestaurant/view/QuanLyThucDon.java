@@ -30,11 +30,6 @@ public class QuanLyThucDon extends VBox {
         setAlignment(Pos.TOP_CENTER);
         setStyle("-fx-background-color: #FAFAFA;");
 
-        // === NavBar ===
-        NavBar navBar = new NavBar(this);
-        navBar.setPrefHeight(80);
-        navBar.setMinHeight(80);
-
         // === Thanh breadcrumb ===
         Label duongDan = new Label("Quản Lý > Thực Đơn");
         duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
@@ -139,7 +134,7 @@ public class QuanLyThucDon extends VBox {
             this.getStylesheets().add(urlCSS.toExternalForm());
         }
 
-        getChildren().addAll(navBar, khungDuongDan, mainContent);
+        getChildren().addAll(khungDuongDan, mainContent);
     }
 
     // ==== HÀM CẬP NHẬT DANH SÁCH MÓN ĂN ====

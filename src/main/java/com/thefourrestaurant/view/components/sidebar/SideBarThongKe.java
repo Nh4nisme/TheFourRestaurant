@@ -1,71 +1,83 @@
 package com.thefourrestaurant.view.components.sidebar;
 
 import java.util.List;
-
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 
 public class SideBarThongKe extends BaseSideBar {
-    private HBox mainContainer;
 
-    public SideBarThongKe(HBox mainContainer) {
+    private final Pane mainContent;
+    private Label mucDangChon = null;
+
+    public SideBarThongKe(Pane mainContent) {
         super("Thống kê");
-        this.mainContainer = mainContainer;
+        this.mainContent = mainContent;
+        VBox.setVgrow(mainContent, Priority.ALWAYS);
     }
 
     @Override
     protected void khoiTaoDanhMuc() {
-        themDanhMuc("Doanh Thu", List.of("Theo ngày","Theo tháng","Theo năm"),this::showThongKeContent);
-        themDanhMuc("Món ăn", List.of("Cơm"),this::showThongKeContent);
-        themDanhMuc("Tầng và bàn", List.of("Tầng 1"),this::showThongKeContent);
+        themDanhMuc("Doanh Thu", List.of("Theo ngày", "Theo tháng", "Theo năm"));
+        themDanhMuc("Món ăn", List.of("Cơm"));
+        themDanhMuc("Tầng và bàn", List.of("Tầng 1"));
     }
 
-    private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon, Runnable hanhDong) {
-        Label nhanChinh = taoNhanClick(tenDanhMuc, null, "muc-chinh");
+    private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon) {
+        Label nhanChinh = taoNhanClick(tenDanhMuc, () -> xuLyChonMuc(tenDanhMuc), "muc-chinh");
 
         if (danhSachCon != null && !danhSachCon.isEmpty()) {
-            VBox hopChua = new VBox();
-            hopChua.setSpacing(5);
+            VBox hopChua = new VBox(5);
             hopChua.setPadding(new Insets(5, 0, 5, 20));
             hopChua.setVisible(false);
             hopChua.setManaged(false);
+            hopChua.getStyleClass().add("hop-chua-con");
 
             for (String mucCon : danhSachCon) {
-                Label mucConLabel = taoNhanClick(mucCon, () -> xuLyChonMucCon(mucCon), "muc-con");
-                hopChua.getChildren().add(mucConLabel);
+                Label lblCon = taoNhanClick(mucCon, () -> xuLyChonMuc(mucCon), "muc-con");
+                hopChua.getChildren().add(lblCon);
             }
 
-            nhanChinh.setOnMouseClicked(e -> {
-                moHoacDongMucCon(hopChua);
-                showThongKeContent();
-            });
+            nhanChinh.setOnMouseClicked(e -> moHoacDongMucCon(hopChua));
             getChildren().addAll(nhanChinh, hopChua);
         } else {
             getChildren().add(nhanChinh);
         }
     }
 
-    private void showThongKeContent() {
-        if (mainContainer.getChildren().size() > 2) {
-            mainContainer.getChildren().remove(2);
+    private void xuLyChonMuc(String tenMuc) {
+        if (mainContent == null) return;
+
+        // Reset highlight
+        for (Node node : lookupAll(".muc-con, .muc-chinh")) {
+            node.setStyle("");
         }
 
-        ThongKeContent thongKeContent = new ThongKeContent();
-        HBox.setHgrow(thongKeContent, Priority.ALWAYS);
-        mainContainer.getChildren().add(thongKeContent);
-    }
+        // Highlight mục hiện tại
+        for (Node node : lookupAll(".muc-con, .muc-chinh")) {
+            if (node instanceof Label lbl && lbl.getText().equals(tenMuc)) {
+                lbl.setStyle("""
+                    -fx-text-fill: #2b7cff;
+                    -fx-font-weight: bold;
+                    -fx-border-width: 0 0 0 4;
+                    -fx-border-color: #2b7cff;
+                    -fx-padding: 0 0 0 4;
+                """);
+                mucDangChon = lbl;
+            }
+        }
 
-    private void xuLyChonMucCon(String mucCon) {
-//        if (mainContainer.getChildren().size() > 2) {
-//            mainContainer.getChildren().remove(2);
-//        }
-//
-//        ThongKeContent thongKeContent = new ThongKeContent();
-//        HBox.setHgrow(thongKeContent, Priority.ALWAYS);
-//
-//        mainContainer.getChildren().add(thongKeContent);
+        // Load giao diện thống kê
+        ThongKeContent thongKeContent = new ThongKeContent();
+
+        // Đảm bảo nó chiếm full diện tích của mainContent
+        if (thongKeContent instanceof Region region) {
+            region.prefWidthProperty().bind(mainContent.widthProperty());
+            region.prefHeightProperty().bind(mainContent.heightProperty());
+        }
+
+        // Thay thế nội dung cũ
+        mainContent.getChildren().setAll(thongKeContent);
     }
 }

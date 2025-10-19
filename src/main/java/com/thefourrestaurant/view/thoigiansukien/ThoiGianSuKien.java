@@ -30,10 +30,6 @@ public class ThoiGianSuKien extends VBox {
     public ThoiGianSuKien() {
         this.setAlignment(Pos.TOP_CENTER);
 
-        NavBar navBar = new NavBar(this);
-        navBar.setPrefHeight(80);
-        navBar.setMinHeight(80);
-
         GridPane contentPane = new GridPane();
         VBox.setVgrow(contentPane, Priority.ALWAYS);
         contentPane.setStyle("-fx-background-color: #F5F5F5;");
@@ -86,7 +82,7 @@ public class ThoiGianSuKien extends VBox {
             System.err.println("Không tìm thấy tệp CSS.");
         }
 
-        this.getChildren().addAll(navBar, contentPane);
+        this.getChildren().addAll(contentPane);
     }
 
     private HBox taoKhungGiua() {
