@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.loaimonan;
 
+import java.net.URL;
 import java.util.Objects;
 
 import com.thefourrestaurant.view.components.BaseBox;
@@ -42,15 +43,12 @@ public class LoaiMonAnBox extends BaseBox {
         topPane.setMaxWidth(Double.MAX_VALUE);
         topPane.setAlignment(Pos.CENTER);
 
-        // Bo góc trên
-        topPane.setBackground(new Background(
-                new BackgroundFill(Paint.valueOf("#5E3A1C"), new CornerRadii(5, 5, 0, 0, false), Insets.EMPTY)
-        ));
         // Set background ảnh nếu có
         try {
             if (imagePath != null && !imagePath.isEmpty()) {
-                Image image = new Image(imagePath, true);
-                if (!image.isError()) {
+                URL imageUrl = LoaiMonAnBox.class.getResource(imagePath);
+                if (imageUrl != null) {
+                    Image image = new Image(imageUrl.toExternalForm());
                     topPane.setBackground(new Background(
                             new BackgroundImage(image,
                                     BackgroundRepeat.NO_REPEAT,
@@ -67,6 +65,7 @@ public class LoaiMonAnBox extends BaseBox {
             }
         } catch (Exception e) {
             setDefaultBackground(topPane);
+            e.printStackTrace();
         }
 
 

@@ -1,24 +1,16 @@
 package com.thefourrestaurant.view.monan;
 
-import java.util.Objects;
-
 import com.thefourrestaurant.view.components.BaseBox;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
+
+import java.net.URL;
+import java.util.Objects;
 
 public class MonAnBox extends BaseBox {
 
@@ -49,15 +41,23 @@ public class MonAnBox extends BaseBox {
         // Cài đặt background ảnh (nếu có)
         try {
             if (imagePath != null && !imagePath.isEmpty()) {
-                Image image = new Image(imagePath, true);
-                if (!image.isError()) {
+                Image image = null;
+                if (imagePath.startsWith("/")) { // Resource path
+                    URL imageUrl = getClass().getResource(imagePath);
+                    if (imageUrl != null) {
+                        image = new Image(imageUrl.toExternalForm());
+                    }
+                } else { // File URI or full URL
+                    image = new Image(imagePath);
+                }
+
+                if (image != null && !image.isError()) {
                     topPane.setBackground(new Background(
                             new BackgroundImage(image,
                                     BackgroundRepeat.NO_REPEAT,
                                     BackgroundRepeat.NO_REPEAT,
                                     BackgroundPosition.CENTER,
-                                    new BackgroundSize(
-                                            100, 100, true, true, false, true))
+                                    new BackgroundSize(100, 100, true, true, false, true))
                     ));
                 } else {
                     setDefaultBackground(topPane);
@@ -67,6 +67,7 @@ public class MonAnBox extends BaseBox {
             }
         } catch (Exception e) {
             setDefaultBackground(topPane);
+            e.printStackTrace();
         }
 
         // --- Panel dưới: hiển thị tên và giá ---
@@ -81,7 +82,7 @@ public class MonAnBox extends BaseBox {
         Label tenMon = new Label(ten);
         tenMon.getStyleClass().add("monan-ten");
 
-        Label lblGia = new Label(gia + " VND");
+        Label lblGia = new Label(gia); // Removed " VND" as the price is pre-formatted
         lblGia.getStyleClass().add("monan-gia");
 
         bottomPane.getChildren().addAll(tenMon, lblGia);

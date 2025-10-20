@@ -1,34 +1,49 @@
 package com.thefourrestaurant.model;
 
 public class LoaiMon {
-    private String maLoai;    // maLoaiMon
-    private String tenLoai;   // tenLoaiMon
+    private String maLoaiMon;
+    private String tenLoaiMon;
+    private String hinhAnh;
 
-    public LoaiMon() {}
-
-    public LoaiMon(String maLoai, String tenLoai) {
-        this.maLoai = maLoai;
-        this.tenLoai = tenLoai;
+    public LoaiMon() {
     }
 
-    public String getMaLoai() {
-        return maLoai;
+    public LoaiMon(String maLoaiMon, String tenLoaiMon, String hinhAnh) {
+        this.maLoaiMon = maLoaiMon;
+        this.tenLoaiMon = tenLoaiMon;
+        this.hinhAnh = hinhAnh;
     }
 
-    public void setMaLoai(String maLoai) {
-        this.maLoai = maLoai;
+    public String getMaLoaiMon() {
+        return maLoaiMon;
     }
 
-    public String getTenLoai() {
-        return tenLoai;
+    public void setMaLoaiMon(String maLoaiMon) {
+        this.maLoaiMon = maLoaiMon;
     }
 
-    public void setTenLoai(String tenLoai) {
-        this.tenLoai = tenLoai;
+    public String getTenLoaiMon() {
+        return tenLoaiMon;
+    }
+
+    public void setTenLoaiMon(String tenLoaiMon) {
+        this.tenLoaiMon = tenLoaiMon;
+    }
+
+    public String getHinhAnh() {
+        return hinhAnh;
+    }
+
+    public void setHinhAnh(String hinhAnh) {
+        this.hinhAnh = hinhAnh;
     }
 
     @Override
     public String toString() {
-        return tenLoai;
+        return "LoaiMon{" +
+                "maLoaiMon='" + maLoaiMon + '\'' +
+                ", tenLoaiMon='" + tenLoaiMon + '\'' +
+                ", hinhAnh='" + hinhAnh + '\'' +
+                '}';
     }
 }
