@@ -1,30 +1,36 @@
 package com.thefourrestaurant.view.components.sidebar;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.thefourrestaurant.DAO.LoaiMonAnDAO;
 import com.thefourrestaurant.DAO.TangDAO;
+import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.Tang;
+import com.thefourrestaurant.view.QuanLyThucDon;
 import com.thefourrestaurant.view.ban.QuanLiBan;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.GiaoDienMonAn;
-import com.thefourrestaurant.view.QuanLyThucDon;
 import com.thefourrestaurant.view.thoigiansukien.ThoiGianSuKien;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
-import javafx.scene.layout.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class SideBarDanhMuc extends BaseSideBar {
 
     private final Pane mainContent;
-    private Label mucDangChon = null; // Lưu lại mục đang chọn
+    private final LoaiMonAnDAO loaiMonAnDAO;
 
     public SideBarDanhMuc(Pane mainContent) {
         super("Quản Lý");
         this.mainContent = mainContent;
+        this.loaiMonAnDAO = new LoaiMonAnDAO();
         VBox.setVgrow(mainContent, Priority.ALWAYS);
     }
 
@@ -32,7 +38,7 @@ public class SideBarDanhMuc extends BaseSideBar {
     protected void khoiTaoDanhMuc() {
         themDanhMuc("Thực đơn");
         themDanhMuc("Loại món ăn");
-        themDanhMuc("Món ăn", List.of("Cơm", "Bún"));
+        themDanhMuc("Món ăn", List.of("Cơm", "Đồ nước", "Tráng miệng", "Món đặc biệt"));
         themDanhMuc("Thời gian sự kiện");
 
         // Tầng & Bàn
@@ -88,34 +94,44 @@ public class SideBarDanhMuc extends BaseSideBar {
                     -fx-border-color: #2b7cff;
                     -fx-padding: 0 0 0 4;
                 """);
-                mucDangChon = lbl;
             }
         }
 
-        // Tạo nội dung mới tương ứng
-        Node newContent = switch (tenMuc) {
-            case "Thực đơn" -> new QuanLyThucDon();
-            case "Loại món ăn" -> new LoaiMonAn();
-            case "Cơm" -> new GiaoDienMonAn("Cơm", "🍚");
-            case "Bún" -> new GiaoDienMonAn("Bún", "🍜");
-            case "Thời gian sự kiện" -> new ThoiGianSuKien();
-            default -> {
-                TangDAO tangDAO = new TangDAO();
-                Tang tang = tangDAO.getAllTang().stream()
-                        .filter(t -> t.getTenTang().equals(tenMuc))
-                        .findFirst().orElse(null);
+        Node newContent = null;
+        switch (tenMuc) {
+            case "Thực đơn":
+                newContent = new QuanLyThucDon();
+                break;
+            case "Loại món ăn":
+                newContent = new LoaiMonAn();
+                break;
+            case "Thời gian sự kiện":
+                newContent = new ThoiGianSuKien();
+                break;
+            default:
 
-                if (tang != null) {
-                    QuanLiBan qlBan = new QuanLiBan();
-                    qlBan.hienThiBanTheoTang(tang.getMaTang());
-                    yield qlBan;
+                Optional<LoaiMon> loaiMonOpt = loaiMonAnDAO.getAllLoaiMonAn().stream()
+                        .filter(lm -> lm.getTenLoaiMon().equals(tenMuc))
+                        .findFirst();
+
+                if (loaiMonOpt.isPresent()) {
+                    LoaiMon selectedLoaiMon = loaiMonOpt.get();
+                    newContent = new GiaoDienMonAn(selectedLoaiMon.getMaLoaiMon(), selectedLoaiMon.getTenLoaiMon());
                 } else {
-                    yield null;
-                }
-            }
-        };
+                    TangDAO tangDAO = new TangDAO();
+                    Optional<Tang> tangOpt = tangDAO.getAllTang().stream()
+                            .filter(t -> t.getTenTang().equals(tenMuc))
+                            .findFirst();
 
-        // Hiển thị trong mainContent (thay thế nội dung cũ)
+                    if (tangOpt.isPresent()) {
+                        QuanLiBan qlBan = new QuanLiBan();
+                        qlBan.hienThiBanTheoTang(tangOpt.get().getMaTang());
+                        newContent = qlBan;
+                    }
+                }
+                break;
+        }
+
         if (newContent != null) {
             mainContent.getChildren().setAll(newContent);
             StackPane.setAlignment(newContent, Pos.CENTER);

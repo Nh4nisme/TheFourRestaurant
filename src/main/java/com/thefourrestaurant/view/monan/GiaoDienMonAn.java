@@ -1,53 +1,46 @@
 package com.thefourrestaurant.view.monan;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thefourrestaurant.controller.MonAnController;
+import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.DropDownButton;
-
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+import java.math.BigDecimal;
+import java.net.URL;
+import java.text.NumberFormat;
+import java.util.List;
+import java.util.Locale;
+
 public class GiaoDienMonAn extends VBox {
 
-    private final String categoryName;
-    private final String categoryIcon;
+    private final String maLoaiMon;
+    private final String tenLoaiMon;
     private final MonAnController controller;
 
-    private VBox dsMonAnContainer; // Container for grid/list view
-    private Node gridView;
-    private Node listView;
+    private List<MonAn> danhSachMonAn;
 
-    private List<Map<String, String>> danhSachMonAn;
+    private final VBox dsMonAnContainer = new VBox(20);
+    private final GridPane gridViewPane = new GridPane();
+    private final TableView<MonAn> listViewPane = new TableView<>();
     private final int soCotMoiHang = 8;
 
-    public GiaoDienMonAn(String categoryName, String categoryIcon) {
-        this.categoryName = categoryName;
-        this.categoryIcon = categoryIcon;
+    public GiaoDienMonAn(String maLoaiMon, String tenLoaiMon) {
+        this.maLoaiMon = maLoaiMon;
+        this.tenLoaiMon = tenLoaiMon;
         this.controller = new MonAnController();
-        
-        khoiTaoDuLieuGia();
 
         this.setAlignment(Pos.TOP_CENTER);
 
@@ -56,24 +49,10 @@ public class GiaoDienMonAn extends VBox {
         contentPane.setStyle("-fx-background-color: #F5F5F5;");
 
         // Top Bar (Breadcrumb)
-        Label duongDan = new Label("Quản Lý > Món Ăn > " + categoryName);
-        duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
-        VBox khungTren = new VBox(duongDan);
-        khungTren.setStyle("-fx-background-color: #673E1F;");
-        khungTren.setAlignment(Pos.CENTER_LEFT);
-        khungTren.setPadding(new Insets(0, 20, 0, 20));
-        khungTren.setPrefHeight(30);
-        khungTren.setMinHeight(30);
-        khungTren.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setHgrow(khungTren, Priority.ALWAYS);
-        contentPane.add(khungTren, 0, 0);
+        contentPane.add(createTopBar(), 0, 0);
 
         // Middle Bar (Controls)
-        HBox khungGiua = taoKhungGiua();
-        GridPane.setHgrow(khungGiua, Priority.ALWAYS);
-        contentPane.add(khungGiua, 0, 1);
-        khungGiua.setPrefHeight(60);
-        khungGiua.setMinHeight(60);
+        contentPane.add(createMiddleBar(), 0, 1);
 
         // Bottom container
         VBox khungDuoi = new VBox();
@@ -85,7 +64,6 @@ public class GiaoDienMonAn extends VBox {
         GridPane.setHgrow(khungDuoi, Priority.ALWAYS);
         GridPane.setVgrow(khungDuoi, Priority.ALWAYS);
 
-        dsMonAnContainer = new VBox(20);
         dsMonAnContainer.setStyle("-fx-background-color: #F0F2F3; -fx-background-radius: 10;");
         dsMonAnContainer.setAlignment(Pos.TOP_CENTER);
         dsMonAnContainer.setPadding(new Insets(20));
@@ -93,23 +71,36 @@ public class GiaoDienMonAn extends VBox {
         VBox.setVgrow(dsMonAnContainer, Priority.ALWAYS);
 
         // Initialize the views
-        gridView = createGridView();
-        listView = createListView();
+        setupGridView();
+        setupListView();
 
         // Set default view
-        dsMonAnContainer.getChildren().add(gridView);
+        dsMonAnContainer.getChildren().add(createGridViewContent());
 
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
             this.getStylesheets().add(urlCSS.toExternalForm());
-        } else {
-            System.err.println("Không tìm thấy tệp CSS.");
         }
 
-        this.getChildren().addAll(contentPane);
+        this.getChildren().add(contentPane);
+        refreshViews();
     }
 
-    private HBox taoKhungGiua() {
+    private VBox createTopBar() {
+        Label duongDan = new Label("Quản Lý > Món Ăn > " + tenLoaiMon);
+        duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
+        VBox khungTren = new VBox(duongDan);
+        khungTren.setStyle("-fx-background-color: #673E1F;");
+        khungTren.setAlignment(Pos.CENTER_LEFT);
+        khungTren.setPadding(new Insets(0, 20, 0, 20));
+        khungTren.setPrefHeight(30);
+        khungTren.setMinHeight(30);
+        khungTren.setMaxWidth(Double.MAX_VALUE);
+        GridPane.setHgrow(khungTren, Priority.ALWAYS);
+        return khungTren;
+    }
+
+    private HBox createMiddleBar() {
         HBox khungGiua = new HBox(10);
         khungGiua.setPadding(new Insets(10, 20, 10, 20));
         khungGiua.setAlignment(Pos.CENTER_LEFT);
@@ -117,29 +108,16 @@ public class GiaoDienMonAn extends VBox {
 
         ImageView iconList = new ImageView(getClass().getResource("/com/thefourrestaurant/images/icon/List.png").toExternalForm());
         ImageView iconGrid = new ImageView(getClass().getResource("/com/thefourrestaurant/images/icon/Grid.png").toExternalForm());
-        iconList.setFitWidth(20);
-        iconList.setFitHeight(20);
-        iconGrid.setFitWidth(20);
-        iconGrid.setFitHeight(20);
+        iconList.setFitWidth(20); iconList.setFitHeight(20);
+        iconGrid.setFitWidth(20); iconGrid.setFitHeight(20);
 
         ButtonSample btnList = new ButtonSample("", "", 35, 16, 3);
         ButtonSample btnGrid = new ButtonSample("", "", 35, 16, 3);
-        btnList.setGraphic(iconList);
-        btnGrid.setGraphic(iconGrid);
-        btnList.setPrefSize(35, 35);
-        btnGrid.setPrefSize(35, 35);
+        btnList.setGraphic(iconList); btnGrid.setGraphic(iconGrid);
+        btnList.setPrefSize(35, 35); btnGrid.setPrefSize(35, 35);
 
-        btnList.setOnAction(event -> {
-            if (!dsMonAnContainer.getChildren().contains(listView)) {
-                dsMonAnContainer.getChildren().setAll(listView);
-            }
-        });
-
-        btnGrid.setOnAction(event -> {
-            if (!dsMonAnContainer.getChildren().contains(gridView)) {
-                dsMonAnContainer.getChildren().setAll(gridView);
-            }
-        });
+        btnList.setOnAction(event -> dsMonAnContainer.getChildren().setAll(listViewPane));
+        btnGrid.setOnAction(event -> dsMonAnContainer.getChildren().setAll(createGridViewContent()));
 
         Label lblSapXep = new Label("Sắp xếp:");
         lblSapXep.setTextFill(Color.web("#E5D595"));
@@ -155,137 +133,127 @@ public class GiaoDienMonAn extends VBox {
         TextField txtTimKiem = new TextField();
         txtTimKiem.setPromptText("Tìm...");
         txtTimKiem.setPrefWidth(300);
-        txtTimKiem.setStyle("-fx-background-radius: 8;");
 
         ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
 
         khungGiua.getChildren().addAll(btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnApDung, space, txtTimKiem, btnTim);
-
         return khungGiua;
     }
 
-    private Node createGridView() {
+    private void setupGridView() {
+        gridViewPane.setAlignment(Pos.CENTER);
+        gridViewPane.setHgap(20);
+        gridViewPane.setVgap(20);
+    }
+
+    private Node createGridViewContent() {
         VBox gridContainer = new VBox(20);
         VBox.setVgrow(gridContainer, Priority.ALWAYS);
 
-        GridPane luoiCacMonAn = new GridPane();
-        luoiCacMonAn.setAlignment(Pos.CENTER);
-        luoiCacMonAn.setHgap(20);
-        luoiCacMonAn.setVgap(20);
-        luoiCacMonAn.getStyleClass().add("grid-pane");
-
-        ScrollPane scrollPane = new ScrollPane(luoiCacMonAn);
+        ScrollPane scrollPane = new ScrollPane(gridViewPane);
         scrollPane.setFitToWidth(true);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
-        GridPane luoiThemMon = new GridPane();
-        luoiThemMon.setAlignment(Pos.BASELINE_LEFT);
-        luoiThemMon.setHgap(20);
-        luoiThemMon.setVgap(20);
-        luoiThemMon.getStyleClass().add("grid-pane");
-        luoiThemMon.setPadding(new Insets(0, 0, 0, 15));
-        luoiThemMon.setMinHeight(200);
-
+        // "Add New" Box
         VBox hopThemMoi = MonAnBox.createThemMoiBox();
+        GridPane luoiThem = new GridPane();
+        luoiThem.setAlignment(Pos.BASELINE_LEFT);
+        luoiThem.setPadding(new Insets(0, 0, 0, 15));
+        luoiThem.add(hopThemMoi, 0, 0);
 
         Button themMoiButton = new Button();
         themMoiButton.setVisible(false);
         themMoiButton.setManaged(false);
-
         themMoiButton.setOnAction(event -> {
-            Map<String, Object> result = controller.themMoiMonAn();
-            
-            if (result != null) {
-                Map<String, String> newItem = new HashMap<>();
-                newItem.put("name", (String) result.get("ten"));
-                newItem.put("price", (String) result.get("gia"));
-                newItem.put("imagePath", (String) result.get("imagePath"));
-                danhSachMonAn.add(0, newItem);
-                capNhatLuoiMonAn(luoiCacMonAn);
+            if (controller.themMoiMonAn(this.maLoaiMon)) {
+                refreshViews();
             }
         });
-
         hopThemMoi.setOnMouseClicked(event -> themMoiButton.fire());
 
-        luoiThemMon.add(hopThemMoi, 0, 0);
-        gridContainer.getChildren().add(themMoiButton);
-
-        capNhatLuoiMonAn(luoiCacMonAn);
-
-        gridContainer.getChildren().addAll(luoiThemMon, scrollPane);
+        gridContainer.getChildren().addAll(luoiThem, scrollPane, themMoiButton);
         return gridContainer;
     }
 
-    private Node createListView() {
-        TableView<Object> table = new TableView<>();
-        VBox.setVgrow(table, Priority.ALWAYS);
+    private void setupListView() {
+        VBox.setVgrow(listViewPane, Priority.ALWAYS);
 
-        TableColumn<Object, Boolean> checkBoxCol = new TableColumn<>("☑️");
-        TableColumn<Object, String> danhMucCol = new TableColumn<>(categoryIcon + " Danh mục");
-        TableColumn<Object, String> maMonCol = new TableColumn<>("Mã món");
-        TableColumn<Object, String> tenMonAnCol = new TableColumn<>("Tên món ăn");
-        TableColumn<Object, Double> donGiaCol = new TableColumn<>("Đơn giá (VND)");
-        TableColumn<Object, Double> thueCol = new TableColumn<>("Thuế (%)");
-        TableColumn<Object, String> trangThaiCol = new TableColumn<>("Trạng thái");
-        TableColumn<Object, Integer> soLuongCol = new TableColumn<>("Số lượng");
+        TableColumn<MonAn, String> maMonCol = new TableColumn<>("Mã món");
+        maMonCol.setCellValueFactory(new PropertyValueFactory<>("maMonAn"));
 
-        table.getColumns().addAll(
-                checkBoxCol,
-                danhMucCol,
-                maMonCol,
-                tenMonAnCol,
-                donGiaCol,
-                thueCol,
-                trangThaiCol,
-                soLuongCol
-        );
+        TableColumn<MonAn, String> tenMonAnCol = new TableColumn<>("Tên món ăn");
+        tenMonAnCol.setCellValueFactory(new PropertyValueFactory<>("tenMon"));
 
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        // TODO: Populate table with data from danhSachMonAn
-        return table;
+        TableColumn<MonAn, String> donGiaCol = new TableColumn<>("Đơn giá (VND)");
+        donGiaCol.setCellValueFactory(cellData -> {
+            BigDecimal gia = cellData.getValue().getDonGia();
+            String formattedGia = NumberFormat.getCurrencyInstance(new Locale("vi", "VN")).format(gia);
+            return new SimpleStringProperty(formattedGia);
+        });
+
+        TableColumn<MonAn, String> trangThaiCol = new TableColumn<>("Trạng thái");
+        trangThaiCol.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
+
+        listViewPane.getColumns().addAll(maMonCol, tenMonAnCol, donGiaCol, trangThaiCol);
+        listViewPane.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
-    private void khoiTaoDuLieuGia() {
-        danhSachMonAn = new ArrayList<>();
-        int basePrice = categoryName.equals("Bún") ? 25 : 30;
-        for (int i = 1; i <= 50; i++) {
-            Map<String, String> item = new HashMap<>();
-            item.put("name", categoryName + " " + i);
-            item.put("price", (basePrice + i) + ",000");
-            item.put("imagePath", null);
-            danhSachMonAn.add(item);
-        }
+    private void refreshViews() {
+        this.danhSachMonAn = controller.getMonAnByLoai(maLoaiMon);
+        updateGridView();
+        updateListView();
     }
 
-    private void capNhatLuoiMonAn(GridPane luoiCacMonAn) {
-        if (luoiCacMonAn == null) {
-			return;
-		}
-        luoiCacMonAn.getChildren().clear();
+    private void updateGridView() {
+        gridViewPane.getChildren().clear();
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
         for (int i = 0; i < danhSachMonAn.size(); i++) {
-            Map<String, String> item = danhSachMonAn.get(i);
-            MonAnBox hopMonAn = new MonAnBox(item.get("name"), item.get("price"), item.get("imagePath"));
+            MonAn item = danhSachMonAn.get(i);
+            String formattedPrice = currencyFormatter.format(item.getDonGia());
+            MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh());
 
+            ContextMenu contextMenu = createContextMenu(item);
             hopMonAn.setOnMouseClicked(event -> {
-                MonAnDialog tuyChinh = new MonAnDialog(item);
-                tuyChinh.showAndWait();
-
-                Map<String, Object> ketQua = tuyChinh.layKetQua();
-                if (ketQua != null) {
-                    item.put("name", (String) ketQua.get("ten"));
-                    item.put("price", (String) ketQua.get("gia"));
-                    item.put("imagePath", (String) ketQua.get("imagePath"));
-                    capNhatLuoiMonAn(luoiCacMonAn);
+                if (event.getButton() == MouseButton.PRIMARY) {
+                    if (controller.tuyChinhMonAn(item)) {
+                        refreshViews();
+                    }
+                } else if (event.getButton() == MouseButton.SECONDARY) {
+                    contextMenu.show(hopMonAn, event.getScreenX(), event.getScreenY());
                 }
             });
+
             int col = i % soCotMoiHang;
             int row = i / soCotMoiHang;
-
-            luoiCacMonAn.add(hopMonAn, col, row);
+            gridViewPane.add(hopMonAn, col, row);
         }
+    }
+
+    private void updateListView() {
+        listViewPane.setItems(FXCollections.observableArrayList(danhSachMonAn));
+    }
+
+    private ContextMenu createContextMenu(MonAn monAn) {
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem editItem = new MenuItem("Sửa");
+        editItem.setOnAction(e -> {
+            if (controller.tuyChinhMonAn(monAn)) {
+                refreshViews();
+            }
+        });
+
+        MenuItem deleteItem = new MenuItem("Xóa");
+        deleteItem.setOnAction(e -> {
+            if (controller.xoaMonAn(monAn)) {
+                refreshViews();
+            }
+        });
+
+        contextMenu.getItems().addAll(editItem, deleteItem);
+        return contextMenu;
     }
 }
