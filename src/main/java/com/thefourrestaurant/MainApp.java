@@ -3,6 +3,7 @@ package com.thefourrestaurant;
 import java.sql.Connection;
 
 import com.thefourrestaurant.connect.ConnectSQL;
+import com.thefourrestaurant.view.GiaoDienDangNhap;
 import com.thefourrestaurant.view.ban.GiaoDienDatBan;
 import com.thefourrestaurant.view.GiaoDienChinh;
 
@@ -22,10 +23,14 @@ public class MainApp extends Application {
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"), 14);
 
         // Hiển thị giao diện chính ngay lập tức
-        GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
+        GiaoDienDangNhap giaoDienDangNhap = new GiaoDienDangNhap();
+        giaoDienDangNhap.show(primaryStage);
+
+//        GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
+//        giaoDienChinh.show(primaryStage);
         GiaoDienDatBan datBan = new GiaoDienDatBan();
 
-        giaoDienChinh.show(primaryStage);
+
         // Tạo Scene với DatBan
 //        Scene scene = new javafx.scene.Scene(datBan, 1400, 800);
 //        primaryStage.setTitle("Quản lý Nhà hàng - Đặt bàn");
