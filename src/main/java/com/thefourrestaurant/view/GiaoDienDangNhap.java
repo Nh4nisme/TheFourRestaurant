@@ -113,6 +113,7 @@ public class GiaoDienDangNhap {
                 return;
             }
             new GiaoDienChinh().show(stage);
+            stage.setFullScreen(true);
         };
         btnDangNhap.setOnAction(e -> tryLogin.run());
         txtMatKhau.setOnAction(e -> tryLogin.run());
