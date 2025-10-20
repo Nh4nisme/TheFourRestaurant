@@ -1,12 +1,8 @@
 package com.thefourrestaurant.util;
 
 import java.time.LocalDateTime;
-
 import com.thefourrestaurant.model.TaiKhoan;
 
-/**
- * Simple in-memory session holder for the currently logged-in user.
- */
 public final class Session {
     private static TaiKhoan currentUser;
     private static LocalDateTime loginTime;
