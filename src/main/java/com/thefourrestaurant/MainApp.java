@@ -23,7 +23,8 @@ public class MainApp extends Application {
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"), 14);
 
         GiaoDienDangNhap giaoDienDangNhap = new GiaoDienDangNhap();
-        giaoDienDangNhap.show(primaryStage);
+        GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
+        giaoDienChinh.show(primaryStage);
 
         // Sau khi giao diện đã mở, chạy kết nối DB ở thread riêng
         Task<Connection> ketNoiTask = new Task<>() {

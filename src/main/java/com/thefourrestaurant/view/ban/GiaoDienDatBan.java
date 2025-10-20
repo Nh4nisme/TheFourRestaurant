@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.ban;
 
-import com.thefourrestaurant.view.components.ButtonSample;
+import com.thefourrestaurant.DAO.TangDAO;
+import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -16,6 +17,9 @@ public class GiaoDienDatBan extends BorderPane {
     private static final String COLOR_BACKGROUND_MAIN = "#f0f0f0";
     private static final String COLOR_BACKGROUND_SIDE = "#1E424D";
     private static final String COLOR_TEXT = "#DDB248";
+    
+    private QuanLiBan quanLiBan;
+    TangDAO tangDAO = new TangDAO();
 
     public GiaoDienDatBan() {
         this.setLeft(taoThanhBen());
@@ -63,7 +67,7 @@ public class GiaoDienDatBan extends BorderPane {
                 new String[]{"Đặt món", "F5"},
                 new String[]{"Tính tiền", "F6"},
                 new String[]{"Tầng trước", "F7"},
-                new String[]{"Tầng sau", "F88"}
+                new String[]{"Tầng sau", "F8"}
         );
 
         for (String[] title : nutTitles) {
@@ -140,8 +144,10 @@ public class GiaoDienDatBan extends BorderPane {
 
         VBox thanhDieuHuong = taoThanhDieuHuong();
 
-        Pane khuVucBan = new Pane();
-        khuVucBan.setStyle("-fx-background-color: white;");
+        quanLiBan = new QuanLiBan();
+        quanLiBan.hienThiBanTheoTang("TG000001");
+
+        Pane khuVucBan = quanLiBan.getKhuVucBan();
         VBox.setVgrow(khuVucBan, Priority.ALWAYS);
 
         noiDungChinh.getChildren().addAll(thanhDieuHuong, khuVucBan);
@@ -177,11 +183,29 @@ public class GiaoDienDatBan extends BorderPane {
         Label lblSoTang = taoLabel("Số tầng:", 16, true);
         lblSoTang.setPrefWidth(70);
 
-        ComboBox<String> cboSoTang = new ComboBox<>();
-        cboSoTang.getItems().addAll("4", "6", "8", "10");
-        cboSoTang.setPromptText("Chọn");
-        cboSoTang.setPrefWidth(250);
+        ComboBox<Tang> cboSoTang = new ComboBox<>();
+        List<Tang> dsTang = tangDAO.getAllTang();
 
+        for (Tang tang : dsTang) {
+            cboSoTang.getItems().add(tang);
+        }
+
+        cboSoTang.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Tang item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getTenTang());
+            }
+        });
+        cboSoTang.setPromptText("Chọn tầng");
+
+        cboSoTang.setOnAction(e -> {
+            Tang selectedTang = cboSoTang.getValue();
+            if (selectedTang != null) {
+                quanLiBan.hienThiBanTheoTang(selectedTang.getMaTang());
+            }
+        });
+        
         Label lblMaBan = taoLabel("Mã bàn:", 16, true);
         lblMaBan.setPrefWidth(70);
 
