@@ -15,9 +15,7 @@ import java.util.List;
 
 public class HoaDonDAO {
 
-    private ChiTietHoaDonDAO CTHD = new  ChiTietHoaDonDAO();
-
-    public List<HoaDon> getAllHoaDon() {
+    public static List<HoaDon> getAllHoaDon() {
         List<HoaDon> list = new ArrayList<>();
         String sqlHD = "SELECT * FROM HoaDon";
 
@@ -35,9 +33,9 @@ public class HoaDonDAO {
                 String maThue = rs.getString("maThue");
                 BigDecimal tienKhachDua = rs.getBigDecimal("tienKhachDua");
                 BigDecimal tienThua = rs.getBigDecimal("tienThua");
-                String maPTTT = rs.getString("maPTTT");
+                String ;
 
-                List<ChiTietHoaDon> chiTietHDs = CTHD.getChiTietByMaHD(maHD);
+                List<ChiTietHoaDon> chiTietHDs = ChiTietHoaDonDAO.getChiTietByMaHD(maHD);
 
                 HoaDon hd = new HoaDon(maHD, ngayLap, maNV, maKH, maPDB, maKM, maThue,
                         tienKhachDua, tienThua, maPTTT, chiTietHDs);
