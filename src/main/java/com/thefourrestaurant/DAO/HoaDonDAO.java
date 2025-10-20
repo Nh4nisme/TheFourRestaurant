@@ -33,13 +33,13 @@ public class HoaDonDAO {
                 String maThue = rs.getString("maThue");
                 BigDecimal tienKhachDua = rs.getBigDecimal("tienKhachDua");
                 BigDecimal tienThua = rs.getBigDecimal("tienThua");
-//                String ;
-//
-//                List<ChiTietHoaDon> chiTietHDs = ChiTietHoaDonDAO.getChiTietByMaHD(maHD);
-//
-//                HoaDon hd = new HoaDon(maHD, ngayLap, maNV, maKH, maPDB, maKM, maThue,
-//                        tienKhachDua, tienThua, maPTTT, chiTietHDs);
-//                list.add(hd);
+                String maPTTT = rs.getString("maPTTT");
+
+                List<ChiTietHoaDon> chiTietHDs = ChiTietHoaDonDAO.getChiTietByMaHD(maHD);
+
+                HoaDon hd = new HoaDon(maHD, ngayLap, maNV, maKH, maPDB, maKM, maThue,
+                        tienKhachDua, tienThua, maPTTT, chiTietHDs);
+                list.add(hd);
             }
 
         } catch (SQLException e) {

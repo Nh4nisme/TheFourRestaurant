@@ -140,6 +140,7 @@ public class GiaoDienDangNhap {
 
             // Đăng nhập thành công -> điều hướng sang giao diện chính
             new GiaoDienChinh().show(stage);
+            stage.setFullScreen(true);
         };
         btnDangNhap.setOnAction(e -> tryLogin.run());
         txtMatKhau.setOnAction(e -> tryLogin.run());
