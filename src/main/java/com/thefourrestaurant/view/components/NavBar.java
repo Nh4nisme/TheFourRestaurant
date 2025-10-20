@@ -16,6 +16,8 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 public class NavBar extends HBox {
 
@@ -107,6 +109,16 @@ public class NavBar extends HBox {
         // Event handler load nội dung vào mainContent
         btnDanhMucNav.setOnItemSelected(this::showPanel);
         btnXuLi.setOnItemSelected(this::showPanel);
+
+        if (current != null) {
+            String roleRaw = current.getVaiTro(); 
+            boolean isManager = roleRaw != null && roleRaw.equalsIgnoreCase("QuanLy");
+
+            if (!isManager) {
+                btnDanhMucNav.setVisible(false);
+                btnDanhMucNav.setManaged(false);
+            }
+        }
     }
 
     private void showPanel(String s) {
@@ -132,6 +144,19 @@ public class NavBar extends HBox {
                 sideBarExtended.setVisible(true);
                 sideBarExtended.setManaged(true);
             }
+        }
+
+        boolean currentIsManager = false;
+        if (Session.getCurrentUser() != null) {
+            String r = Session.getCurrentUser().getVaiTro();
+            currentIsManager = r != null && r.equalsIgnoreCase("QuanLy");
+        }
+
+        List<String> managerOnly = List.of("Thực đơn", "Món ăn", "Tài khoản");
+        if (managerOnly.contains(s) && !currentIsManager) {
+            Alert a = new Alert(Alert.AlertType.WARNING, "Quyền truy cập bị từ chối. Chức năng này yêu cầu quyền Quản Lý.", ButtonType.OK);
+            a.showAndWait();
+            return;
         }
 
         Node newContent = switch (s) {
