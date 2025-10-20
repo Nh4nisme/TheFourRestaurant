@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Objects;
 
 import com.thefourrestaurant.view.*;
+import com.thefourrestaurant.model.TaiKhoan;
+import com.thefourrestaurant.util.Session;
 import com.thefourrestaurant.view.ban.*;
 import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
@@ -39,7 +41,27 @@ public class NavBar extends HBox {
         setSpacing(10);
         setStyle("-fx-background-color: #E5D595");
 
-        ButtonSample btnTKDN = new ButtonSample("QL: Tâm ", "/com/thefourrestaurant/images/icon/accountIcon.png",45, 16, 1);
+        // Hiển thị tên tài khoản + vai trò từ Session (nếu đã đăng nhập)
+        String accountLabel = "";
+        TaiKhoan current = Session.getCurrentUser();
+        if (current != null) {
+            String role = current.getVaiTro(); // ví dụ: QuanLy, ThuNgan
+            String vnRole;
+            if (role == null) {
+                vnRole = "Tài khoản";
+            } else if (role.equalsIgnoreCase("QuanLy")) {
+                vnRole = "Quản Lý";
+            } else if (role.equalsIgnoreCase("ThuNgan")) {
+                vnRole = "Thu Ngân";
+            } else {
+                vnRole = role; // fallback nguyên văn
+            }
+            accountLabel = vnRole + ": " + current.getTenDN();
+        } else {
+            accountLabel = "Tài khoản: --"; // fallback khi chưa có session
+        }
+
+        ButtonSample btnTKDN = new ButtonSample(accountLabel, "/com/thefourrestaurant/images/icon/accountIcon.png",45, 16, 1);
 
         btnDanhMucNav = new DropDownButton(
                 "Danh mục",

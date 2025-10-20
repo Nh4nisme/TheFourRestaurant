@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import com.thefourrestaurant.DAO.TaiKhoanDAO;
 import com.thefourrestaurant.model.TaiKhoan;
+import com.thefourrestaurant.util.Session;
+import java.time.LocalDateTime;
 
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
@@ -136,6 +138,11 @@ public class GiaoDienDangNhap {
                 a.showAndWait();
                 return;
             }
+
+            Session.setCurrentUser(taiKhoan);
+            LocalDateTime now = LocalDateTime.now();
+            Session.setLoginTime(now);
+            System.out.println("[LOGIN] User: " + taiKhoan.getTenDN() + " (Role: " + taiKhoan.getVaiTro() + ") at " + now);
 
             // Đăng nhập thành công -> điều hướng sang giao diện chính
             new GiaoDienChinh().show(stage);
