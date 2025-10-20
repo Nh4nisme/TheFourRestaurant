@@ -2,6 +2,9 @@ package com.thefourrestaurant.view;
 
 import java.util.Objects;
 
+import com.thefourrestaurant.DAO.DangNhapDAO;
+import com.thefourrestaurant.model.TaiKhoan;
+
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
@@ -43,6 +46,7 @@ public class GiaoDienDangNhap {
     private Font montserratExtrabold;
 
     public void show(Stage stage) {
+        DangNhapDAO dangNhapDAO = new DangNhapDAO();
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: " + COLOR_TEAL + ";");
 
@@ -106,12 +110,35 @@ public class GiaoDienDangNhap {
         });
 
         Runnable tryLogin = () -> {
-            if (txtTenDangNhap.getText().trim().isEmpty() || txtMatKhau.getText().trim().isEmpty()) {
+            String user = txtTenDangNhap.getText().trim();
+            String pass = txtMatKhau.getText().trim();
+
+            // Kiểm tra rỗng
+            if (user.isEmpty() || pass.isEmpty()) {
                 Alert a = new Alert(Alert.AlertType.WARNING, "Vui lòng nhập đầy đủ Tài Khoản và Mật Khẩu.", ButtonType.OK);
                 a.initOwner(stage);
                 a.showAndWait();
                 return;
             }
+
+            // Kiểm tra độ dài tối thiểu 
+            if (user.length() < 6 || pass.length() < 6) {
+                Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu.", ButtonType.OK);
+                a.initOwner(stage);
+                a.showAndWait();
+                return;
+            }
+
+            // Gọi DAO kiểm tra đăng nhập
+            TaiKhoan taiKhoan = dangNhapDAO.dangNhap(user, pass);
+            if (taiKhoan == null) {
+                Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu.", ButtonType.OK);
+                a.initOwner(stage);
+                a.showAndWait();
+                return;
+            }
+
+            // Đăng nhập thành công -> điều hướng sang giao diện chính
             new GiaoDienChinh().show(stage);
             stage.setFullScreen(true);
         };

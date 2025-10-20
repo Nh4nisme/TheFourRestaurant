@@ -1,0 +1,576 @@
+﻿-- ================================
+-- Tạo CSDL
+-- ================================
+CREATE DATABASE NhaHangDB;
+GO
+USE NhaHangDB;
+GO
+
+-- ================================
+-- Bảng VaiTro
+-- ================================
+CREATE TABLE VaiTro (
+    maVT CHAR(8) PRIMARY KEY CHECK(maVT LIKE 'VT%' AND LEN(maVT) = 8),
+    tenVaiTro NVARCHAR(20) NOT NULL UNIQUE
+);
+GO
+
+-- ================================
+-- Bảng TaiKhoan
+-- ================================
+CREATE TABLE TaiKhoan (
+    maTK CHAR(8) PRIMARY KEY CHECK (maTK LIKE 'TK%' AND LEN(maTK) = 8),
+    tenDangNhap VARCHAR(50) NOT NULL UNIQUE CHECK(LEN(tenDangNhap) >= 6),
+    matKhau VARCHAR(50) NOT NULL CHECK(LEN(matKhau) >= 6),
+    maVT CHAR(8) NOT NULL,
+    CONSTRAINT FK_TaiKhoan_VaiTro FOREIGN KEY (maVT) REFERENCES VaiTro(maVT)
+);
+GO
+
+-- ================================
+-- Bảng CaLamViec
+-- ================================
+CREATE TABLE CaLamViec (
+    maCa CHAR(8) PRIMARY KEY CHECK (maCa LIKE 'CA%' AND LEN(maCa) = 8),
+    tenCa NVARCHAR(50) NOT NULL,
+    gioBatDau TIME NOT NULL,
+    gioKetThuc TIME NOT NULL
+);
+GO
+
+-- ================================
+-- Bảng NhanVien
+-- ================================
+CREATE TABLE NhanVien (
+    maNV CHAR(8) PRIMARY KEY CHECK (maNV LIKE 'NV%' AND LEN(maNV) = 8),
+    hoTen NVARCHAR(50) NOT NULL,
+    ngaySinh DATE CHECK(ngaySinh < GETDATE()),
+    gioiTinh VARCHAR(5) CHECK(gioiTinh IN ('Nam','Nu')),
+    sdt VARCHAR(15) UNIQUE,
+    luong DECIMAL(12,2) CHECK(luong >= 0),
+    maTK CHAR(8) NOT NULL UNIQUE,
+    CONSTRAINT FK_NhanVien_TaiKhoan FOREIGN KEY (maTK) REFERENCES TaiKhoan(maTK)
+);
+GO
+
+-- ================================
+-- Bảng PhanCongCa
+-- ================================
+CREATE TABLE PhanCongCa (
+    maNV CHAR(8) NOT NULL,
+    maCa CHAR(8) NOT NULL,
+    ngay DATE NOT NULL CHECK(ngay <= GETDATE()),
+    PRIMARY KEY(maNV, maCa, ngay),
+    CONSTRAINT FK_PhanCongCa_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
+    CONSTRAINT FK_PhanCongCa_CaLamViec FOREIGN KEY (maCa) REFERENCES CaLamViec(maCa)
+);
+GO
+
+-- ================================
+-- Bảng LoaiKhachHang
+-- ================================
+CREATE TABLE LoaiKhachHang (
+    maLoaiKH CHAR(8) PRIMARY KEY CHECK (maLoaiKH LIKE 'LKH%' AND LEN(maLoaiKH) = 8),
+    tenLoaiKH NVARCHAR(20) NOT NULL UNIQUE
+);
+GO
+
+-- ================================
+-- Bảng KhachHang
+-- ================================
+CREATE TABLE KhachHang (
+    maKH CHAR(8) PRIMARY KEY CHECK (maKH LIKE 'KH%' AND LEN(maKH) = 8),
+    hoTen NVARCHAR(50) NOT NULL,
+    ngaySinh DATE CHECK(ngaySinh < GETDATE()),
+    gioiTinh VARCHAR(5) CHECK(gioiTinh IN ('Nam','Nu')),
+    soDT VARCHAR(15) UNIQUE,
+    maLoaiKH CHAR(8) NOT NULL,
+    CONSTRAINT FK_KhachHang_LoaiKH FOREIGN KEY (maLoaiKH) REFERENCES LoaiKhachHang(maLoaiKH)
+);
+GO
+
+-- ================================
+-- Bảng Tang
+-- ================================
+CREATE TABLE Tang (
+    maTang CHAR(8) PRIMARY KEY CHECK (maTang LIKE 'TG%' AND LEN(maTang) = 8),
+    tenTang NVARCHAR(50) NOT NULL UNIQUE,
+    moTa NVARCHAR(200) NULL
+);
+GO
+
+-- ================================
+-- Bảng LoaiBan
+-- ================================
+CREATE TABLE LoaiBan (
+    maLoaiBan CHAR(8) PRIMARY KEY CHECK (maLoaiBan LIKE 'LB%' AND LEN(maLoaiBan) = 8),
+    tenLoaiBan NVARCHAR(50) NOT NULL UNIQUE
+);
+GO
+
+-- ================================
+-- Bảng Ban
+-- ================================
+CREATE TABLE Ban (
+    maBan CHAR(8) PRIMARY KEY CHECK (maBan LIKE 'BA%' AND LEN(maBan) = 8),
+    tenBan NVARCHAR(50) NOT NULL UNIQUE,
+    trangThai NVARCHAR(20) CHECK(trangThai IN (N'Trống', N'Đang sử dụng', N'Đặt trước')) DEFAULT N'Trống',
+    toaDoX INT CHECK(toaDoX >= 0),
+    toaDoY INT CHECK(toaDoY >= 0),
+    maTang CHAR(8) NOT NULL,
+    maLoaiBan CHAR(8) NOT NULL,
+    anhBan NVARCHAR(255),
+    CONSTRAINT FK_Ban_Tang FOREIGN KEY (maTang) REFERENCES Tang(maTang),
+    CONSTRAINT FK_Ban_LoaiBan FOREIGN KEY (maLoaiBan) REFERENCES LoaiBan(maLoaiBan)
+);
+GO
+
+-- ================================
+-- Bảng LoaiMonAn
+-- ================================
+CREATE TABLE LoaiMonAn (
+    maLoaiMon CHAR(8) PRIMARY KEY CHECK (maLoaiMon LIKE 'LM%' AND LEN(maLoaiMon) = 8),
+    tenLoaiMon NVARCHAR(50) NOT NULL UNIQUE,
+    hinhAnh NVARCHAR(255) NULL
+);
+GO
+
+-- ================================
+-- Bảng MonAn
+-- ================================
+CREATE TABLE MonAn (
+    maMonAn CHAR(8) PRIMARY KEY CHECK (maMonAn LIKE 'MA%' AND LEN(maMonAn) = 8),
+    tenMon NVARCHAR(50) NOT NULL,
+    donGia DECIMAL(12,2) CHECK (donGia >= 0),
+    trangThai NVARCHAR(10) CHECK (trangThai IN ('Con', 'Het')),
+    maLoaiMon CHAR(8) NOT NULL,
+    hinhAnh NVARCHAR(255) NULL, -- Link hình ảnh món ăn
+    CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon)
+);
+GO
+
+-- ================================
+-- Bảng LoaiCombo
+-- ================================
+CREATE TABLE LoaiCombo (
+    maLoaiCombo CHAR(8) PRIMARY KEY CHECK(maLoaiCombo LIKE 'LCB%' AND LEN(maLoaiCombo) = 8),
+    tenLoaiCombo NVARCHAR(30) NOT NULL UNIQUE CHECK(tenLoaiCombo IN (N'Sáng', N'Trưa', N'Chiều')),
+    moTa NVARCHAR(200) NULL
+);
+GO
+
+-- ================================
+-- Bảng Combo
+-- ================================
+CREATE TABLE Combo (
+    maCombo CHAR(8) PRIMARY KEY CHECK(maCombo LIKE 'CB%' AND LEN(maCombo) = 8),
+    tenCombo NVARCHAR(100) NOT NULL,
+    giaCombo DECIMAL(12,2) CHECK(giaCombo >= 0),
+    maLoaiCombo CHAR(8) NOT NULL,
+    moTa NVARCHAR(200) NULL,
+    trangThai NVARCHAR(10) DEFAULT N'Con' CHECK(trangThai IN (N'Con', N'Het')),
+    CONSTRAINT FK_Combo_LoaiCombo FOREIGN KEY (maLoaiCombo) REFERENCES LoaiCombo(maLoaiCombo)
+);
+GO
+
+-- ================================
+-- Bảng ChiTietCombo
+-- ================================
+CREATE TABLE ChiTietCombo (
+    maCombo CHAR(8) NOT NULL,
+    maMonAn CHAR(8) NOT NULL,
+    soLuong INT NOT NULL CHECK(soLuong > 0),
+    PRIMARY KEY(maCombo, maMonAn),
+    CONSTRAINT FK_ChiTietCombo_Combo FOREIGN KEY (maCombo) REFERENCES Combo(maCombo),
+    CONSTRAINT FK_ChiTietCombo_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)
+);
+GO
+
+-- ================================
+-- Bảng PhieuDatBan
+-- ================================
+CREATE TABLE PhieuDatBan (
+    maPDB CHAR(8) PRIMARY KEY CHECK (maPDB LIKE 'PD%' AND LEN(maPDB) = 8),
+    ngayDat DATE CHECK(ngayDat >= CAST(GETDATE() AS DATE)),
+    soNguoi INT CHECK(soNguoi > 0),
+    maKH CHAR(8) NOT NULL,
+    maNV CHAR(8) NOT NULL,
+    CONSTRAINT FK_PDB_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
+    CONSTRAINT FK_PDB_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
+);
+GO
+
+-- ================================
+-- Bảng ChiTietPDB
+-- ================================
+CREATE TABLE ChiTietPDB (
+    maCT CHAR(8) PRIMARY KEY CHECK(maCT LIKE 'CTP%' AND LEN(maCT) = 8),
+    maPDB CHAR(8) NOT NULL,
+    maBan CHAR(8) NOT NULL,
+    maMonAn CHAR(8) NULL,
+    soLuong INT CHECK(soLuong > 0),
+    donGia DECIMAL(12,2) CHECK(donGia >= 0),
+    CONSTRAINT FK_ChiTietPDB_PDB FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB),
+    CONSTRAINT FK_ChiTietPDB_Ban FOREIGN KEY (maBan) REFERENCES Ban(maBan),
+    CONSTRAINT FK_ChiTietPDB_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)
+);
+GO
+
+-- ================================
+-- Bảng LoaiThue
+-- ================================
+CREATE TABLE LoaiThue (
+    maLoaiThue CHAR(8) PRIMARY KEY CHECK (maLoaiThue LIKE 'LT%' AND LEN(maLoaiThue) = 8),
+    tenLoaiThue NVARCHAR(50) NOT NULL UNIQUE
+);
+GO
+
+-- ================================
+-- Bảng Thue
+-- ================================
+CREATE TABLE Thue (
+    maThue CHAR(8) PRIMARY KEY CHECK (maThue LIKE 'TH%' AND LEN(maThue) = 8),
+    tyLe DECIMAL(5,2) CHECK(tyLe >= 0 AND tyLe <= 100),
+    ghiChu NVARCHAR(200) NULL,
+    maLoaiThue CHAR(8) NOT NULL,
+    CONSTRAINT FK_Thue_LoaiThue FOREIGN KEY (maLoaiThue) REFERENCES LoaiThue(maLoaiThue)
+);
+GO
+
+-- ================================
+-- Bảng LoaiKhuyenMai
+-- ================================
+CREATE TABLE LoaiKhuyenMai (
+    maLoaiKM CHAR(8) PRIMARY KEY CHECK (maLoaiKM LIKE 'LKM%' AND LEN(maLoaiKM) = 8),
+    tenLoaiKM NVARCHAR(50) NOT NULL UNIQUE
+);
+GO
+
+-- ================================
+-- Bảng KhuyenMai
+-- ================================
+CREATE TABLE KhuyenMai (
+    maKM CHAR(8) PRIMARY KEY CHECK (maKM LIKE 'KM%' AND LEN(maKM) = 8),
+    maLoaiKM CHAR(8) NOT NULL,
+    tyLe DECIMAL(5,2) NULL CHECK(tyLe >= 0 AND tyLe <= 100),
+    soTien DECIMAL(12,2) NULL CHECK(soTien >= 0),
+    maMonTang CHAR(8) NULL,
+    ngayBatDau DATE NULL,
+    ngayKetThuc DATE NULL,
+    moTa NVARCHAR(200) NULL,
+    CONSTRAINT FK_KM_LoaiKM FOREIGN KEY (maLoaiKM) REFERENCES LoaiKhuyenMai(maLoaiKM),
+    CONSTRAINT FK_KM_MonTang FOREIGN KEY (maMonTang) REFERENCES MonAn(maMonAn),
+    CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau))
+);
+GO
+
+-- ================================
+-- Bảng KhungGioKhuyenMai
+-- ================================
+CREATE TABLE KhungGioKhuyenMai (
+    maTGKM CHAR(8) PRIMARY KEY CHECK (maTGKM LIKE 'TGKM%' AND LEN(maTGKM) = 8),
+    maKM CHAR(8) NOT NULL,
+    gioBatDau TIME NOT NULL,
+    gioKetThuc TIME NOT NULL,
+    lapLaiHangNgay BIT DEFAULT 0,
+    CONSTRAINT FK_KGKM_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
+    CHECK (gioKetThuc > gioBatDau)
+);
+GO
+
+-- ================================
+-- Bảng PhuongThucThanhToan
+-- ================================
+CREATE TABLE PhuongThucThanhToan (
+    maPTTT CHAR(8) PRIMARY KEY CHECK (maPTTT LIKE 'PT%' AND LEN(maPTTT) = 8),
+    tenPTTT NVARCHAR(50) NOT NULL UNIQUE CHECK(tenPTTT IN (N'Tiền mặt', N'Chuyển khoản')),
+    moTa NVARCHAR(200) NULL
+);
+GO
+
+-- ================================
+-- Bảng HoaDon
+-- ================================
+CREATE TABLE HoaDon (
+    maHD CHAR(8) PRIMARY KEY CHECK (maHD LIKE 'HD%' AND LEN(maHD) = 8),
+    ngayLap DATE NOT NULL,
+    maNV CHAR(8) NOT NULL,
+    maKH CHAR(8) NULL,
+    maPDB CHAR(8) NULL,
+    maKM CHAR(8) NULL,
+    maThue CHAR(8) NULL,
+    tienKhachDua DECIMAL(12,2) NOT NULL CHECK(tienKhachDua >= 0),
+    tienThua DECIMAL(12,2) NOT NULL CHECK(tienThua >= 0),
+    maPTTT CHAR(8) NOT NULL DEFAULT 'PT000001',
+    CONSTRAINT FK_HD_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
+    CONSTRAINT FK_HD_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
+    CONSTRAINT FK_HD_PhieuDatBan FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB),
+    CONSTRAINT FK_HD_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
+    CONSTRAINT FK_HD_Thue FOREIGN KEY (maThue) REFERENCES Thue(maThue),
+    CONSTRAINT FK_HD_PhuongThucThanhToan FOREIGN KEY (maPTTT) REFERENCES PhuongThucThanhToan(maPTTT)
+);
+GO
+
+-- ================================
+-- Bảng ChiTietHD
+-- ================================
+CREATE TABLE ChiTietHD (
+    maHD CHAR(8) NOT NULL,
+    maMonAn CHAR(8) NOT NULL,
+    soLuong INT CHECK(soLuong > 0),
+    donGia DECIMAL(12,2) CHECK(donGia >= 0),
+    PRIMARY KEY(maHD, maMonAn),
+    CONSTRAINT FK_CTHD_HoaDon FOREIGN KEY (maHD) REFERENCES HoaDon(maHD),
+    CONSTRAINT FK_CTHD_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)
+);
+GO
+
+-- ================================
+-- DỮ LIỆU MẪU NHÀ HÀNG
+-- ================================
+
+-- Vai trò
+INSERT INTO VaiTro VALUES 
+('VT000001', N'QuanLy'),
+('VT000002', N'ThuNgan');
+GO
+
+-- Tài khoản
+INSERT INTO TaiKhoan VALUES
+('TK000001', 'admin123', 'Admin@123', 'VT000001'),
+('TK000002', 'thungan01', 'TNpass01', 'VT000002');
+GO
+
+-- Ca làm việc (3 ca)
+INSERT INTO CaLamViec VALUES
+('CA000001', N'Ca Sáng', '07:00', '11:00'),
+('CA000002', N'Ca Trưa', '11:00', '15:00'),
+('CA000003', N'Ca Tối', '17:00', '22:00');
+GO
+
+-- Nhân viên
+INSERT INTO NhanVien VALUES
+('NV000001', N'Nguyễn Văn A', '1990-01-01', 'Nam', '0901234567', 10000000, 'TK000001'),
+('NV000002', N'Trần Thị B', '1992-02-02', 'Nu', '0912345678', 8000000, 'TK000002');
+GO
+
+-- Phân công ca
+INSERT INTO PhanCongCa VALUES
+('NV000001','CA000001','2025-10-14'),
+('NV000001','CA000002','2025-10-14'),
+('NV000002','CA000003','2025-10-14');
+GO
+
+-- Loại khách hàng (chỉ 2 loại)
+INSERT INTO LoaiKhachHang VALUES
+('LKH00001', N'Thuong'),
+('LKH00002', N'VIP');
+
+-- Khách hàng
+INSERT INTO KhachHang VALUES
+('KH000001', N'Nguyễn Văn F', '1990-06-06', 'Nam', '0956789012', 'LKH00001'),
+('KH000002', N'Trần Thị G', '1991-07-07', 'Nu', '0967890123', 'LKH00002');
+GO
+
+-- Tầng
+INSERT INTO Tang VALUES
+('TG000001', N'Tầng 1', N'Khu thường'),
+('TG000002', N'Tầng 2', N'Khu VIP'),
+('TG000003', N'Tầng 3', N'Khu thường'),
+('TG000004', N'Tầng 4', N'Khu VIP'),
+('TG000005', N'Tầng 5', N'Khu thường'),
+('TG000006', N'Tầng 6', N'Khu VIP'),
+('TG000007', N'Tầng 7', N'Khu thường');
+GO
+
+-- Loại bàn
+INSERT INTO LoaiBan VALUES
+('LB000001', N'Bàn 8'),
+('LB000002', N'Bàn 6'),
+('LB000003', N'Bàn 4'),
+('LB000004', N'Bàn 2'),
+('LB000005', N'Bàn 8 tròn');
+GO
+
+-- Bàn
+-- Bàn (theo tầng, tránh trùng tên)
+INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
+-- Tầng 1
+('BA000001', N'Bàn 1-T1', N'Trống', 100, 100, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000002', N'Bàn 2-T1', N'Trống', 100, 300, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000003', N'Bàn 3-T1', N'Trống', 100, 500, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000004', N'Bàn 4-T1', N'Trống', 400, 100, 'TG000001', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000005', N'Bàn 5-T1', N'Trống', 400, 300, 'TG000001', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000006', N'Bàn 6_T1', N'Trống', 400, 500, 'TG000001', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000007', N'Bàn 7-T1', N'Trống', 700, 150, 'TG000001', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000008', N'Bàn 8_T1', N'Trống', 700, 350, 'TG000001', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+
+-- Tầng 2
+('BA000009', N'Bàn 1-T2', N'Trống', 50, 100, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000010', N'Bàn 2-T2', N'Trống', 250, 100, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000011', N'Bàn 3-T2', N'Trống', 650, 100, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000012', N'Bàn 4-T2', N'Trống', 50, 300, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000013', N'Bàn 5-T2', N'Trống', 250, 300, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000014', N'Bàn 6-T2', N'Trống', 650, 300, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000015', N'Bàn 7-T2', N'Trống', 50, 450, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000016', N'Bàn 8-T2', N'Trống', 250, 450, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000017', N'Bàn 9-T2', N'Trống', 450, 450, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000018', N'Bàn 10-T2', N'Trống', 650, 450, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000019', N'Bàn 11-T2', N'Trống', 850, 450, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+
+-- Tầng 3
+('BA000020', N'Bàn 1-T3', N'Trống', 100, 100, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000021', N'Bàn 2-T3', N'Trống', 400, 100, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000022', N'Bàn 3-T3', N'Trống', 700, 100, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000023', N'Bàn 4-T3', N'Trống', 300, 450, 'TG000003', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000024', N'Bàn 5-T3', N'Trống', 600, 450, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000025', N'Bàn 6-T3', N'Trống', 100, 450, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000026', N'Bàn 7-T3', N'Trống', 400, 450, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000027', N'Bàn 8-T3', N'Trống', 700, 450, 'TG000003', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png');
+
+-- Tầng 4
+INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
+('BA000028', N'Bàn 1-T4', N'Trống', 200, 300, 'TG000004', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Tron.png'),
+('BA000029', N'Bàn 2-T4', N'Trống', 650, 300, 'TG000004', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Tron.png');
+GO
+
+-- Tầng 5
+INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
+('BA000030', N'Bàn 1-T5', N'Trống', 50, 100, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000031', N'Bàn 2-T5', N'Trống', 250, 100, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000032', N'Bàn 3-T5', N'Trống', 650, 100, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000033', N'Bàn 4-T5', N'Trống', 50, 300, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000034', N'Bàn 5-T5', N'Trống', 250, 300, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000035', N'Bàn 6-T5', N'Trống', 650, 300, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000036', N'Bàn 7-T5', N'Trống', 50, 550, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000037', N'Bàn 8-T5', N'Trống', 250, 550, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000038', N'Bàn 9-T5', N'Trống', 450, 550, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000039', N'Bàn 10-T5', N'Trống', 650, 550, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000040', N'Bàn 11-T5', N'Trống', 850, 550, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png');
+GO
+
+-- Tầng 6
+INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
+('BA000047', N'Bàn 1-T6', N'Trống', 140, 150, 'TG000006', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban8_Tron.png'),
+('BA000048', N'Bàn 2-T6', N'Trống', 600, 150, 'TG000006', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban8_Tron.png'),
+('BA000049', N'Bàn 3-T6', N'Trống', 140, 400, 'TG000006', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban8.png'),
+('BA000050', N'Bàn 4-T6', N'Trống', 600, 400, 'TG000006', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban8.png');
+GO
+
+-- Tầng 7
+INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
+('BA000041', N'Bàn 1-T7', N'Trống', 250, 100, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png'),
+('BA000042', N'Bàn 2-T7', N'Trống', 450, 100, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png'),
+('BA000043', N'Bàn 3-T7', N'Trống', 650, 100, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png'),
+('BA000044', N'Bàn 4-T7', N'Trống', 250, 350, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png'),
+('BA000045', N'Bàn 5-T7', N'Trống', 450, 350, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png'),
+('BA000046', N'Bàn 6-T7', N'Trống', 650, 350, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png');
+GO
+
+-- Loại món ăn (đơn giản, thực tế)
+INSERT INTO LoaiMonAn (maLoaiMon, tenLoaiMon, hinhAnh) VALUES
+('LM000001', N'Cơm', N'/com/thefourrestaurant/images/LoaiMonAn/com.png'),
+('LM000002', N'Đồ nước', N'/com/thefourrestaurant/images/LoaiMonAn/do_nuoc.png'),
+('LM000003', N'Tráng miệng', N'/com/thefourrestaurant/images/LoaiMonAn/trang_mieng.png'),
+('LM000004', N'Món đặc biệt', N'/com/thefourrestaurant/images/LoaiMonAn/mon_dac_biet.png');
+GO
+
+-- Món ăn
+INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh) VALUES
+('MA000001', N'Cơm tấm sườn bì', 55000, 'Con', 'LM000001', N'/com/thefourrestaurant/images/MonAn/com_tam_suon_bi.png'),
+('MA000002', N'Cơm gà xối mỡ', 60000, 'Con', 'LM000001', N'/com/thefourrestaurant/images/MonAn/com_ga_xoi_mo.png'),
+('MA000003', N'Nước cam ép', 25000, 'Con', 'LM000002', N'/com/thefourrestaurant/images/MonAn/nuoc_cam_ep.png'),
+('MA000004', N'Sinh tố bơ', 30000, 'Con', 'LM000002', N'/com/thefourrestaurant/images/MonAn/sinh_to_bo.png'),
+('MA000005', N'Bánh flan', 20000, 'Con', 'LM000003', N'/com/thefourrestaurant/images/MonAn/banh_flan.png'),
+('MA000006', N'Lẩu thái hải sản', 250000, 'Con', 'LM000004', N'/com/thefourrestaurant/images/MonAn/lau_thai_hai_san.png');
+GO
+
+-- Loại combo
+INSERT INTO LoaiCombo VALUES
+('LCB00001', N'Sáng', N'Combo bữa sáng'),
+('LCB00002', N'Trưa', N'Combo bữa trưa'),
+('LCB00003', N'Chiều', N'Combo bữa chiều');
+GO
+
+-- Combo
+INSERT INTO Combo VALUES
+('CB000001', N'Combo sáng năng lượng', 70000, 'LCB00001', N'Cơm + Nước cam', N'Con'),
+('CB000002', N'Combo trưa tiện lợi', 85000, 'LCB00002', N'Cơm gà + Sinh tố', N'Con'),
+('CB000003', N'Combo chiều thư giãn', 90000, 'LCB00003', N'Lẩu thái + Bánh flan', N'Con');
+GO
+
+-- Chi tiết combo
+INSERT INTO ChiTietCombo VALUES
+('CB000001', 'MA000001', 1),
+('CB000001', 'MA000003', 1),
+('CB000002', 'MA000002', 1),
+('CB000002', 'MA000004', 1),
+('CB000003', 'MA000006', 1),
+('CB000003', 'MA000005', 1);
+GO
+
+-- Phiếu đặt bàn
+INSERT INTO PhieuDatBan VALUES
+('PD000001', '2025-10-20', 4, 'KH000001', 'NV000001'),
+('PD000002', '2025-10-21', 2, 'KH000002', 'NV000002');
+GO
+
+-- Chi tiết phiếu đặt bàn
+INSERT INTO ChiTietPDB (maCT, maPDB, maBan, maMonAn, soLuong, donGia) VALUES
+('CTP00001', 'PD000001', 'BA000001', 'MA000001', 2, 55000),
+('CTP00002', 'PD000002', 'BA000001', 'MA000003', 2, 25000),
+('CTP00003', 'PD000002', 'BA000002', 'MA000002', 2, 60000);
+GO
+
+-- Loại thuế
+INSERT INTO LoaiThue VALUES
+('LT000001', N'VAT'),
+('LT000002', N'Phí dịch vụ');
+GO
+
+-- Thuế
+INSERT INTO Thue VALUES
+('TH000001',10,NULL,'LT000001'),
+('TH000002',5,N'Phí phục vụ','LT000002');
+GO
+
+-- Loại khuyến mãi
+INSERT INTO LoaiKhuyenMai VALUES
+('LKM00001', N'Giảm giá theo tỷ lệ'),
+('LKM00002', N'Tặng món');
+GO
+
+-- Khuyến mãi
+INSERT INTO KhuyenMai VALUES
+('KM000001','LKM00001',10,NULL,NULL,'2025-10-01','2025-10-31',N'Giảm 10% hóa đơn'),
+('KM000002','LKM00002',NULL,NULL,'MA000003','2025-10-10','2025-10-31',N'Tặng nước cam ép');
+GO
+
+-- Khung giờ khuyến mãi
+INSERT INTO KhungGioKhuyenMai VALUES
+('TGKM0001','KM000001','11:00','14:00',1),
+('TGKM0002','KM000002','18:00','21:00',1);
+GO
+
+-- Phương thức thanh toán
+INSERT INTO PhuongThucThanhToan (maPTTT, tenPTTT, moTa)
+VALUES 
+('PT000001', N'Tiền mặt', N'Thanh toán trực tiếp bằng tiền mặt'),
+('PT000002', N'Chuyển khoản', N'Thanh toán qua tài khoản ngân hàng');
+
+-- Hóa đơn
+INSERT INTO HoaDon (maHD, ngayLap, maNV, maKH, maPDB, maKM, maThue, tienKhachDua, tienThua, maPTTT) VALUES
+('HD000001','2025-10-20','NV000001','KH000001','PD000001','KM000001','TH000001',200000,10000,'PT000001'),
+('HD000002','2025-10-21','NV000002','KH000002','PD000002','KM000002','TH000002',180000,5000,'PT000002');
+GO
+
+-- Chi tiết hóa đơn
+INSERT INTO ChiTietHD VALUES
+('HD000001','MA000001',2,55000),
+('HD000001','MA000003',2,25000),
+('HD000002','MA000002',2,60000),
+('HD000002','MA000004',1,30000);
+GO
+
+
+
