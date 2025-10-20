@@ -2,7 +2,7 @@ package com.thefourrestaurant.view;
 
 import java.util.Objects;
 
-import com.thefourrestaurant.DAO.DangNhapDAO;
+import com.thefourrestaurant.DAO.TaiKhoanDAO;
 import com.thefourrestaurant.model.TaiKhoan;
 
 import javafx.animation.ScaleTransition;
@@ -46,7 +46,6 @@ public class GiaoDienDangNhap {
     private Font montserratExtrabold;
 
     public void show(Stage stage) {
-        DangNhapDAO dangNhapDAO = new DangNhapDAO();
         BorderPane root = new BorderPane();
         root.setStyle("-fx-background-color: " + COLOR_TEAL + ";");
 
@@ -130,7 +129,7 @@ public class GiaoDienDangNhap {
             }
 
             // Gọi DAO kiểm tra đăng nhập
-            TaiKhoan taiKhoan = dangNhapDAO.dangNhap(user, pass);
+            TaiKhoan taiKhoan = TaiKhoanDAO.dangNhap(user, pass);
             if (taiKhoan == null) {
                 Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu.", ButtonType.OK);
                 a.initOwner(stage);

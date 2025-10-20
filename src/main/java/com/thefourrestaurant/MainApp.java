@@ -22,27 +22,8 @@ public class MainApp extends Application {
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 14);
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"), 14);
 
-        // Hiển thị giao diện chính ngay lập tức
-<<<<<<< HEAD
         GiaoDienDangNhap giaoDienDangNhap = new GiaoDienDangNhap();
         giaoDienDangNhap.show(primaryStage);
-
-//        GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
-//        giaoDienChinh.show(primaryStage);
-        GiaoDienDatBan datBan = new GiaoDienDatBan();
-
-
-=======
-        GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
-        GiaoDienDangNhap gddn = new  GiaoDienDangNhap();
-
-        gddn.show(primaryStage);
->>>>>>> origin/main
-        // Tạo Scene với DatBan
-//        Scene scene = new javafx.scene.Scene(datBan, 1400, 800);
-//        primaryStage.setTitle("Quản lý Nhà hàng - Đặt bàn");
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
 
         // Sau khi giao diện đã mở, chạy kết nối DB ở thread riêng
         Task<Connection> ketNoiTask = new Task<>() {
@@ -55,14 +36,14 @@ public class MainApp extends Application {
         ketNoiTask.setOnSucceeded(e -> {
             Connection conn = ketNoiTask.getValue();
             if (conn != null) {
-                System.out.println("✅ Kết nối SQL Server thành công!");
+                System.out.println("Kết nối SQL Server thành công!");
             } else {
-                hienThongBaoLoi("❌ Kết nối thất bại.\nVui lòng kiểm tra lại thông tin kết nối.");
+                hienThongBaoLoi("Kết nối thất bại.\nVui lòng kiểm tra lại thông tin kết nối.");
             }
         });
 
         ketNoiTask.setOnFailed(e -> {
-            hienThongBaoLoi("❌ Không thể kết nối đến SQL Server.\nChi tiết: " + ketNoiTask.getException().getMessage());
+            hienThongBaoLoi("Không thể kết nối đến SQL Server.\nChi tiết: " + ketNoiTask.getException().getMessage());
         });
 
         new Thread(ketNoiTask).start();
