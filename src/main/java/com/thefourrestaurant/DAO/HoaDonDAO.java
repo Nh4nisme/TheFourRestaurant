@@ -33,7 +33,7 @@ public class HoaDonDAO {
                 String maThue = rs.getString("maThue");
                 BigDecimal tienKhachDua = rs.getBigDecimal("tienKhachDua");
                 BigDecimal tienThua = rs.getBigDecimal("tienThua");
-                String ;
+                String maPTTT = rs.getString("maPTTT");
 
                 List<ChiTietHoaDon> chiTietHDs = ChiTietHoaDonDAO.getChiTietByMaHD(maHD);
 
