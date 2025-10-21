@@ -37,6 +37,7 @@ public class KhuyenMaiDialog extends Stage {
     private final TextField tyLeField = new TextField();
     private final TextField soTienField = new TextField();
     private final ComboBox<MonAn> monTangComboBox = new ComboBox<>();
+    private final ComboBox<MonAn> monApDungComboBox = new ComboBox<>(); // Added for LKM00003
 
     private final GridPane dynamicFieldsPane = new GridPane();
 
@@ -107,6 +108,7 @@ public class KhuyenMaiDialog extends Stage {
         tyLeField.setStyle(kieuTruongNhap); tyLeField.getStyleClass().add("text-field");
         soTienField.setStyle(kieuTruongNhap); soTienField.getStyleClass().add("text-field");
         monTangComboBox.setStyle(kieuTruongNhap); monTangComboBox.getStyleClass().add("combo-box");
+        monApDungComboBox.setStyle(kieuTruongNhap); monApDungComboBox.getStyleClass().add("combo-box");
 
         Label lblLoaiKM = new Label("Loại khuyến mãi:");
         lblLoaiKM.setStyle(kieuNhan);
@@ -155,7 +157,12 @@ public class KhuyenMaiDialog extends Stage {
         dynamicFieldsPane.getChildren().clear();
         String maLoaiKM = loaiKM.getMaLoaiKM();
 
-        if ("LKM00001".equals(maLoaiKM)) { // Giảm giá theo tỷ lệ
+        StringConverter<MonAn> monAnConverter = new StringConverter<>() {
+            @Override public String toString(MonAn monAn) { return monAn == null ? "Chưa chọn" : monAn.getTenMon(); }
+            @Override public MonAn fromString(String s) { return null; }
+        };
+
+        if ("LKM00001".equals(maLoaiKM)) { // Giảm giá theo tỷ lệ (hóa đơn)
             Label label = new Label("Tỷ lệ giảm (%):");
             label.setStyle(kieuNhan);
             dynamicFieldsPane.add(label, 0, 0);
@@ -166,23 +173,27 @@ public class KhuyenMaiDialog extends Stage {
             label.setStyle(kieuNhan);
             dynamicFieldsPane.add(label, 0, 0);
             monTangComboBox.setItems(FXCollections.observableArrayList(tatCaMonAn));
-            monTangComboBox.setConverter(new StringConverter<>() {
-                @Override public String toString(MonAn monAn) { return monAn == null ? "" : monAn.getTenMon(); }
-                @Override public MonAn fromString(String s) { return null; }
-            });
+            monTangComboBox.setConverter(monAnConverter);
             dynamicFieldsPane.add(monTangComboBox, 1, 0);
         } else if ("LKM00003".equals(maLoaiKM)) { // Giảm giá trên món ăn
+            Label lblMonApDung = new Label("Áp dụng cho món:");
+            lblMonApDung.setStyle(kieuNhan);
+            dynamicFieldsPane.add(lblMonApDung, 0, 0);
+            monApDungComboBox.setItems(FXCollections.observableArrayList(tatCaMonAn));
+            monApDungComboBox.setConverter(monAnConverter);
+            dynamicFieldsPane.add(monApDungComboBox, 1, 0);
+
             Label lblTyLe = new Label("Tỷ lệ giảm (%):");
             lblTyLe.setStyle(kieuNhan);
-            dynamicFieldsPane.add(lblTyLe, 0, 0);
-            tyLeField.setPromptText("Nhập nếu giảm theo %");
-            dynamicFieldsPane.add(tyLeField, 1, 0);
+            dynamicFieldsPane.add(lblTyLe, 0, 1);
+            tyLeField.setPromptText("Hoặc nhập tỷ lệ giảm");
+            dynamicFieldsPane.add(tyLeField, 1, 1);
 
             Label lblSoTien = new Label("Số tiền giảm (VND):");
             lblSoTien.setStyle(kieuNhan);
-            dynamicFieldsPane.add(lblSoTien, 0, 1);
-            soTienField.setPromptText("Nhập nếu giảm số tiền cụ thể");
-            dynamicFieldsPane.add(soTienField, 1, 1);
+            dynamicFieldsPane.add(lblSoTien, 0, 2);
+            soTienField.setPromptText("Hoặc nhập số tiền giảm");
+            dynamicFieldsPane.add(soTienField, 1, 2);
         }
     }
 
@@ -203,9 +214,9 @@ public class KhuyenMaiDialog extends Stage {
     }
 
     private void dienDuLieuHienCo() {
-        loaiKMComboBox.getItems().stream()
-                .filter(lkm -> lkm.getMaLoaiKM().equals(khuyenMaiHienTai.getMaLoaiKM()))
-                .findFirst().ifPresent(loaiKMComboBox::setValue);
+        if (khuyenMaiHienTai.getLoaiKhuyenMai() != null) {
+            loaiKMComboBox.setValue(khuyenMaiHienTai.getLoaiKhuyenMai());
+        }
 
         moTaTextArea.setText(khuyenMaiHienTai.getMoTa());
         ngayBatDauPicker.setValue(khuyenMaiHienTai.getNgayBatDau());
@@ -217,10 +228,11 @@ public class KhuyenMaiDialog extends Stage {
         if (khuyenMaiHienTai.getSoTien() != null) {
             soTienField.setText(khuyenMaiHienTai.getSoTien().toPlainString());
         }
-        if (khuyenMaiHienTai.getMaMonTang() != null) {
-            monTangComboBox.getItems().stream()
-                    .filter(m -> m != null && m.getMaMonAn().equals(khuyenMaiHienTai.getMaMonTang()))
-                    .findFirst().ifPresent(monTangComboBox::setValue);
+        if (khuyenMaiHienTai.getMonAnTang() != null) {
+            monTangComboBox.setValue(khuyenMaiHienTai.getMonAnTang());
+        }
+        if (khuyenMaiHienTai.getMonAnApDung() != null) {
+            monApDungComboBox.setValue(khuyenMaiHienTai.getMonAnApDung());
         }
     }
 
@@ -237,32 +249,26 @@ public class KhuyenMaiDialog extends Stage {
             ketQua = new KhuyenMai();
         }
 
-        ketQua.setMaLoaiKM(selectedLoai.getMaLoaiKM());
+        ketQua.setLoaiKhuyenMai(selectedLoai);
         ketQua.setMoTa(moTaTextArea.getText());
         ketQua.setNgayBatDau(ngayBatDauPicker.getValue());
         ketQua.setNgayKetThuc(ngayKetThucPicker.getValue());
 
         ketQua.setTyLe(null);
         ketQua.setSoTien(null);
-        ketQua.setMaMonTang(null);
+        ketQua.setMonAnTang(null);
+        ketQua.setMonAnApDung(null);
 
         String maLoaiKM = selectedLoai.getMaLoaiKM();
         try {
             if ("LKM00001".equals(maLoaiKM)) { // Giảm giá theo tỷ lệ
-                if (!tyLeField.getText().isEmpty()) {
-                    ketQua.setTyLe(new BigDecimal(tyLeField.getText()));
-                }
+                if (!tyLeField.getText().isEmpty()) ketQua.setTyLe(new BigDecimal(tyLeField.getText()));
             } else if ("LKM00002".equals(maLoaiKM)) { // Tặng món
-                if (monTangComboBox.getValue() != null) {
-                    ketQua.setMaMonTang(monTangComboBox.getValue().getMaMonAn());
-                }
+                ketQua.setMonAnTang(monTangComboBox.getValue());
             } else if ("LKM00003".equals(maLoaiKM)) { // Giảm giá trên món ăn
-                if (!tyLeField.getText().isEmpty()) {
-                    ketQua.setTyLe(new BigDecimal(tyLeField.getText()));
-                }
-                if (!soTienField.getText().isEmpty()) {
-                    ketQua.setSoTien(new BigDecimal(soTienField.getText()));
-                }
+                ketQua.setMonAnApDung(monApDungComboBox.getValue());
+                if (!tyLeField.getText().isEmpty()) ketQua.setTyLe(new BigDecimal(tyLeField.getText()));
+                if (!soTienField.getText().isEmpty()) ketQua.setSoTien(new BigDecimal(soTienField.getText()));
             }
         } catch (NumberFormatException e) {
             new Alert(Alert.AlertType.ERROR, "Giá trị nhập vào không hợp lệ (ví dụ: tỷ lệ, số tiền phải là số).").showAndWait();

@@ -17,12 +17,12 @@ public class MonAnController {
 
     private final MonAnDAO monAnDAO;
     private final LoaiMonAnDAO loaiMonAnDAO;
-    private final KhuyenMaiDAO khuyenMaiDAO; // Added DAO for promotions
+    private final KhuyenMaiDAO khuyenMaiDAO;
 
     public MonAnController() {
         this.monAnDAO = new MonAnDAO();
         this.loaiMonAnDAO = new LoaiMonAnDAO();
-        this.khuyenMaiDAO = new KhuyenMaiDAO(); // Instantiate it
+        this.khuyenMaiDAO = new KhuyenMaiDAO();
     }
 
     public List<MonAn> getMonAnByLoai(String maLoaiMon) {
@@ -39,14 +39,20 @@ public class MonAnController {
 
     public boolean themMoiMonAn(String maLoaiMonDefault) {
         List<LoaiMon> allLoaiMon = getAllLoaiMonAn();
-        List<KhuyenMai> allKhuyenMai = getAllKhuyenMai(); // Get promotions
+        List<KhuyenMai> allKhuyenMai = getAllKhuyenMai();
 
         if (allLoaiMon.isEmpty()) {
             new Alert(Alert.AlertType.ERROR, "Không có loại món ăn nào trong CSDL. Vui lòng thêm loại món ăn trước.").showAndWait();
             return false;
         }
-        // Pass promotions to the dialog
-        MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, maLoaiMonDefault, allKhuyenMai);
+
+        // Find the LoaiMon object that matches the default ID
+        LoaiMon defaultLoaiMon = allLoaiMon.stream()
+                .filter(lm -> lm.getMaLoaiMon().equals(maLoaiMonDefault))
+                .findFirst()
+                .orElse(null);
+
+        MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, defaultLoaiMon, allKhuyenMai);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();
@@ -59,10 +65,10 @@ public class MonAnController {
 
     public boolean tuyChinhMonAn(MonAn monAn) {
         List<LoaiMon> allLoaiMon = getAllLoaiMonAn();
-        List<KhuyenMai> allKhuyenMai = getAllKhuyenMai(); // Get promotions
+        List<KhuyenMai> allKhuyenMai = getAllKhuyenMai();
 
-        // Pass promotions to the dialog
-        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getMaLoaiMon(), allKhuyenMai);
+        // Pass the LoaiMon object directly from the MonAn object
+        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon(), allKhuyenMai);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();

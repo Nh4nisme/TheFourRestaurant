@@ -20,20 +20,16 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
     private final TableView<KhuyenMai> typedTable;
 
     public GiaoDienKhuyenMai() {
-        super("", new GiaoDienChiTietKhuyenMai());
+        super("Khuyến mãi", new GiaoDienChiTietKhuyenMai());
         this.controller = new KhuyenMaiController();
 
         this.chiTietKhuyenMaiPane = (GiaoDienChiTietKhuyenMai) this.chiTietNode;
         this.typedTable = (TableView<KhuyenMai>) this.tableChinh;
 
-        // Add listener to update detail pane on selection
         this.typedTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                chiTietKhuyenMaiPane.hienThiChiTiet(newSelection);
-            }
+            chiTietKhuyenMaiPane.hienThiChiTiet(newSelection);
         });
 
-        // --- Add the "Add" button to the toolbar ---
         ButtonSample themButton = new ButtonSample("Thêm Khuyến Mãi", "", 35, 14, 3);
         themButton.setOnAction(e -> {
             if (controller.themMoiKhuyenMai()) {
@@ -41,11 +37,9 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
             }
         });
 
-        // Get the toolbar from the parent VBox and add the button
         HBox toolbar = (HBox) this.getChildren().get(0);
-        toolbar.getChildren().add(1, themButton); // Add after the title
+        toolbar.getChildren().add(1, themButton);
 
-        // Initial data load
         refreshTable();
     }
 
@@ -62,8 +56,9 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
 
         TableColumn<KhuyenMai, String> loaiKMCol = new TableColumn<>("Loại KM");
         loaiKMCol.setCellValueFactory(cellData -> {
-            String maLoaiKM = cellData.getValue().getMaLoaiKM();
-            return new SimpleStringProperty(maLoaiKM);
+            KhuyenMai km = cellData.getValue();
+            String tenLoai = (km.getLoaiKhuyenMai() != null) ? km.getLoaiKhuyenMai().getTenLoaiKM() : "";
+            return new SimpleStringProperty(tenLoai);
         });
 
         TableColumn<KhuyenMai, String> giaTriCol = new TableColumn<>("Giá Trị");
@@ -74,8 +69,10 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
                 giaTri = km.getTyLe() + " %";
             } else if (km.getSoTien() != null) {
                 giaTri = km.getSoTien().toPlainString() + " VND";
-            } else if (km.getMaMonTang() != null) {
-                giaTri = "Tặng " + km.getMaMonTang();
+            } else if (km.getMonAnTang() != null) {
+                giaTri = "Tặng " + km.getMonAnTang().getTenMon();
+            } else if (km.getMonAnApDung() != null) {
+                giaTri = "Giảm cho " + km.getMonAnApDung().getTenMon();
             }
             return new SimpleStringProperty(giaTri);
         });
@@ -97,7 +94,6 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
         table.getColumns().addAll(maKMCol, moTaCol, loaiKMCol, giaTriCol, ngayBDCol, ngayKTCol);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Add context menu for edit/delete
         table.setRowFactory(tv -> {
             TableRow<KhuyenMai> row = new TableRow<>();
             ContextMenu contextMenu = new ContextMenu();
@@ -121,11 +117,7 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
             contextMenu.getItems().addAll(editItem, new SeparatorMenuItem(), deleteItem);
 
             row.emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {
-                if (isNowEmpty) {
-                    row.setContextMenu(null);
-                } else {
-                    row.setContextMenu(contextMenu);
-                }
+                row.setContextMenu(isNowEmpty ? null : contextMenu);
             });
             return row;
         });

@@ -6,7 +6,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
+import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class GiaoDienChiTietKhuyenMai extends VBox {
 
@@ -41,6 +43,7 @@ public class GiaoDienChiTietKhuyenMai extends VBox {
 
         grid.add(new Label("Giá trị:"), 0, 3);
         grid.add(lblGiaTri, 1, 3);
+        lblGiaTri.setWrapText(true);
 
         grid.add(new Label("Ngày bắt đầu:"), 0, 4);
         grid.add(lblNgayBatDau, 1, 4);
@@ -53,7 +56,6 @@ public class GiaoDienChiTietKhuyenMai extends VBox {
 
     public void hienThiChiTiet(KhuyenMai km) {
         if (km == null) {
-            // Clear all fields if null is passed
             lblMaKM.setText("");
             lblLoaiKM.setText("");
             lblMoTa.setText("");
@@ -64,21 +66,30 @@ public class GiaoDienChiTietKhuyenMai extends VBox {
         }
 
         lblMaKM.setText(km.getMaKM());
-        lblLoaiKM.setText(km.getMaLoaiKM()); // Should be replaced with name lookup
+        lblLoaiKM.setText(km.getLoaiKhuyenMai() != null ? km.getLoaiKhuyenMai().getTenLoaiKM() : "");
         lblMoTa.setText(km.getMoTa());
 
+        // Build the detailed value string
         String giaTri = "";
-        if (km.getTyLe() != null) {
-            giaTri = km.getTyLe() + " %";
-        } else if (km.getSoTien() != null) {
-            giaTri = km.getSoTien().toPlainString() + " VND";
-        } else if (km.getMaMonTang() != null) {
-            giaTri = "Tặng món: " + km.getMaMonTang(); // Should be replaced with name lookup
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+
+        if (km.getMonAnTang() != null) {
+            giaTri = "Tặng món: " + km.getMonAnTang().getTenMon();
+        } else {
+            if (km.getTyLe() != null && km.getTyLe().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                giaTri = "Giảm " + km.getTyLe() + "%";
+            } else if (km.getSoTien() != null && km.getSoTien().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                giaTri = "Giảm " + currencyFormatter.format(km.getSoTien());
+            }
+
+            if (km.getMonAnApDung() != null) {
+                giaTri += " cho món: " + km.getMonAnApDung().getTenMon();
+            }
         }
         lblGiaTri.setText(giaTri);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        lblNgayBatDau.setText(km.getNgayBatDau() != null ? km.getNgayBatDau().format(formatter) : "");
-        lblNgayKetThuc.setText(km.getNgayKetThuc() != null ? km.getNgayKetThuc().format(formatter) : "");
+        lblNgayBatDau.setText(km.getNgayBatDau() != null ? km.getNgayBatDau().format(formatter) : "Không giới hạn");
+        lblNgayKetThuc.setText(km.getNgayKetThuc() != null ? km.getNgayKetThuc().format(formatter) : "Không giới hạn");
     }
 }
