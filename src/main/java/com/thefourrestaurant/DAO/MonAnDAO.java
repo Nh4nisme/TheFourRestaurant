@@ -35,6 +35,29 @@ public class MonAnDAO {
         return danhSachMonAn;
     }
 
+    public List<MonAn> getAllMonAn() {
+        List<MonAn> danhSachMonAn = new ArrayList<>();
+        String sql = "SELECT * FROM MonAn ORDER BY tenMon ASC";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                MonAn monAn = new MonAn();
+                monAn.setMaMonAn(rs.getString("maMonAn"));
+                monAn.setTenMon(rs.getString("tenMon"));
+                monAn.setDonGia(rs.getBigDecimal("donGia"));
+                monAn.setTrangThai(rs.getString("trangThai"));
+                monAn.setMaLoaiMon(rs.getString("maLoaiMon"));
+                monAn.setHinhAnh(rs.getString("hinhAnh"));
+                danhSachMonAn.add(monAn);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return danhSachMonAn;
+    }
+
     public String generateNewMaMonAn() {
         String newId = "MA000001";
         String sql = "SELECT TOP 1 maMonAn FROM MonAn ORDER BY maMonAn DESC";

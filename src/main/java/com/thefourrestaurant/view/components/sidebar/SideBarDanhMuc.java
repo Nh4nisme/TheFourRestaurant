@@ -6,6 +6,7 @@ import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.QuanLyThucDon;
 import com.thefourrestaurant.view.ban.QuanLiBan;
+import com.thefourrestaurant.view.khuyenmai.GiaoDienKhuyenMai;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.GiaoDienMonAn;
 import com.thefourrestaurant.view.thoigiansukien.ThoiGianSuKien;
@@ -40,6 +41,7 @@ public class SideBarDanhMuc extends BaseSideBar {
         themDanhMuc("Loại món ăn");
         themDanhMuc("Món ăn", List.of("Cơm", "Đồ nước", "Tráng miệng", "Món đặc biệt"));
         themDanhMuc("Thời gian sự kiện");
+        themDanhMuc("Khuyến mãi");
 
         // Tầng & Bàn
         TangDAO tangDAO = new TangDAO();
@@ -108,8 +110,11 @@ public class SideBarDanhMuc extends BaseSideBar {
             case "Thời gian sự kiện":
                 newContent = new ThoiGianSuKien();
                 break;
+            case "Khuyến mãi":
+                newContent = new GiaoDienKhuyenMai();
+                break;
             default:
-
+                // Check if it's a LoaiMon
                 Optional<LoaiMon> loaiMonOpt = loaiMonAnDAO.getAllLoaiMonAn().stream()
                         .filter(lm -> lm.getTenLoaiMon().equals(tenMuc))
                         .findFirst();
@@ -118,6 +123,7 @@ public class SideBarDanhMuc extends BaseSideBar {
                     LoaiMon selectedLoaiMon = loaiMonOpt.get();
                     newContent = new GiaoDienMonAn(selectedLoaiMon.getMaLoaiMon(), selectedLoaiMon.getTenLoaiMon());
                 } else {
+                    // If not a LoaiMon, check if it's a Tang (floor)
                     TangDAO tangDAO = new TangDAO();
                     Optional<Tang> tangOpt = tangDAO.getAllTang().stream()
                             .filter(t -> t.getTenTang().equals(tenMuc))

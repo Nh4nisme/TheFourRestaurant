@@ -67,7 +67,7 @@ public class ThoiGianSuKienThem extends Stage {
         BorderPane layoutChinh = new BorderPane();
 
         // --- Header ---
-        Label nhanTieuDe = new Label("Tùy chỉnh sự kiện khuyến mãi");
+        Label nhanTieuDe = new Label("Thêm sự kiện khuyến mãi");
         nhanTieuDe.setStyle(kieuFontStyle + "-fx-text-fill: #D4A017; -fx-font-size: 18px; -fx-font-weight: bold;");
         HBox phanDau = new HBox(nhanTieuDe);
         phanDau.setAlignment(Pos.CENTER_LEFT);
