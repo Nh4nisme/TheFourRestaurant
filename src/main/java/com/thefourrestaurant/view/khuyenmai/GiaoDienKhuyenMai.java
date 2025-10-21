@@ -2,10 +2,12 @@ package com.thefourrestaurant.view.khuyenmai;
 
 import com.thefourrestaurant.controller.KhuyenMaiController;
 import com.thefourrestaurant.model.KhuyenMai;
+import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -15,24 +17,33 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
 
     private final KhuyenMaiController controller;
     private final GiaoDienChiTietKhuyenMai chiTietKhuyenMaiPane;
-    private final TableView<KhuyenMai> typedTable; // The correctly typed reference
+    private final TableView<KhuyenMai> typedTable;
 
     public GiaoDienKhuyenMai() {
-        super("Khuyến mãi", new GiaoDienChiTietKhuyenMai());
+        super("", new GiaoDienChiTietKhuyenMai());
         this.controller = new KhuyenMaiController();
 
-        // 1. Get the detail pane instance
         this.chiTietKhuyenMaiPane = (GiaoDienChiTietKhuyenMai) this.chiTietNode;
-
-        // 2. Safely cast the generic table from the superclass to a typed one
         this.typedTable = (TableView<KhuyenMai>) this.tableChinh;
 
-        // 3. Add a listener to the typed table's selection model
+        // Add listener to update detail pane on selection
         this.typedTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 chiTietKhuyenMaiPane.hienThiChiTiet(newSelection);
             }
         });
+
+        // --- Add the "Add" button to the toolbar ---
+        ButtonSample themButton = new ButtonSample("Thêm Khuyến Mãi", "", 35, 14, 3);
+        themButton.setOnAction(e -> {
+            if (controller.themMoiKhuyenMai()) {
+                refreshTable();
+            }
+        });
+
+        // Get the toolbar from the parent VBox and add the button
+        HBox toolbar = (HBox) this.getChildren().get(0);
+        toolbar.getChildren().add(1, themButton); // Add after the title
 
         // Initial data load
         refreshTable();
@@ -86,15 +97,46 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
         table.getColumns().addAll(maKMCol, moTaCol, loaiKMCol, giaTriCol, ngayBDCol, ngayKTCol);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
+        // Add context menu for edit/delete
+        table.setRowFactory(tv -> {
+            TableRow<KhuyenMai> row = new TableRow<>();
+            ContextMenu contextMenu = new ContextMenu();
+
+            MenuItem editItem = new MenuItem("Sửa");
+            editItem.setOnAction(event -> {
+                KhuyenMai selectedItem = row.getItem();
+                if (selectedItem != null && controller.tuyChinhKhuyenMai(selectedItem)) {
+                    refreshTable();
+                }
+            });
+
+            MenuItem deleteItem = new MenuItem("Xóa");
+            deleteItem.setOnAction(event -> {
+                KhuyenMai selectedItem = row.getItem();
+                if (selectedItem != null && controller.xoaKhuyenMai(selectedItem)) {
+                    refreshTable();
+                }
+            });
+
+            contextMenu.getItems().addAll(editItem, new SeparatorMenuItem(), deleteItem);
+
+            row.emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {
+                if (isNowEmpty) {
+                    row.setContextMenu(null);
+                } else {
+                    row.setContextMenu(contextMenu);
+                }
+            });
+            return row;
+        });
+
         return table;
     }
 
     private void refreshTable() {
         List<KhuyenMai> data = controller.getAllKhuyenMai();
-        // Use the typed reference to set items
         this.typedTable.setItems(FXCollections.observableArrayList(data));
         
-        // Clear details if the table is empty or no selection
         if (data.isEmpty() || this.typedTable.getSelectionModel().getSelectedItem() == null) {
             chiTietKhuyenMaiPane.hienThiChiTiet(null);
         }

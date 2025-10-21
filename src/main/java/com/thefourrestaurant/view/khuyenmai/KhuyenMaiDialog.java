@@ -47,7 +47,6 @@ public class KhuyenMaiDialog extends Stage {
         this.initModality(Modality.APPLICATION_MODAL);
         this.setTitle(isEditMode ? "Tùy Chỉnh Khuyến Mãi" : "Thêm Khuyến Mãi Mới");
 
-        // --- Font Loading ---
         Font fontMontserrat = null;
         try (InputStream luongFont = getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf")) {
             if (luongFont != null) {
@@ -57,14 +56,10 @@ public class KhuyenMaiDialog extends Stage {
             System.err.println("Lỗi khi tải font: " + e.getMessage());
         }
 
-        String kieuFontStyle = "";
-        if (fontMontserrat != null) {
-            kieuFontStyle = "-fx-font-family: '" + fontMontserrat.getFamily() + "';";
-        }
+        String kieuFontStyle = (fontMontserrat != null) ? "-fx-font-family: '" + fontMontserrat.getFamily() + "';" : "";
 
         BorderPane layoutChinh = new BorderPane();
 
-        // ===== HEADER =====
         Label nhanTieuDe = new Label(isEditMode ? "Tùy chỉnh khuyến mãi" : "Thêm khuyến mãi mới");
         nhanTieuDe.setStyle(kieuFontStyle + "-fx-text-fill: #D4A017; -fx-font-size: 18px; -fx-font-weight: bold;");
         HBox hopTieuDe = new HBox(nhanTieuDe);
@@ -72,24 +67,18 @@ public class KhuyenMaiDialog extends Stage {
         hopTieuDe.setPadding(new Insets(15));
         hopTieuDe.setStyle("-fx-background-color: #1E424D;");
 
-        // ===== BODY =====
         VBox hopGiua = createMainForm(tatCaLoaiKM, tatCaMonAn, kieuFontStyle);
-
-        // ===== FOOTER =====
         HBox hopChanTrang = createFooter();
 
-        // ===== LAYOUT =====
         layoutChinh.setTop(hopTieuDe);
         layoutChinh.setCenter(hopGiua);
         layoutChinh.setBottom(hopChanTrang);
 
-        // --- Fill data for edit mode ---
         if (isEditMode) {
             dienDuLieuHienCo();
         }
 
-        // ===== SCENE =====
-        Scene khungCanh = new Scene(layoutChinh, 650, 500);
+        Scene khungCanh = new Scene(layoutChinh, 650, 550);
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
             khungCanh.getStylesheets().add(urlCSS.toExternalForm());
@@ -102,9 +91,8 @@ public class KhuyenMaiDialog extends Stage {
         mainGrid.setVgap(12);
         mainGrid.setHgap(15);
 
-        // --- Column Constraints for Labels ---
         ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPrefWidth(350); // Set preferred width for labels
+        col1.setMinWidth(200);
         ColumnConstraints col2 = new ColumnConstraints();
         col2.setHgrow(Priority.ALWAYS);
         mainGrid.getColumnConstraints().addAll(col1, col2);
@@ -112,7 +100,6 @@ public class KhuyenMaiDialog extends Stage {
         String kieuNhan = kieuFontStyle + "-fx-text-fill: #E19E11; -fx-font-size: 14px;";
         String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8;";
 
-        // Apply styles to components
         loaiKMComboBox.setStyle(kieuTruongNhap); loaiKMComboBox.getStyleClass().add("combo-box");
         moTaTextArea.setStyle(kieuTruongNhap); moTaTextArea.getStyleClass().add("text-area");
         ngayBatDauPicker.setStyle(kieuTruongNhap); ngayBatDauPicker.getStyleClass().add("date-picker");
@@ -121,20 +108,17 @@ public class KhuyenMaiDialog extends Stage {
         soTienField.setStyle(kieuTruongNhap); soTienField.getStyleClass().add("text-field");
         monTangComboBox.setStyle(kieuTruongNhap); monTangComboBox.getStyleClass().add("combo-box");
 
-        // Loại khuyến mãi
         Label lblLoaiKM = new Label("Loại khuyến mãi:");
         lblLoaiKM.setStyle(kieuNhan);
         mainGrid.add(lblLoaiKM, 0, 0);
         loaiKMComboBox.setItems(FXCollections.observableArrayList(tatCaLoaiKM));
         mainGrid.add(loaiKMComboBox, 1, 0);
 
-        // Dynamic fields pane
         dynamicFieldsPane.setVgap(12);
         dynamicFieldsPane.setHgap(15);
-        dynamicFieldsPane.getColumnConstraints().addAll(new ColumnConstraints(200), col2); // Apply constraints here too
-        mainGrid.add(dynamicFieldsPane, 0, 1, 2, 1); // Span 2 columns
+        dynamicFieldsPane.getColumnConstraints().addAll(new ColumnConstraints(200), col2);
+        mainGrid.add(dynamicFieldsPane, 0, 1, 2, 1);
 
-        // Mô tả
         Label lblMoTa = new Label("Mô tả chi tiết:");
         lblMoTa.setStyle(kieuNhan);
         mainGrid.add(lblMoTa, 0, 2);
@@ -142,26 +126,22 @@ public class KhuyenMaiDialog extends Stage {
         moTaTextArea.setPrefRowCount(3);
         mainGrid.add(moTaTextArea, 1, 2);
 
-        // Ngày bắt đầu
         Label lblNgayBD = new Label("Bắt đầu từ:");
         lblNgayBD.setStyle(kieuNhan);
         mainGrid.add(lblNgayBD, 0, 3);
         mainGrid.add(ngayBatDauPicker, 1, 3);
 
-        // Ngày kết thúc
         Label lblNgayKT = new Label("Kết thúc vào:");
         lblNgayKT.setStyle(kieuNhan);
         mainGrid.add(lblNgayKT, 0, 4);
         mainGrid.add(ngayKetThucPicker, 1, 4);
 
-        // Listener to change UI based on LoaiKM
         loaiKMComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
                 updateDynamicFields(newVal, tatCaMonAn, kieuNhan);
             }
         });
 
-        // Set initial value if not in edit mode
         if (!isEditMode && !tatCaLoaiKM.isEmpty()) {
             loaiKMComboBox.setValue(tatCaLoaiKM.get(0));
         }
@@ -175,26 +155,34 @@ public class KhuyenMaiDialog extends Stage {
         dynamicFieldsPane.getChildren().clear();
         String maLoaiKM = loaiKM.getMaLoaiKM();
 
-        if (maLoaiKM.equals("LKM00001")) { // Giảm giá theo tỷ lệ
+        if ("LKM00001".equals(maLoaiKM)) { // Giảm giá theo tỷ lệ
             Label label = new Label("Tỷ lệ giảm (%):");
             label.setStyle(kieuNhan);
             dynamicFieldsPane.add(label, 0, 0);
             tyLeField.setPromptText("Ví dụ: 10.5");
             dynamicFieldsPane.add(tyLeField, 1, 0);
-        } else if (maLoaiKM.equals("LKM00002")) { // Tặng món
+        } else if ("LKM00002".equals(maLoaiKM)) { // Tặng món
             Label label = new Label("Chọn món tặng:");
             label.setStyle(kieuNhan);
             dynamicFieldsPane.add(label, 0, 0);
             monTangComboBox.setItems(FXCollections.observableArrayList(tatCaMonAn));
-            monTangComboBox.setConverter(new StringConverter<MonAn>() {
-                @Override
-                public String toString(MonAn monAn) {
-                    return monAn == null ? "" : monAn.getTenMon();
-                }
-                @Override
-                public MonAn fromString(String s) { return null; }
+            monTangComboBox.setConverter(new StringConverter<>() {
+                @Override public String toString(MonAn monAn) { return monAn == null ? "" : monAn.getTenMon(); }
+                @Override public MonAn fromString(String s) { return null; }
             });
             dynamicFieldsPane.add(monTangComboBox, 1, 0);
+        } else if ("LKM00003".equals(maLoaiKM)) { // Giảm giá trên món ăn
+            Label lblTyLe = new Label("Tỷ lệ giảm (%):");
+            lblTyLe.setStyle(kieuNhan);
+            dynamicFieldsPane.add(lblTyLe, 0, 0);
+            tyLeField.setPromptText("Nhập nếu giảm theo %");
+            dynamicFieldsPane.add(tyLeField, 1, 0);
+
+            Label lblSoTien = new Label("Số tiền giảm (VND):");
+            lblSoTien.setStyle(kieuNhan);
+            dynamicFieldsPane.add(lblSoTien, 0, 1);
+            soTienField.setPromptText("Nhập nếu giảm số tiền cụ thể");
+            dynamicFieldsPane.add(soTienField, 1, 1);
         }
     }
 
@@ -231,7 +219,7 @@ public class KhuyenMaiDialog extends Stage {
         }
         if (khuyenMaiHienTai.getMaMonTang() != null) {
             monTangComboBox.getItems().stream()
-                    .filter(m -> m.getMaMonAn().equals(khuyenMaiHienTai.getMaMonTang()))
+                    .filter(m -> m != null && m.getMaMonAn().equals(khuyenMaiHienTai.getMaMonTang()))
                     .findFirst().ifPresent(monTangComboBox::setValue);
         }
     }
@@ -254,25 +242,30 @@ public class KhuyenMaiDialog extends Stage {
         ketQua.setNgayBatDau(ngayBatDauPicker.getValue());
         ketQua.setNgayKetThuc(ngayKetThucPicker.getValue());
 
-        // Clear old values
         ketQua.setTyLe(null);
         ketQua.setSoTien(null);
         ketQua.setMaMonTang(null);
 
-        // Set new values based on type
         String maLoaiKM = selectedLoai.getMaLoaiKM();
         try {
-            if (maLoaiKM.equals("LKM00001")) { // Giảm giá theo tỷ lệ
+            if ("LKM00001".equals(maLoaiKM)) { // Giảm giá theo tỷ lệ
                 if (!tyLeField.getText().isEmpty()) {
                     ketQua.setTyLe(new BigDecimal(tyLeField.getText()));
                 }
-            } else if (maLoaiKM.equals("LKM00002")) { // Tặng món
+            } else if ("LKM00002".equals(maLoaiKM)) { // Tặng món
                 if (monTangComboBox.getValue() != null) {
                     ketQua.setMaMonTang(monTangComboBox.getValue().getMaMonAn());
                 }
+            } else if ("LKM00003".equals(maLoaiKM)) { // Giảm giá trên món ăn
+                if (!tyLeField.getText().isEmpty()) {
+                    ketQua.setTyLe(new BigDecimal(tyLeField.getText()));
+                }
+                if (!soTienField.getText().isEmpty()) {
+                    ketQua.setSoTien(new BigDecimal(soTienField.getText()));
+                }
             }
         } catch (NumberFormatException e) {
-            new Alert(Alert.AlertType.ERROR, "Giá trị nhập vào không hợp lệ (ví dụ: tỷ lệ phải là số).").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Giá trị nhập vào không hợp lệ (ví dụ: tỷ lệ, số tiền phải là số).").showAndWait();
             return;
         }
 

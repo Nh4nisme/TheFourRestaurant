@@ -9,17 +9,9 @@ public class MonAn {
     private String trangThai;
     private String maLoaiMon;
     private String hinhAnh;
+    private String maKM; // New field for foreign key to KhuyenMai
 
     public MonAn() {
-    }
-
-    public MonAn(String maMonAn, String tenMon, BigDecimal donGia, String trangThai, String maLoaiMon, String hinhAnh) {
-        this.maMonAn = maMonAn;
-        this.tenMon = tenMon;
-        this.donGia = donGia;
-        this.trangThai = trangThai;
-        this.maLoaiMon = maLoaiMon;
-        this.hinhAnh = hinhAnh;
     }
 
     // Getters and Setters
@@ -71,6 +63,14 @@ public class MonAn {
         this.hinhAnh = hinhAnh;
     }
 
+    public String getMaKM() {
+        return maKM;
+    }
+
+    public void setMaKM(String maKM) {
+        this.maKM = maKM;
+    }
+
     @Override
     public String toString() {
         return "MonAn{" +
@@ -80,6 +80,7 @@ public class MonAn {
                 ", trangThai='" + trangThai + '\'' +
                 ", maLoaiMon='" + maLoaiMon + '\'' +
                 ", hinhAnh='" + hinhAnh + '\'' +
+                ", maKM='" + maKM + '\'' +
                 '}';
     }
 }
