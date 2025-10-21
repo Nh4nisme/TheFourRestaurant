@@ -41,8 +41,6 @@ public abstract class BaseSideBar extends VBox {
 
         // Thêm header + danh mục vào sidebar
         getChildren().addAll(tieuDe, danhMucContainer);
-
-        khoiTaoDanhMuc();
     }
 
     // Các class con override để thêm danh mục
