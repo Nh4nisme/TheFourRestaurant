@@ -2,6 +2,8 @@ package com.thefourrestaurant.DAO;
 
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.model.KhuyenMai;
+import com.thefourrestaurant.model.LoaiKhuyenMai;
+import com.thefourrestaurant.model.MonAn;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,30 +11,63 @@ import java.util.List;
 
 public class KhuyenMaiDAO {
 
+    private KhuyenMai mapResultSetToKhuyenMai(ResultSet rs) throws SQLException {
+        KhuyenMai km = new KhuyenMai();
+        km.setMaKM(rs.getString("maKM"));
+        km.setTyLe(rs.getBigDecimal("tyLe"));
+        km.setSoTien(rs.getBigDecimal("soTien"));
+        Date ngayBD = rs.getDate("ngayBatDau");
+        if (ngayBD != null) km.setNgayBatDau(ngayBD.toLocalDate());
+        Date ngayKT = rs.getDate("ngayKetThuc");
+        if (ngayKT != null) km.setNgayKetThuc(ngayKT.toLocalDate());
+        km.setMoTa(rs.getString("moTa"));
+
+        // Build LoaiKhuyenMai object
+        if (rs.getString("maLoaiKM") != null) {
+            LoaiKhuyenMai lkm = new LoaiKhuyenMai();
+            lkm.setMaLoaiKM(rs.getString("maLoaiKM"));
+            lkm.setTenLoaiKM(rs.getString("tenLoaiKM"));
+            km.setLoaiKhuyenMai(lkm);
+        }
+
+        // Build MonAnTang object
+        if (rs.getString("maMonTang") != null) {
+            MonAn monAnTang = new MonAn();
+            monAnTang.setMaMonAn(rs.getString("maMonTang"));
+            monAnTang.setTenMon(rs.getString("tenMonTang"));
+            km.setMonAnTang(monAnTang);
+        }
+
+        // Build MonAnApDung object
+        if (rs.getString("maMonApDung") != null) {
+            MonAn monAnApDung = new MonAn();
+            monAnApDung.setMaMonAn(rs.getString("maMonApDung"));
+            monAnApDung.setTenMon(rs.getString("tenMonApDung"));
+            km.setMonAnApDung(monAnApDung);
+        }
+
+        return km;
+    }
+
+    private String getBaseSelectSQL() {
+        return "SELECT km.*, lkm.tenLoaiKM, " +
+               "mat.tenMon AS tenMonTang, " +
+               "maad.tenMon AS tenMonApDung " +
+               "FROM KhuyenMai km " +
+               "LEFT JOIN LoaiKhuyenMai lkm ON km.maLoaiKM = lkm.maLoaiKM " +
+               "LEFT JOIN MonAn mat ON km.maMonTang = mat.maMonAn " +
+               "LEFT JOIN MonAn maad ON km.maMonApDung = maad.maMonAn ";
+    }
+
     public List<KhuyenMai> getAllKhuyenMai() {
         List<KhuyenMai> danhSach = new ArrayList<>();
-        String sql = "SELECT * FROM KhuyenMai ORDER BY maKM DESC";
+        String sql = getBaseSelectSQL() + "ORDER BY km.maKM DESC";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                KhuyenMai km = new KhuyenMai();
-                km.setMaKM(rs.getString("maKM"));
-                km.setMaLoaiKM(rs.getString("maLoaiKM"));
-                km.setTyLe(rs.getBigDecimal("tyLe"));
-                km.setSoTien(rs.getBigDecimal("soTien"));
-                km.setMaMonTang(rs.getString("maMonTang"));
-                Date ngayBD = rs.getDate("ngayBatDau");
-                if (ngayBD != null) {
-                    km.setNgayBatDau(ngayBD.toLocalDate());
-                }
-                Date ngayKT = rs.getDate("ngayKetThuc");
-                if (ngayKT != null) {
-                    km.setNgayKetThuc(ngayKT.toLocalDate());
-                }
-                km.setMoTa(rs.getString("moTa"));
-                danhSach.add(km);
+                danhSach.add(mapResultSetToKhuyenMai(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -60,19 +95,20 @@ public class KhuyenMaiDAO {
     }
 
     public boolean addKhuyenMai(KhuyenMai km) {
-        String sql = "INSERT INTO KhuyenMai (maKM, maLoaiKM, tyLe, soTien, maMonTang, ngayBatDau, ngayKetThuc, moTa) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO KhuyenMai (maKM, maLoaiKM, tyLe, soTien, maMonTang, maMonApDung, ngayBatDau, ngayKetThuc, moTa) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, km.getMaKM());
-            ps.setString(2, km.getMaLoaiKM());
+            ps.setString(2, km.getLoaiKhuyenMai() != null ? km.getLoaiKhuyenMai().getMaLoaiKM() : null);
             ps.setBigDecimal(3, km.getTyLe());
             ps.setBigDecimal(4, km.getSoTien());
-            ps.setString(5, km.getMaMonTang());
-            ps.setObject(6, km.getNgayBatDau());
-            ps.setObject(7, km.getNgayKetThuc());
-            ps.setString(8, km.getMoTa());
+            ps.setString(5, km.getMonAnTang() != null ? km.getMonAnTang().getMaMonAn() : null);
+            ps.setString(6, km.getMonAnApDung() != null ? km.getMonAnApDung().getMaMonAn() : null);
+            ps.setObject(7, km.getNgayBatDau());
+            ps.setObject(8, km.getNgayKetThuc());
+            ps.setString(9, km.getMoTa());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -82,19 +118,20 @@ public class KhuyenMaiDAO {
     }
 
     public boolean updateKhuyenMai(KhuyenMai km) {
-        String sql = "UPDATE KhuyenMai SET maLoaiKM = ?, tyLe = ?, soTien = ?, maMonTang = ?, " +
+        String sql = "UPDATE KhuyenMai SET maLoaiKM = ?, tyLe = ?, soTien = ?, maMonTang = ?, maMonApDung = ?, " +
                      "ngayBatDau = ?, ngayKetThuc = ?, moTa = ? WHERE maKM = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, km.getMaLoaiKM());
+            ps.setString(1, km.getLoaiKhuyenMai() != null ? km.getLoaiKhuyenMai().getMaLoaiKM() : null);
             ps.setBigDecimal(2, km.getTyLe());
             ps.setBigDecimal(3, km.getSoTien());
-            ps.setString(4, km.getMaMonTang());
-            ps.setObject(5, km.getNgayBatDau());
-            ps.setObject(6, km.getNgayKetThuc());
-            ps.setString(7, km.getMoTa());
-            ps.setString(8, km.getMaKM());
+            ps.setString(4, km.getMonAnTang() != null ? km.getMonAnTang().getMaMonAn() : null);
+            ps.setString(5, km.getMonAnApDung() != null ? km.getMonAnApDung().getMaMonAn() : null);
+            ps.setObject(6, km.getNgayBatDau());
+            ps.setObject(7, km.getNgayKetThuc());
+            ps.setString(8, km.getMoTa());
+            ps.setString(9, km.getMaKM());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

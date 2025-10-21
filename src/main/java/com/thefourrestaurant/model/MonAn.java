@@ -7,9 +7,9 @@ public class MonAn {
     private String tenMon;
     private BigDecimal donGia;
     private String trangThai;
-    private String maLoaiMon;
+    private LoaiMon loaiMon; // Changed from String
     private String hinhAnh;
-    private String maKM; // New field for foreign key to KhuyenMai
+    private KhuyenMai khuyenMai; // Changed from String
 
     public MonAn() {
     }
@@ -47,12 +47,12 @@ public class MonAn {
         this.trangThai = trangThai;
     }
 
-    public String getMaLoaiMon() {
-        return maLoaiMon;
+    public LoaiMon getLoaiMon() {
+        return loaiMon;
     }
 
-    public void setMaLoaiMon(String maLoaiMon) {
-        this.maLoaiMon = maLoaiMon;
+    public void setLoaiMon(LoaiMon loaiMon) {
+        this.loaiMon = loaiMon;
     }
 
     public String getHinhAnh() {
@@ -63,12 +63,12 @@ public class MonAn {
         this.hinhAnh = hinhAnh;
     }
 
-    public String getMaKM() {
-        return maKM;
+    public KhuyenMai getKhuyenMai() {
+        return khuyenMai;
     }
 
-    public void setMaKM(String maKM) {
-        this.maKM = maKM;
+    public void setKhuyenMai(KhuyenMai khuyenMai) {
+        this.khuyenMai = khuyenMai;
     }
 
     @Override
@@ -78,9 +78,9 @@ public class MonAn {
                 ", tenMon='" + tenMon + '\'' +
                 ", donGia=" + donGia +
                 ", trangThai='" + trangThai + '\'' +
-                ", maLoaiMon='" + maLoaiMon + '\'' +
+                ", loaiMon=" + (loaiMon != null ? loaiMon.getTenLoaiMon() : "null") +
                 ", hinhAnh='" + hinhAnh + '\'' +
-                ", maKM='" + maKM + '\'' +
+                ", khuyenMai=" + (khuyenMai != null ? khuyenMai.getMaKM() : "null") +
                 '}';
     }
 }

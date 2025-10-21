@@ -5,15 +5,15 @@ import java.time.LocalDate;
 
 public class KhuyenMai {
     private String maKM;
-    private String maLoaiKM;
+    private LoaiKhuyenMai loaiKhuyenMai; // Changed from String
     private BigDecimal tyLe;
     private BigDecimal soTien;
-    private String maMonTang;
+    private MonAn monAnTang; // Changed from String
+    private MonAn monAnApDung; // Added for LKM00003
     private LocalDate ngayBatDau;
     private LocalDate ngayKetThuc;
     private String moTa;
 
-    // Constructors
     public KhuyenMai() {
     }
 
@@ -26,12 +26,12 @@ public class KhuyenMai {
         this.maKM = maKM;
     }
 
-    public String getMaLoaiKM() {
-        return maLoaiKM;
+    public LoaiKhuyenMai getLoaiKhuyenMai() {
+        return loaiKhuyenMai;
     }
 
-    public void setMaLoaiKM(String maLoaiKM) {
-        this.maLoaiKM = maLoaiKM;
+    public void setLoaiKhuyenMai(LoaiKhuyenMai loaiKhuyenMai) {
+        this.loaiKhuyenMai = loaiKhuyenMai;
     }
 
     public BigDecimal getTyLe() {
@@ -50,12 +50,20 @@ public class KhuyenMai {
         this.soTien = soTien;
     }
 
-    public String getMaMonTang() {
-        return maMonTang;
+    public MonAn getMonAnTang() {
+        return monAnTang;
     }
 
-    public void setMaMonTang(String maMonTang) {
-        this.maMonTang = maMonTang;
+    public void setMonAnTang(MonAn monAnTang) {
+        this.monAnTang = monAnTang;
+    }
+
+    public MonAn getMonAnApDung() {
+        return monAnApDung;
+    }
+
+    public void setMonAnApDung(MonAn monAnApDung) {
+        this.monAnApDung = monAnApDung;
     }
 
     public LocalDate getNgayBatDau() {
@@ -80,5 +88,10 @@ public class KhuyenMai {
 
     public void setMoTa(String moTa) {
         this.moTa = moTa;
+    }
+
+    @Override
+    public String toString() {
+        return this.moTa; // For display in ComboBox
     }
 }

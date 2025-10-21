@@ -1,30 +1,56 @@
 package com.thefourrestaurant.DAO;
 
 import com.thefourrestaurant.connect.ConnectSQL;
+import com.thefourrestaurant.model.KhuyenMai;
+import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
 
-import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MonAnDAO {
 
+    // Helper method to map a ResultSet row to a complete MonAn object
     private MonAn mapResultSetToMonAn(ResultSet rs) throws SQLException {
         MonAn monAn = new MonAn();
         monAn.setMaMonAn(rs.getString("maMonAn"));
         monAn.setTenMon(rs.getString("tenMon"));
         monAn.setDonGia(rs.getBigDecimal("donGia"));
         monAn.setTrangThai(rs.getString("trangThai"));
-        monAn.setMaLoaiMon(rs.getString("maLoaiMon"));
         monAn.setHinhAnh(rs.getString("hinhAnh"));
-        monAn.setMaKM(rs.getString("maKM")); // Read the new column
+
+        // Create and set LoaiMon object
+        if (rs.getString("maLoaiMon") != null) {
+            LoaiMon loaiMon = new LoaiMon();
+            loaiMon.setMaLoaiMon(rs.getString("maLoaiMon"));
+            loaiMon.setTenLoaiMon(rs.getString("tenLoaiMon"));
+            // hinhAnh for LoaiMon is not joined here for simplicity, can be added if needed
+            monAn.setLoaiMon(loaiMon);
+        }
+
+        // Create and set KhuyenMai object
+        if (rs.getString("maKM") != null) {
+            KhuyenMai khuyenMai = new KhuyenMai();
+            khuyenMai.setMaKM(rs.getString("maKM"));
+            khuyenMai.setMoTa(rs.getString("km_moTa")); // Aliased column
+            // Other KhuyenMai fields can be joined and set here if needed
+            monAn.setKhuyenMai(khuyenMai);
+        }
+
         return monAn;
+    }
+
+    private String getBaseSelectSQL() {
+        return "SELECT ma.*, lm.tenLoaiMon, km.moTa AS km_moTa " +
+               "FROM MonAn ma " +
+               "LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon " +
+               "LEFT JOIN KhuyenMai km ON ma.maKM = km.maKM ";
     }
 
     public List<MonAn> getMonAnByLoai(String maLoaiMon) {
         List<MonAn> danhSachMonAn = new ArrayList<>();
-        String sql = "SELECT * FROM MonAn WHERE maLoaiMon = ? ORDER BY maMonAn DESC";
+        String sql = getBaseSelectSQL() + "WHERE ma.maLoaiMon = ? ORDER BY ma.maMonAn DESC";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -42,7 +68,7 @@ public class MonAnDAO {
 
     public List<MonAn> getAllMonAn() {
         List<MonAn> danhSachMonAn = new ArrayList<>();
-        String sql = "SELECT * FROM MonAn ORDER BY tenMon ASC";
+        String sql = getBaseSelectSQL() + "ORDER BY ma.tenMon ASC";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -84,9 +110,9 @@ public class MonAnDAO {
             ps.setString(2, monAn.getTenMon());
             ps.setBigDecimal(3, monAn.getDonGia());
             ps.setString(4, monAn.getTrangThai());
-            ps.setString(5, monAn.getMaLoaiMon());
+            ps.setString(5, monAn.getLoaiMon() != null ? monAn.getLoaiMon().getMaLoaiMon() : null);
             ps.setString(6, monAn.getHinhAnh());
-            ps.setString(7, monAn.getMaKM()); // Add the new parameter
+            ps.setString(7, monAn.getKhuyenMai() != null ? monAn.getKhuyenMai().getMaKM() : null);
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -103,10 +129,10 @@ public class MonAnDAO {
             ps.setString(1, monAn.getTenMon());
             ps.setBigDecimal(2, monAn.getDonGia());
             ps.setString(3, monAn.getTrangThai());
-            ps.setString(4, monAn.getMaLoaiMon());
+            ps.setString(4, monAn.getLoaiMon() != null ? monAn.getLoaiMon().getMaLoaiMon() : null);
             ps.setString(5, monAn.getHinhAnh());
-            ps.setString(6, monAn.getMaKM()); // Add the new parameter
-            ps.setString(7, monAn.getMaMonAn()); // Update where clause parameter index
+            ps.setString(6, monAn.getKhuyenMai() != null ? monAn.getKhuyenMai().getMaKM() : null);
+            ps.setString(7, monAn.getMaMonAn());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

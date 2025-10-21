@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 
 public class MonAnDialog extends Stage {
 
@@ -43,7 +42,7 @@ public class MonAnDialog extends Stage {
     private final TextField truongMoTa = new TextField();
     private final TextField truongSoLuong = new TextField();
 
-    public MonAnDialog(MonAn monAn, List<LoaiMon> tatCaLoaiMon, String maLoaiMonMacDinh, List<KhuyenMai> tatCaKhuyenMai) {
+    public MonAnDialog(MonAn monAn, List<LoaiMon> tatCaLoaiMon, LoaiMon loaiMonMacDinh, List<KhuyenMai> tatCaKhuyenMai) {
         this.monAnHienTai = monAn;
         this.isEditMode = (monAn != null);
 
@@ -63,7 +62,6 @@ public class MonAnDialog extends Stage {
 
         BorderPane layoutChinh = new BorderPane();
 
-        // ===== HEADER =====
         Label nhanTieuDe = new Label(isEditMode ? "Tùy chỉnh món ăn" : "Thêm món ăn");
         nhanTieuDe.setStyle(kieuFontStyle + "-fx-text-fill: #D4A017; -fx-font-size: 18px; -fx-font-weight: bold;");
         HBox hopTieuDe = new HBox(nhanTieuDe);
@@ -71,16 +69,13 @@ public class MonAnDialog extends Stage {
         hopTieuDe.setPadding(new Insets(15));
         hopTieuDe.setStyle("-fx-background-color: #1E424D;");
 
-        // ===== BODY =====
-        GridPane luoiFormChinh = createMainForm(tatCaLoaiMon, maLoaiMonMacDinh, kieuFontStyle);
+        GridPane luoiFormChinh = createMainForm(tatCaLoaiMon, loaiMonMacDinh, kieuFontStyle);
         TitledPane khungNangCao = createAdvancedPane(kieuFontStyle, tatCaKhuyenMai);
         VBox hopGiua = new VBox(20, luoiFormChinh, khungNangCao);
         hopGiua.setPadding(new Insets(20));
 
-        // ===== FOOTER =====
         HBox hopChanTrang = createFooter();
 
-        // ===== LAYOUT =====
         layoutChinh.setTop(hopTieuDe);
         layoutChinh.setCenter(hopGiua);
         layoutChinh.setBottom(hopChanTrang);
@@ -93,7 +88,6 @@ public class MonAnDialog extends Stage {
             this.setHeight(isNowExpanded ? 720 : 580);
         });
 
-        // ===== SCENE =====
         Scene khungCanh = new Scene(layoutChinh, 500, 550);
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
@@ -103,7 +97,7 @@ public class MonAnDialog extends Stage {
         this.setHeight(580);
     }
 
-    private GridPane createMainForm(List<LoaiMon> tatCaLoaiMon, String maLoaiMonMacDinh, String kieuFontStyle) {
+    private GridPane createMainForm(List<LoaiMon> tatCaLoaiMon, LoaiMon loaiMonMacDinh, String kieuFontStyle) {
         GridPane luoiForm = new GridPane();
         luoiForm.setVgap(12);
         luoiForm.setHgap(15);
@@ -134,7 +128,9 @@ public class MonAnDialog extends Stage {
             @Override public String toString(LoaiMon object) { return object == null ? "" : object.getTenLoaiMon(); }
             @Override public LoaiMon fromString(String string) { return null; }
         });
-        tatCaLoaiMon.stream().filter(lm -> lm.getMaLoaiMon().equals(maLoaiMonMacDinh)).findFirst().ifPresent(loaiMonComboBox::setValue);
+        if (loaiMonMacDinh != null) {
+            loaiMonComboBox.setValue(loaiMonMacDinh);
+        }
         luoiForm.add(loaiMonComboBox, 1, 3);
 
         Hyperlink lienKetDinhKemAnh = new Hyperlink("đính kèm một ảnh");
@@ -213,13 +209,8 @@ public class MonAnDialog extends Stage {
         truongGia.setText(monAnHienTai.getDonGia().toPlainString());
         hopKiemHienThi.setSelected(monAnHienTai.getTrangThai().equalsIgnoreCase("Con"));
 
-        loaiMonComboBox.getItems().stream().filter(lm -> lm.getMaLoaiMon().equals(monAnHienTai.getMaLoaiMon())).findFirst().ifPresent(loaiMonComboBox::setValue);
-
-        if (monAnHienTai.getMaKM() != null) {
-            khuyenMaiComboBox.getItems().stream().filter(km -> km != null && km.getMaKM().equals(monAnHienTai.getMaKM())).findFirst().ifPresent(khuyenMaiComboBox::setValue);
-        } else {
-            khuyenMaiComboBox.setValue(null);
-        }
+        loaiMonComboBox.setValue(monAnHienTai.getLoaiMon());
+        khuyenMaiComboBox.setValue(monAnHienTai.getKhuyenMai());
     }
 
     private void chonAnh() {
@@ -259,10 +250,8 @@ public class MonAnDialog extends Stage {
         ketQua.setTenMon(truongTen.getText().trim());
         ketQua.setDonGia(donGia);
         ketQua.setTrangThai(hopKiemHienThi.isSelected() ? "Con" : "Het");
-        ketQua.setMaLoaiMon(loaiMonComboBox.getValue().getMaLoaiMon());
-        
-        KhuyenMai selectedKM = khuyenMaiComboBox.getValue();
-        ketQua.setMaKM(selectedKM != null ? selectedKM.getMaKM() : null);
+        ketQua.setLoaiMon(loaiMonComboBox.getValue());
+        ketQua.setKhuyenMai(khuyenMaiComboBox.getValue());
 
         if (tepAnhDaChon != null) {
             ketQua.setHinhAnh(tepAnhDaChon.toURI().toString());
