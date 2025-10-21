@@ -10,6 +10,18 @@ import java.util.List;
 
 public class MonAnDAO {
 
+    private MonAn mapResultSetToMonAn(ResultSet rs) throws SQLException {
+        MonAn monAn = new MonAn();
+        monAn.setMaMonAn(rs.getString("maMonAn"));
+        monAn.setTenMon(rs.getString("tenMon"));
+        monAn.setDonGia(rs.getBigDecimal("donGia"));
+        monAn.setTrangThai(rs.getString("trangThai"));
+        monAn.setMaLoaiMon(rs.getString("maLoaiMon"));
+        monAn.setHinhAnh(rs.getString("hinhAnh"));
+        monAn.setMaKM(rs.getString("maKM")); // Read the new column
+        return monAn;
+    }
+
     public List<MonAn> getMonAnByLoai(String maLoaiMon) {
         List<MonAn> danhSachMonAn = new ArrayList<>();
         String sql = "SELECT * FROM MonAn WHERE maLoaiMon = ? ORDER BY maMonAn DESC";
@@ -19,14 +31,7 @@ public class MonAnDAO {
             ps.setString(1, maLoaiMon);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    MonAn monAn = new MonAn();
-                    monAn.setMaMonAn(rs.getString("maMonAn"));
-                    monAn.setTenMon(rs.getString("tenMon"));
-                    monAn.setDonGia(rs.getBigDecimal("donGia"));
-                    monAn.setTrangThai(rs.getString("trangThai"));
-                    monAn.setMaLoaiMon(rs.getString("maLoaiMon"));
-                    monAn.setHinhAnh(rs.getString("hinhAnh"));
-                    danhSachMonAn.add(monAn);
+                    danhSachMonAn.add(mapResultSetToMonAn(rs));
                 }
             }
         } catch (SQLException e) {
@@ -43,14 +48,7 @@ public class MonAnDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                MonAn monAn = new MonAn();
-                monAn.setMaMonAn(rs.getString("maMonAn"));
-                monAn.setTenMon(rs.getString("tenMon"));
-                monAn.setDonGia(rs.getBigDecimal("donGia"));
-                monAn.setTrangThai(rs.getString("trangThai"));
-                monAn.setMaLoaiMon(rs.getString("maLoaiMon"));
-                monAn.setHinhAnh(rs.getString("hinhAnh"));
-                danhSachMonAn.add(monAn);
+                danhSachMonAn.add(mapResultSetToMonAn(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -78,7 +76,7 @@ public class MonAnDAO {
     }
 
     public boolean addMonAn(MonAn monAn) {
-        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, maKM) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -88,6 +86,7 @@ public class MonAnDAO {
             ps.setString(4, monAn.getTrangThai());
             ps.setString(5, monAn.getMaLoaiMon());
             ps.setString(6, monAn.getHinhAnh());
+            ps.setString(7, monAn.getMaKM()); // Add the new parameter
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -97,7 +96,7 @@ public class MonAnDAO {
     }
 
     public boolean updateMonAn(MonAn monAn) {
-        String sql = "UPDATE MonAn SET tenMon = ?, donGia = ?, trangThai = ?, maLoaiMon = ?, hinhAnh = ? WHERE maMonAn = ?";
+        String sql = "UPDATE MonAn SET tenMon = ?, donGia = ?, trangThai = ?, maLoaiMon = ?, hinhAnh = ?, maKM = ? WHERE maMonAn = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -106,7 +105,8 @@ public class MonAnDAO {
             ps.setString(3, monAn.getTrangThai());
             ps.setString(4, monAn.getMaLoaiMon());
             ps.setString(5, monAn.getHinhAnh());
-            ps.setString(6, monAn.getMaMonAn());
+            ps.setString(6, monAn.getMaKM()); // Add the new parameter
+            ps.setString(7, monAn.getMaMonAn()); // Update where clause parameter index
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

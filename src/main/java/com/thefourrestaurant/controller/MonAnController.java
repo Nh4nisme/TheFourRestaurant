@@ -1,9 +1,11 @@
 package com.thefourrestaurant.controller;
 
-import com.thefourrestaurant.DAO.MonAnDAO;
+import com.thefourrestaurant.DAO.KhuyenMaiDAO;
 import com.thefourrestaurant.DAO.LoaiMonAnDAO;
-import com.thefourrestaurant.model.MonAn;
+import com.thefourrestaurant.DAO.MonAnDAO;
+import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiMon;
+import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.monan.MonAnDialog;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -15,10 +17,12 @@ public class MonAnController {
 
     private final MonAnDAO monAnDAO;
     private final LoaiMonAnDAO loaiMonAnDAO;
+    private final KhuyenMaiDAO khuyenMaiDAO; // Added DAO for promotions
 
     public MonAnController() {
         this.monAnDAO = new MonAnDAO();
         this.loaiMonAnDAO = new LoaiMonAnDAO();
+        this.khuyenMaiDAO = new KhuyenMaiDAO(); // Instantiate it
     }
 
     public List<MonAn> getMonAnByLoai(String maLoaiMon) {
@@ -29,13 +33,20 @@ public class MonAnController {
         return loaiMonAnDAO.getAllLoaiMonAn();
     }
 
+    public List<KhuyenMai> getAllKhuyenMai() {
+        return khuyenMaiDAO.getAllKhuyenMai();
+    }
+
     public boolean themMoiMonAn(String maLoaiMonDefault) {
         List<LoaiMon> allLoaiMon = getAllLoaiMonAn();
+        List<KhuyenMai> allKhuyenMai = getAllKhuyenMai(); // Get promotions
+
         if (allLoaiMon.isEmpty()) {
             new Alert(Alert.AlertType.ERROR, "Không có loại món ăn nào trong CSDL. Vui lòng thêm loại món ăn trước.").showAndWait();
             return false;
         }
-        MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, maLoaiMonDefault);
+        // Pass promotions to the dialog
+        MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, maLoaiMonDefault, allKhuyenMai);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();
@@ -48,7 +59,10 @@ public class MonAnController {
 
     public boolean tuyChinhMonAn(MonAn monAn) {
         List<LoaiMon> allLoaiMon = getAllLoaiMonAn();
-        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getMaLoaiMon());
+        List<KhuyenMai> allKhuyenMai = getAllKhuyenMai(); // Get promotions
+
+        // Pass promotions to the dialog
+        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getMaLoaiMon(), allKhuyenMai);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();

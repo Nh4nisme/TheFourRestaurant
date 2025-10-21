@@ -3,78 +3,37 @@ package com.thefourrestaurant.view.khuyenmai;
 import com.thefourrestaurant.controller.KhuyenMaiController;
 import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.view.components.ButtonSample;
-import com.thefourrestaurant.view.components.DropDownButton;
+import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
+import javafx.scene.layout.HBox;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class GiaoDienKhuyenMai extends VBox {
+public class GiaoDienKhuyenMai extends GiaoDienThucThe {
 
     private final KhuyenMaiController controller;
-    private final TableView<KhuyenMai> tableView;
+    private final GiaoDienChiTietKhuyenMai chiTietKhuyenMaiPane;
+    private final TableView<KhuyenMai> typedTable;
 
     public GiaoDienKhuyenMai() {
+        super("", new GiaoDienChiTietKhuyenMai());
         this.controller = new KhuyenMaiController();
-        this.tableView = createTableView();
 
-        this.setAlignment(Pos.TOP_CENTER);
+        this.chiTietKhuyenMaiPane = (GiaoDienChiTietKhuyenMai) this.chiTietNode;
+        this.typedTable = (TableView<KhuyenMai>) this.tableChinh;
 
-        GridPane contentPane = new GridPane();
-        VBox.setVgrow(contentPane, Priority.ALWAYS);
-        contentPane.setStyle("-fx-background-color: #F5F5F5;");
+        // Add listener to update detail pane on selection
+        this.typedTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                chiTietKhuyenMaiPane.hienThiChiTiet(newSelection);
+            }
+        });
 
-        // Top Bar (Breadcrumb)
-        contentPane.add(createTopBar(), 0, 0);
-
-        // Middle Bar (Controls)
-        contentPane.add(createMiddleBar(), 0, 1);
-
-        // Main Content Area
-        VBox mainContentContainer = new VBox();
-        mainContentContainer.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
-        mainContentContainer.setPadding(new Insets(20));
-        GridPane.setMargin(mainContentContainer, new Insets(10, 10, 10, 10));
-        VBox.setVgrow(tableView, Priority.ALWAYS);
-        mainContentContainer.getChildren().add(tableView);
-        contentPane.add(mainContentContainer, 0, 2);
-        GridPane.setHgrow(mainContentContainer, Priority.ALWAYS);
-        GridPane.setVgrow(mainContentContainer, Priority.ALWAYS);
-
-        this.getChildren().add(contentPane);
-
-        refreshTable();
-    }
-
-    private VBox createTopBar() {
-        Label duongDan = new Label("Quản Lý > Khuyến Mãi");
-        duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
-        VBox khungTren = new VBox(duongDan);
-        khungTren.setStyle("-fx-background-color: #673E1F;");
-        khungTren.setAlignment(Pos.CENTER_LEFT);
-        khungTren.setPadding(new Insets(0, 20, 0, 20));
-        khungTren.setPrefHeight(30);
-        khungTren.setMinHeight(30);
-        khungTren.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setHgrow(khungTren, Priority.ALWAYS);
-        return khungTren;
-    }
-
-    private HBox createMiddleBar() {
-        HBox khungGiua = new HBox(10);
-        khungGiua.setPadding(new Insets(10, 20, 10, 20));
-        khungGiua.setAlignment(Pos.CENTER_LEFT);
-        khungGiua.setStyle("-fx-background-color: #1E424D;");
-
+        // --- Add the "Add" button to the toolbar ---
         ButtonSample themButton = new ButtonSample("Thêm Khuyến Mãi", "", 35, 14, 3);
         themButton.setOnAction(e -> {
             if (controller.themMoiKhuyenMai()) {
@@ -82,27 +41,16 @@ public class GiaoDienKhuyenMai extends VBox {
             }
         });
 
-        Label lblSapXep = new Label("Sắp xếp:");
-        lblSapXep.setTextFill(Color.web("#E5D595"));
-        lblSapXep.setFont(Font.font("System", FontWeight.BOLD, 14));
+        // Get the toolbar from the parent VBox and add the button
+        HBox toolbar = (HBox) this.getChildren().get(0);
+        toolbar.getChildren().add(1, themButton); // Add after the title
 
-        DropDownButton btnTheoNgay = new DropDownButton("Theo ngày bắt đầu ▼", List.of("Mới nhất", "Cũ nhất"), null, 35, 16, 3);
-        ButtonSample btnApDung = new ButtonSample("Áp dụng", "", 35, 13, 3);
-
-        Region space = new Region();
-        HBox.setHgrow(space, Priority.ALWAYS);
-
-        TextField txtTimKiem = new TextField();
-        txtTimKiem.setPromptText("Tìm theo mã hoặc mô tả...");
-        txtTimKiem.setPrefWidth(300);
-
-        ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
-
-        khungGiua.getChildren().addAll(themButton, lblSapXep, btnTheoNgay, btnApDung, space, txtTimKiem, btnTim);
-        return khungGiua;
+        // Initial data load
+        refreshTable();
     }
 
-    private TableView<KhuyenMai> createTableView() {
+    @Override
+    protected TableView<?> taoBangChinh() {
         TableView<KhuyenMai> table = new TableView<>();
 
         TableColumn<KhuyenMai, String> maKMCol = new TableColumn<>("Mã KM");
@@ -147,8 +95,9 @@ public class GiaoDienKhuyenMai extends VBox {
         });
 
         table.getColumns().addAll(maKMCol, moTaCol, loaiKMCol, giaTriCol, ngayBDCol, ngayKTCol);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
+        // Add context menu for edit/delete
         table.setRowFactory(tv -> {
             TableRow<KhuyenMai> row = new TableRow<>();
             ContextMenu contextMenu = new ContextMenu();
@@ -186,6 +135,10 @@ public class GiaoDienKhuyenMai extends VBox {
 
     private void refreshTable() {
         List<KhuyenMai> data = controller.getAllKhuyenMai();
-        tableView.setItems(FXCollections.observableArrayList(data));
+        this.typedTable.setItems(FXCollections.observableArrayList(data));
+        
+        if (data.isEmpty() || this.typedTable.getSelectionModel().getSelectedItem() == null) {
+            chiTietKhuyenMaiPane.hienThiChiTiet(null);
+        }
     }
 }
