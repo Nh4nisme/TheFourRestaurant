@@ -148,7 +148,7 @@
 }
 
 .hop-chua-con {
-    -fx-background-color: transparent;
+    -fx-background-color: #1E424D;
 }
 
 .muc-con {
@@ -164,11 +164,42 @@
     -fx-text-fill: #1E424D;
 }
 
+.scroll-muc-con {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Ẩn thanh cuộn dọc & ngang */
+.scroll-muc-con .scroll-bar:vertical,
+.scroll-muc-con .scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+    -fx-padding: 0;
+}
+
+/* Ẩn "track" (nền phía sau thanh kéo) */
+.scroll-muc-con .track {
+    -fx-background-color: transparent;
+}
+
+/* Ẩn "thumb" (phần có thể kéo) */
+.scroll-muc-con .thumb {
+    -fx-background-color: transparent;
+}
+
+/* Ẩn góc giao giữa thanh cuộn ngang & dọc */
+.scroll-muc-con .corner {
+    -fx-background-color: transparent;
+}
+
 /* base css cho ThongKeContent */
 .thongke-root {
     -fx-background-color: white;
     -fx-spacing: 10;
 }
+
 
 /* NavBar */
 .thongke-navbar {
