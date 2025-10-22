@@ -89,7 +89,7 @@ public class MonAnDAO {
         return newId;
     }
 
-    public boolean addMonAn(MonAn monAn) {
+    public boolean themMonAn(MonAn monAn) {
     	String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -108,7 +108,7 @@ public class MonAnDAO {
         }
     }
 
-    public boolean updateMonAn(MonAn monAn) {
+    public boolean capNhatMonAn(MonAn monAn) {
         String sql = "UPDATE MonAn SET tenMon = ?, donGia = ?, trangThai = ?, maLoaiMon = ?, hinhAnh = ? WHERE maMonAn = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

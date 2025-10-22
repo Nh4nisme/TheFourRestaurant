@@ -118,7 +118,7 @@ public class GiaoDienGoiMon extends BorderPane {
 	    }
 	
 	    // 🔹 Lấy danh sách món ăn từ DB
-	    List<MonAn> danhSachMon = monAnDAO.getAllMonAn();
+	    List<MonAn> danhSachMon = monAnDAO.layTatCaMonAn();
 	
 	    int col = 0;
 	    int row = 0;
