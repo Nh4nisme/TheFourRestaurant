@@ -107,7 +107,7 @@ public class LoaiMonAn extends VBox {
     }
 
     private void refreshGrid() {
-        this.danhSachLoaiMonAn = controller.getAllLoaiMonAn();
+        this.danhSachLoaiMonAn = controller.layTatCaLoaiMonAn();
         gridPane.getChildren().clear();
 
         for (int i = 0; i < danhSachLoaiMonAn.size(); i++) {

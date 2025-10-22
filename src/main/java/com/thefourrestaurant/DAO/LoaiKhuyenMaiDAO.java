@@ -12,7 +12,7 @@ import java.util.List;
 
 public class LoaiKhuyenMaiDAO {
 
-    public List<LoaiKhuyenMai> getAllLoaiKhuyenMai() {
+    public List<LoaiKhuyenMai> layTatCaLoaiKhuyenMai() {
         List<LoaiKhuyenMai> danhSach = new ArrayList<>();
         String sql = "SELECT * FROM LoaiKhuyenMai";
         try (Connection conn = ConnectSQL.getConnection();

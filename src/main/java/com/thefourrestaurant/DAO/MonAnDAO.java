@@ -11,7 +11,6 @@ import java.util.List;
 
 public class MonAnDAO {
 
-    // Helper method to map a ResultSet row to a complete MonAn object
     private MonAn mapResultSetToMonAn(ResultSet rs) throws SQLException {
         MonAn monAn = new MonAn();
         monAn.setMaMonAn(rs.getString("maMonAn"));
@@ -20,21 +19,17 @@ public class MonAnDAO {
         monAn.setTrangThai(rs.getString("trangThai"));
         monAn.setHinhAnh(rs.getString("hinhAnh"));
 
-        // Create and set LoaiMon object
         if (rs.getString("maLoaiMon") != null) {
             LoaiMon loaiMon = new LoaiMon();
             loaiMon.setMaLoaiMon(rs.getString("maLoaiMon"));
             loaiMon.setTenLoaiMon(rs.getString("tenLoaiMon"));
-            // hinhAnh for LoaiMon is not joined here for simplicity, can be added if needed
             monAn.setLoaiMon(loaiMon);
         }
 
-        // Create and set KhuyenMai object
         if (rs.getString("maKM") != null) {
             KhuyenMai khuyenMai = new KhuyenMai();
             khuyenMai.setMaKM(rs.getString("maKM"));
-            khuyenMai.setMoTa(rs.getString("km_moTa")); // Aliased column
-            // Other KhuyenMai fields can be joined and set here if needed
+            khuyenMai.setMoTa(rs.getString("km_moTa"));
             monAn.setKhuyenMai(khuyenMai);
         }
 
@@ -48,7 +43,7 @@ public class MonAnDAO {
                "LEFT JOIN KhuyenMai km ON ma.maKM = km.maKM ";
     }
 
-    public List<MonAn> getMonAnByLoai(String maLoaiMon) {
+    public List<MonAn> layMonAnTheoLoai(String maLoaiMon) {
         List<MonAn> danhSachMonAn = new ArrayList<>();
         String sql = getBaseSelectSQL() + "WHERE ma.maLoaiMon = ? ORDER BY ma.maMonAn DESC";
         try (Connection conn = ConnectSQL.getConnection();
@@ -66,7 +61,7 @@ public class MonAnDAO {
         return danhSachMonAn;
     }
 
-    public List<MonAn> getAllMonAn() {
+    public List<MonAn> layTatCaMonAn() {
         List<MonAn> danhSachMonAn = new ArrayList<>();
         String sql = getBaseSelectSQL() + "ORDER BY ma.tenMon ASC";
         try (Connection conn = ConnectSQL.getConnection();
@@ -82,7 +77,7 @@ public class MonAnDAO {
         return danhSachMonAn;
     }
 
-    public String generateNewMaMonAn() {
+    public String taoMaMonAnMoi() {
         String newId = "MA000001";
         String sql = "SELECT TOP 1 maMonAn FROM MonAn ORDER BY maMonAn DESC";
         try (Connection conn = ConnectSQL.getConnection();
@@ -101,7 +96,7 @@ public class MonAnDAO {
         return newId;
     }
 
-    public boolean addMonAn(MonAn monAn) {
+    public boolean themMonAn(MonAn monAn) {
         String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, maKM) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -121,7 +116,7 @@ public class MonAnDAO {
         }
     }
 
-    public boolean updateMonAn(MonAn monAn) {
+    public boolean capNhatMonAn(MonAn monAn) {
         String sql = "UPDATE MonAn SET tenMon = ?, donGia = ?, trangThai = ?, maLoaiMon = ?, hinhAnh = ?, maKM = ? WHERE maMonAn = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -141,7 +136,7 @@ public class MonAnDAO {
         }
     }
 
-    public boolean deleteMonAn(String maMonAn) {
+    public boolean xoaMonAn(String maMonAn) {
         String sql = "DELETE FROM MonAn WHERE maMonAn = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

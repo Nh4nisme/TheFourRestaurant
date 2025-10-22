@@ -17,8 +17,8 @@ public class LoaiMonAnController {
         this.loaiMonAnDAO = new LoaiMonAnDAO();
     }
 
-    public List<LoaiMon> getAllLoaiMonAn() {
-        return loaiMonAnDAO.getAllLoaiMonAn();
+    public List<LoaiMon> layTatCaLoaiMonAn() {
+        return loaiMonAnDAO.layTatCaLoaiMonAn();
     }
 
     public boolean themMoiLoaiMonAn() {
@@ -27,8 +27,8 @@ public class LoaiMonAnController {
 
         LoaiMon ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            ketQua.setMaLoaiMon(loaiMonAnDAO.generateNewMaLoaiMon());
-            return loaiMonAnDAO.addLoaiMonAn(ketQua);
+            ketQua.setMaLoaiMon(loaiMonAnDAO.taoMaLoaiMonAnMoi());
+            return loaiMonAnDAO.themLoaiMonAn(ketQua);
         }
         return false;
     }
@@ -39,7 +39,7 @@ public class LoaiMonAnController {
 
         LoaiMon ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            return loaiMonAnDAO.updateLoaiMonAn(ketQua);
+            return loaiMonAnDAO.capNhatLoaiMonAn(ketQua);
         }
         return false;
     }
@@ -52,7 +52,7 @@ public class LoaiMonAnController {
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            return loaiMonAnDAO.deleteLoaiMonAn(loaiMon.getMaLoaiMon());
+            return loaiMonAnDAO.xoaLoaiMonAn(loaiMon.getMaLoaiMon());
         }
         return false;
     }

@@ -115,7 +115,7 @@ public class SideBarDanhMuc extends BaseSideBar {
                 break;
             default:
                 // Check if it's a LoaiMon
-                Optional<LoaiMon> loaiMonOpt = loaiMonAnDAO.getAllLoaiMonAn().stream()
+                Optional<LoaiMon> loaiMonOpt = loaiMonAnDAO.layTatCaLoaiMonAn().stream()
                         .filter(lm -> lm.getTenLoaiMon().equals(tenMuc))
                         .findFirst();
 

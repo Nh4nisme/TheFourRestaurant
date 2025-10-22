@@ -48,13 +48,9 @@ public class GiaoDienMonAn extends VBox {
         VBox.setVgrow(contentPane, Priority.ALWAYS);
         contentPane.setStyle("-fx-background-color: #F5F5F5;");
 
-        // Top Bar (Breadcrumb)
         contentPane.add(createTopBar(), 0, 0);
-
-        // Middle Bar (Controls)
         contentPane.add(createMiddleBar(), 0, 1);
 
-        // Bottom container
         VBox khungDuoi = new VBox();
         khungDuoi.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
         khungDuoi.setAlignment(Pos.CENTER);
@@ -70,11 +66,9 @@ public class GiaoDienMonAn extends VBox {
         khungDuoi.getChildren().add(dsMonAnContainer);
         VBox.setVgrow(dsMonAnContainer, Priority.ALWAYS);
 
-        // Initialize the views
         setupGridView();
         setupListView();
 
-        // Set default view
         dsMonAnContainer.getChildren().add(createGridViewContent());
 
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
@@ -157,7 +151,6 @@ public class GiaoDienMonAn extends VBox {
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
-        // "Add New" Box
         VBox hopThemMoi = MonAnBox.createThemMoiBox();
         GridPane luoiThem = new GridPane();
         luoiThem.setAlignment(Pos.BASELINE_LEFT);
@@ -202,7 +195,7 @@ public class GiaoDienMonAn extends VBox {
     }
 
     private void refreshViews() {
-        this.danhSachMonAn = controller.getMonAnByLoai(maLoaiMon);
+        this.danhSachMonAn = controller.layMonAnTheoLoai(maLoaiMon);
         updateGridView();
         updateListView();
     }

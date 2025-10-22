@@ -22,7 +22,6 @@ public class KhuyenMaiDAO {
         if (ngayKT != null) km.setNgayKetThuc(ngayKT.toLocalDate());
         km.setMoTa(rs.getString("moTa"));
 
-        // Build LoaiKhuyenMai object
         if (rs.getString("maLoaiKM") != null) {
             LoaiKhuyenMai lkm = new LoaiKhuyenMai();
             lkm.setMaLoaiKM(rs.getString("maLoaiKM"));
@@ -30,7 +29,6 @@ public class KhuyenMaiDAO {
             km.setLoaiKhuyenMai(lkm);
         }
 
-        // Build MonAnTang object
         if (rs.getString("maMonTang") != null) {
             MonAn monAnTang = new MonAn();
             monAnTang.setMaMonAn(rs.getString("maMonTang"));
@@ -38,7 +36,6 @@ public class KhuyenMaiDAO {
             km.setMonAnTang(monAnTang);
         }
 
-        // Build MonAnApDung object
         if (rs.getString("maMonApDung") != null) {
             MonAn monAnApDung = new MonAn();
             monAnApDung.setMaMonAn(rs.getString("maMonApDung"));
@@ -59,7 +56,7 @@ public class KhuyenMaiDAO {
                "LEFT JOIN MonAn maad ON km.maMonApDung = maad.maMonAn ";
     }
 
-    public List<KhuyenMai> getAllKhuyenMai() {
+    public List<KhuyenMai> layTatCaKhuyenMai() {
         List<KhuyenMai> danhSach = new ArrayList<>();
         String sql = getBaseSelectSQL() + "ORDER BY km.maKM DESC";
         try (Connection conn = ConnectSQL.getConnection();
@@ -75,7 +72,7 @@ public class KhuyenMaiDAO {
         return danhSach;
     }
 
-    public String generateNewMaKM() {
+    public String taoMaKhuyenMaiMoi() {
         String newId = "KM000001";
         String sql = "SELECT TOP 1 maKM FROM KhuyenMai ORDER BY maKM DESC";
         try (Connection conn = ConnectSQL.getConnection();
@@ -94,7 +91,7 @@ public class KhuyenMaiDAO {
         return newId;
     }
 
-    public boolean addKhuyenMai(KhuyenMai km) {
+    public boolean themKhuyenMai(KhuyenMai km) {
         String sql = "INSERT INTO KhuyenMai (maKM, maLoaiKM, tyLe, soTien, maMonTang, maMonApDung, ngayBatDau, ngayKetThuc, moTa) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
@@ -117,7 +114,7 @@ public class KhuyenMaiDAO {
         }
     }
 
-    public boolean updateKhuyenMai(KhuyenMai km) {
+    public boolean capNhatKhuyenMai(KhuyenMai km) {
         String sql = "UPDATE KhuyenMai SET maLoaiKM = ?, tyLe = ?, soTien = ?, maMonTang = ?, maMonApDung = ?, " +
                      "ngayBatDau = ?, ngayKetThuc = ?, moTa = ? WHERE maKM = ?";
         try (Connection conn = ConnectSQL.getConnection();
@@ -140,7 +137,7 @@ public class KhuyenMaiDAO {
         }
     }
 
-    public boolean deleteKhuyenMai(String maKM) {
+    public boolean xoaKhuyenMai(String maKM) {
         String sql = "DELETE FROM KhuyenMai WHERE maKM = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
