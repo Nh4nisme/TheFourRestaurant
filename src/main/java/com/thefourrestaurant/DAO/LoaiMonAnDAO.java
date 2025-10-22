@@ -13,7 +13,7 @@ import java.util.List;
 
 public class LoaiMonAnDAO {
 
-    public List<LoaiMon> getAllLoaiMonAn() {
+    public List<LoaiMon> layTatCaLoaiMonAn() {
         List<LoaiMon> danhSachLoaiMon = new ArrayList<>();
         String sql = "SELECT * FROM LoaiMonAn ORDER BY maLoaiMon DESC";
         try (Connection conn = ConnectSQL.getConnection();
@@ -33,7 +33,7 @@ public class LoaiMonAnDAO {
         return danhSachLoaiMon;
     }
 
-    public String generateNewMaLoaiMon() {
+    public String taoMaLoaiMonAnMoi() {
         String newId = "LM000001";
         String sql = "SELECT TOP 1 maLoaiMon FROM LoaiMonAn ORDER BY maLoaiMon DESC";
         try (Connection conn = ConnectSQL.getConnection();
@@ -52,7 +52,7 @@ public class LoaiMonAnDAO {
         return newId;
     }
 
-    public boolean addLoaiMonAn(LoaiMon loaiMon) {
+    public boolean themLoaiMonAn(LoaiMon loaiMon) {
         String sql = "INSERT INTO LoaiMonAn (maLoaiMon, tenLoaiMon, hinhAnh) VALUES (?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -68,7 +68,7 @@ public class LoaiMonAnDAO {
         }
     }
 
-    public boolean updateLoaiMonAn(LoaiMon loaiMon) {
+    public boolean capNhatLoaiMonAn(LoaiMon loaiMon) {
         String sql = "UPDATE LoaiMonAn SET tenLoaiMon = ?, hinhAnh = ? WHERE maLoaiMon = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -84,7 +84,7 @@ public class LoaiMonAnDAO {
         }
     }
 
-    public boolean deleteLoaiMonAn(String maLoaiMon) {
+    public boolean xoaLoaiMonAn(String maLoaiMon) {
         String sql = "DELETE FROM LoaiMonAn WHERE maLoaiMon = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

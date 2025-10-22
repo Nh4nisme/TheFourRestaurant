@@ -25,28 +25,27 @@ public class MonAnController {
         this.khuyenMaiDAO = new KhuyenMaiDAO();
     }
 
-    public List<MonAn> getMonAnByLoai(String maLoaiMon) {
-        return monAnDAO.getMonAnByLoai(maLoaiMon);
+    public List<MonAn> layMonAnTheoLoai(String maLoaiMon) {
+        return monAnDAO.layMonAnTheoLoai(maLoaiMon);
     }
 
-    public List<LoaiMon> getAllLoaiMonAn() {
-        return loaiMonAnDAO.getAllLoaiMonAn();
+    public List<LoaiMon> layTatCaLoaiMonAn() {
+        return loaiMonAnDAO.layTatCaLoaiMonAn();
     }
 
-    public List<KhuyenMai> getAllKhuyenMai() {
-        return khuyenMaiDAO.getAllKhuyenMai();
+    public List<KhuyenMai> layTatCaKhuyenMai() {
+        return khuyenMaiDAO.layTatCaKhuyenMai();
     }
 
     public boolean themMoiMonAn(String maLoaiMonDefault) {
-        List<LoaiMon> allLoaiMon = getAllLoaiMonAn();
-        List<KhuyenMai> allKhuyenMai = getAllKhuyenMai();
+        List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
+        List<KhuyenMai> allKhuyenMai = layTatCaKhuyenMai();
 
         if (allLoaiMon.isEmpty()) {
             new Alert(Alert.AlertType.ERROR, "Không có loại món ăn nào trong CSDL. Vui lòng thêm loại món ăn trước.").showAndWait();
             return false;
         }
 
-        // Find the LoaiMon object that matches the default ID
         LoaiMon defaultLoaiMon = allLoaiMon.stream()
                 .filter(lm -> lm.getMaLoaiMon().equals(maLoaiMonDefault))
                 .findFirst()
@@ -57,23 +56,22 @@ public class MonAnController {
 
         MonAn ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            ketQua.setMaMonAn(monAnDAO.generateNewMaMonAn());
-            return monAnDAO.addMonAn(ketQua);
+            ketQua.setMaMonAn(monAnDAO.taoMaMonAnMoi());
+            return monAnDAO.themMonAn(ketQua);
         }
         return false;
     }
 
     public boolean tuyChinhMonAn(MonAn monAn) {
-        List<LoaiMon> allLoaiMon = getAllLoaiMonAn();
-        List<KhuyenMai> allKhuyenMai = getAllKhuyenMai();
+        List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
+        List<KhuyenMai> allKhuyenMai = layTatCaKhuyenMai();
 
-        // Pass the LoaiMon object directly from the MonAn object
         MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon(), allKhuyenMai);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            return monAnDAO.updateMonAn(ketQua);
+            return monAnDAO.capNhatMonAn(ketQua);
         }
         return false;
     }
@@ -86,7 +84,7 @@ public class MonAnController {
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            return monAnDAO.deleteMonAn(monAn.getMaMonAn());
+            return monAnDAO.xoaMonAn(monAn.getMaMonAn());
         }
         return false;
     }
