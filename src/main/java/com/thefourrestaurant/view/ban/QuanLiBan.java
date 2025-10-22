@@ -76,7 +76,7 @@ public class QuanLiBan extends VBox {
             }
         });
 
-        List<Ban> dsBan = banDAO.getByTang(maTang);
+        List<Ban> dsBan = banDAO.layTheoTang(maTang);
 
         if (dsBan.isEmpty()) {
             Label lblThongBao = new Label("⚠️ Không có bàn nào trong tầng này.");
@@ -177,7 +177,7 @@ public class QuanLiBan extends VBox {
             int newX = (int) khungBan.getLayoutX();
             int newY = (int) khungBan.getLayoutY();
 
-            boolean ok = banDAO.updateToaDo(ban.getMaBan(), newX, newY);
+            boolean ok = banDAO.capNhatToaDo(ban.getMaBan(), newX, newY);
             if (ok) {
                 System.out.println("✅ Lưu vị trí bàn " + ban.getTenBan() + " thành công: (" + newX + ", " + newY + ")");
             } else {

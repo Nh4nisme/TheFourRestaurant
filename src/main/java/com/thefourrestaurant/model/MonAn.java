@@ -9,9 +9,12 @@ public class MonAn {
     private String trangThai;
     private LoaiMon loaiMon; // Changed from String
     private String hinhAnh;
-    private KhuyenMai khuyenMai; // Changed from String
 
     public MonAn() {
+    }
+    
+    public MonAn(String maMonAn) {
+    	this.maMonAn = maMonAn;
     }
 
     // Getters and Setters
@@ -63,14 +66,6 @@ public class MonAn {
         this.hinhAnh = hinhAnh;
     }
 
-    public KhuyenMai getKhuyenMai() {
-        return khuyenMai;
-    }
-
-    public void setKhuyenMai(KhuyenMai khuyenMai) {
-        this.khuyenMai = khuyenMai;
-    }
-
     @Override
     public String toString() {
         return "MonAn{" +
@@ -80,7 +75,6 @@ public class MonAn {
                 ", trangThai='" + trangThai + '\'' +
                 ", loaiMon=" + (loaiMon != null ? loaiMon.getTenLoaiMon() : "null") +
                 ", hinhAnh='" + hinhAnh + '\'' +
-                ", khuyenMai=" + (khuyenMai != null ? khuyenMai.getMaKM() : "null") +
                 '}';
     }
 }

@@ -4,13 +4,24 @@ public class Tang {
     private String maTang;
     private String tenTang;
     private String moTa;
+    private boolean isDeleted;
 
     public Tang() {}
 
-    public Tang(String maTang, String tenTang, String moTa) {
+    public Tang(String maTang) {
+        this.maTang = maTang;
+    }
+
+    public Tang(String maTang, String tenTang) {
+        this.maTang = maTang;
+        this.tenTang = tenTang;
+    }
+
+    public Tang(String maTang, String tenTang, String moTa, boolean isDeleted) {
         this.maTang = maTang;
         this.tenTang = tenTang;
         this.moTa = moTa;
+        this.isDeleted = isDeleted;
     }
 
     public String getMaTang() {
@@ -37,8 +48,16 @@ public class Tang {
         this.moTa = moTa;
     }
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
     @Override
     public String toString() {
-        return tenTang; // Khi hiển thị trong combobox hoặc list
+        return tenTang; // hiển thị trong combobox
     }
 }

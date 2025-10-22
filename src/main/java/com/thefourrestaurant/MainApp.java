@@ -4,6 +4,7 @@ import java.sql.Connection;
 
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.view.GiaoDienDangNhap;
+import com.thefourrestaurant.view.GiaoDienGoiMon;
 import com.thefourrestaurant.view.ban.GiaoDienDatBan;
 import com.thefourrestaurant.view.GiaoDienChinh;
 
@@ -24,8 +25,13 @@ public class MainApp extends Application {
 
 //        GiaoDienDangNhap giaoDienDangNhap = new GiaoDienDangNhap();
 //        giaoDienDangNhap.show(primaryStage);
-        GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
-        giaoDienChinh.show(primaryStage);
+        GiaoDienGoiMon giaoDienGoiMon = new GiaoDienGoiMon();
+        javafx.scene.Scene scene = new javafx.scene.Scene(giaoDienGoiMon, 1200, 700);
+        primaryStage.setTitle("Test Gọi Món");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+//        GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
+//        giaoDienChinh.show(primaryStage);
 
         // Sau khi giao diện đã mở, chạy kết nối DB ở thread riêng
         Task<Connection> ketNoiTask = new Task<>() {

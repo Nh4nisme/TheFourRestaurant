@@ -6,22 +6,29 @@ public class Ban {
     private String trangThai; // 'Trống', 'Đang sử dụng', 'Đặt trước'
     private int toaDoX;
     private int toaDoY;
-    private String maTang;     // Khóa ngoại đến bảng Tang
-    private String maLoaiBan;  // Khóa ngoại đến bảng LoaiBan
-    private String anhBan;     // Link ảnh bàn
+    private Tang tang;           // Đối tượng Tang
+    private LoaiBan loaiBan;     // Đối tượng LoaiBan
+    private String anhBan;       // Link ảnh bàn
 
     public Ban() {
     }
 
-    public Ban(String maBan, String tenBan, String trangThai, int toaDoX, int toaDoY, String maTang, String maLoaiBan, String anhBan) {
+    // 🔹 Constructor đầy đủ
+    public Ban(String maBan, String tenBan, String trangThai, int toaDoX, int toaDoY,
+               Tang tang, LoaiBan loaiBan, String anhBan) {
         this.maBan = maBan;
         this.tenBan = tenBan;
         this.trangThai = trangThai;
         this.toaDoX = toaDoX;
         this.toaDoY = toaDoY;
-        this.maTang = maTang;
-        this.maLoaiBan = maLoaiBan;
+        this.tang = tang;
+        this.loaiBan = loaiBan;
         this.anhBan = anhBan;
+    }
+
+    // 🔹 Constructor rút gọn (chỉ cần mã)
+    public Ban(String maBan) {
+        this.maBan = maBan;
     }
 
     // Getters & Setters
@@ -65,20 +72,20 @@ public class Ban {
         this.toaDoY = toaDoY;
     }
 
-    public String getMaTang() {
-        return maTang;
+    public Tang getTang() {
+        return tang;
     }
 
-    public void setMaTang(String maTang) {
-        this.maTang = maTang;
+    public void setTang(Tang tang) {
+        this.tang = tang;
     }
 
-    public String getMaLoaiBan() {
-        return maLoaiBan;
+    public LoaiBan getLoaiBan() {
+        return loaiBan;
     }
 
-    public void setMaLoaiBan(String maLoaiBan) {
-        this.maLoaiBan = maLoaiBan;
+    public void setLoaiBan(LoaiBan loaiBan) {
+        this.loaiBan = loaiBan;
     }
 
     public String getAnhBan() {
@@ -91,6 +98,6 @@ public class Ban {
 
     @Override
     public String toString() {
-        return tenBan + " (" + trangThai + ")";
+        return tenBan + " - " + (tang != null ? tang.getTenTang() : "Chưa có tầng") + " (" + trangThai + ")";
     }
 }
