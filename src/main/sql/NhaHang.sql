@@ -11,7 +11,8 @@ GO
 -- ================================
 CREATE TABLE VaiTro (
     maVT CHAR(8) PRIMARY KEY CHECK(maVT LIKE 'VT%' AND LEN(maVT) = 8),
-    tenVaiTro NVARCHAR(20) NOT NULL UNIQUE
+    tenVaiTro NVARCHAR(20) NOT NULL UNIQUE,
+    isDeleted BIT DEFAULT 0
 );
 GO
 
@@ -23,6 +24,7 @@ CREATE TABLE TaiKhoan (
     tenDangNhap VARCHAR(50) NOT NULL UNIQUE CHECK(LEN(tenDangNhap) >= 6),
     matKhau VARCHAR(50) NOT NULL CHECK(LEN(matKhau) >= 6),
     maVT CHAR(8) NOT NULL,
+    isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_TaiKhoan_VaiTro FOREIGN KEY (maVT) REFERENCES VaiTro(maVT)
 );
 GO
@@ -46,9 +48,10 @@ CREATE TABLE NhanVien (
     hoTen NVARCHAR(50) NOT NULL,
     ngaySinh DATE CHECK(ngaySinh < GETDATE()),
     gioiTinh VARCHAR(5) CHECK(gioiTinh IN ('Nam','Nu')),
-    sdt VARCHAR(15) UNIQUE,
+    soDienThoai VARCHAR(15) UNIQUE,
     luong DECIMAL(12,2) CHECK(luong >= 0),
     maTK CHAR(8) NOT NULL UNIQUE,
+    isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_NhanVien_TaiKhoan FOREIGN KEY (maTK) REFERENCES TaiKhoan(maTK)
 );
 GO
@@ -85,6 +88,7 @@ CREATE TABLE KhachHang (
     gioiTinh VARCHAR(5) CHECK(gioiTinh IN ('Nam','Nu')),
     soDT VARCHAR(15) UNIQUE,
     maLoaiKH CHAR(8) NOT NULL,
+    isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_KhachHang_LoaiKH FOREIGN KEY (maLoaiKH) REFERENCES LoaiKhachHang(maLoaiKH)
 );
 GO
@@ -95,7 +99,8 @@ GO
 CREATE TABLE Tang (
     maTang CHAR(8) PRIMARY KEY CHECK (maTang LIKE 'TG%' AND LEN(maTang) = 8),
     tenTang NVARCHAR(50) NOT NULL UNIQUE,
-    moTa NVARCHAR(200) NULL
+    moTa NVARCHAR(200) NULL,
+    isDeleted BIT DEFAULT 0
 );
 GO
 
@@ -114,12 +119,13 @@ GO
 CREATE TABLE Ban (
     maBan CHAR(8) PRIMARY KEY CHECK (maBan LIKE 'BA%' AND LEN(maBan) = 8),
     tenBan NVARCHAR(50) NOT NULL UNIQUE,
-    trangThai NVARCHAR(20) CHECK(trangThai IN (N'Trống', N'Đang sử dụng', N'Đặt trước')) DEFAULT N'Trống',
+    trangThai NVARCHAR(20) CHECK(trangThai IN (N'Trống', N'Đang sử dụng', N'Đặt trước', N'Bảo trì')) DEFAULT N'Trống',
     toaDoX INT CHECK(toaDoX >= 0),
     toaDoY INT CHECK(toaDoY >= 0),
     maTang CHAR(8) NOT NULL,
     maLoaiBan CHAR(8) NOT NULL,
     anhBan NVARCHAR(255),
+    isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_Ban_Tang FOREIGN KEY (maTang) REFERENCES Tang(maTang),
     CONSTRAINT FK_Ban_LoaiBan FOREIGN KEY (maLoaiBan) REFERENCES LoaiBan(maLoaiBan)
 );
@@ -144,7 +150,8 @@ CREATE TABLE MonAn (
     donGia DECIMAL(12,2) CHECK (donGia >= 0),
     trangThai NVARCHAR(10) CHECK (trangThai IN ('Con', 'Het')),
     maLoaiMon CHAR(8) NOT NULL,
-    hinhAnh NVARCHAR(255) NULL, -- Link hình ảnh món ăn
+    hinhAnh NVARCHAR(255) NULL,
+    isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon)
 );
 GO
@@ -169,6 +176,7 @@ CREATE TABLE Combo (
     maLoaiCombo CHAR(8) NOT NULL,
     moTa NVARCHAR(200) NULL,
     trangThai NVARCHAR(10) DEFAULT N'Con' CHECK(trangThai IN (N'Con', N'Het')),
+    isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_Combo_LoaiCombo FOREIGN KEY (maLoaiCombo) REFERENCES LoaiCombo(maLoaiCombo)
 );
 GO
@@ -195,6 +203,7 @@ CREATE TABLE PhieuDatBan (
     soNguoi INT CHECK(soNguoi > 0),
     maKH CHAR(8) NOT NULL,
     maNV CHAR(8) NOT NULL,
+    isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_PDB_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
     CONSTRAINT FK_PDB_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
 );
@@ -254,13 +263,28 @@ CREATE TABLE KhuyenMai (
     maLoaiKM CHAR(8) NOT NULL,
     tyLe DECIMAL(5,2) NULL CHECK(tyLe >= 0 AND tyLe <= 100),
     soTien DECIMAL(12,2) NULL CHECK(soTien >= 0),
-    maMonTang CHAR(8) NULL,
     ngayBatDau DATE NULL,
     ngayKetThuc DATE NULL,
     moTa NVARCHAR(200) NULL,
     CONSTRAINT FK_KM_LoaiKM FOREIGN KEY (maLoaiKM) REFERENCES LoaiKhuyenMai(maLoaiKM),
-    CONSTRAINT FK_KM_MonTang FOREIGN KEY (maMonTang) REFERENCES MonAn(maMonAn),
     CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau))
+);
+GO
+
+-- ================================
+-- Bảng ChiTietKhuyenMai
+-- ================================
+CREATE TABLE ChiTietKhuyenMai (
+    maCTKM CHAR(8) PRIMARY KEY CHECK (maCTKM LIKE 'CTKM%' AND LEN(maCTKM) = 8),
+    maKM CHAR(8) NOT NULL,
+    maMonApDung CHAR(8) NOT NULL,     -- Món được áp dụng khuyến mãi
+    maMonTang CHAR(8) NULL,           -- Món được tặng (nếu có)
+    tyLeGiam DECIMAL(5,2) NULL CHECK(tyLeGiam >= 0 AND tyLeGiam <= 100),
+    soTienGiam DECIMAL(12,2) NULL CHECK(soTienGiam >= 0),
+    soLuongTang INT NULL CHECK(soLuongTang >= 0),
+    CONSTRAINT FK_CTKM_KM FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
+    CONSTRAINT FK_CTKM_MonApDung FOREIGN KEY (maMonApDung) REFERENCES MonAn(maMonAn),
+    CONSTRAINT FK_CTKM_MonTang FOREIGN KEY (maMonTang) REFERENCES MonAn(maMonAn)
 );
 GO
 
@@ -302,6 +326,7 @@ CREATE TABLE HoaDon (
     tienKhachDua DECIMAL(12,2) NOT NULL CHECK(tienKhachDua >= 0),
     tienThua DECIMAL(12,2) NOT NULL CHECK(tienThua >= 0),
     maPTTT CHAR(8) NOT NULL DEFAULT 'PT000001',
+    isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_HD_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     CONSTRAINT FK_HD_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
     CONSTRAINT FK_HD_PhieuDatBan FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB),
@@ -330,50 +355,50 @@ GO
 -- ================================
 
 -- Vai trò
-INSERT INTO VaiTro VALUES 
+INSERT INTO VaiTro (maVT, tenVaiTro) VALUES
 ('VT000001', N'QuanLy'),
 ('VT000002', N'ThuNgan');
 GO
 
 -- Tài khoản
-INSERT INTO TaiKhoan VALUES
+INSERT INTO TaiKhoan (maTK, tenDangNhap, matKhau, maVT) VALUES
 ('TK000001', 'admin123', 'Admin@123', 'VT000001'),
 ('TK000002', 'thungan01', 'TNpass01', 'VT000002');
 GO
 
 -- Ca làm việc (3 ca)
-INSERT INTO CaLamViec VALUES
+INSERT INTO CaLamViec (maCa, tenCa, gioBatDau, gioKetThuc) VALUES
 ('CA000001', N'Ca Sáng', '07:00', '11:00'),
 ('CA000002', N'Ca Trưa', '11:00', '15:00'),
 ('CA000003', N'Ca Tối', '17:00', '22:00');
 GO
 
 -- Nhân viên
-INSERT INTO NhanVien VALUES
+INSERT INTO NhanVien (maNV, hoTen, ngaySinh, gioiTinh, soDienThoai, luong, maTK) VALUES
 ('NV000001', N'Nguyễn Văn A', '1990-01-01', 'Nam', '0901234567', 10000000, 'TK000001'),
 ('NV000002', N'Trần Thị B', '1992-02-02', 'Nu', '0912345678', 8000000, 'TK000002');
 GO
 
 -- Phân công ca
-INSERT INTO PhanCongCa VALUES
+INSERT INTO PhanCongCa (maNV, maCa, ngay) VALUES
 ('NV000001','CA000001','2025-10-14'),
 ('NV000001','CA000002','2025-10-14'),
 ('NV000002','CA000003','2025-10-14');
 GO
 
 -- Loại khách hàng (chỉ 2 loại)
-INSERT INTO LoaiKhachHang VALUES
+INSERT INTO LoaiKhachHang (maLoaiKH, tenLoaiKH) VALUES
 ('LKH00001', N'Thuong'),
 ('LKH00002', N'VIP');
 
 -- Khách hàng
-INSERT INTO KhachHang VALUES
+INSERT INTO KhachHang (maKH, hoTen, ngaySinh, gioiTinh, soDT, maLoaiKH) VALUES
 ('KH000001', N'Nguyễn Văn F', '1990-06-06', 'Nam', '0956789012', 'LKH00001'),
 ('KH000002', N'Trần Thị G', '1991-07-07', 'Nu', '0967890123', 'LKH00002');
 GO
 
 -- Tầng
-INSERT INTO Tang VALUES
+INSERT INTO Tang (maTang, tenTang, moTa) VALUES
 ('TG000001', N'Tầng 1', N'Khu thường'),
 ('TG000002', N'Tầng 2', N'Khu VIP'),
 ('TG000003', N'Tầng 3', N'Khu thường'),
@@ -384,87 +409,81 @@ INSERT INTO Tang VALUES
 GO
 
 -- Loại bàn
-INSERT INTO LoaiBan VALUES
+-- ==============================
+INSERT INTO LoaiBan (maLoaiBan, tenLoaiBan) VALUES
 ('LB000001', N'Bàn 8'),
 ('LB000002', N'Bàn 6'),
 ('LB000003', N'Bàn 4'),
-('LB000004', N'Bàn 2'),
-('LB000005', N'Bàn 8 tròn');
+('LB000004', N'Bàn 2');
 GO
 
--- Bàn
--- Bàn (theo tầng, tránh trùng tên)
+-- ==============================
+-- Bàn (đúng mã loại bàn & ảnh)
+-- ==============================
 INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
--- Tầng 1
+-- ===== Tầng 1 =====
 ('BA000001', N'Bàn 1-T1', N'Trống', 100, 100, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
-('BA000002', N'Bàn 2-T1', N'Trống', 100, 300, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
-('BA000003', N'Bàn 3-T1', N'Trống', 100, 500, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000002', N'Bàn 2-T1', N'Đang sử dụng', 100, 300, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000003', N'Bàn 3-T1', N'Đặt trước', 100, 500, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
 ('BA000004', N'Bàn 4-T1', N'Trống', 400, 100, 'TG000001', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000005', N'Bàn 5-T1', N'Trống', 400, 300, 'TG000001', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000006', N'Bàn 6_T1', N'Trống', 400, 500, 'TG000001', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000005', N'Bàn 5-T1', N'Đang sử dụng', 400, 300, 'TG000001', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000006', N'Bàn 6-T1', N'Trống', 400, 500, 'TG000001', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
 ('BA000007', N'Bàn 7-T1', N'Trống', 700, 150, 'TG000001', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
-('BA000008', N'Bàn 8_T1', N'Trống', 700, 350, 'TG000001', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000008', N'Bàn 8-T1', N'Đang sử dụng', 700, 350, 'TG000001', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
 
--- Tầng 2
-('BA000009', N'Bàn 1-T2', N'Trống', 50, 100, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
-('BA000010', N'Bàn 2-T2', N'Trống', 250, 100, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
-('BA000011', N'Bàn 3-T2', N'Trống', 650, 100, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
-('BA000012', N'Bàn 4-T2', N'Trống', 50, 300, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000013', N'Bàn 5-T2', N'Trống', 250, 300, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000014', N'Bàn 6-T2', N'Trống', 650, 300, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000015', N'Bàn 7-T2', N'Trống', 50, 450, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
-('BA000016', N'Bàn 8-T2', N'Trống', 250, 450, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
-('BA000017', N'Bàn 9-T2', N'Trống', 450, 450, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
-('BA000018', N'Bàn 10-T2', N'Trống', 650, 450, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
-('BA000019', N'Bàn 11-T2', N'Trống', 850, 450, 'TG000002', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+-- ===== Tầng 2 =====
+('BA000009', N'Bàn 1-T2', N'Trống', 50, 100, 'TG000002', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000010', N'Bàn 2-T2', N'Đang sử dụng', 250, 100, 'TG000002', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000011', N'Bàn 3-T2', N'Trống', 650, 100, 'TG000002', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000012', N'Bàn 4-T2', N'Đặt trước', 50, 300, 'TG000002', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000013', N'Bàn 5-T2', N'Trống', 250, 300, 'TG000002', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000014', N'Bàn 6-T2', N'Đang sử dụng', 650, 300, 'TG000002', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000015', N'Bàn 7-T2', N'Trống', 50, 450, 'TG000002', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000016', N'Bàn 8-T2', N'Trống', 250, 450, 'TG000002', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000017', N'Bàn 9-T2', N'Đang sử dụng', 450, 450, 'TG000002', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000018', N'Bàn 10-T2', N'Trống', 650, 450, 'TG000002', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000019', N'Bàn 11-T2', N'Trống', 850, 450, 'TG000002', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
 
--- Tầng 3
-('BA000020', N'Bàn 1-T3', N'Trống', 100, 100, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000021', N'Bàn 2-T3', N'Trống', 400, 100, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000022', N'Bàn 3-T3', N'Trống', 700, 100, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000023', N'Bàn 4-T3', N'Trống', 300, 450, 'TG000003', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+-- ===== Tầng 3 =====
+('BA000020', N'Bàn 1-T3', N'Trống', 100, 100, 'TG000003', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000021', N'Bàn 2-T3', N'Đang sử dụng', 400, 100, 'TG000003', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000022', N'Bàn 3-T3', N'Trống', 700, 100, 'TG000003', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000023', N'Bàn 4-T3', N'Đặt trước', 300, 450, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
 ('BA000024', N'Bàn 5-T3', N'Trống', 600, 450, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
-('BA000025', N'Bàn 6-T3', N'Trống', 100, 450, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000026', N'Bàn 7-T3', N'Trống', 400, 450, 'TG000003', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000027', N'Bàn 8-T3', N'Trống', 700, 450, 'TG000003', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png');
+('BA000025', N'Bàn 6-T3', N'Đặt trước', 100, 450, 'TG000003', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000026', N'Bàn 7-T3', N'Đang sử dụng', 400, 450, 'TG000003', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000027', N'Bàn 8-T3', N'Trống', 700, 450, 'TG000003', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
 
--- Tầng 4
-INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
-('BA000028', N'Bàn 1-T4', N'Trống', 200, 300, 'TG000004', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Tron.png'),
-('BA000029', N'Bàn 2-T4', N'Trống', 650, 300, 'TG000004', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Tron.png');
-GO
+-- ===== Tầng 4 =====
+('BA000028', N'Bàn 1-T4', N'Trống', 200, 300, 'TG000004', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000029', N'Bàn 2-T4', N'Đang sử dụng', 650, 300, 'TG000004', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
 
--- Tầng 5
-INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
-('BA000030', N'Bàn 1-T5', N'Trống', 50, 100, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
-('BA000031', N'Bàn 2-T5', N'Trống', 250, 100, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
-('BA000032', N'Bàn 3-T5', N'Trống', 650, 100, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
-('BA000033', N'Bàn 4-T5', N'Trống', 50, 300, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000034', N'Bàn 5-T5', N'Trống', 250, 300, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000035', N'Bàn 6-T5', N'Trống', 650, 300, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000036', N'Bàn 7-T5', N'Trống', 50, 550, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
-('BA000037', N'Bàn 8-T5', N'Trống', 250, 550, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
-('BA000038', N'Bàn 9-T5', N'Trống', 450, 550, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
-('BA000039', N'Bàn 10-T5', N'Trống', 650, 550, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
-('BA000040', N'Bàn 11-T5', N'Trống', 850, 550, 'TG000005', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_2.png');
-GO
+-- ===== Tầng 5 =====
+('BA000030', N'Bàn 1-T5', N'Trống', 50, 100, 'TG000005', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000031', N'Bàn 2-T5', N'Đang sử dụng', 250, 100, 'TG000005', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000032', N'Bàn 3-T5', N'Đặt trước', 650, 100, 'TG000005', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),
+('BA000033', N'Bàn 4-T5', N'Trống', 50, 300, 'TG000005', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000034', N'Bàn 5-T5', N'Trống', 250, 300, 'TG000005', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000035', N'Bàn 6-T5', N'Đang sử dụng', 650, 300, 'TG000005', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000036', N'Bàn 7-T5', N'Trống', 50, 550, 'TG000005', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000037', N'Bàn 8-T5', N'Đặt trước', 250, 550, 'TG000005', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000038', N'Bàn 9-T5', N'Trống', 450, 550, 'TG000005', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000039', N'Bàn 10-T5', N'Trống', 650, 550, 'TG000005', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
+('BA000040', N'Bàn 11-T5', N'Đang sử dụng', 850, 550, 'TG000005', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_2.png'),
 
--- Tầng 6
-INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
-('BA000047', N'Bàn 1-T6', N'Trống', 140, 150, 'TG000006', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban8_Tron.png'),
-('BA000048', N'Bàn 2-T6', N'Trống', 600, 150, 'TG000006', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban8_Tron.png'),
-('BA000049', N'Bàn 3-T6', N'Trống', 140, 400, 'TG000006', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban8.png'),
-('BA000050', N'Bàn 4-T6', N'Trống', 600, 400, 'TG000006', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban8.png');
-GO
+-- ===== Tầng 6 =====
+('BA000047', N'Bàn 1-T6', N'Đặt trước', 140, 150, 'TG000006', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000048', N'Bàn 2-T6', N'Đang sử dụng', 600, 150, 'TG000006', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000049', N'Bàn 3-T6', N'Trống', 140, 400, 'TG000006', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000050', N'Bàn 4-T6', N'Trống', 600, 400, 'TG000006', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
 
--- Tầng 7
-INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
-('BA000041', N'Bàn 1-T7', N'Trống', 250, 100, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png'),
-('BA000042', N'Bàn 2-T7', N'Trống', 450, 100, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png'),
-('BA000043', N'Bàn 3-T7', N'Trống', 650, 100, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png'),
-('BA000044', N'Bàn 4-T7', N'Trống', 250, 350, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png'),
-('BA000045', N'Bàn 5-T7', N'Trống', 450, 350, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png'),
-('BA000046', N'Bàn 6-T7', N'Trống', 650, 350, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8_Doc.png');
+-- ===== Tầng 7 =====
+('BA000041', N'Bàn 1-T7', N'Trống', 250, 100, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000042', N'Bàn 2-T7', N'Đặt trước', 450, 100, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000043', N'Bàn 3-T7', N'Trống', 650, 100, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000044', N'Bàn 4-T7', N'Đang sử dụng', 250, 350, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000045', N'Bàn 5-T7', N'Trống', 450, 350, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000046', N'Bàn 6-T7', N'Đặt trước', 650, 350, 'TG000007', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png');
 GO
 
 -- Loại món ăn (đơn giản, thực tế)
@@ -486,21 +505,21 @@ INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh) VALUE
 GO
 
 -- Loại combo
-INSERT INTO LoaiCombo VALUES
+INSERT INTO LoaiCombo (maLoaiCombo, tenLoaiCombo, moTa) VALUES
 ('LCB00001', N'Sáng', N'Combo bữa sáng'),
 ('LCB00002', N'Trưa', N'Combo bữa trưa'),
 ('LCB00003', N'Chiều', N'Combo bữa chiều');
 GO
 
 -- Combo
-INSERT INTO Combo VALUES
+INSERT INTO Combo (maCombo, tenCombo, giaCombo, maLoaiCombo, moTa, trangThai) VALUES
 ('CB000001', N'Combo sáng năng lượng', 70000, 'LCB00001', N'Cơm + Nước cam', N'Con'),
 ('CB000002', N'Combo trưa tiện lợi', 85000, 'LCB00002', N'Cơm gà + Sinh tố', N'Con'),
 ('CB000003', N'Combo chiều thư giãn', 90000, 'LCB00003', N'Lẩu thái + Bánh flan', N'Con');
 GO
 
 -- Chi tiết combo
-INSERT INTO ChiTietCombo VALUES
+INSERT INTO ChiTietCombo (maCombo, maMonAn, soLuong) VALUES
 ('CB000001', 'MA000001', 1),
 ('CB000001', 'MA000003', 1),
 ('CB000002', 'MA000002', 1),
@@ -510,9 +529,9 @@ INSERT INTO ChiTietCombo VALUES
 GO
 
 -- Phiếu đặt bàn
-INSERT INTO PhieuDatBan VALUES
-('PD000001', '2025-10-20', 4, 'KH000001', 'NV000001'),
-('PD000002', '2025-10-21', 2, 'KH000002', 'NV000002');
+INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV) VALUES
+('PD000001', '2025-11-20', 4, 'KH000001', 'NV000001'),
+('PD000002', '2025-11-21', 2, 'KH000002', 'NV000002');
 GO
 
 -- Chi tiết phiếu đặt bàn
@@ -523,33 +542,43 @@ INSERT INTO ChiTietPDB (maCT, maPDB, maBan, maMonAn, soLuong, donGia) VALUES
 GO
 
 -- Loại thuế
-INSERT INTO LoaiThue VALUES
+INSERT INTO LoaiThue (maLoaiThue, tenLoaiThue) VALUES
 ('LT000001', N'VAT'),
 ('LT000002', N'Phí dịch vụ');
 GO
 
 -- Thuế
-INSERT INTO Thue VALUES
+INSERT INTO Thue (maThue, tyLe, ghiChu, maLoaiThue) VALUES
 ('TH000001',10,NULL,'LT000001'),
 ('TH000002',5,N'Phí phục vụ','LT000002');
 GO
 
 -- Loại khuyến mãi
-INSERT INTO LoaiKhuyenMai VALUES
+INSERT INTO LoaiKhuyenMai (maLoaiKM, tenLoaiKM) VALUES
 ('LKM00001', N'Giảm giá theo tỷ lệ'),
-('LKM00002', N'Tặng món');
+('LKM00002', N'Tặng món'),
+('LKM00003', N'Giảm giá theo số tiền');
 GO
 
 -- Khuyến mãi
-INSERT INTO KhuyenMai VALUES
-('KM000001','LKM00001',10,NULL,NULL,'2025-10-01','2025-10-31',N'Giảm 10% hóa đơn'),
-('KM000002','LKM00002',NULL,NULL,'MA000003','2025-10-10','2025-10-31',N'Tặng nước cam ép');
+INSERT INTO KhuyenMai (maKM, maLoaiKM, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) VALUES
+('KM000001', 'LKM00001', 10, NULL, '2025-10-01', '2025-10-31', N'Giảm 10% hóa đơn tháng 10'),
+('KM000002', 'LKM00002', NULL, NULL, '2025-10-10', '2025-10-31', N'Mua cà phê tặng nước cam ép'),
+('KM000003', 'LKM00003', NULL, 15000, '2025-11-01', '2025-11-30', N'Giảm 15.000đ cho món bún bò Huế');
+GO
+
+-- Chi tiết khuyến mãi
+INSERT INTO ChiTietKhuyenMai (maCTKM, maKM, maMonApDung, maMonTang, tyLeGiam, soTienGiam, soLuongTang)  VALUES
+('CTKM0001', 'KM000001', 'MA000001', NULL, 10, NULL, NULL),         -- Giảm 10% cho món MA000001
+('CTKM0002', 'KM000002', 'MA000002', 'MA000003', NULL, NULL, 1),    -- Mua cà phê đá (MA000002) tặng nước cam ép (MA000003)
+('CTKM0003', 'KM000003', 'MA000004', NULL, NULL, 15000, NULL);      -- Giảm 15k cho món bún bò Huế (MA000004)
 GO
 
 -- Khung giờ khuyến mãi
-INSERT INTO KhungGioKhuyenMai VALUES
-('TGKM0001','KM000001','11:00','14:00',1),
-('TGKM0002','KM000002','18:00','21:00',1);
+INSERT INTO KhungGioKhuyenMai (maTGKM, maKM, gioBatDau, gioKetThuc, lapLaiHangNgay) VALUES
+('TGKM0001', 'KM000001', '08:00', '22:00', 1),
+('TGKM0002', 'KM000002', '09:00', '21:00', 1),
+('TGKM0003', 'KM000003', '10:00', '14:00', 0);
 GO
 
 -- Phương thức thanh toán
@@ -565,7 +594,7 @@ INSERT INTO HoaDon (maHD, ngayLap, maNV, maKH, maPDB, maKM, maThue, tienKhachDua
 GO
 
 -- Chi tiết hóa đơn
-INSERT INTO ChiTietHD VALUES
+INSERT INTO ChiTietHD (maHD, maMonAn, soLuong, donGia) VALUES
 ('HD000001','MA000001',2,55000),
 ('HD000001','MA000003',2,25000),
 ('HD000002','MA000002',2,60000),

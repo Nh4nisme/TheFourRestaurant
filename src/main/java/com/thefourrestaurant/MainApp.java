@@ -3,7 +3,7 @@ package com.thefourrestaurant;
 import java.sql.Connection;
 
 import com.thefourrestaurant.connect.ConnectSQL;
-import com.thefourrestaurant.view.GiaoDienDangNhap;
+//import com.thefourrestaurant.view.GiaoDienDangNhap;
 import com.thefourrestaurant.view.ban.GiaoDienDatBan;
 import com.thefourrestaurant.view.GiaoDienChinh;
 

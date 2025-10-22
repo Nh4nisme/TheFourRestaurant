@@ -138,7 +138,7 @@ public class SideBarDanhMuc extends BaseSideBar {
             case "Khuyến mãi" -> newContent = new GiaoDienKhuyenMai();
             default -> {
                 // Nếu là Loại món
-                Optional<LoaiMon> loaiMonOpt = loaiMonAnDAO.getAllLoaiMonAn().stream()
+                Optional<LoaiMon> loaiMonOpt = loaiMonAnDAO.layTatCaLoaiMonAn().stream()
                         .filter(lm -> lm.getTenLoaiMon().equals(tenMuc))
                         .findFirst();
 
