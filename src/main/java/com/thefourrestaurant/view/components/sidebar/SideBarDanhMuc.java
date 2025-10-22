@@ -132,12 +132,20 @@ public class SideBarDanhMuc extends BaseSideBar {
 
         Node newContent = null;
         switch (tenMuc) {
-            case "Thực đơn" -> newContent = new QuanLyThucDon();
-            case "Loại món ăn" -> newContent = new LoaiMonAn();
-            case "Thời gian sự kiện" -> newContent = new ThoiGianSuKien();
-            case "Khuyến mãi" -> newContent = new GiaoDienKhuyenMai();
-            default -> {
-                // Nếu là Loại món
+            case "Thực đơn":
+                newContent = new QuanLyThucDon();
+                break;
+            case "Loại món ăn":
+                newContent = new LoaiMonAn();
+                break;
+            case "Thời gian sự kiện":
+                newContent = new ThoiGianSuKien();
+                break;
+            case "Khuyến mãi":
+                newContent = new GiaoDienKhuyenMai();
+                break;
+            default:
+                // Check if it's a LoaiMon
                 Optional<LoaiMon> loaiMonOpt = loaiMonAnDAO.layTatCaLoaiMonAn().stream()
                         .filter(lm -> lm.getTenLoaiMon().equals(tenMuc))
                         .findFirst();
@@ -146,7 +154,7 @@ public class SideBarDanhMuc extends BaseSideBar {
                     LoaiMon selectedLoaiMon = loaiMonOpt.get();
                     newContent = new GiaoDienMonAn(selectedLoaiMon.getMaLoaiMon(), selectedLoaiMon.getTenLoaiMon());
                 } else {
-                    // Nếu là tầng
+                    // If not a LoaiMon, check if it's a Tang (floor)
                     TangDAO tangDAO = new TangDAO();
                     Optional<Tang> tangOpt = tangDAO.getAllTang().stream()
                             .filter(t -> t.getTenTang().equals(tenMuc))
@@ -158,7 +166,7 @@ public class SideBarDanhMuc extends BaseSideBar {
                         newContent = qlBan;
                     }
                 }
-            }
+                break;
         }
 
         if (newContent != null) {
