@@ -7,6 +7,8 @@ public class TaiKhoan {
     private VaiTro vaiTro;
     private Boolean isDeleted;
 
+    public TaiKhoan() {}
+
     public TaiKhoan(String maTK, String tenDN, String matKhau, VaiTro vaiTro, boolean isDeleted) {
         setMaTK(maTK);
         setTenDN(tenDN);

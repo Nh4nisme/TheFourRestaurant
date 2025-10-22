@@ -3,10 +3,14 @@ package com.thefourrestaurant.model;
 public class VaiTro {
     private String maVT;
     private String tenVaiTro;
+    private boolean isDeleted;
 
-    public VaiTro(String maVT, String tenVaiTro) {
+    public VaiTro(){}
+
+    public VaiTro(String maVT, String tenVaiTro,  boolean isDeleted) {
         setMaVT(maVT);
         setTenVaiTro(tenVaiTro);
+        this.isDeleted = isDeleted;
     }
 
     public String getTenVaiTro() {
@@ -24,4 +28,9 @@ public class VaiTro {
     public void setMaVT(String maVT) {
         this.maVT = maVT;
     }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+    public void setDeleted(boolean deleted) {}
 }

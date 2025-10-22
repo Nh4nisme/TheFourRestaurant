@@ -3,14 +3,13 @@ package com.thefourrestaurant.view.components;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+
+import java.util.Optional;
 
 public abstract class GiaoDienThucThe extends VBox {
 
@@ -19,15 +18,23 @@ public abstract class GiaoDienThucThe extends VBox {
     protected Label lblTieuDe;
     protected ButtonSample btnTimKiem, btnLamMoi;
     protected TextField txtTimKiem;
+    private final String tieuDe;
 
     public GiaoDienThucThe(String tieuDe, Node chiTietNode) {
+        this.tieuDe = tieuDe;
         this.chiTietNode = chiTietNode;
         this.getStyleClass().add("giao-dien-co-chi-tiet");
         setVgrow(this, Priority.ALWAYS);
 
         getStylesheets().add(getClass().getResource("/com/thefourrestaurant/css/Application.css").toExternalForm());
         this.getStyleClass().add("giaodienthucthe");
+    }
 
+    public Node getChiTietNode() {
+        return chiTietNode;
+    }
+
+    protected void khoiTaoGiaoDien() {
         // === Toolbar ===
         HBox toolbar = taoToolbar(tieuDe);
 
@@ -51,7 +58,7 @@ public abstract class GiaoDienThucThe extends VBox {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox thanhTimKiem = new HBox(10); // khoảng cách giữa các phần tử = 10px
+        HBox thanhTimKiem = new HBox(10);
         thanhTimKiem.setAlignment(Pos.CENTER_LEFT);
         thanhTimKiem.setPadding(new Insets(0,10,0,10));
         txtTimKiem = new TextField();
@@ -91,6 +98,31 @@ public abstract class GiaoDienThucThe extends VBox {
         return splitPane;
     }
 
-    /** Hàm con cần override để tạo bảng tương ứng */
+    /** Hiển thị thông báo dạng Alert đơn giản */
+    protected void hienThongBao(String noiDung) {
+        hienThongBao(noiDung, Alert.AlertType.INFORMATION);
+    }
+
+    /** Hiển thị thông báo với loại Alert tùy chọn */
+    protected void hienThongBao(String noiDung, Alert.AlertType loai) {
+        Alert alert = new Alert(loai);
+        alert.setTitle("Thông báo");
+        alert.setHeaderText(null);
+        alert.setContentText(noiDung);
+        alert.show();
+    }
+
+    /** Hiển thị hộp thoại xác nhận, trả về true nếu người dùng chọn OK */
+    protected boolean xacNhan(String tieuDe, String noiDung) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle(tieuDe);
+        confirm.setHeaderText(null);
+        confirm.setContentText(noiDung);
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    /* Hàm con cần override để tạo bảng tương ứng */
     protected abstract TableView<?> taoBangChinh();
 }
