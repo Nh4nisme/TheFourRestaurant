@@ -25,45 +25,43 @@ public class KhuyenMaiController {
         this.monAnDAO = new MonAnDAO();
     }
 
-    public List<KhuyenMai> getAllKhuyenMai() {
-        return khuyenMaiDAO.getAllKhuyenMai();
+    public List<KhuyenMai> layTatCaKhuyenMai() {
+        return khuyenMaiDAO.layTatCaKhuyenMai();
     }
 
-    public List<LoaiKhuyenMai> getAllLoaiKhuyenMai() {
-        return loaiKhuyenMaiDAO.getAllLoaiKhuyenMai();
+    public List<LoaiKhuyenMai> layTatCaLoaiKhuyenMai() {
+        return loaiKhuyenMaiDAO.layTatCaLoaiKhuyenMai();
     }
 
-    public List<MonAn> getAllMonAn() {
-        // This might be inefficient if there are many dishes. 
-        // For this case, it's acceptable.
-        return monAnDAO.getAllMonAn(); 
+    public List<MonAn> layTatCaMonAn() {
+        return monAnDAO.layTatCaMonAn();
     }
 
     public boolean themMoiKhuyenMai() {
-        List<LoaiKhuyenMai> allLoaiKM = getAllLoaiKhuyenMai();
-        List<MonAn> allMonAn = getAllMonAn();
+        List<LoaiKhuyenMai> allLoaiKM = layTatCaLoaiKhuyenMai();
+        List<MonAn> allMonAn = layTatCaMonAn();
 
         KhuyenMaiDialog dialog = new KhuyenMaiDialog(null, allLoaiKM, allMonAn);
         dialog.showAndWait();
 
         KhuyenMai ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            ketQua.setMaKM(khuyenMaiDAO.generateNewMaKM());
-            return khuyenMaiDAO.addKhuyenMai(ketQua);
+            ketQua.setMaKM(khuyenMaiDAO.taoMaKhuyenMaiMoi());
+            return khuyenMaiDAO.themKhuyenMai(ketQua);
         }
         return false;
     }
 
     public boolean tuyChinhKhuyenMai(KhuyenMai km) {
-        List<LoaiKhuyenMai> allLoaiKM = getAllLoaiKhuyenMai();
-        List<MonAn> allMonAn = getAllMonAn();
+        List<LoaiKhuyenMai> allLoaiKM = layTatCaLoaiKhuyenMai();
+        List<MonAn> allMonAn = layTatCaMonAn();
 
         KhuyenMaiDialog dialog = new KhuyenMaiDialog(km, allLoaiKM, allMonAn);
         dialog.showAndWait();
 
         KhuyenMai ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            return khuyenMaiDAO.updateKhuyenMai(ketQua);
+            return khuyenMaiDAO.capNhatKhuyenMai(ketQua);
         }
         return false;
     }
@@ -76,7 +74,7 @@ public class KhuyenMaiController {
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            return khuyenMaiDAO.deleteKhuyenMai(km.getMaKM());
+            return khuyenMaiDAO.xoaKhuyenMai(km.getMaKM());
         }
         return false;
     }

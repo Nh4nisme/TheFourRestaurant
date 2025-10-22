@@ -11,7 +11,6 @@ import java.util.List;
 
 public class MonAnDAO {
 
-    // Helper method to map a ResultSet row to a complete MonAn object
     private MonAn mapResultSetToMonAn(ResultSet rs) throws SQLException {
         MonAn monAn = new MonAn();
         monAn.setMaMonAn(rs.getString("maMonAn"));
@@ -20,12 +19,10 @@ public class MonAnDAO {
         monAn.setTrangThai(rs.getString("trangThai"));
         monAn.setHinhAnh(rs.getString("hinhAnh"));
 
-        // Create and set LoaiMon object
         if (rs.getString("maLoaiMon") != null) {
             LoaiMon loaiMon = new LoaiMon();
             loaiMon.setMaLoaiMon(rs.getString("maLoaiMon"));
             loaiMon.setTenLoaiMon(rs.getString("tenLoaiMon"));
-            // hinhAnh for LoaiMon is not joined here for simplicity, can be added if needed
             monAn.setLoaiMon(loaiMon);
         }
 
@@ -39,7 +36,7 @@ public class MonAnDAO {
                "LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon ";
     }
 
-    public List<MonAn> getMonAnByLoai(String maLoaiMon) {
+    public List<MonAn> layMonAnTheoLoai(String maLoaiMon) {
         List<MonAn> danhSachMonAn = new ArrayList<>();
         String sql = getBaseSelectSQL() + "WHERE ma.maLoaiMon = ? ORDER BY ma.maMonAn DESC";
         try (Connection conn = ConnectSQL.getConnection();
@@ -57,7 +54,7 @@ public class MonAnDAO {
         return danhSachMonAn;
     }
 
-    public List<MonAn> getAllMonAn() {
+    public List<MonAn> layTatCaMonAn() {
         List<MonAn> danhSachMonAn = new ArrayList<>();
         String sql = getBaseSelectSQL() + "ORDER BY ma.tenMon ASC";
         try (Connection conn = ConnectSQL.getConnection();
@@ -73,7 +70,7 @@ public class MonAnDAO {
         return danhSachMonAn;
     }
 
-    public String generateNewMaMonAn() {
+    public String taoMaMonAnMoi() {
         String newId = "MA000001";
         String sql = "SELECT TOP 1 maMonAn FROM MonAn ORDER BY maMonAn DESC";
         try (Connection conn = ConnectSQL.getConnection();
@@ -130,7 +127,7 @@ public class MonAnDAO {
         }
     }
 
-    public boolean deleteMonAn(String maMonAn) {
+    public boolean xoaMonAn(String maMonAn) {
         String sql = "DELETE FROM MonAn WHERE maMonAn = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

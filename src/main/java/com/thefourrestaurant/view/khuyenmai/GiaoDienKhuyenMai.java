@@ -37,8 +37,16 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
             }
         });
 
-        HBox toolbar = (HBox) this.getChildren().get(0);
-        toolbar.getChildren().add(1, themButton);
+        // Safely get the toolbar by finding the parent of the title label
+        if (this.lblTieuDe != null && this.lblTieuDe.getParent() instanceof HBox) {
+            HBox toolbar = (HBox) this.lblTieuDe.getParent();
+            // Add the button after the title label, before the spacer region
+            if (toolbar.getChildren().size() > 1) {
+                toolbar.getChildren().add(1, themButton);
+            } else {
+                toolbar.getChildren().add(themButton);
+            }
+        }
 
         refreshTable();
     }
@@ -126,7 +134,7 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
     }
 
     private void refreshTable() {
-        List<KhuyenMai> data = controller.getAllKhuyenMai();
+        List<KhuyenMai> data = controller.layTatCaKhuyenMai();
         this.typedTable.setItems(FXCollections.observableArrayList(data));
         
         if (data.isEmpty() || this.typedTable.getSelectionModel().getSelectedItem() == null) {
