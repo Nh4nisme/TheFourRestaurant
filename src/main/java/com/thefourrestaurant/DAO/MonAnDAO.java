@@ -26,21 +26,14 @@ public class MonAnDAO {
             monAn.setLoaiMon(loaiMon);
         }
 
-        if (rs.getString("maKM") != null) {
-            KhuyenMai khuyenMai = new KhuyenMai();
-            khuyenMai.setMaKM(rs.getString("maKM"));
-            khuyenMai.setMoTa(rs.getString("km_moTa"));
-            monAn.setKhuyenMai(khuyenMai);
-        }
 
         return monAn;
     }
 
     private String getBaseSelectSQL() {
-        return "SELECT ma.*, lm.tenLoaiMon, km.moTa AS km_moTa " +
+        return "SELECT ma.*, lm.tenLoaiMon " +
                "FROM MonAn ma " +
-               "LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon " +
-               "LEFT JOIN KhuyenMai km ON ma.maKM = km.maKM ";
+               "LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon ";
     }
 
     public List<MonAn> layMonAnTheoLoai(String maLoaiMon) {
@@ -96,8 +89,8 @@ public class MonAnDAO {
         return newId;
     }
 
-    public boolean themMonAn(MonAn monAn) {
-        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, maKM) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    public boolean addMonAn(MonAn monAn) {
+    	String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -107,7 +100,6 @@ public class MonAnDAO {
             ps.setString(4, monAn.getTrangThai());
             ps.setString(5, monAn.getLoaiMon() != null ? monAn.getLoaiMon().getMaLoaiMon() : null);
             ps.setString(6, monAn.getHinhAnh());
-            ps.setString(7, monAn.getKhuyenMai() != null ? monAn.getKhuyenMai().getMaKM() : null);
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -116,8 +108,8 @@ public class MonAnDAO {
         }
     }
 
-    public boolean capNhatMonAn(MonAn monAn) {
-        String sql = "UPDATE MonAn SET tenMon = ?, donGia = ?, trangThai = ?, maLoaiMon = ?, hinhAnh = ?, maKM = ? WHERE maMonAn = ?";
+    public boolean updateMonAn(MonAn monAn) {
+        String sql = "UPDATE MonAn SET tenMon = ?, donGia = ?, trangThai = ?, maLoaiMon = ?, hinhAnh = ? WHERE maMonAn = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -126,8 +118,7 @@ public class MonAnDAO {
             ps.setString(3, monAn.getTrangThai());
             ps.setString(4, monAn.getLoaiMon() != null ? monAn.getLoaiMon().getMaLoaiMon() : null);
             ps.setString(5, monAn.getHinhAnh());
-            ps.setString(6, monAn.getKhuyenMai() != null ? monAn.getKhuyenMai().getMaKM() : null);
-            ps.setString(7, monAn.getMaMonAn());
+            ps.setString(6, monAn.getMaMonAn());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

@@ -184,7 +184,7 @@ public class GiaoDienDatBan extends BorderPane {
         lblSoTang.setPrefWidth(70);
 
         ComboBox<Tang> cboSoTang = new ComboBox<>();
-        List<Tang> dsTang = tangDAO.getAllTang();
+        List<Tang> dsTang = tangDAO.layTatCaTang();
 
         for (Tang tang : dsTang) {
             cboSoTang.getItems().add(tang);

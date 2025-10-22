@@ -210,7 +210,6 @@ public class MonAnDialog extends Stage {
         hopKiemHienThi.setSelected(monAnHienTai.getTrangThai().equalsIgnoreCase("Con"));
 
         loaiMonComboBox.setValue(monAnHienTai.getLoaiMon());
-        khuyenMaiComboBox.setValue(monAnHienTai.getKhuyenMai());
     }
 
     private void chonAnh() {
@@ -251,7 +250,6 @@ public class MonAnDialog extends Stage {
         ketQua.setDonGia(donGia);
         ketQua.setTrangThai(hopKiemHienThi.isSelected() ? "Con" : "Het");
         ketQua.setLoaiMon(loaiMonComboBox.getValue());
-        ketQua.setKhuyenMai(khuyenMaiComboBox.getValue());
 
         if (tepAnhDaChon != null) {
             ketQua.setHinhAnh(tepAnhDaChon.toURI().toString());

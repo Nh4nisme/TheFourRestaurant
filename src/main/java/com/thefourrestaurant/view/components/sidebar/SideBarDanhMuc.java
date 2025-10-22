@@ -59,7 +59,7 @@ public class SideBarDanhMuc extends BaseSideBar {
 
         // Tầng và bàn
         TangDAO tangDAO = new TangDAO();
-        List<Tang> dsTang = tangDAO.getAllTang();
+        List<Tang> dsTang = tangDAO.layTatCaTang();
         List<String> danhSachTang = dsTang.stream()
                 .map(Tang::getTenTang)
                 .collect(Collectors.toList());
@@ -156,7 +156,7 @@ public class SideBarDanhMuc extends BaseSideBar {
                 } else {
                     // If not a LoaiMon, check if it's a Tang (floor)
                     TangDAO tangDAO = new TangDAO();
-                    Optional<Tang> tangOpt = tangDAO.getAllTang().stream()
+                    Optional<Tang> tangOpt = tangDAO.layTatCaTang().stream()
                             .filter(t -> t.getTenTang().equals(tenMuc))
                             .findFirst();
 
