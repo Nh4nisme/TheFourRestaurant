@@ -48,37 +48,154 @@ public class TaiKhoanDAO {
     }
 
     public static List<TaiKhoan> layDanhSachTaiKhoan() {
-        List<TaiKhoan> list = new ArrayList<>();
-        String sql = """
-                SELECT TK.maTK, TK.tenDangNhap, TK.matKhau, TK.isDeleted,
-                       VT.maVT, VT.tenVaiTro
-                FROM TaiKhoan TK
-                JOIN VaiTro VT ON TK.maVT = VT.maVT
-                WHERE TK.isDeleted = 0
-                """;
+        List<TaiKhoan> ds = new ArrayList<>();
+        String sql = "SELECT maTK, tenDangNhap, matKhau, maVT, isDeleted FROM TaiKhoan WHERE isDeleted = 0";
 
         try (Connection conn = ConnectSQL.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                String maTK = rs.getString("maTK");
-                String tenDN = rs.getString("tenDangNhap");
-                String matKhau = rs.getString("matKhau");
-                boolean isDeleted = rs.getBoolean("isDeleted");
+                TaiKhoan tk = new TaiKhoan();
+                tk.setMaTK(rs.getString("maTK"));
+                tk.setTenDN(rs.getString("tenDangNhap"));
+                tk.setMatKhau(rs.getString("matKhau"));
 
                 String maVT = rs.getString("maVT");
-                String tenVT = rs.getString("tenVaiTro");
-                VaiTro vaiTro = new VaiTro(maVT, tenVT);
+                if (maVT != null) {
+                    tk.setVaiTro(VaiTroDAO.layVaiTroTheoMa(maVT));
+                }
 
-                TaiKhoan tk = new TaiKhoan(maTK, tenDN, matKhau, vaiTro, isDeleted);
-                list.add(tk);
+                tk.setDeleted(rs.getBoolean("isDeleted"));
+                ds.add(tk);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return list;
+        return ds;
+    }
+
+    public static TaiKhoan layTaiKhoanTheoMa(String maTK) {
+        String sql = "SELECT maTK, tenDangNhap, matKhau, maVT, isDeleted FROM TaiKhoan WHERE maTK = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maTK);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    TaiKhoan tk = new TaiKhoan();
+                    tk.setMaTK(rs.getString("maTK"));
+                    tk.setTenDN(rs.getString("tenDangNhap"));
+                    tk.setMatKhau(rs.getString("matKhau"));
+
+                    String maVT = rs.getString("maVT");
+                    if (maVT != null) {
+                        tk.setVaiTro(VaiTroDAO.layVaiTroTheoMa(maVT));
+                    }
+
+                    tk.setDeleted(rs.getBoolean("isDeleted"));
+                    return tk;
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static boolean themTaiKhoan(TaiKhoan tk) {
+        String sql = "INSERT INTO TaiKhoan (MaTK, tenDangNhap, MatKhau, MaVT) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, tk.getMaTK());
+            ps.setString(2, tk.getTenDN());
+            ps.setString(3, tk.getMatKhau());
+            ps.setString(4, tk.getVaiTro() != null ? tk.getVaiTro().getMaVT() : null);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean capNhatTaiKhoan(TaiKhoan tk) {
+        String sql = "UPDATE TaiKhoan SET tenDangNhap = ?, MatKhau = ?, maVT = ? WHERE MaTK = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, tk.getTenDN());
+            ps.setString(2, tk.getMatKhau());
+            ps.setString(3, tk.getVaiTro().getMaVT());
+            ps.setString(4, tk.getMaTK());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean xoaTaiKhoan(String maTK) {
+        String sql = "UPDATE TaiKhoan SET isDeleted = 1 WHERE maTK = ?";
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, maTK);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static TaiKhoan layTaiKhoanTheoTenDangNhap(String tenDN) {
+        String sql = "SELECT maTK, tenDangNhap, matKhau, maVT, isDeleted FROM TaiKhoan WHERE tenDangNhap = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, tenDN);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    TaiKhoan tk = new TaiKhoan();
+                    tk.setMaTK(rs.getString("maTK"));
+                    tk.setTenDN(rs.getString("tenDangNhap"));
+                    tk.setMatKhau(rs.getString("matKhau"));
+
+                    String maVT = rs.getString("maVT");
+                    if (maVT != null) {
+                        tk.setVaiTro(VaiTroDAO.layVaiTroTheoMa(maVT));
+                    }
+
+                    tk.setDeleted(rs.getBoolean("isDeleted"));
+                    return tk;
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null; // không tìm thấy
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

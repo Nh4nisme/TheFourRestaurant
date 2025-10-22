@@ -5,7 +5,6 @@ import java.util.List;
 import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.view.components.ButtonSample;
-import com.thefourrestaurant.view.components.NavBar;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -93,13 +92,13 @@ public class QuanLiBan extends VBox {
     // 🔹 Đặt background theo tầng
     private void setBackgroundTheoTang(String maTang) {
         String path = switch (maTang) {
-            case "TG000001" -> "/com/thefourrestaurant/images/BG_Tang1.png";
-            case "TG000002" -> "/com/thefourrestaurant/images/BG_Tang2.png";
-            case "TG000003" -> "/com/thefourrestaurant/images/BG_Tang3.png";
-            case "TG000004" -> "/com/thefourrestaurant/images/BG_Tang4.png";
-            case "TG000005" -> "/com/thefourrestaurant/images/BG_Tang5.png";
-            case "TG000006" -> "/com/thefourrestaurant/images/BG_Tang6.png";
-            case "TG000007" -> "/com/thefourrestaurant/images/BG_Tang7.png";
+            case "TG000001" -> "/com/thefourrestaurant/images/Tang/BG_Tang1.png";
+            case "TG000002" -> "/com/thefourrestaurant/images/Tang/BG_Tang2.png";
+            case "TG000003" -> "/com/thefourrestaurant/images/Tang/BG_Tang3.png";
+            case "TG000004" -> "/com/thefourrestaurant/images/Tang/BG_Tang4.png";
+            case "TG000005" -> "/com/thefourrestaurant/images/Tang/BG_Tang5.png";
+            case "TG000006" -> "/com/thefourrestaurant/images/Tang/BG_Tang6.png";
+            case "TG000007" -> "/com/thefourrestaurant/images/Tang/BG_Tang7.png";
             default -> "/com/thefourrestaurant/images/background/bg_default.jpg";
         };
 
