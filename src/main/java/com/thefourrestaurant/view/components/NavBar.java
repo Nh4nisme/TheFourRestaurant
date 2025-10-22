@@ -47,7 +47,7 @@ public class NavBar extends HBox {
         String accountLabel = "";
         TaiKhoan current = Session.getCurrentUser();
         if (current != null) {
-            String role = current.getVaiTro(); // ví dụ: QuanLy, ThuNgan
+            String role = current.getVaiTro().getTenVaiTro(); // ví dụ: QuanLy, ThuNgan
             String vnRole;
             if (role == null) {
                 vnRole = "Tài khoản";
@@ -63,7 +63,7 @@ public class NavBar extends HBox {
             accountLabel = "Tài khoản: --"; // fallback khi chưa có session
         }
 
-        ButtonSample btnTKDN = new ButtonSample(accountLabel, "/com/thefourrestaurant/images/icon/accountIcon.png",45, 16, 1);
+        ButtonSample btnTKDN = new ButtonSample("null", "/com/thefourrestaurant/images/icon/accountIcon.png",45, 16, 1);
 
         btnDanhMucNav = new DropDownButton(
                 "Danh mục",
@@ -111,7 +111,7 @@ public class NavBar extends HBox {
         btnXuLi.setOnItemSelected(this::showPanel);
 
         if (current != null) {
-            String roleRaw = current.getVaiTro(); 
+            String roleRaw = current.getVaiTro().getTenVaiTro();
             boolean isManager = roleRaw != null && roleRaw.equalsIgnoreCase("QuanLy");
 
             if (!isManager) {
@@ -146,18 +146,18 @@ public class NavBar extends HBox {
             }
         }
 
-        boolean currentIsManager = false;
-        if (Session.getCurrentUser() != null) {
-            String r = Session.getCurrentUser().getVaiTro();
-            currentIsManager = r != null && r.equalsIgnoreCase("QuanLy");
-        }
-
-        List<String> managerOnly = List.of("Thực đơn", "Món ăn", "Tài khoản");
-        if (managerOnly.contains(s) && !currentIsManager) {
-            Alert a = new Alert(Alert.AlertType.WARNING, "Quyền truy cập bị từ chối. Chức năng này yêu cầu quyền Quản Lý.", ButtonType.OK);
-            a.showAndWait();
-            return;
-        }
+//        boolean currentIsManager = false;
+//        if (Session.getCurrentUser() != null) {
+//            String r = Session.getCurrentUser().getVaiTro().getTenVaiTro();
+//            currentIsManager = r != null && r.equalsIgnoreCase("QuanLy");
+//        }
+//
+//        List<String> managerOnly = List.of("Thực đơn", "Món ăn", "Tài khoản");
+////        if (managerOnly.contains(s) && !currentIsManager) {
+////            Alert a = new Alert(Alert.AlertType.WARNING, "Quyền truy cập bị từ chối. Chức năng này yêu cầu quyền Quản Lý.", ButtonType.OK);
+////            a.showAndWait();
+////            return;
+////        }
 
         Node newContent = switch (s) {
             case "Thực đơn" -> new QuanLyThucDon();
