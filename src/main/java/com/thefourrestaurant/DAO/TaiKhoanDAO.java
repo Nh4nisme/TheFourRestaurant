@@ -51,7 +51,7 @@ public class TaiKhoanDAO {
         List<TaiKhoan> list = new ArrayList<>();
         String sql = """
                 SELECT TK.maTK, TK.tenDangNhap, TK.matKhau, TK.isDeleted,
-                       VT.maVT, VT.tenVT
+                       VT.maVT, VT.tenVaiTro
                 FROM TaiKhoan TK
                 JOIN VaiTro VT ON TK.maVT = VT.maVT
                 WHERE TK.isDeleted = 0
@@ -68,7 +68,7 @@ public class TaiKhoanDAO {
                 boolean isDeleted = rs.getBoolean("isDeleted");
 
                 String maVT = rs.getString("maVT");
-                String tenVT = rs.getString("tenVT");
+                String tenVT = rs.getString("tenVaiTro");
                 VaiTro vaiTro = new VaiTro(maVT, tenVT);
 
                 TaiKhoan tk = new TaiKhoan(maTK, tenDN, matKhau, vaiTro, isDeleted);
