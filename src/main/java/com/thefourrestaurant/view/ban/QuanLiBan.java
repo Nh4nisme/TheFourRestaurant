@@ -130,7 +130,6 @@ public class QuanLiBan extends VBox {
         }
     }
 
-    // 🔹 Tạo từng bàn
     private void taoBan(Pane pane, Ban ban) {
         Image img;
         try {
@@ -151,9 +150,45 @@ public class QuanLiBan extends VBox {
         khungBan.setLayoutX(ban.getToaDoX());
         khungBan.setLayoutY(ban.getToaDoY());
 
-        khungBan.setOnMouseEntered(e -> khungBan.setStyle("-fx-effect: dropshadow(gaussian, gray, 10, 0, 0, 0);"));
-        khungBan.setOnMouseExited(e -> khungBan.setStyle(""));
+        String borderStyle = switch (ban.getTrangThai()) {
+            case "Trống" -> "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
+            case "Đặt trước" -> "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
+            case "Đang sử dụng" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
+            default -> "-fx-border-color: gray; -fx-border-width: 3; -fx-border-radius: 12;";
+        };
+        khungBan.setStyle(borderStyle);
+
+        khungBan.setOnMouseEntered(e -> khungBan.setStyle(borderStyle + "-fx-effect: dropshadow(gaussian, gray, 10, 0, 0, 0);"));
+        khungBan.setOnMouseExited(e -> khungBan.setStyle(borderStyle));
+        
+        final double[] offset = new double[2];
+
+        khungBan.setOnMousePressed(e -> {
+            offset[0] = e.getSceneX() - khungBan.getLayoutX();
+            offset[1] = e.getSceneY() - khungBan.getLayoutY();
+        });
+
+        khungBan.setOnMouseDragged(e -> {
+            khungBan.setLayoutX(e.getSceneX() - offset[0]);
+            khungBan.setLayoutY(e.getSceneY() - offset[1]);
+        });
+
+        khungBan.setOnMouseReleased(e -> {
+            int newX = (int) khungBan.getLayoutX();
+            int newY = (int) khungBan.getLayoutY();
+
+            boolean ok = banDAO.updateToaDo(ban.getMaBan(), newX, newY);
+            if (ok) {
+                System.out.println("✅ Lưu vị trí bàn " + ban.getTenBan() + " thành công: (" + newX + ", " + newY + ")");
+            } else {
+                System.err.println("❌ Không thể lưu vị trí bàn " + ban.getTenBan());
+            }
+        });
 
         pane.getChildren().add(khungBan);
+    }
+
+    public Pane getKhuVucBan() {
+        return khuVucBan;
     }
 }

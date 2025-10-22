@@ -14,6 +14,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -27,23 +28,36 @@ public class SideBarDanhMuc extends BaseSideBar {
 
     private final Pane mainContent;
     private final LoaiMonAnDAO loaiMonAnDAO;
+    private final VBox container;
 
     public SideBarDanhMuc(Pane mainContent) {
         super("Quản Lý");
         this.mainContent = mainContent;
         this.loaiMonAnDAO = new LoaiMonAnDAO();
         VBox.setVgrow(mainContent, Priority.ALWAYS);
+
+        // Container chính cho các danh mục
+        container = new VBox(10);
+        container.setPadding(new Insets(10));
+        container.getStyleClass().add("base-sidebar");
+
+        getChildren().add(container);
+
+        khoiTaoDanhMuc();
     }
 
     @Override
     protected void khoiTaoDanhMuc() {
         themDanhMuc("Thực đơn");
         themDanhMuc("Loại món ăn");
-        themDanhMuc("Món ăn", List.of("Cơm", "Đồ nước", "Tráng miệng", "Món đặc biệt"));
+        themDanhMuc("Món ăn", List.of(
+                "Cơm", "Đồ nước", "Tráng miệng", "Món đặc biệt",
+                "Cơm gà", "Bún bò", "Hủ tiếu", "Phở", "Miến", "Mì cay"
+        ));
         themDanhMuc("Thời gian sự kiện");
         themDanhMuc("Khuyến mãi");
 
-        // Tầng & Bàn
+        // Tầng và bàn
         TangDAO tangDAO = new TangDAO();
         List<Tang> dsTang = tangDAO.getAllTang();
         List<String> danhSachTang = dsTang.stream()
@@ -57,13 +71,13 @@ public class SideBarDanhMuc extends BaseSideBar {
     }
 
     private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon) {
-        Label nhanChinh = taoNhanClick(tenDanhMuc, () -> xuLyChonMuc(tenDanhMuc), "muc-chinh");
+        Label nhanChinh = new Label(tenDanhMuc);
+        nhanChinh.getStyleClass().add("muc-chinh");
 
         if (danhSachCon != null && !danhSachCon.isEmpty()) {
+            // Tạo VBox chứa các mục con
             VBox hopChua = new VBox(5);
             hopChua.setPadding(new Insets(5, 0, 5, 20));
-            hopChua.setVisible(false);
-            hopChua.setManaged(false);
             hopChua.getStyleClass().add("hop-chua-con");
 
             for (String mucCon : danhSachCon) {
@@ -71,17 +85,34 @@ public class SideBarDanhMuc extends BaseSideBar {
                 hopChua.getChildren().add(lblCon);
             }
 
-            nhanChinh.setOnMouseClicked(e -> moHoacDongMucCon(hopChua));
-            getChildren().addAll(nhanChinh, hopChua);
+            //ScrollPane chỉ bọc phần con
+            ScrollPane scrollMucCon = new ScrollPane(hopChua);
+            scrollMucCon.setFitToWidth(true);
+            scrollMucCon.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            scrollMucCon.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+            scrollMucCon.setPrefHeight(300); // Chiều cao tối đa vùng con
+            scrollMucCon.setVisible(false);
+            scrollMucCon.setManaged(false);
+            scrollMucCon.getStyleClass().add("scroll-muc-con");
+
+            // Xử lý mở/đóng vùng cuộn con
+            nhanChinh.setOnMouseClicked(e -> {
+                boolean hienThi = scrollMucCon.isVisible();
+                scrollMucCon.setVisible(!hienThi);
+                scrollMucCon.setManaged(!hienThi);
+            });
+
+            container.getChildren().addAll(nhanChinh, scrollMucCon);
         } else {
-            getChildren().add(nhanChinh);
+            nhanChinh.setOnMouseClicked(e -> xuLyChonMuc(tenDanhMuc));
+            container.getChildren().add(nhanChinh);
         }
     }
 
     private void xuLyChonMuc(String tenMuc) {
         if (mainContent == null) return;
 
-        // Reset highlight cũ
+        // Reset highlight
         for (Node node : lookupAll(".muc-con, .muc-chinh")) {
             node.setStyle("");
         }
@@ -101,21 +132,13 @@ public class SideBarDanhMuc extends BaseSideBar {
 
         Node newContent = null;
         switch (tenMuc) {
-            case "Thực đơn":
-                newContent = new QuanLyThucDon();
-                break;
-            case "Loại món ăn":
-                newContent = new LoaiMonAn();
-                break;
-            case "Thời gian sự kiện":
-                newContent = new ThoiGianSuKien();
-                break;
-            case "Khuyến mãi":
-                newContent = new GiaoDienKhuyenMai();
-                break;
-            default:
-                // Check if it's a LoaiMon
-                Optional<LoaiMon> loaiMonOpt = loaiMonAnDAO.layTatCaLoaiMonAn().stream()
+            case "Thực đơn" -> newContent = new QuanLyThucDon();
+            case "Loại món ăn" -> newContent = new LoaiMonAn();
+            case "Thời gian sự kiện" -> newContent = new ThoiGianSuKien();
+            case "Khuyến mãi" -> newContent = new GiaoDienKhuyenMai();
+            default -> {
+                // Nếu là Loại món
+                Optional<LoaiMon> loaiMonOpt = loaiMonAnDAO.getAllLoaiMonAn().stream()
                         .filter(lm -> lm.getTenLoaiMon().equals(tenMuc))
                         .findFirst();
 
@@ -123,7 +146,7 @@ public class SideBarDanhMuc extends BaseSideBar {
                     LoaiMon selectedLoaiMon = loaiMonOpt.get();
                     newContent = new GiaoDienMonAn(selectedLoaiMon.getMaLoaiMon(), selectedLoaiMon.getTenLoaiMon());
                 } else {
-                    // If not a LoaiMon, check if it's a Tang (floor)
+                    // Nếu là tầng
                     TangDAO tangDAO = new TangDAO();
                     Optional<Tang> tangOpt = tangDAO.getAllTang().stream()
                             .filter(t -> t.getTenTang().equals(tenMuc))
@@ -135,7 +158,7 @@ public class SideBarDanhMuc extends BaseSideBar {
                         newContent = qlBan;
                     }
                 }
-                break;
+            }
         }
 
         if (newContent != null) {
