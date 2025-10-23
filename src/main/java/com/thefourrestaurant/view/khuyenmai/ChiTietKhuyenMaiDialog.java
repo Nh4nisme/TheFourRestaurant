@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-public class ChiTietKhuyenMaiDialog extends Dialog<Optional<ChiTietKhuyenMai>> {
+public class ChiTietKhuyenMaiDialog extends Dialog<ChiTietKhuyenMai> { // ✅ Sửa generic
 
     private final ChiTietKhuyenMai chiTiet;
     private final boolean isEdit;
@@ -29,34 +29,35 @@ public class ChiTietKhuyenMaiDialog extends Dialog<Optional<ChiTietKhuyenMai>> {
 
         setTitle(isEdit ? "Sửa Chi Tiết Khuyến Mãi" : "Thêm Chi Tiết Khuyến Mãi");
 
-        // Setup UI
+        // === UI SETUP ===
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
-        // Converters and ComboBox setup
+        // === COMBOBOX setup ===
         StringConverter<MonAn> monAnConverter = new StringConverter<>() {
             @Override
             public String toString(MonAn monAn) {
                 return monAn == null ? "(Không có)" : monAn.getTenMon();
             }
+
             @Override
             public MonAn fromString(String string) {
-                return null;
+                return null; // không cần
             }
         };
 
         cboMonApDung.setItems(FXCollections.observableArrayList(allMonAn));
         cboMonApDung.setConverter(monAnConverter);
 
-        // Add a null option for monTang
+        // Tạo danh sách món tặng (có thể null)
         List<MonAn> monTangOptions = FXCollections.observableArrayList(allMonAn);
         monTangOptions.add(0, null);
         cboMonTang.setItems(FXCollections.observableArrayList(monTangOptions));
         cboMonTang.setConverter(monAnConverter);
 
-        // Layout
+        // === Layout ===
         grid.add(new Label("Món áp dụng:"), 0, 0);
         grid.add(cboMonApDung, 1, 0);
         grid.add(new Label("Tỷ lệ giảm (%):"), 0, 1);
@@ -71,45 +72,52 @@ public class ChiTietKhuyenMaiDialog extends Dialog<Optional<ChiTietKhuyenMai>> {
         getDialogPane().setContent(grid);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        // Enable/disable fields based on input
-        cboMonTang.valueProperty().addListener((obs, old, aNew) -> txtSoLuongTang.setDisable(aNew == null));
+        // Khi chọn món tặng → bật/tắt ô số lượng
+        cboMonTang.valueProperty().addListener((obs, old, aNew) ->
+                txtSoLuongTang.setDisable(aNew == null));
         txtSoLuongTang.setDisable(cboMonTang.getValue() == null);
 
         if (isEdit) {
             populateData();
         }
 
+        // === Xử lý kết quả ===
         this.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
                 if (validateAndBuild()) {
-                    return Optional.of(this.chiTiet);
+                    return this.chiTiet; // ✅ trả về ChiTietKhuyenMai
                 }
             }
-            return Optional.empty();
+            return null; // Nếu hủy hoặc dữ liệu không hợp lệ
         });
     }
 
+    // === Đổ dữ liệu khi chỉnh sửa ===
     private void populateData() {
-        cboMonApDung.setValue(chiTiet.getMonAnApDung());
-        cboMonTang.setValue(chiTiet.getMonAnTang());
-        if (chiTiet.getTyLeGiam() != null) txtTyLeGiam.setText(chiTiet.getTyLeGiam().toPlainString());
-        if (chiTiet.getSoTienGiam() != null) txtSoTienGiam.setText(chiTiet.getSoTienGiam().toPlainString());
-        if (chiTiet.getSoLuongTang() != null) txtSoLuongTang.setText(chiTiet.getSoLuongTang().toString());
+        cboMonApDung.setValue(chiTiet.getMonApDung());
+        cboMonTang.setValue(chiTiet.getMonTang());
+        if (chiTiet.getTyLeGiam() != null)
+            txtTyLeGiam.setText(chiTiet.getTyLeGiam().toPlainString());
+        if (chiTiet.getSoTienGiam() != null)
+            txtSoTienGiam.setText(chiTiet.getSoTienGiam().toPlainString());
+        if (chiTiet.getSoLuongTang() != null)
+            txtSoLuongTang.setText(chiTiet.getSoLuongTang().toString());
     }
 
+    // === Kiểm tra và cập nhật giá trị ===
     private boolean validateAndBuild() {
         if (cboMonApDung.getValue() == null) {
             showAlert("Món áp dụng không được để trống.");
             return false;
         }
-        chiTiet.setMonAnApDung(cboMonApDung.getValue());
+        chiTiet.setMonApDung(cboMonApDung.getValue());
 
         try {
             chiTiet.setTyLeGiam(parseBigDecimal(txtTyLeGiam.getText()));
             chiTiet.setSoTienGiam(parseBigDecimal(txtSoTienGiam.getText()));
 
             MonAn monTang = cboMonTang.getValue();
-            chiTiet.setMonAnTang(monTang);
+            chiTiet.setMonTang(monTang);
 
             if (monTang != null) {
                 chiTiet.setSoLuongTang(parseInteger(txtSoLuongTang.getText()));
@@ -129,6 +137,7 @@ public class ChiTietKhuyenMaiDialog extends Dialog<Optional<ChiTietKhuyenMai>> {
         }
     }
 
+    // === Hỗ trợ parse dữ liệu ===
     private BigDecimal parseBigDecimal(String text) {
         return (text == null || text.isEmpty()) ? null : new BigDecimal(text);
     }
@@ -145,7 +154,8 @@ public class ChiTietKhuyenMaiDialog extends Dialog<Optional<ChiTietKhuyenMai>> {
         alert.showAndWait();
     }
 
-    public Optional<ChiTietKhuyenMai> getResult() {
-        return showAndWait().orElse(Optional.empty());
+    public Optional<ChiTietKhuyenMai> layKetQua() {
+        return showAndWait();
     }
+
 }

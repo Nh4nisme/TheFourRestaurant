@@ -1,13 +1,13 @@
 package com.thefourrestaurant.model;
 
-public class LoaiMonAn {
+public class LoaiMon {
     private String maLoaiMon;
     private String tenLoaiMon;
     private String hinhAnh;
 
-    public LoaiMonAn() {}
+    public LoaiMon() {}
 
-    public LoaiMonAn(String maLoaiMon, String tenLoaiMon, String hinhAnh) {
+    public LoaiMon(String maLoaiMon, String tenLoaiMon, String hinhAnh) {
         this.maLoaiMon = maLoaiMon;
         this.tenLoaiMon = tenLoaiMon;
         this.hinhAnh = hinhAnh;

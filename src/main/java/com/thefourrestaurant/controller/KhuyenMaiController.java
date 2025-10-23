@@ -58,18 +58,20 @@ public class KhuyenMaiController {
             // Tạo mã KM mới
             String newId = khuyenMaiDAO.taoMaKhuyenMaiMoi();
             ketQua.setMaKM(newId);
+
             boolean inserted = khuyenMaiDAO.themKhuyenMai(ketQua);
 
             // Lưu chi tiết khuyến mãi nếu có
             if (inserted && ketQua.getChiTietKhuyenMais() != null) {
                 ketQua.getChiTietKhuyenMais().forEach(ct -> {
-                    ct.getKhuyenMai().setMaKM(newId);
+                    ct.setKhuyenMai(ketQua);
                     chiTietKhuyenMaiDAO.themChiTiet(ct);
                 });
             }
             return inserted;
         }
         return false;
+
     }
 
     public boolean tuyChinhKhuyenMai(KhuyenMai km) {

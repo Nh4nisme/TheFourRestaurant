@@ -58,6 +58,37 @@ public class KhuyenMaiDAO {
         return ds;
     }
 
+
+    public String taoMaKhuyenMaiMoi() {
+        String newId = "KM000001";
+        String sql = "SELECT TOP 1 maKM FROM KhuyenMai ORDER BY maKM DESC";
+        try (Connection conn = ConnectSQL.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                String lastId = rs.getString("maKM"); // ví dụ "KM000123"
+                if (lastId != null && lastId.length() > 2) {
+                    // Lấy phần số, tăng lên 1 — xử lý từng chữ số cẩn thận
+                    String numPart = lastId.substring(2); // "000123"
+                    int num = 0;
+                    try {
+                        // tính số bằng cách parse digit-by-digit để tránh lỗi (an toàn)
+                        num = Integer.parseInt(numPart);
+                    } catch (NumberFormatException ex) {
+                        num = 0; // nếu không parse được thì bắt đầu từ 0
+                    }
+                    num += 1;
+                    // đảm bảo format với 6 chữ số: KM + 6 chữ số
+                    newId = String.format("KM%06d", num);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // nếu lỗi DB thì trả về default (KM000001) để không gây NPE; bạn có thể xử lý khác
+        }
+        return newId;
+    }
     // ===== READ BY ID =====
     public KhuyenMai timKhuyenMaiTheoMa(String maKM) {
         String sql = "SELECT * FROM KhuyenMai WHERE maKM = ?";

@@ -1,10 +1,10 @@
 package com.thefourrestaurant.controller;
 
 import com.thefourrestaurant.DAO.KhuyenMaiDAO;
-import com.thefourrestaurant.DAO.LoaiMonAnDAO;
+import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.DAO.MonAnDAO;
 import com.thefourrestaurant.model.KhuyenMai;
-import com.thefourrestaurant.model.LoaiMonAn;
+import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.monan.MonAnDialog;
 import javafx.scene.control.Alert;
@@ -16,12 +16,12 @@ import java.util.Optional;
 public class MonAnController {
 
     private final MonAnDAO monAnDAO;
-    private final LoaiMonAnDAO loaiMonAnDAO;
+    private final LoaiMonDAO loaiMonDAO;
     private final KhuyenMaiDAO khuyenMaiDAO;
 
     public MonAnController() {
         this.monAnDAO = new MonAnDAO();
-        this.loaiMonAnDAO = new LoaiMonAnDAO();
+        this.loaiMonDAO = new LoaiMonDAO();
         this.khuyenMaiDAO = new KhuyenMaiDAO();
     }
 
@@ -29,8 +29,8 @@ public class MonAnController {
         return monAnDAO.layMonAnTheoLoai(maLoaiMon);
     }
 
-    public List<LoaiMonAn> layTatCaLoaiMonAn() {
-        return loaiMonAnDAO.layTatCaLoaiMonAn();
+    public List<LoaiMon> layTatCaLoaiMonAn() {
+        return loaiMonDAO.layTatCaLoaiMon();
     }
 
     public List<KhuyenMai> layTatCaKhuyenMai() {
@@ -38,7 +38,7 @@ public class MonAnController {
     }
 
     public boolean themMoiMonAn(String maLoaiMonDefault) {
-        List<LoaiMonAn> allLoaiMon = layTatCaLoaiMonAn();
+        List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
         List<KhuyenMai> allKhuyenMai = layTatCaKhuyenMai();
 
         if (allLoaiMon.isEmpty()) {
@@ -46,7 +46,7 @@ public class MonAnController {
             return false;
         }
 
-        LoaiMonAn defaultLoaiMon = allLoaiMon.stream()
+        LoaiMon defaultLoaiMon = allLoaiMon.stream()
                 .filter(lm -> lm.getMaLoaiMon().equals(maLoaiMonDefault))
                 .findFirst()
                 .orElse(null);
@@ -63,10 +63,10 @@ public class MonAnController {
     }
 
     public boolean tuyChinhMonAn(MonAn monAn) {
-        List<LoaiMonAn> allLoaiMon = layTatCaLoaiMonAn();
+        List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
         List<KhuyenMai> allKhuyenMai = layTatCaKhuyenMai();
 
-        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMonAn(), allKhuyenMai);
+        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon(), allKhuyenMai);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();

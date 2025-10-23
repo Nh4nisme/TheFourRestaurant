@@ -7,18 +7,18 @@ public class MonAn {
     private String tenMon;
     private BigDecimal donGia;
     private String trangThai;
-    private LoaiMonAn loaiMonAn;
+    private LoaiMon loaiMon;
     private String hinhAnh;
 
     public MonAn() {}
 
     public MonAn(String maMonAn, String tenMon, BigDecimal donGia, String trangThai,
-                 LoaiMonAn loaiMonAn, String hinhAnh) {
+                 LoaiMon loaiMon, String hinhAnh) {
         this.maMonAn = maMonAn;
         this.tenMon = tenMon;
         this.donGia = donGia;
         this.trangThai = trangThai;
-        this.loaiMonAn = loaiMonAn;
+        this.loaiMon = loaiMon;
         this.hinhAnh = hinhAnh;
     }
 
@@ -38,8 +38,8 @@ public class MonAn {
     public String getTrangThai() { return trangThai; }
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
 
-    public LoaiMonAn getLoaiMonAn() { return loaiMonAn; }
-    public void setLoaiMonAn(LoaiMonAn loaiMonAn) { this.loaiMonAn = loaiMonAn; }
+    public LoaiMon getLoaiMon() { return loaiMon; }
+    public void setLoaiMon(LoaiMon loaiMon) { this.loaiMon = loaiMon; }
 
     public String getHinhAnh() { return hinhAnh; }
     public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }

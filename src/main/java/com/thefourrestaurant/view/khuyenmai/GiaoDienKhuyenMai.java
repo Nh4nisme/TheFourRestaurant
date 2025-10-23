@@ -23,13 +23,19 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
         super("Khuyến mãi", new GiaoDienChiTietKhuyenMai());
         this.controller = new KhuyenMaiController();
 
+        // ⚙️ Khởi tạo giao diện cha (toolbar + bảng + chi tiết)
+        khoiTaoGiaoDien();
+
+        // Sau khi giao diện cha được tạo, tableChinh đã sẵn sàng
         this.chiTietKhuyenMaiPane = (GiaoDienChiTietKhuyenMai) this.chiTietNode;
         this.typedTable = (TableView<KhuyenMai>) this.tableChinh;
 
+        // Sự kiện chọn hàng
         this.typedTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             chiTietKhuyenMaiPane.hienThiChiTiet(newSelection);
         });
 
+        // Nút thêm khuyến mãi
         ButtonSample themButton = new ButtonSample("Thêm Khuyến Mãi", "", 35, 14, 3);
         themButton.setOnAction(e -> {
             if (controller.themMoiKhuyenMai()) {
@@ -37,10 +43,9 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
             }
         });
 
-        // Safely get the toolbar by finding the parent of the title label
+        // Thêm nút vào toolbar
         if (this.lblTieuDe != null && this.lblTieuDe.getParent() instanceof HBox) {
             HBox toolbar = (HBox) this.lblTieuDe.getParent();
-            // Add the button after the title label, before the spacer region
             if (toolbar.getChildren().size() > 1) {
                 toolbar.getChildren().add(1, themButton);
             } else {
@@ -48,6 +53,7 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
             }
         }
 
+        // Tải dữ liệu ban đầu
         refreshTable();
     }
 
@@ -72,18 +78,32 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
         TableColumn<KhuyenMai, String> giaTriCol = new TableColumn<>("Giá Trị");
         giaTriCol.setCellValueFactory(cellData -> {
             KhuyenMai km = cellData.getValue();
-            String giaTri = "";
-            if (km.getTyLe() != null) {
-                giaTri = km.getTyLe() + " %";
-            } else if (km.getSoTien() != null) {
-                giaTri = km.getSoTien().toPlainString() + " VND";
-            } else if (km.getMonAnTang() != null) {
-                giaTri = "Tặng " + km.getMonAnTang().getTenMon();
-            } else if (km.getMonAnApDung() != null) {
-                giaTri = "Giảm cho " + km.getMonAnApDung().getTenMon();
+            StringBuilder giaTri = new StringBuilder();
+
+            if (km.getChiTietKhuyenMais() != null && !km.getChiTietKhuyenMais().isEmpty()) {
+                km.getChiTietKhuyenMais().forEach(ct -> {
+                    if (ct.getTyLeGiam() != null) {
+                        giaTri.append("Giảm ").append(ct.getTyLeGiam()).append("%");
+                    } else if (ct.getSoTienGiam() != null) {
+                        giaTri.append("Giảm ").append(ct.getSoTienGiam().toPlainString()).append(" VND");
+                    }
+
+                    if (ct.getMonApDung() != null) {
+                        giaTri.append(" cho ").append(ct.getMonApDung().getTenMon());
+                    }
+                    if (ct.getMonTang() != null) {
+                        giaTri.append(", tặng ").append(ct.getSoLuongTang() != null ? ct.getSoLuongTang() + "x " : "")
+                                .append(ct.getMonTang().getTenMon());
+                    }
+                    giaTri.append("; ");
+                });
+            } else {
+                giaTri.append("(Không có chi tiết)");
             }
-            return new SimpleStringProperty(giaTri);
+
+            return new SimpleStringProperty(giaTri.toString());
         });
+
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -102,6 +122,7 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
         table.getColumns().addAll(maKMCol, moTaCol, loaiKMCol, giaTriCol, ngayBDCol, ngayKTCol);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
+        // Context menu (chuột phải)
         table.setRowFactory(tv -> {
             TableRow<KhuyenMai> row = new TableRow<>();
             ContextMenu contextMenu = new ContextMenu();
@@ -136,7 +157,7 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
     private void refreshTable() {
         List<KhuyenMai> data = controller.layTatCaKhuyenMai();
         this.typedTable.setItems(FXCollections.observableArrayList(data));
-        
+
         if (data.isEmpty() || this.typedTable.getSelectionModel().getSelectedItem() == null) {
             chiTietKhuyenMaiPane.hienThiChiTiet(null);
         }
