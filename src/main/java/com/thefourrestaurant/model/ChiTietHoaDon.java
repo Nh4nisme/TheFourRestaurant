@@ -3,32 +3,32 @@ package com.thefourrestaurant.model;
 import java.math.BigDecimal;
 
 public class ChiTietHoaDon {
-    private String maHD;      // Mã hóa đơn
-    private String maMonAn;   // Mã món ăn
-    private int soLuong;       // Số lượng
-    private BigDecimal donGia; // Đơn giá
+    private HoaDon hoaDon;
+    private MonAn monAn;
+    private int soLuong;
+    private BigDecimal donGia;
 
-    public ChiTietHoaDon(String maHD, String maMonAn, int soLuong, BigDecimal donGia) {
-        setMaHD(maHD);
-        setMaMonAn(maMonAn);
+    public ChiTietHoaDon(HoaDon hoaDon, MonAn monAn, int soLuong,  BigDecimal donGia) {
+        setHoaDon(hoaDon);
+        setMonAn(monAn);
         setSoLuong(soLuong);
         setDonGia(donGia);
     }
 
-    public String getMaHD() {
-        return maHD;
+    public HoaDon getHoaDon() {
+        return hoaDon;
     }
 
-    public void setMaHD(String maHD) {
-        this.maHD = maHD;
+    public void setHoaDon(HoaDon hoaDon) {
+        this.hoaDon = hoaDon;
     }
 
-    public String getMaMonAn() {
-        return maMonAn;
+    public MonAn getMonAn() {
+        return monAn;
     }
 
-    public void setMaMonAn(String maMonAn) {
-        this.maMonAn = maMonAn;
+    public void setMonAn(MonAn monAn) {
+        this.monAn = monAn;
     }
 
     public int getSoLuong() {
@@ -47,7 +47,6 @@ public class ChiTietHoaDon {
         this.donGia = donGia;
     }
 
-    // Phương thức tính Thành tiền
     public BigDecimal getThanhTien() {
         if (donGia == null) return BigDecimal.ZERO;
         return donGia.multiply(BigDecimal.valueOf(soLuong));
