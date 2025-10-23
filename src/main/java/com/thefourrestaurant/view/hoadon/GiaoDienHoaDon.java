@@ -22,7 +22,6 @@ public class    GiaoDienHoaDon extends GiaoDienThucThe {
 
 
 
-        table.getItems().addAll(HoaDonDAO.getAllHoaDon());
 
         return table;
     }
