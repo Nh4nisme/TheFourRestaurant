@@ -11,31 +11,31 @@
 //import java.util.List;
 //
 //public class NhanVienDAO {
-//    public List<NhanVien> layDanhSachNhanVien() {
-//        List<NhanVien> ds = new ArrayList<>();
-//        String sql = "SELECT * FROM NhanVien WHERE isDeleted = false";
-//        try (Connection conn = ConnectSQL.getConnection();
-//             PreparedStatement ps = conn.prepareStatement(sql);
-//             ResultSet rs = ps.executeQuery()) {
-//
-//            while (rs.next()) {
-//                NhanVien nv = new NhanVien(
-//                        rs.getString("maNV"),
-//                        rs.getString("hoTen"),
-//                        rs.getDate("ngaySinh"),
-//                        rs.getString("gioiTinh"),
-//                        rs.getString("soDienThoai"),
-//                        rs.getBigDecimal("luong"),
-//                        rs.getString("maTK"),
-//                        rs.getBoolean("isDeleted")
-//                );
-//                ds.add(nv);
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return ds;
-//    }
+////    public List<NhanVien> layDanhSachNhanVien() {
+////        List<NhanVien> ds = new ArrayList<>();
+////        String sql = "SELECT * FROM NhanVien WHERE isDeleted = false";
+////        try (Connection conn = ConnectSQL.getConnection();
+////             PreparedStatement ps = conn.prepareStatement(sql);
+////             ResultSet rs = ps.executeQuery()) {
+////
+////            while (rs.next()) {
+////                NhanVien nv = new NhanVien(
+////                        rs.getString("maNV"),
+////                        rs.getString("hoTen"),
+////                        rs.getDate("ngaySinh"),
+////                        rs.getString("gioiTinh"),
+////                        rs.getString("soDienThoai"),
+////                        rs.getBigDecimal("luong"),
+////                        rs.getString("maTK"),
+////                        rs.getBoolean("isDeleted")
+////                );
+////                ds.add(nv);
+////            }
+////        } catch (SQLException e) {
+////            e.printStackTrace();
+////        }
+////        return ds;
+////    }
 //
 //    public NhanVien layNhanVienTheoMa(String maNV) {
 //        String sql = "SELECT * FROM NhanVien WHERE maNV = ? AND isDeleted = false";

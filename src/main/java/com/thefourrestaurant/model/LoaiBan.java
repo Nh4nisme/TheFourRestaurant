@@ -7,12 +7,12 @@ public class LoaiBan {
     public LoaiBan() {}
 
     public LoaiBan(String maLoaiBan) {
-        this.maLoaiBan = maLoaiBan;
+        setMaLoaiBan(maLoaiBan);
     }
 
     public LoaiBan(String maLoaiBan, String tenLoaiBan) {
-        this.maLoaiBan = maLoaiBan;
-        this.tenLoaiBan = tenLoaiBan;
+        setMaLoaiBan(maLoaiBan);
+        setTenLoaiBan(tenLoaiBan);
     }
 
     public String getMaLoaiBan() {
@@ -29,6 +29,17 @@ public class LoaiBan {
 
     public void setTenLoaiBan(String tenLoaiBan) {
         this.tenLoaiBan = tenLoaiBan;
+    }
+    
+    public int getSoNguoi() {
+        if (tenLoaiBan != null) {
+            try {
+                return Integer.parseInt(tenLoaiBan.replaceAll("\\D", ""));
+            } catch (NumberFormatException e) {
+                return 1;
+            }
+        }
+        return 1;
     }
 
     @Override

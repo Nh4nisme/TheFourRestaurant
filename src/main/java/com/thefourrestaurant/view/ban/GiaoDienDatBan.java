@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.ban;
 
 import com.thefourrestaurant.DAO.TangDAO;
+import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.GiaoDienGoiMon;
 import com.thefourrestaurant.view.components.ButtonSample2;
@@ -324,11 +325,22 @@ public class GiaoDienDatBan extends BorderPane {
     }
     
     private void datBanNgay() {
-        System.out.println("Đặt bàn ngay (F1)");
+        Ban banDuocChon = layBanDangChonHoacThongBao();
+        if (banDuocChon == null) return;
+
+        System.out.println("Đặt bàn ngay cho bàn: " + banDuocChon.getTenBan());
+        mainContent.getChildren().clear();
+        mainContent.getChildren().add(new GiaoDienDatBanNgay());
     }
 
+
     private void datBanTruoc() {
-        System.out.println("Đặt bàn trước (F2)");
+        Ban banDuocChon = layBanDangChonHoacThongBao();
+        if (banDuocChon == null) return;
+
+        System.out.println("Đặt bàn trước cho bàn: " + banDuocChon.getTenBan());
+        mainContent.getChildren().clear();
+        mainContent.getChildren().add(new GiaoDienDatBanTruoc());
     }
 
     private void nhanBan() {
@@ -340,8 +352,12 @@ public class GiaoDienDatBan extends BorderPane {
     }
 
     private void datMon() {
-    	mainContent.getChildren().clear();                // Xóa giao diện hiện tại
-        mainContent.getChildren().add(new GiaoDienGoiMon(mainContent));
+        Ban banDuocChon = layBanDangChonHoacThongBao();
+        if (banDuocChon == null) return;
+
+        System.out.println("🍽️ Đặt món cho bàn: " + banDuocChon.getTenBan());
+        mainContent.getChildren().clear();
+        mainContent.getChildren().add(new GiaoDienGoiMon(mainContent, banDuocChon));
     }
 
     private void tinhTien() {
@@ -355,4 +371,18 @@ public class GiaoDienDatBan extends BorderPane {
     private void tangSau() {
         System.out.println("Chuyển tầng sau (F8)");
     }
+    
+    private Ban layBanDangChonHoacThongBao() {
+        Ban banDuocChon = quanLiBan.getBanDangChon();
+        if (banDuocChon == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Thông báo");
+            alert.setHeaderText(null);
+            alert.setContentText("Vui lòng chọn bàn trước khi thao tác!");
+            alert.showAndWait();
+            return null;
+        }
+        return banDuocChon;
+    }
+
 }

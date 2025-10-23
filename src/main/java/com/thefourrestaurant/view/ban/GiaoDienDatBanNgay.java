@@ -13,7 +13,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
-public class PopUpDatBan extends VBox {
+public class GiaoDienDatBanNgay extends VBox {
 
     private TextField txtTrangThai;
     private ComboBox<String> cbLoaiBan;
@@ -25,7 +25,7 @@ public class PopUpDatBan extends VBox {
     private Button btnDatBan;
     private Button btnQuayLai;
 
-    public PopUpDatBan() {
+    public GiaoDienDatBanNgay() {
         setStyle("-fx-background-color: #F5F5F5;");
         setSpacing(0);
         setAlignment(Pos.TOP_CENTER);

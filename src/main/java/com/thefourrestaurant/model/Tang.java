@@ -9,19 +9,19 @@ public class Tang {
     public Tang() {}
 
     public Tang(String maTang) {
-        this.maTang = maTang;
+        setMaTang(maTang);
     }
 
     public Tang(String maTang, String tenTang) {
-        this.maTang = maTang;
-        this.tenTang = tenTang;
+        setMaTang(maTang);
+        setTenTang(tenTang);
     }
 
     public Tang(String maTang, String tenTang, String moTa, boolean isDeleted) {
-        this.maTang = maTang;
-        this.tenTang = tenTang;
-        this.moTa = moTa;
-        this.isDeleted = isDeleted;
+        setMaTang(maTang);
+        setTenTang(tenTang);
+        setMoTa(moTa);
+        setDeleted(isDeleted);
     }
 
     public String getMaTang() {
