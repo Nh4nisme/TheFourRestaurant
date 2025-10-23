@@ -1,6 +1,6 @@
 package com.thefourrestaurant.view.components.sidebar;
 
-import com.thefourrestaurant.DAO.LoaiMonAnDAO;
+import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.Tang;
@@ -27,13 +27,13 @@ import java.util.stream.Collectors;
 public class SideBarDanhMuc extends BaseSideBar {
 
     private final Pane mainContent;
-    private final LoaiMonAnDAO loaiMonAnDAO;
+    private final LoaiMonDAO loaiMonDAO;
     private final VBox container;
 
     public SideBarDanhMuc(Pane mainContent) {
         super("Quản Lý");
         this.mainContent = mainContent;
-        this.loaiMonAnDAO = new LoaiMonAnDAO();
+        this.loaiMonDAO = new LoaiMonDAO();
         VBox.setVgrow(mainContent, Priority.ALWAYS);
 
         // Container chính cho các danh mục
@@ -120,13 +120,11 @@ public class SideBarDanhMuc extends BaseSideBar {
         // Highlight mục đang chọn
         for (Node node : lookupAll(".muc-con, .muc-chinh")) {
             if (node instanceof Label lbl && lbl.getText().equals(tenMuc)) {
-                lbl.setStyle("""
-                    -fx-text-fill: #2b7cff;
-                    -fx-font-weight: bold;
-                    -fx-border-width: 0 0 0 4;
-                    -fx-border-color: #2b7cff;
-                    -fx-padding: 0 0 0 4;
-                """);
+                lbl.setStyle("-fx-text-fill: #2b7cff;"
+                    + "-fx-font-weight: bold;"
+                    + "-fx-border-width: 0 0 0 4;"
+                    + "-fx-border-color: #2b7cff;"
+                    + "-fx-padding: 0 0 0 4;");
             }
         }
 
@@ -146,7 +144,7 @@ public class SideBarDanhMuc extends BaseSideBar {
                 break;
             default:
                 // Check if it's a LoaiMon
-                Optional<LoaiMon> loaiMonOpt = loaiMonAnDAO.layTatCaLoaiMonAn().stream()
+                Optional<LoaiMon> loaiMonOpt = loaiMonDAO.layTatCaLoaiMon().stream()
                         .filter(lm -> lm.getTenLoaiMon().equals(tenMuc))
                         .findFirst();
 

@@ -1,6 +1,6 @@
 package com.thefourrestaurant.controller;
 
-import com.thefourrestaurant.DAO.LoaiMonAnDAO;
+import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAnDialog;
 import javafx.scene.control.Alert;
@@ -11,14 +11,14 @@ import java.util.Optional;
 
 public class LoaiMonAnController {
 
-    private final LoaiMonAnDAO loaiMonAnDAO;
+    private final LoaiMonDAO loaiMonDAO;
 
     public LoaiMonAnController() {
-        this.loaiMonAnDAO = new LoaiMonAnDAO();
+        this.loaiMonDAO = new LoaiMonDAO();
     }
 
     public List<LoaiMon> layTatCaLoaiMonAn() {
-        return loaiMonAnDAO.layTatCaLoaiMonAn();
+        return loaiMonDAO.layTatCaLoaiMon();
     }
 
     public boolean themMoiLoaiMonAn() {
@@ -27,8 +27,8 @@ public class LoaiMonAnController {
 
         LoaiMon ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            ketQua.setMaLoaiMon(loaiMonAnDAO.taoMaLoaiMonAnMoi());
-            return loaiMonAnDAO.themLoaiMonAn(ketQua);
+            ketQua.setMaLoaiMon(loaiMonDAO.taoMaLoaiMonMoi());
+            return loaiMonDAO.themLoaiMon(ketQua);
         }
         return false;
     }
@@ -39,7 +39,7 @@ public class LoaiMonAnController {
 
         LoaiMon ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            return loaiMonAnDAO.capNhatLoaiMonAn(ketQua);
+            return loaiMonDAO.capNhatLoaiMon(ketQua);
         }
         return false;
     }
@@ -52,7 +52,7 @@ public class LoaiMonAnController {
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            return loaiMonAnDAO.xoaLoaiMonAn(loaiMon.getMaLoaiMon());
+            return loaiMonDAO.xoaLoaiMon(loaiMon.getMaLoaiMon());
         }
         return false;
     }

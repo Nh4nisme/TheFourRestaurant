@@ -5,8 +5,7 @@ public class LoaiMon {
     private String tenLoaiMon;
     private String hinhAnh;
 
-    public LoaiMon() {
-    }
+    public LoaiMon() {}
 
     public LoaiMon(String maLoaiMon, String tenLoaiMon, String hinhAnh) {
         this.maLoaiMon = maLoaiMon;
@@ -40,10 +39,6 @@ public class LoaiMon {
 
     @Override
     public String toString() {
-        return "LoaiMon{" +
-                "maLoaiMon='" + maLoaiMon + '\'' +
-                ", tenLoaiMon='" + tenLoaiMon + '\'' +
-                ", hinhAnh='" + hinhAnh + '\'' +
-                '}';
+        return tenLoaiMon;
     }
 }
