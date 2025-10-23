@@ -8,7 +8,7 @@ public class KhachHang {
     private Date ngaySinh;
     private String gioiTinh;
     private String soDT;
-    private String maLoaiKH;
+    private LoaiKhachHang loaiKH;
     private boolean isDeleted;
 
     public KhachHang() {}
@@ -18,19 +18,19 @@ public class KhachHang {
     }
 
     public KhachHang(String maKH, String hoTen, Date ngaySinh, String gioiTinh,
-                     String soDT, String maLoaiKH, boolean isDeleted) {
+                     String soDT, LoaiKhachHang loaiKH, boolean isDeleted) {
         this.maKH = maKH;
         this.hoTen = hoTen;
         this.ngaySinh = ngaySinh;
         this.gioiTinh = gioiTinh;
         this.soDT = soDT;
-        this.maLoaiKH = maLoaiKH;
+        this.loaiKH = loaiKH;
         this.isDeleted = isDeleted;
     }
 
     public KhachHang(String maKH, String hoTen, Date ngaySinh, String gioiTinh,
-                     String soDT, String maLoaiKH) {
-        this(maKH, hoTen, ngaySinh, gioiTinh, soDT, maLoaiKH, false);
+                     String soDT, LoaiKhachHang loaiKH) {
+        this(maKH, hoTen, ngaySinh, gioiTinh, soDT, loaiKH, false);
     }
 
     // Getters và setters
@@ -49,8 +49,8 @@ public class KhachHang {
     public String getSoDT() { return soDT; }
     public void setSoDT(String soDT) { this.soDT = soDT; }
 
-    public String getMaLoaiKH() { return maLoaiKH; }
-    public void setMaLoaiKH(String maLoaiKH) { this.maLoaiKH = maLoaiKH; }
+    public LoaiKhachHang getMaLoaiKH() { return loaiKH; }
+    public void setMaLoaiKH(LoaiKhachHang loaiKH) { this.loaiKH = loaiKH; }
 
     public boolean isDeleted() { return isDeleted; }
     public void setDeleted(boolean deleted) { isDeleted = deleted; }

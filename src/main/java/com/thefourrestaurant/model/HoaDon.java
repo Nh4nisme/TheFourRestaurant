@@ -7,28 +7,28 @@ import java.util.List;
 public class HoaDon {
     private String maHD;
     private LocalDateTime ngayLap;
-    private String maNV;
-    private String maKH;
-    private String maPDB;
-    private String maKM;
-    private String maThue;
+    private NhanVien nhanVien;
+    private KhachHang khachHang;
+    private PhieuDatBan phieuDatBan;
+    private KhuyenMai khuyenMai;
+    private Thue thue;
     private BigDecimal tienKhachDua;
     private BigDecimal tienThua;
-    private String maPTTT;
-    private List<ChiTietHoaDon> chiTietHDs;
+    private PhuongThucThanhToan phuongThucThanhToan;
+    private boolean isDeleted;
 
-    public HoaDon(String maHD, LocalDateTime ngayLap, String maNV, String maKH, String maPDB, String maKM, String maThue, BigDecimal tienKhachDua, BigDecimal tienThua, String maPTTT,  List<ChiTietHoaDon> chiTietHDs) {
+    public HoaDon(String maHD, LocalDateTime ngayLap, NhanVien nhanVien, KhachHang khachHang, PhieuDatBan phieuDatBan, KhuyenMai khuyenMai, Thue thue, BigDecimal tienKhachDua, BigDecimal tienThua, PhuongThucThanhToan phuongThucThanhToan, boolean isDeleted) {
         setMaHD(maHD);
         setNgayLap(ngayLap);
-        setMaNV(maNV);
-        setMaKH(maKH);
-        setMaPDB(maPDB);
-        setMaKM(maKM);
-        setMaThue(maThue);
+        setNhanVien(nhanVien);
+        setKhachHang(khachHang);
+        setPhieuDatBan(phieuDatBan);
+        setKhuyenMai(khuyenMai);
+        setThue(thue);
         setTienKhachDua(tienKhachDua);
         setTienThua(tienThua);
-        setMaPTTT(maPTTT);
-        setChiTietHDs(chiTietHDs);
+        setPhuongThucThanhToan(phuongThucThanhToan);
+        setDeleted(isDeleted);
     }
 
     public String getMaHD() {
@@ -47,44 +47,44 @@ public class HoaDon {
         this.ngayLap = ngayLap;
     }
 
-    public String getMaNV() {
-        return maNV;
+    public NhanVien getNhanVien() {
+        return nhanVien;
     }
 
-    public void setMaNV(String maNV) {
-        this.maNV = maNV;
+    public void setNhanVien(NhanVien nhanVien) {
+        this.nhanVien = nhanVien;
     }
 
-    public String getMaKH() {
-        return maKH;
+    public KhachHang getKhachHang() {
+        return khachHang;
     }
 
-    public void setMaKH(String maKH) {
-        this.maKH = maKH;
+    public void setKhachHang(KhachHang khachHang) {
+        this.khachHang = khachHang;
     }
 
-    public String getMaPDB() {
-        return maPDB;
+    public PhieuDatBan getPhieuDatBan() {
+        return phieuDatBan;
     }
 
-    public void setMaPDB(String maPDB) {
-        this.maPDB = maPDB;
+    public void setPhieuDatBan(PhieuDatBan phieuDatBan) {
+        this.phieuDatBan = phieuDatBan;
     }
 
-    public String getMaKM() {
-        return maKM;
+    public KhuyenMai getKhuyenMai() {
+        return khuyenMai;
     }
 
-    public void setMaKM(String maKM) {
-        this.maKM = maKM;
+    public void setKhuyenMai(KhuyenMai khuyenMai) {
+        this.khuyenMai = khuyenMai;
     }
 
-    public String getMaThue() {
-        return maThue;
+    public Thue getThue() {
+        return thue;
     }
 
-    public void setMaThue(String maThue) {
-        this.maThue = maThue;
+    public void setThue(Thue thue) {
+        this.thue = thue;
     }
 
     public BigDecimal getTienKhachDua() {
@@ -103,19 +103,19 @@ public class HoaDon {
         this.tienThua = tienThua;
     }
 
-    public String getMaPTTT() {
-        return maPTTT;
+    public PhuongThucThanhToan getPhuongThucThanhToan() {
+        return phuongThucThanhToan;
     }
 
-    public void setMaPTTT(String maPTTT) {
-        this.maPTTT = maPTTT;
+    public void setPhuongThucThanhToan(PhuongThucThanhToan phuongThucThanhToan) {
+        this.phuongThucThanhToan = phuongThucThanhToan;
     }
 
-    public List<ChiTietHoaDon> getChiTietHDs() {
-        return chiTietHDs;
+    public boolean isDeleted() {
+        return isDeleted;
     }
 
-    public void setChiTietHDs(List<ChiTietHoaDon> chiTietHDs) {
-        this.chiTietHDs = chiTietHDs;
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 }
