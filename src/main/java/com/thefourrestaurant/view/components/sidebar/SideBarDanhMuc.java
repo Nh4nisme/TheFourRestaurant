@@ -6,7 +6,7 @@ import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.QuanLyThucDon;
 import com.thefourrestaurant.view.ban.QuanLiBan;
-import com.thefourrestaurant.view.khuyenmai.GiaoDienKhuyenMai;
+//import com.thefourrestaurant.view.khuyenmai.GiaoDienKhuyenMai;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.GiaoDienMonAn;
 import com.thefourrestaurant.view.thoigiansukien.ThoiGianSuKien;
@@ -139,9 +139,9 @@ public class SideBarDanhMuc extends BaseSideBar {
             case "Thời gian sự kiện":
                 newContent = new ThoiGianSuKien();
                 break;
-            case "Khuyến mãi":
-                newContent = new GiaoDienKhuyenMai();
-                break;
+//            case "Khuyến mãi":
+//                newContent = new GiaoDienKhuyenMai();
+//                break;
             default:
                 // Check if it's a LoaiMon
                 Optional<LoaiMon> loaiMonOpt = loaiMonDAO.layTatCaLoaiMon().stream()

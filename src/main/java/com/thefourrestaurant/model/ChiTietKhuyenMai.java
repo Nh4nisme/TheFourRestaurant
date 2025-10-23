@@ -3,29 +3,20 @@ package com.thefourrestaurant.model;
 import java.math.BigDecimal;
 
 public class ChiTietKhuyenMai {
+
     private String maCTKM;
-    private KhuyenMai khuyenMai;
-    private MonAn monApDung;
-    private MonAn monTang;
-    private BigDecimal tyLeGiam;
-    private BigDecimal soTienGiam;
-    private Integer soLuongTang;
+    private KhuyenMai khuyenMai; // Foreign Key to KhuyenMai
+    private MonAn monAnApDung;   // Foreign Key to MonAn
+    private MonAn monAnTang;       // Foreign Key to MonAn (nullable)
+    private BigDecimal tyLeGiam;   // Nullable
+    private BigDecimal soTienGiam; // Nullable
+    private Integer soLuongTang;   // Nullable
 
-    public ChiTietKhuyenMai() {}
-
-    public ChiTietKhuyenMai(String maCTKM, KhuyenMai khuyenMai, MonAn monApDung, MonAn monTang,
-                            BigDecimal tyLeGiam, BigDecimal soTienGiam, Integer soLuongTang) {
-        this.maCTKM = maCTKM;
-        this.khuyenMai = khuyenMai;
-        this.monApDung = monApDung;
-        this.monTang = monTang;
-        this.tyLeGiam = tyLeGiam;
-        this.soTienGiam = soTienGiam;
-        this.soLuongTang = soLuongTang;
+    public ChiTietKhuyenMai() {
     }
 
+    // Getters and Setters
 
-    // Getters & Setters
     public String getMaCTKM() {
         return maCTKM;
     }
@@ -42,20 +33,20 @@ public class ChiTietKhuyenMai {
         this.khuyenMai = khuyenMai;
     }
 
-    public MonAn getMonApDung() {
-        return monApDung;
+    public MonAn getMonAnApDung() {
+        return monAnApDung;
     }
 
-    public void setMonApDung(MonAn monApDung) {
-        this.monApDung = monApDung;
+    public void setMonAnApDung(MonAn monAnApDung) {
+        this.monAnApDung = monAnApDung;
     }
 
-    public MonAn getMonTang() {
-        return monTang;
+    public MonAn getMonAnTang() {
+        return monAnTang;
     }
 
-    public void setMonTang(MonAn monTang) {
-        this.monTang = monTang;
+    public void setMonAnTang(MonAn monAnTang) {
+        this.monAnTang = monAnTang;
     }
 
     public BigDecimal getTyLeGiam() {
@@ -80,14 +71,5 @@ public class ChiTietKhuyenMai {
 
     public void setSoLuongTang(Integer soLuongTang) {
         this.soLuongTang = soLuongTang;
-    }
-
-    @Override
-    public String toString() {
-        return "CTKM{" +
-                "maCTKM='" + maCTKM + '\'' +
-                ", monApDung=" + (monApDung != null ? monApDung.getTenMon() : "null") +
-                ", monTang=" + (monTang != null ? monTang.getTenMon() : "null") +
-                '}';
     }
 }
