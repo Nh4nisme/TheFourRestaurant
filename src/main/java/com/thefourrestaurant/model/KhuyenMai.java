@@ -2,7 +2,6 @@ package com.thefourrestaurant.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class KhuyenMai {
@@ -10,15 +9,16 @@ public class KhuyenMai {
     private LoaiKhuyenMai loaiKhuyenMai;
     private BigDecimal tyLe;      // Có thể null
     private BigDecimal soTien;    // Có thể null
-    private LocalDateTime ngayBatDau;
-    private LocalDateTime ngayKetThuc;
+    private LocalDate ngayBatDau;
+    private LocalDate ngayKetThuc;
     private String moTa;
-    private List<ChiTietKhuyenMai> chiTietKhuyenMais; // Danh sách chi tiết KM
+    private MonAn monAnApDung;
+    private MonAn monAnTang;
 
     public KhuyenMai() {}
 
     public KhuyenMai(String maKM, LoaiKhuyenMai loaiKhuyenMai, BigDecimal tyLe, BigDecimal soTien,
-                     LocalDateTime ngayBatDau, LocalDateTime ngayKetThuc, String moTa) {
+                     LocalDate ngayBatDau, LocalDate ngayKetThuc, String moTa, MonAn monAnApDung, MonAn monAnTang) {
         this.maKM = maKM;
         this.loaiKhuyenMai = loaiKhuyenMai;
         this.tyLe = tyLe;
@@ -26,6 +26,8 @@ public class KhuyenMai {
         this.ngayBatDau = ngayBatDau;
         this.ngayKetThuc = ngayKetThuc;
         this.moTa = moTa;
+        this.monAnApDung = monAnApDung;
+        this.monAnTang = monAnTang;
     }
 
 
@@ -62,19 +64,19 @@ public class KhuyenMai {
         this.soTien = soTien;
     }
 
-    public LocalDateTime getNgayBatDau() {
+    public LocalDate getNgayBatDau() {
         return ngayBatDau;
     }
 
-    public void setNgayBatDau(LocalDateTime ngayBatDau) {
+    public void setNgayBatDau(LocalDate ngayBatDau) {
         this.ngayBatDau = ngayBatDau;
     }
 
-    public LocalDateTime getNgayKetThuc() {
+    public LocalDate getNgayKetThuc() {
         return ngayKetThuc;
     }
 
-    public void setNgayKetThuc(LocalDateTime ngayKetThuc) {
+    public void setNgayKetThuc(LocalDate ngayKetThuc) {
         this.ngayKetThuc = ngayKetThuc;
     }
 
@@ -86,12 +88,20 @@ public class KhuyenMai {
         this.moTa = moTa;
     }
 
-    public List<ChiTietKhuyenMai> getChiTietKhuyenMais() {
-        return chiTietKhuyenMais;
+    public MonAn getMonAnApDung() {
+        return monAnApDung;
     }
 
-    public void setChiTietKhuyenMais(List<ChiTietKhuyenMai> chiTietKhuyenMais) {
-        this.chiTietKhuyenMais = chiTietKhuyenMais;
+    public void setMonAnApDung(MonAn monAnApDung) {
+        this.monAnApDung = monAnApDung;
+    }
+
+    public MonAn getMonAnTang() {
+        return monAnTang;
+    }
+
+    public void setMonAnTang(MonAn monAnTang) {
+        this.monAnTang = monAnTang;
     }
 
     @Override

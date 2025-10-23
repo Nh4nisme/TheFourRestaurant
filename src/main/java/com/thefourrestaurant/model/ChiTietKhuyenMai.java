@@ -9,12 +9,12 @@ public class ChiTietKhuyenMai {
     private MonAn monTang;
     private BigDecimal tyLeGiam;
     private BigDecimal soTienGiam;
-    private Integer soLuongTang;
+    private Integer soLuongTang; // Use Integer for nullability
 
-    public ChiTietKhuyenMai() {}
+    public ChiTietKhuyenMai() {
+    }
 
-    public ChiTietKhuyenMai(String maCTKM, KhuyenMai khuyenMai, MonAn monApDung, MonAn monTang,
-                            BigDecimal tyLeGiam, BigDecimal soTienGiam, Integer soLuongTang) {
+    public ChiTietKhuyenMai(String maCTKM, KhuyenMai khuyenMai, MonAn monApDung, MonAn monTang, BigDecimal tyLeGiam, BigDecimal soTienGiam, Integer soLuongTang) {
         this.maCTKM = maCTKM;
         this.khuyenMai = khuyenMai;
         this.monApDung = monApDung;
@@ -24,8 +24,7 @@ public class ChiTietKhuyenMai {
         this.soLuongTang = soLuongTang;
     }
 
-
-    // Getters & Setters
+    // Getters and Setters
     public String getMaCTKM() {
         return maCTKM;
     }
@@ -80,14 +79,5 @@ public class ChiTietKhuyenMai {
 
     public void setSoLuongTang(Integer soLuongTang) {
         this.soLuongTang = soLuongTang;
-    }
-
-    @Override
-    public String toString() {
-        return "CTKM{" +
-                "maCTKM='" + maCTKM + '\'' +
-                ", monApDung=" + (monApDung != null ? monApDung.getTenMon() : "null") +
-                ", monTang=" + (monTang != null ? monTang.getTenMon() : "null") +
-                '}';
     }
 }
