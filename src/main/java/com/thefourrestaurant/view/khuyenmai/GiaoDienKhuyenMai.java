@@ -109,14 +109,16 @@ public class GiaoDienKhuyenMai extends GiaoDienThucThe {
 
         TableColumn<KhuyenMai, String> ngayBDCol = new TableColumn<>("Ngày Bắt Đầu");
         ngayBDCol.setCellValueFactory(cellData -> {
-            LocalDate date = cellData.getValue().getNgayBatDau();
-            return new SimpleStringProperty(date == null ? "" : date.format(formatter));
+////            LocalDate date = cellData.getValue().getNgayBatDau();
+//            return new SimpleStringProperty(date == null ? "" : date.format(formatter));
+            return null;
         });
 
         TableColumn<KhuyenMai, String> ngayKTCol = new TableColumn<>("Ngày Kết Thúc");
         ngayKTCol.setCellValueFactory(cellData -> {
-            LocalDate date = cellData.getValue().getNgayKetThuc();
-            return new SimpleStringProperty(date == null ? "" : date.format(formatter));
+//            LocalDate date = cellData.getValue().getNgayKetThuc();
+//            return new SimpleStringProperty(date == null ? "" : date.format(formatter));
+            return null;
         });
 
         table.getColumns().addAll(maKMCol, moTaCol, loaiKMCol, giaTriCol, ngayBDCol, ngayKTCol);

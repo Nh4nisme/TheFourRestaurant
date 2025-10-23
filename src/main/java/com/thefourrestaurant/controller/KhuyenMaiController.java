@@ -29,12 +29,13 @@ public class KhuyenMaiController {
     }
 
     public List<KhuyenMai> layTatCaKhuyenMai() {
-        // Lấy danh sách khuyến mãi và nạp chi tiết vào từng cái
-        List<KhuyenMai> ds = khuyenMaiDAO.layTatCaKhuyenMai();
-        for (KhuyenMai km : ds) {
-            km.setChiTietKhuyenMais(chiTietKhuyenMaiDAO.layTheoMaKM(km.getMaKM()));
-        }
-        return ds;
+//        // Lấy danh sách khuyến mãi và nạp chi tiết vào từng cái
+//        List<KhuyenMai> ds = khuyenMaiDAO.layTatCaKhuyenMai();
+//        for (KhuyenMai km : ds) {
+//            km.setChiTietKhuyenMais(chiTietKhuyenMaiDAO.layTheoMaKM(km.getMaKM()));
+//        }
+//        return ds;
+        return null;
     }
 
     public List<LoaiKhuyenMai> layTatCaLoaiKhuyenMai() {
@@ -49,27 +50,27 @@ public class KhuyenMaiController {
         List<LoaiKhuyenMai> allLoaiKM = layTatCaLoaiKhuyenMai();
         List<MonAn> allMonAn = layTatCaMonAn();
 
-        // Mở dialog nhập khuyến mãi
-        KhuyenMaiDialog dialog = new KhuyenMaiDialog(null, allLoaiKM, allMonAn);
-        dialog.showAndWait();
-
-        KhuyenMai ketQua = dialog.layKetQua();
-        if (ketQua != null) {
-            // Tạo mã KM mới
-            String newId = khuyenMaiDAO.taoMaKhuyenMaiMoi();
-            ketQua.setMaKM(newId);
-
-            boolean inserted = khuyenMaiDAO.themKhuyenMai(ketQua);
-
-            // Lưu chi tiết khuyến mãi nếu có
-            if (inserted && ketQua.getChiTietKhuyenMais() != null) {
-                ketQua.getChiTietKhuyenMais().forEach(ct -> {
-                    ct.setKhuyenMai(ketQua);
-                    chiTietKhuyenMaiDAO.themChiTiet(ct);
-                });
-            }
-            return inserted;
-        }
+//        // Mở dialog nhập khuyến mãi
+//        KhuyenMaiDialog dialog = new KhuyenMaiDialog(null, allLoaiKM, allMonAn);
+//        dialog.showAndWait();
+//
+//        KhuyenMai ketQua = dialog.layKetQua();
+//        if (ketQua != null) {
+//            // Tạo mã KM mới
+//            String newId = khuyenMaiDAO.taoMaKhuyenMaiMoi();
+//            ketQua.setMaKM(newId);
+//
+//            boolean inserted = khuyenMaiDAO.themKhuyenMai(ketQua);
+//
+//            // Lưu chi tiết khuyến mãi nếu có
+//            if (inserted && ketQua.getChiTietKhuyenMais() != null) {
+//                ketQua.getChiTietKhuyenMais().forEach(ct -> {
+//                    ct.setKhuyenMai(ketQua);
+//                    chiTietKhuyenMaiDAO.themChiTiet(ct);
+//                });
+//            }
+//            return inserted;
+//        }
         return false;
 
     }
@@ -78,20 +79,20 @@ public class KhuyenMaiController {
         List<LoaiKhuyenMai> allLoaiKM = layTatCaLoaiKhuyenMai();
         List<MonAn> allMonAn = layTatCaMonAn();
 
-        KhuyenMaiDialog dialog = new KhuyenMaiDialog(km, allLoaiKM, allMonAn);
-        dialog.showAndWait();
-
-        KhuyenMai ketQua = dialog.layKetQua();
-        if (ketQua != null) {
-            boolean updated = khuyenMaiDAO.capNhatKhuyenMai(ketQua);
-
-            // Cập nhật lại chi tiết
-            chiTietKhuyenMaiDAO.xoaTheoMaKM(ketQua.getMaKM());
-            if (ketQua.getChiTietKhuyenMais() != null) {
-                ketQua.getChiTietKhuyenMais().forEach(chiTietKhuyenMaiDAO::themChiTiet);
-            }
-            return updated;
-        }
+//        KhuyenMaiDialog dialog = new KhuyenMaiDialog(km, allLoaiKM, allMonAn);
+//        dialog.showAndWait();
+//
+//        KhuyenMai ketQua = dialog.layKetQua();
+//        if (ketQua != null) {
+//            boolean updated = khuyenMaiDAO.capNhatKhuyenMai(ketQua);
+//
+//            // Cập nhật lại chi tiết
+//            chiTietKhuyenMaiDAO.xoaTheoMaKM(ketQua.getMaKM());
+//            if (ketQua.getChiTietKhuyenMais() != null) {
+//                ketQua.getChiTietKhuyenMais().forEach(chiTietKhuyenMaiDAO::themChiTiet);
+//            }
+//            return updated;
+//        }
         return false;
     }
 

@@ -33,7 +33,7 @@ public class LoaiBanDAO {
         return dsLoaiBan;
     }
 
-    // 🔹 Lấy loại bàn theo mã
+    // Lấy loại bàn theo mã
     public LoaiBan layTheoMa(String maLoaiBan) {
         String sql = "SELECT maLoaiBan, tenLoaiBan FROM LoaiBan WHERE maLoaiBan = ?";
 

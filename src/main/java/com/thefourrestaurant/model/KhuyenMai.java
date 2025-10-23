@@ -2,6 +2,7 @@ package com.thefourrestaurant.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class KhuyenMai {
@@ -9,15 +10,15 @@ public class KhuyenMai {
     private LoaiKhuyenMai loaiKhuyenMai;
     private BigDecimal tyLe;      // Có thể null
     private BigDecimal soTien;    // Có thể null
-    private LocalDate ngayBatDau;
-    private LocalDate ngayKetThuc;
+    private LocalDateTime ngayBatDau;
+    private LocalDateTime ngayKetThuc;
     private String moTa;
     private List<ChiTietKhuyenMai> chiTietKhuyenMais; // Danh sách chi tiết KM
 
     public KhuyenMai() {}
 
     public KhuyenMai(String maKM, LoaiKhuyenMai loaiKhuyenMai, BigDecimal tyLe, BigDecimal soTien,
-                     LocalDate ngayBatDau, LocalDate ngayKetThuc, String moTa) {
+                     LocalDateTime ngayBatDau, LocalDateTime ngayKetThuc, String moTa) {
         this.maKM = maKM;
         this.loaiKhuyenMai = loaiKhuyenMai;
         this.tyLe = tyLe;
@@ -61,19 +62,19 @@ public class KhuyenMai {
         this.soTien = soTien;
     }
 
-    public LocalDate getNgayBatDau() {
+    public LocalDateTime getNgayBatDau() {
         return ngayBatDau;
     }
 
-    public void setNgayBatDau(LocalDate ngayBatDau) {
+    public void setNgayBatDau(LocalDateTime ngayBatDau) {
         this.ngayBatDau = ngayBatDau;
     }
 
-    public LocalDate getNgayKetThuc() {
+    public LocalDateTime getNgayKetThuc() {
         return ngayKetThuc;
     }
 
-    public void setNgayKetThuc(LocalDate ngayKetThuc) {
+    public void setNgayKetThuc(LocalDateTime ngayKetThuc) {
         this.ngayKetThuc = ngayKetThuc;
     }
 

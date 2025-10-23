@@ -4,6 +4,8 @@ public class LoaiThue {
     private String maLoaiThue;
     private String tenLoaiThue;
 
+    public LoaiThue() { }
+
     public LoaiThue(String maLoaiThue, String tenLoaiThue) {
         setMaLoaiThue(maLoaiThue);
         setTenLoaiThue(tenLoaiThue);

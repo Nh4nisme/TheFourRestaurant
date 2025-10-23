@@ -38,27 +38,29 @@ public class KhachHangDAO {
 //        }
 //        return ds;
 //    }
-//
-////    public KhachHang getById(String maKH) {
-////        String sql = "SELECT * FROM KhachHang WHERE maKH = ? AND isDeleted = false";
-////        try (Connection conn = Database.getConnection();
-////             PreparedStatement ps = conn.prepareStatement(sql)) {
-////
-////            ps.setString(1, maKH);
-////            try (ResultSet rs = ps.executeQuery()) {
-////                if (rs.next()) {
-////                    return new KhachHang(
-////                            rs.getString("maKH"),
-////                            rs.getString("tenKH"),
-////                            rs.getString("soDienThoai"),
-////                            rs.getBoolean("isDeleted")
-////                    );
-////                }
-////            }
-////
-////        } catch (SQLException e) {
-////            e.printStackTrace();
-////        }
-////        return null;
-////    }
+
+    public KhachHang layKhachHangTheoMa(String maKH) {
+        String sql = "SELECT * FROM KhachHang WHERE maKH = ? AND isDeleted = false";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maKH);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new KhachHang(
+                            rs.getString("maKH"),
+                            rs.getString("hoTen"),
+                            rs.getDate("ngaySinh"),
+                            rs.getString("gioiTinh"),
+                            rs.getString("soDT"),
+                            LoaiKhachHangDAO.layLoaiKhachHangTheoMa(rs.getString("maLoaiKH")),
+                            rs.getBoolean("isDeleted")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
