@@ -6,32 +6,28 @@ public class Ban {
     private String trangThai; // 'Trống', 'Đang sử dụng', 'Đặt trước'
     private int toaDoX;
     private int toaDoY;
-    private Tang tang;           // Đối tượng Tang
-    private LoaiBan loaiBan;     // Đối tượng LoaiBan
-    private String anhBan;       // Link ảnh bàn
+    private Tang tang;
+    private LoaiBan loaiBan;
+    private String anhBan;
 
-    public Ban() {
-    }
+    public Ban() {}
 
-    // 🔹 Constructor đầy đủ
     public Ban(String maBan, String tenBan, String trangThai, int toaDoX, int toaDoY,
                Tang tang, LoaiBan loaiBan, String anhBan) {
-        this.maBan = maBan;
-        this.tenBan = tenBan;
-        this.trangThai = trangThai;
-        this.toaDoX = toaDoX;
-        this.toaDoY = toaDoY;
-        this.tang = tang;
-        this.loaiBan = loaiBan;
-        this.anhBan = anhBan;
+        setMaBan(maBan);
+        setTenBan(tenBan);
+        setTrangThai(trangThai);
+        setToaDoX(toaDoX);
+        setToaDoY(toaDoY);
+        setTang(tang);
+        setLoaiBan(loaiBan);
+        setAnhBan(anhBan);
     }
 
-    // 🔹 Constructor rút gọn (chỉ cần mã)
     public Ban(String maBan) {
-        this.maBan = maBan;
+        setMaBan(maBan);
     }
 
-    // Getters & Setters
     public String getMaBan() {
         return maBan;
     }

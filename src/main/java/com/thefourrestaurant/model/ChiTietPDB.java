@@ -7,20 +7,21 @@ public class ChiTietPDB {
     private MonAn monAn;
     private int soLuong;
     private double donGia;
+    private String ghiChu;
 
     public ChiTietPDB() {}
 
     public ChiTietPDB(String maCT, PhieuDatBan phieuDatBan, Ban ban,
-                      MonAn monAn, int soLuong, double donGia) {
-        this.maCT = maCT;
-        this.phieuDatBan = phieuDatBan;
-        this.ban = ban;
-        this.monAn = monAn;
-        this.soLuong = soLuong;
-        this.donGia = donGia;
+                      MonAn monAn, int soLuong, double donGia, String ghiChu) {
+        setMaCT(maCT);
+        setPhieuDatBan(phieuDatBan);
+        setBan(ban);
+        setMonAn(monAn);
+        setSoLuong(soLuong);
+        setDonGia(donGia);
+        setGhiChu(ghiChu);
     }
 
-    // Getters và Setters
     public String getMaCT() { return maCT; }
     public void setMaCT(String maCT) { this.maCT = maCT; }
 
@@ -38,5 +39,7 @@ public class ChiTietPDB {
 
     public double getDonGia() { return donGia; }
     public void setDonGia(double donGia) { this.donGia = donGia; }
+    
+    public String getGhiChu() { return ghiChu; }
+    public void setGhiChu(String ghiChu) { this.ghiChu = ghiChu; }
 }
-

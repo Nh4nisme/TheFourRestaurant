@@ -1,9 +1,11 @@
 package com.thefourrestaurant.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class PhieuDatBan {
     private String maPDB;
+    private LocalDateTime ngayTao;
     private LocalDate ngayDat;
     private int soNguoi;
     private KhachHang khachHang;
@@ -11,23 +13,27 @@ public class PhieuDatBan {
     private boolean isDeleted;
 
     public PhieuDatBan() {}
-    
+
     public PhieuDatBan(String maPDB) {
-    	this.maPDB = maPDB;
+        setMaPDB(maPDB);
     }
 
-    public PhieuDatBan(String maPDB, LocalDate ngayDat, int soNguoi,
+    public PhieuDatBan(String maPDB, LocalDate ngayDat, LocalDateTime ngayTao, int soNguoi,
                        KhachHang khachHang, NhanVien nhanVien, boolean isDeleted) {
-        this.maPDB = maPDB;
-        this.ngayDat = ngayDat;
-        this.soNguoi = soNguoi;
-        this.khachHang = khachHang;
-        this.nhanVien = nhanVien;
-        this.isDeleted = isDeleted;
+        setMaPDB(maPDB);
+        setNgayDat(ngayDat);
+        setNgayTao(ngayTao);
+        setSoNguoi(soNguoi);
+        setKhachHang(khachHang);
+        setNhanVien(nhanVien);
+        setDeleted(isDeleted);
     }
 
     public String getMaPDB() { return maPDB; }
     public void setMaPDB(String maPDB) { this.maPDB = maPDB; }
+
+    public LocalDateTime getNgayTao() { return ngayTao; }
+    public void setNgayTao(LocalDateTime ngayTao) { this.ngayTao = ngayTao; }
 
     public LocalDate getNgayDat() { return ngayDat; }
     public void setNgayDat(LocalDate ngayDat) { this.ngayDat = ngayDat; }
@@ -43,5 +49,4 @@ public class PhieuDatBan {
 
     public boolean isDeleted() { return isDeleted; }
     public void setDeleted(boolean deleted) { isDeleted = deleted; }
-
 }
