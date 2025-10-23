@@ -2,6 +2,7 @@ package com.thefourrestaurant.DAO;
 
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.model.LoaiMon;
+import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -26,6 +27,31 @@ public class LoaiMonDAO {
             e.printStackTrace();
         }
         return ds;
+    }
+
+    public LoaiMon layLoaiMonTheoMa(String maLoaiMon) {
+        LoaiMon loaiMon = null;
+        String sql = "SELECT * FROM LoaiMonAn WHERE maLoaiMon = ?";
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maLoaiMon);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    loaiMon = new LoaiMon(
+                            rs.getString("maLoaiMon"),
+                            rs.getString("tenLoaiMon"),
+                            rs.getString("hinhAnh")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return loaiMon;
     }
 
     public boolean themLoaiMon(LoaiMon loai) {

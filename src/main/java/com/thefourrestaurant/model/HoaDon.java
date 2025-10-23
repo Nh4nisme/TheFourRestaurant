@@ -2,6 +2,7 @@ package com.thefourrestaurant.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HoaDon {
@@ -17,6 +18,10 @@ public class HoaDon {
     private PhuongThucThanhToan phuongThucThanhToan;
     private boolean isDeleted;
 
+    private List<ChiTietHoaDon> chiTietHoaDon = new ArrayList<>();
+
+    public HoaDon() {}
+
     public HoaDon(String maHD, LocalDateTime ngayLap, NhanVien nhanVien, KhachHang khachHang, PhieuDatBan phieuDatBan, KhuyenMai khuyenMai, Thue thue, BigDecimal tienKhachDua, BigDecimal tienThua, PhuongThucThanhToan phuongThucThanhToan, boolean isDeleted) {
         setMaHD(maHD);
         setNgayLap(ngayLap);
@@ -29,6 +34,31 @@ public class HoaDon {
         setTienThua(tienThua);
         setPhuongThucThanhToan(phuongThucThanhToan);
         setDeleted(isDeleted);
+    }
+
+    public void setchiTietHoaDon(List<ChiTietHoaDon> chiTietHoaDon) {
+        this.chiTietHoaDon = chiTietHoaDon;
+    }
+
+    public BigDecimal getTongTien() {
+        if(chiTietHoaDon==null || chiTietHoaDon.isEmpty()){return BigDecimal.ZERO;}
+
+        BigDecimal tong = BigDecimal.ZERO;
+        for (ChiTietHoaDon c : chiTietHoaDon) {
+            tong = tong.add(c.getThanhTien());
+        }
+
+        if(khuyenMai!=null && khuyenMai.getTyLe() != null){
+            tong = tong.subtract(tong.multiply(khuyenMai.getTyLe()));
+        }
+
+        if(thue != null) {
+            BigDecimal tyLeThue = BigDecimal.valueOf(thue.getTyLe())
+                    .divide(BigDecimal.valueOf(100)); //ep kieu int sang bigdecimal
+            tong = tong.add(tong.multiply(tyLeThue));
+        }
+
+        return tong;
     }
 
     public String getMaHD() {

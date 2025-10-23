@@ -20,7 +20,7 @@ public class PhieuDatBanDAO {
     // 🔹 Lấy toàn bộ phiếu đặt bàn (chưa xóa)
     public List<PhieuDatBan> layTatCaPhieu() {
         List<PhieuDatBan> danhSach = new ArrayList<>();
-        String sql = "SELECT maPDB, ngayTao, ngayDat, soNguoi, maKH, maNV, isDeleted FROM PhieuDatBan WHERE isDeleted = 0";
+        String sql = "SELECT maPDB, ngayDat, soNguoi, maKH, maNV, isDeleted FROM PhieuDatBan WHERE isDeleted = 0";
 
         try (Connection conn = ConnectSQL.getConnection();
              Statement st = conn.createStatement();
@@ -29,7 +29,6 @@ public class PhieuDatBanDAO {
             while (rs.next()) {
                 PhieuDatBan pdb = new PhieuDatBan();
                 pdb.setMaPDB(rs.getString("maPDB"));
-                pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime()); // ✅ sửa kiểu
                 pdb.setNgayDat(rs.getDate("ngayDat").toLocalDate());
                 pdb.setSoNguoi(rs.getInt("soNguoi"));
                 pdb.setKhachHang(new KhachHang(rs.getString("maKH")));
@@ -46,7 +45,7 @@ public class PhieuDatBanDAO {
 
     // 🔹 Lấy phiếu đặt bàn theo mã
     public PhieuDatBan layPhieuTheoMa(String maPDB) {
-        String sql = "SELECT maPDB, ngayTao, ngayDat, soNguoi, maKH, maNV, isDeleted FROM PhieuDatBan WHERE maPDB = ?";
+        String sql = "SELECT maPDB, ngayDat, soNguoi, maKH, maNV, isDeleted FROM PhieuDatBan WHERE maPDB = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -56,7 +55,6 @@ public class PhieuDatBanDAO {
             if (rs.next()) {
                 PhieuDatBan pdb = new PhieuDatBan();
                 pdb.setMaPDB(rs.getString("maPDB"));
-                pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime()); // ✅ sửa kiểu
                 pdb.setNgayDat(rs.getDate("ngayDat").toLocalDate());
                 pdb.setSoNguoi(rs.getInt("soNguoi"));
                 pdb.setKhachHang(new KhachHang(rs.getString("maKH")));
@@ -73,7 +71,7 @@ public class PhieuDatBanDAO {
 
     // 🔹 Thêm mới phiếu đặt bàn (tự sinh mã tự động)
     public boolean themPhieu(PhieuDatBan pdb) {
-        String sql = "INSERT INTO PhieuDatBan (maPDB, ngayTao, ngayDat, soNguoi, maKH, maNV) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -81,17 +79,16 @@ public class PhieuDatBanDAO {
             pdb.setMaPDB(maMoi);
 
             ps.setString(1, maMoi);
-            ps.setTimestamp(2, Timestamp.valueOf(pdb.getNgayTao() != null ? pdb.getNgayTao() : LocalDateTime.now())); // ✅ sửa kiểu
-            ps.setDate(3, java.sql.Date.valueOf(pdb.getNgayDat() != null ? pdb.getNgayDat() : LocalDate.now()));
-            ps.setInt(4, pdb.getSoNguoi());
-            ps.setString(5, pdb.getKhachHang().getMaKH());
-            ps.setString(6, pdb.getNhanVien().getMaNV());
+            ps.setDate(2, java.sql.Date.valueOf(pdb.getNgayDat() != null ? pdb.getNgayDat() : LocalDate.now()));
+            ps.setInt(3, pdb.getSoNguoi());
+            ps.setString(4, pdb.getKhachHang().getMaKH());
+            ps.setString(5, pdb.getNhanVien().getMaNV());
 
             int rows = ps.executeUpdate();
             return rows > 0;
 
         } catch (Exception e) {
-            System.err.println("❌ Lỗi khi thêm phiếu đặt bàn: " + e.getMessage());
+            System.err.println("Lỗi khi thêm phiếu đặt bàn: " + e.getMessage());
             e.printStackTrace();
         }
         return false;

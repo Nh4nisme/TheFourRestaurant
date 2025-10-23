@@ -14,11 +14,22 @@ public class HoaDonDAO {
     private KhuyenMaiDAO  khuyenMaiDAO;
     private ThueDAO thueDAO;
     private PhuongThucThanhToanDAO phuongThucThanhToanDAO;
+    private ChiTietHoaDonDAO chiTietHoaDonDAO;
+
+    public HoaDonDAO() {
+        nhanVienDAO = new NhanVienDAO();
+        khachHangDAO = new KhachHangDAO();
+        phieuDatBanDAO = new PhieuDatBanDAO();
+        khuyenMaiDAO = new KhuyenMaiDAO();
+        thueDAO = new ThueDAO();
+        phuongThucThanhToanDAO = new PhuongThucThanhToanDAO();
+        chiTietHoaDonDAO = new ChiTietHoaDonDAO();
+    }
 
     // Lấy tất cả hóa đơn
     public List<HoaDon> getAll() {
         List<HoaDon> dsHoaDon = new ArrayList<>();
-        String sql = "SELECT * FROM HoaDon WHERE isDeleted = false";
+        String sql = "SELECT * FROM HoaDon WHERE isDeleted = 0";
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -38,6 +49,7 @@ public class HoaDonDAO {
                         phuongThucThanhToanDAO.layPTTTTheoMa(rs.getString("maPTTT")),
                         rs.getBoolean("isDeleted")
                 );
+                hd.setchiTietHoaDon(chiTietHoaDonDAO.layCTHDTheoMa(hd.getMaHD()));
                 dsHoaDon.add(hd);
             }
 
