@@ -1,9 +1,8 @@
 package com.thefourrestaurant.DAO;
 
 import com.thefourrestaurant.connect.ConnectSQL;
-import com.thefourrestaurant.model.KhuyenMai;
-import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
+import com.thefourrestaurant.model.LoaiMonAn;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,132 +11,66 @@ import java.util.List;
 public class MonAnDAO {
 
     private MonAn mapResultSetToMonAn(ResultSet rs) throws SQLException {
-        MonAn monAn = new MonAn();
-        monAn.setMaMonAn(rs.getString("maMonAn"));
-        monAn.setTenMon(rs.getString("tenMon"));
-        monAn.setDonGia(rs.getBigDecimal("donGia"));
-        monAn.setTrangThai(rs.getString("trangThai"));
-        monAn.setHinhAnh(rs.getString("hinhAnh"));
-
-        if (rs.getString("maLoaiMon") != null) {
-            LoaiMon loaiMon = new LoaiMon();
-            loaiMon.setMaLoaiMon(rs.getString("maLoaiMon"));
-            loaiMon.setTenLoaiMon(rs.getString("tenLoaiMon"));
-            monAn.setLoaiMon(loaiMon);
-        }
-
-
-        return monAn;
+        MonAn mon = new MonAn();
+        mon.setMaMonAn(rs.getString("maMonAn"));
+        mon.setTenMon(rs.getString("tenMon"));
+        mon.setDonGia(rs.getBigDecimal("donGia"));
+        mon.setTrangThai(rs.getString("trangThai"));
+        mon.setHinhAnh(rs.getString("hinhAnh"));
+        LoaiMonAn loai = new LoaiMonAn(rs.getString("maLoaiMon"), rs.getString("tenLoaiMon"), null);
+        mon.setLoaiMonAn(loai);
+        return mon;
     }
 
-    private String getBaseSelectSQL() {
-        return "SELECT ma.*, lm.tenLoaiMon " +
-               "FROM MonAn ma " +
-               "LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon ";
-    }
-
-    public List<MonAn> layMonAnTheoLoai(String maLoaiMon) {
-        List<MonAn> danhSachMonAn = new ArrayList<>();
-        String sql = getBaseSelectSQL() + "WHERE ma.maLoaiMon = ? ORDER BY ma.maMonAn DESC";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, maLoaiMon);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    danhSachMonAn.add(mapResultSetToMonAn(rs));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return danhSachMonAn;
+    private String baseQuery() {
+        return "SELECT ma.*, lm.tenLoaiMon FROM MonAn ma LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon ";
     }
 
     public List<MonAn> layTatCaMonAn() {
-        List<MonAn> danhSachMonAn = new ArrayList<>();
-        String sql = getBaseSelectSQL() + "ORDER BY ma.tenMon ASC";
+        List<MonAn> ds = new ArrayList<>();
+        String sql = baseQuery();
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                danhSachMonAn.add(mapResultSetToMonAn(rs));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return danhSachMonAn;
+            while (rs.next()) ds.add(mapResultSetToMonAn(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return ds;
     }
 
-    public String taoMaMonAnMoi() {
-        String newId = "MA000001";
-        String sql = "SELECT TOP 1 maMonAn FROM MonAn ORDER BY maMonAn DESC";
-        try (Connection conn = ConnectSQL.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            if (rs.next()) {
-                String lastId = rs.getString("maMonAn");
-                int num = Integer.parseInt(lastId.substring(2));
-                num++;
-                newId = String.format("MA%06d", num);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return newId;
-    }
-
-    public boolean themMonAn(MonAn monAn) {
-    	String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh) VALUES (?, ?, ?, ?, ?, ?)";
+    public boolean themMonAn(MonAn mon) {
+        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, monAn.getMaMonAn());
-            ps.setString(2, monAn.getTenMon());
-            ps.setBigDecimal(3, monAn.getDonGia());
-            ps.setString(4, monAn.getTrangThai());
-            ps.setString(5, monAn.getLoaiMon() != null ? monAn.getLoaiMon().getMaLoaiMon() : null);
-            ps.setString(6, monAn.getHinhAnh());
-
+            ps.setString(1, mon.getMaMonAn());
+            ps.setString(2, mon.getTenMon());
+            ps.setBigDecimal(3, mon.getDonGia());
+            ps.setString(4, mon.getTrangThai());
+            ps.setString(5, mon.getLoaiMonAn().getMaLoaiMon());
+            ps.setString(6, mon.getHinhAnh());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
-    public boolean capNhatMonAn(MonAn monAn) {
-        String sql = "UPDATE MonAn SET tenMon = ?, donGia = ?, trangThai = ?, maLoaiMon = ?, hinhAnh = ? WHERE maMonAn = ?";
+    public boolean capNhatMonAn(MonAn mon) {
+        String sql = "UPDATE MonAn SET tenMon=?, donGia=?, trangThai=?, maLoaiMon=?, hinhAnh=? WHERE maMonAn=?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, monAn.getTenMon());
-            ps.setBigDecimal(2, monAn.getDonGia());
-            ps.setString(3, monAn.getTrangThai());
-            ps.setString(4, monAn.getLoaiMon() != null ? monAn.getLoaiMon().getMaLoaiMon() : null);
-            ps.setString(5, monAn.getHinhAnh());
-            ps.setString(6, monAn.getMaMonAn());
-
+            ps.setString(1, mon.getTenMon());
+            ps.setBigDecimal(2, mon.getDonGia());
+            ps.setString(3, mon.getTrangThai());
+            ps.setString(4, mon.getLoaiMonAn().getMaLoaiMon());
+            ps.setString(5, mon.getHinhAnh());
+            ps.setString(6, mon.getMaMonAn());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
     public boolean xoaMonAn(String maMonAn) {
         String sql = "DELETE FROM MonAn WHERE maMonAn = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, maMonAn);
-
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 }

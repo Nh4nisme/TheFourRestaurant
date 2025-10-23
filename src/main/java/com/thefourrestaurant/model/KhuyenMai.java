@@ -2,22 +2,33 @@ package com.thefourrestaurant.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public class KhuyenMai {
     private String maKM;
-    private LoaiKhuyenMai loaiKhuyenMai; // Changed from String
-    private BigDecimal tyLe;
-    private BigDecimal soTien;
-    private MonAn monAnTang; // Changed from String
-    private MonAn monAnApDung; // Added for LKM00003
+    private LoaiKhuyenMai loaiKhuyenMai;
+    private BigDecimal tyLe;      // Có thể null
+    private BigDecimal soTien;    // Có thể null
     private LocalDate ngayBatDau;
     private LocalDate ngayKetThuc;
     private String moTa;
+    private List<ChiTietKhuyenMai> chiTietKhuyenMais; // Danh sách chi tiết KM
 
-    public KhuyenMai() {
+    public KhuyenMai() {}
+
+    public KhuyenMai(String maKM, LoaiKhuyenMai loaiKhuyenMai, BigDecimal tyLe, BigDecimal soTien,
+                     LocalDate ngayBatDau, LocalDate ngayKetThuc, String moTa) {
+        this.maKM = maKM;
+        this.loaiKhuyenMai = loaiKhuyenMai;
+        this.tyLe = tyLe;
+        this.soTien = soTien;
+        this.ngayBatDau = ngayBatDau;
+        this.ngayKetThuc = ngayKetThuc;
+        this.moTa = moTa;
     }
 
-    // Getters and Setters
+
+    // Getters & Setters
     public String getMaKM() {
         return maKM;
     }
@@ -50,22 +61,6 @@ public class KhuyenMai {
         this.soTien = soTien;
     }
 
-    public MonAn getMonAnTang() {
-        return monAnTang;
-    }
-
-    public void setMonAnTang(MonAn monAnTang) {
-        this.monAnTang = monAnTang;
-    }
-
-    public MonAn getMonAnApDung() {
-        return monAnApDung;
-    }
-
-    public void setMonAnApDung(MonAn monAnApDung) {
-        this.monAnApDung = monAnApDung;
-    }
-
     public LocalDate getNgayBatDau() {
         return ngayBatDau;
     }
@@ -90,8 +85,16 @@ public class KhuyenMai {
         this.moTa = moTa;
     }
 
+    public List<ChiTietKhuyenMai> getChiTietKhuyenMais() {
+        return chiTietKhuyenMais;
+    }
+
+    public void setChiTietKhuyenMais(List<ChiTietKhuyenMai> chiTietKhuyenMais) {
+        this.chiTietKhuyenMais = chiTietKhuyenMais;
+    }
+
     @Override
     public String toString() {
-        return this.moTa; // For display in ComboBox
+        return moTa != null ? moTa : maKM;
     }
 }

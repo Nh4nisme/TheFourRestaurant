@@ -4,7 +4,7 @@ import com.thefourrestaurant.DAO.KhuyenMaiDAO;
 import com.thefourrestaurant.DAO.LoaiMonAnDAO;
 import com.thefourrestaurant.DAO.MonAnDAO;
 import com.thefourrestaurant.model.KhuyenMai;
-import com.thefourrestaurant.model.LoaiMon;
+import com.thefourrestaurant.model.LoaiMonAn;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.monan.MonAnDialog;
 import javafx.scene.control.Alert;
@@ -29,7 +29,7 @@ public class MonAnController {
         return monAnDAO.layMonAnTheoLoai(maLoaiMon);
     }
 
-    public List<LoaiMon> layTatCaLoaiMonAn() {
+    public List<LoaiMonAn> layTatCaLoaiMonAn() {
         return loaiMonAnDAO.layTatCaLoaiMonAn();
     }
 
@@ -38,7 +38,7 @@ public class MonAnController {
     }
 
     public boolean themMoiMonAn(String maLoaiMonDefault) {
-        List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
+        List<LoaiMonAn> allLoaiMon = layTatCaLoaiMonAn();
         List<KhuyenMai> allKhuyenMai = layTatCaKhuyenMai();
 
         if (allLoaiMon.isEmpty()) {
@@ -46,7 +46,7 @@ public class MonAnController {
             return false;
         }
 
-        LoaiMon defaultLoaiMon = allLoaiMon.stream()
+        LoaiMonAn defaultLoaiMon = allLoaiMon.stream()
                 .filter(lm -> lm.getMaLoaiMon().equals(maLoaiMonDefault))
                 .findFirst()
                 .orElse(null);
@@ -63,10 +63,10 @@ public class MonAnController {
     }
 
     public boolean tuyChinhMonAn(MonAn monAn) {
-        List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
+        List<LoaiMonAn> allLoaiMon = layTatCaLoaiMonAn();
         List<KhuyenMai> allKhuyenMai = layTatCaKhuyenMai();
 
-        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon(), allKhuyenMai);
+        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMonAn(), allKhuyenMai);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();

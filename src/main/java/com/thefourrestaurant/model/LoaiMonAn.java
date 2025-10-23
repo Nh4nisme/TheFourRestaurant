@@ -1,14 +1,13 @@
 package com.thefourrestaurant.model;
 
-public class LoaiMon {
+public class LoaiMonAn {
     private String maLoaiMon;
     private String tenLoaiMon;
     private String hinhAnh;
 
-    public LoaiMon() {
-    }
+    public LoaiMonAn() {}
 
-    public LoaiMon(String maLoaiMon, String tenLoaiMon, String hinhAnh) {
+    public LoaiMonAn(String maLoaiMon, String tenLoaiMon, String hinhAnh) {
         this.maLoaiMon = maLoaiMon;
         this.tenLoaiMon = tenLoaiMon;
         this.hinhAnh = hinhAnh;
@@ -40,10 +39,6 @@ public class LoaiMon {
 
     @Override
     public String toString() {
-        return "LoaiMon{" +
-                "maLoaiMon='" + maLoaiMon + '\'' +
-                ", tenLoaiMon='" + tenLoaiMon + '\'' +
-                ", hinhAnh='" + hinhAnh + '\'' +
-                '}';
+        return tenLoaiMon;
     }
 }

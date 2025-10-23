@@ -1,100 +1,61 @@
 package com.thefourrestaurant.DAO;
 
 import com.thefourrestaurant.connect.ConnectSQL;
-import com.thefourrestaurant.model.LoaiMon;
+import com.thefourrestaurant.model.LoaiMonAn;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoaiMonAnDAO {
 
-    public List<LoaiMon> layTatCaLoaiMonAn() {
-        List<LoaiMon> danhSachLoaiMon = new ArrayList<>();
-        String sql = "SELECT * FROM LoaiMonAn ORDER BY maLoaiMon DESC";
+    public List<LoaiMonAn> layTatCaLoaiMonAn() {
+        List<LoaiMonAn> ds = new ArrayList<>();
+        String sql = "SELECT * FROM LoaiMonAn";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-
             while (rs.next()) {
-                LoaiMon loaiMon = new LoaiMon();
-                loaiMon.setMaLoaiMon(rs.getString("maLoaiMon"));
-                loaiMon.setTenLoaiMon(rs.getString("tenLoaiMon"));
-                loaiMon.setHinhAnh(rs.getString("hinhAnh"));
-                danhSachLoaiMon.add(loaiMon);
+                ds.add(new LoaiMonAn(
+                        rs.getString("maLoaiMon"),
+                        rs.getString("tenLoaiMon"),
+                        rs.getString("hinhAnh")
+                ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return danhSachLoaiMon;
+        return ds;
     }
 
-    public String taoMaLoaiMonAnMoi() {
-        String newId = "LM000001";
-        String sql = "SELECT TOP 1 maLoaiMon FROM LoaiMonAn ORDER BY maLoaiMon DESC";
-        try (Connection conn = ConnectSQL.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
-            if (rs.next()) {
-                String lastId = rs.getString("maLoaiMon");
-                int num = Integer.parseInt(lastId.substring(2));
-                num++;
-                newId = String.format("LM%06d", num);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return newId;
-    }
-
-    public boolean themLoaiMonAn(LoaiMon loaiMon) {
+    public boolean themLoaiMonAn(LoaiMonAn loai) {
         String sql = "INSERT INTO LoaiMonAn (maLoaiMon, tenLoaiMon, hinhAnh) VALUES (?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            ps.setString(1, loaiMon.getMaLoaiMon());
-            ps.setString(2, loaiMon.getTenLoaiMon());
-            ps.setString(3, loaiMon.getHinhAnh());
-
+            ps.setString(1, loai.getMaLoaiMon());
+            ps.setString(2, loai.getTenLoaiMon());
+            ps.setString(3, loai.getHinhAnh());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
-    public boolean capNhatLoaiMonAn(LoaiMon loaiMon) {
-        String sql = "UPDATE LoaiMonAn SET tenLoaiMon = ?, hinhAnh = ? WHERE maLoaiMon = ?";
+    public boolean capNhatLoaiMonAn(LoaiMonAn loai) {
+        String sql = "UPDATE LoaiMonAn SET tenLoaiMon=?, hinhAnh=? WHERE maLoaiMon=?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, loaiMon.getTenLoaiMon());
-            ps.setString(2, loaiMon.getHinhAnh());
-            ps.setString(3, loaiMon.getMaLoaiMon());
-
+            ps.setString(1, loai.getTenLoaiMon());
+            ps.setString(2, loai.getHinhAnh());
+            ps.setString(3, loai.getMaLoaiMon());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
     public boolean xoaLoaiMonAn(String maLoaiMon) {
         String sql = "DELETE FROM LoaiMonAn WHERE maLoaiMon = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setString(1, maLoaiMon);
-
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 }
