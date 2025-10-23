@@ -3,12 +3,14 @@ package com.thefourrestaurant.DAO;
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
+import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MonAnDAO {
+    private LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
 
     private MonAn mapResultSetToMonAn(ResultSet rs) throws SQLException {
         MonAn mon = new MonAn();
@@ -52,6 +54,37 @@ public class MonAnDAO {
             e.printStackTrace();
         }
         return ds;
+    }
+
+    public MonAn layMonAnTheoMa(String maMonAn) {
+        MonAn monAn = null;
+        String sql = "SELECT * FROM MonAn WHERE maMonAn = ? AND isDeleted = 0";
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maMonAn);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    LoaiMon loaiMon = loaiMonDAO.layLoaiMonTheoMa(rs.getString("maLoaiMon"));
+
+                    monAn = new MonAn(
+                            rs.getString("maMonAn"),
+                            rs.getString("tenMon"),
+                            rs.getBigDecimal("donGia"),
+                            rs.getString("trangThai"),
+                            loaiMon,
+                            rs.getString("hinhAnh"),
+                            rs.getBoolean("isDeleted")
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return monAn;
     }
 
     public boolean themMonAn(MonAn mon) {

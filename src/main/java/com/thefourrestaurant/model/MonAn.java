@@ -1,5 +1,7 @@
 package com.thefourrestaurant.model;
 
+import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
+
 import java.math.BigDecimal;
 
 public class MonAn {
@@ -9,22 +11,27 @@ public class MonAn {
     private String trangThai;
     private LoaiMon loaiMon;
     private String hinhAnh;
+    private Boolean isDeleted;
 
     public MonAn() {}
 
-    public MonAn(String maMonAn, String tenMon, BigDecimal donGia, String trangThai,
-                 LoaiMon loaiMon, String hinhAnh) {
-        this.maMonAn = maMonAn;
-        this.tenMon = tenMon;
-        this.donGia = donGia;
-        this.trangThai = trangThai;
-        this.loaiMon = loaiMon;
-        this.hinhAnh = hinhAnh;
+    public MonAn(String maMonAn, String tenMon, BigDecimal donGia, String trangThai, LoaiMon loaiMon, String hinhAnh, Boolean isDeleted) {
+        setMaMonAn(maMonAn);
+        setTenMon(tenMon);
+        setDonGia(donGia);
+        setTrangThai(trangThai);
+        setLoaiMon(loaiMon);
+        setHinhAnh(hinhAnh);
+        setDeleted(isDeleted);
     }
 
     public MonAn(String maMonAn) {
         this.maMonAn = maMonAn;
     }
+
+    public MonAn(String maMonAn, String tenMon, BigDecimal donGia, String trangThai, LoaiMonAn loaiMon, String hinhAnh, boolean isDeleted) {
+    }
+
 
     public String getMaMonAn() { return maMonAn; }
     public void setMaMonAn(String maMonAn) { this.maMonAn = maMonAn; }
@@ -43,6 +50,9 @@ public class MonAn {
 
     public String getHinhAnh() { return hinhAnh; }
     public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }
+
+    public Boolean getDeleted() {return isDeleted;}
+    public void setDeleted(Boolean deleted) {isDeleted = deleted;}
 
     @Override
     public String toString() {

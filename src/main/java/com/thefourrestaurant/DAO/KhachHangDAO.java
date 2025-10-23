@@ -40,7 +40,7 @@ public class KhachHangDAO {
 //    }
 
     public KhachHang layKhachHangTheoMa(String maKH) {
-        String sql = "SELECT * FROM KhachHang WHERE maKH = ? AND isDeleted = false";
+        String sql = "SELECT * FROM KhachHang WHERE maKH = ? AND isDeleted = 0";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 

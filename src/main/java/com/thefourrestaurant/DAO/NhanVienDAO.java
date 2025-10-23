@@ -13,7 +13,7 @@ import java.util.List;
 public class NhanVienDAO {
     public List<NhanVien> layDanhSachNhanVien() {
         List<NhanVien> ds = new ArrayList<>();
-        String sql = "SELECT * FROM NhanVien WHERE isDeleted = false";
+        String sql = "SELECT * FROM NhanVien WHERE isDeleted = 0";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -38,7 +38,7 @@ public class NhanVienDAO {
     }
 
     public NhanVien layNhanVienTheoMa(String maNV) {
-        String sql = "SELECT * FROM NhanVien WHERE maNV = ? AND isDeleted = false";
+        String sql = "SELECT * FROM NhanVien WHERE maNV = ? AND isDeleted = 0";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
