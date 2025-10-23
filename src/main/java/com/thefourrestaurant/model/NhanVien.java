@@ -10,7 +10,7 @@ public class NhanVien {
     private String gioiTinh;
     private String soDienThoai;
     private BigDecimal luong;
-    private String maTK;
+    private TaiKhoan maTK;
     private boolean isDeleted;
 
     public NhanVien() {}
@@ -20,7 +20,7 @@ public class NhanVien {
     }
 
     public NhanVien(String maNV, String hoTen, Date ngaySinh, String gioiTinh, String soDienThoai,
-                    BigDecimal luong, String maTK, boolean isDeleted) {
+                    BigDecimal luong, TaiKhoan maTK, boolean isDeleted) {
         this.maNV = maNV;
         this.hoTen = hoTen;
         this.ngaySinh = ngaySinh;
@@ -32,7 +32,7 @@ public class NhanVien {
     }
 
     public NhanVien(String maNV, String hoTen, Date ngaySinh, String gioiTinh, String soDienThoai,
-                    BigDecimal luong, String maTK) {
+                    BigDecimal luong, TaiKhoan maTK) {
         this(maNV, hoTen, ngaySinh, gioiTinh, soDienThoai, luong, maTK, false);
     }
 
@@ -54,8 +54,8 @@ public class NhanVien {
     public BigDecimal getLuong() { return luong; }
     public void setLuong(BigDecimal luong) { this.luong = luong; }
 
-    public String getMaTK() { return maTK; }
-    public void setMaTK(String maTK) { this.maTK = maTK; }
+    public TaiKhoan getMaTK() { return maTK; }
+    public void setMaTK(TaiKhoan maTK) { this.maTK = maTK; }
 
     public boolean isDeleted() { return isDeleted; }
     public void setDeleted(boolean deleted) { isDeleted = deleted; }

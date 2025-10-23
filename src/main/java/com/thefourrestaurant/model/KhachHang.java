@@ -8,7 +8,7 @@ public class KhachHang {
     private Date ngaySinh;
     private String gioiTinh;
     private String soDT;
-    private String maLoaiKH;
+    private  LoaiKhachHang maLoaiKH;
     private boolean isDeleted;
 
     public KhachHang() {}
@@ -18,7 +18,7 @@ public class KhachHang {
     }
 
     public KhachHang(String maKH, String hoTen, Date ngaySinh, String gioiTinh,
-                     String soDT, String maLoaiKH, boolean isDeleted) {
+                     String soDT, LoaiKhachHang maLoaiKH, boolean isDeleted) {
         this.maKH = maKH;
         this.hoTen = hoTen;
         this.ngaySinh = ngaySinh;
@@ -29,7 +29,7 @@ public class KhachHang {
     }
 
     public KhachHang(String maKH, String hoTen, Date ngaySinh, String gioiTinh,
-                     String soDT, String maLoaiKH) {
+                     String soDT, LoaiKhachHang maLoaiKH) {
         this(maKH, hoTen, ngaySinh, gioiTinh, soDT, maLoaiKH, false);
     }
 
@@ -49,8 +49,8 @@ public class KhachHang {
     public String getSoDT() { return soDT; }
     public void setSoDT(String soDT) { this.soDT = soDT; }
 
-    public String getMaLoaiKH() { return maLoaiKH; }
-    public void setMaLoaiKH(String maLoaiKH) { this.maLoaiKH = maLoaiKH; }
+    public LoaiKhachHang getMaLoaiKH() { return maLoaiKH; }
+    public void setMaLoaiKH(LoaiKhachHang maLoaiKH) { this.maLoaiKH = maLoaiKH; }
 
     public boolean isDeleted() { return isDeleted; }
     public void setDeleted(boolean deleted) { isDeleted = deleted; }

@@ -2,13 +2,16 @@ package com.thefourrestaurant.view.ban;
 
 import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.model.Tang;
+import com.thefourrestaurant.view.GiaoDienGoiMon;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 
 import java.util.List;
 
@@ -18,13 +21,52 @@ public class GiaoDienDatBan extends BorderPane {
     private static final String COLOR_BACKGROUND_SIDE = "#1E424D";
     private static final String COLOR_TEXT = "#DDB248";
     
+    private StackPane mainContent;
+    
     private QuanLiBan quanLiBan;
     TangDAO tangDAO = new TangDAO();
 
-    public GiaoDienDatBan() {
-        this.setLeft(taoThanhBen());
-        this.setCenter(taoNoiDungChinh());
-    }
+	public GiaoDienDatBan(StackPane mainContent) {
+	    this.mainContent = mainContent;
+	
+	    this.setLeft(taoThanhBen());
+	    this.setCenter(taoNoiDungChinh());
+	
+	    // Lắng nghe phím F1–F8
+	    this.sceneProperty().addListener((obs, oldScene, newScene) -> {
+	        if (newScene != null) {
+	            newScene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+	                switch (event.getCode()) {
+	                    case F1 -> datBanNgay();
+	                    case F2 -> datBanTruoc();
+	                    case F3 -> nhanBan();
+	                    case F4 -> huyBanDatTruoc();
+	                    case F5 -> datMon();     // Sửa phần này
+	                    case F6 -> tinhTien();
+	                    case F7 -> tangTruoc();
+	                    case F8 -> tangSau();
+	                    default -> {}
+	                }
+	            });
+	        }
+	    });
+	
+	    this.setFocusTraversable(true);
+	
+	    // Tự động focus khi hiển thị
+	    this.sceneProperty().addListener((obs, oldScene, newScene) -> {
+	        if (newScene != null) {
+	            newScene.windowProperty().addListener((o, oldWin, newWin) -> {
+	                if (newWin != null) {
+	                    newWin.focusedProperty().addListener((ob, was, isNow) -> {
+	                        if (isNow) this.requestFocus();
+	                    });
+	                }
+	            });
+	        }
+	    });
+	}
+
 
     private VBox taoThanhBen() {
         VBox thanhBen = new VBox();
@@ -71,28 +113,41 @@ public class GiaoDienDatBan extends BorderPane {
         );
 
         for (String[] title : nutTitles) {
-            ButtonSample2 btn = new ButtonSample2("", ButtonSample2.Variant.YELLOW, 220, 55);
-
-            HBox content = new HBox();
-            content.setPadding(new Insets(0, 10, 0, 10));
-            content.setAlignment(Pos.CENTER_LEFT);
-
-            // Lấy text và phím tắt từ title
-            Label lblText = new Label(title[0]);
-            lblText.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
-
-            Label lblShortcut = new Label(title[1]);
-            lblShortcut.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
-
-            Region spacer = new Region();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-
-            content.getChildren().addAll(lblText, spacer, lblShortcut);
-
-            btn.setGraphic(content); // gán HBox vào button
-
-            cacNut.getChildren().add(btn);
-        }
+		    String tenNut = title[0];
+		    String phimTat = title[1];
+		    
+		    ButtonSample2 btn = new ButtonSample2("", ButtonSample2.Variant.YELLOW, 220, 55);
+		
+		    HBox content = new HBox();
+		    content.setPadding(new Insets(0, 10, 0, 10));
+		    content.setAlignment(Pos.CENTER_LEFT);
+		
+		    Label lblText = new Label(tenNut);
+		    lblText.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
+		
+		    Label lblShortcut = new Label(phimTat);
+		    lblShortcut.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
+		
+		    Region spacer = new Region();
+		    HBox.setHgrow(spacer, Priority.ALWAYS);
+		
+		    content.getChildren().addAll(lblText, spacer, lblShortcut);
+		    btn.setGraphic(content);
+		
+		    // Gán hành động cho từng nút tương ứng phím tắt
+		    switch (phimTat) {
+		        case "F1" -> btn.setOnAction(e -> datBanNgay());
+		        case "F2" -> btn.setOnAction(e -> datBanTruoc());
+		        case "F3" -> btn.setOnAction(e -> nhanBan());
+		        case "F4" -> btn.setOnAction(e -> huyBanDatTruoc());
+		        case "F5" -> btn.setOnAction(e -> datMon());
+		        case "F6" -> btn.setOnAction(e -> tinhTien());
+		        case "F7" -> btn.setOnAction(e -> tangTruoc());
+		        case "F8" -> btn.setOnAction(e -> tangSau());
+		    }
+		
+		    cacNut.getChildren().add(btn);
+		}
 
         return cacNut;
     }
@@ -266,5 +321,38 @@ public class GiaoDienDatBan extends BorderPane {
             this.text = text;
             this.color = color;
         }
+    }
+    
+    private void datBanNgay() {
+        System.out.println("Đặt bàn ngay (F1)");
+    }
+
+    private void datBanTruoc() {
+        System.out.println("Đặt bàn trước (F2)");
+    }
+
+    private void nhanBan() {
+        System.out.println("Nhận bàn (F3)");
+    }
+
+    private void huyBanDatTruoc() {
+        System.out.println("Hủy bàn đặt trước (F4)");
+    }
+
+    private void datMon() {
+    	mainContent.getChildren().clear();                // Xóa giao diện hiện tại
+        mainContent.getChildren().add(new GiaoDienGoiMon(mainContent));
+    }
+
+    private void tinhTien() {
+        System.out.println("Tính tiền (F6)");
+    }
+
+    private void tangTruoc() {
+        System.out.println("Chuyển tầng trước (F7)");
+    }
+
+    private void tangSau() {
+        System.out.println("Chuyển tầng sau (F8)");
     }
 }
