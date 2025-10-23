@@ -11,52 +11,52 @@ import java.util.List;
 public class KhuyenMaiDAO {
 
     // ===== CREATE =====
-    public boolean themKhuyenMai(KhuyenMai km) {
-        String sql = "INSERT INTO KhuyenMai (maKM, maLoaiKM, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, km.getMaKM());
-            ps.setString(2, km.getLoaiKhuyenMai().getMaLoaiKM());
-            ps.setBigDecimal(3, km.getTyLe());
-            ps.setBigDecimal(4, km.getSoTien());
-            ps.setDate(5, km.getNgayBatDau() != null ? Date.valueOf(km.getNgayBatDau()) : null);
-            ps.setDate(6, km.getNgayKetThuc() != null ? Date.valueOf(km.getNgayKetThuc()) : null);
-            ps.setString(7, km.getMoTa());
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+//    public boolean themKhuyenMai(KhuyenMai km) {
+//        String sql = "INSERT INTO KhuyenMai (maKM, maLoaiKM, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) VALUES (?, ?, ?, ?, ?, ?, ?)";
+//        try (Connection conn = ConnectSQL.getConnection();
+//             PreparedStatement ps = conn.prepareStatement(sql)) {
+//
+//            ps.setString(1, km.getMaKM());
+//            ps.setString(2, km.getLoaiKhuyenMai().getMaLoaiKM());
+//            ps.setBigDecimal(3, km.getTyLe());
+//            ps.setBigDecimal(4, km.getSoTien());
+//            ps.setDate(5, km.getNgayBatDau() != null ? Date.valueOf(km.getNgayBatDau()) : null);
+//            ps.setDate(6, km.getNgayKetThuc() != null ? Date.valueOf(km.getNgayKetThuc()) : null);
+//            ps.setString(7, km.getMoTa());
+//            return ps.executeUpdate() > 0;
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
 
     // ===== READ ALL =====
-    public List<KhuyenMai> layTatCaKhuyenMai() {
-        List<KhuyenMai> ds = new ArrayList<>();
-        String sql = "SELECT * FROM KhuyenMai";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                KhuyenMai km = new KhuyenMai();
-                km.setMaKM(rs.getString("maKM"));
-                LoaiKhuyenMai lkm = new LoaiKhuyenMai(rs.getString("maLoaiKM"), null);
-                km.setLoaiKhuyenMai(lkm);
-                km.setTyLe(rs.getBigDecimal("tyLe"));
-                km.setSoTien(rs.getBigDecimal("soTien"));
-                km.setNgayBatDau(rs.getDate("ngayBatDau") != null ? rs.getDate("ngayBatDau").toLocalDate() : null);
-                km.setNgayKetThuc(rs.getDate("ngayKetThuc") != null ? rs.getDate("ngayKetThuc").toLocalDate() : null);
-                km.setMoTa(rs.getString("moTa"));
-                ds.add(km);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return ds;
-    }
+//    public List<KhuyenMai> layTatCaKhuyenMai() {
+//        List<KhuyenMai> ds = new ArrayList<>();
+//        String sql = "SELECT * FROM KhuyenMai";
+//        try (Connection conn = ConnectSQL.getConnection();
+//             PreparedStatement ps = conn.prepareStatement(sql);
+//             ResultSet rs = ps.executeQuery()) {
+//
+//            while (rs.next()) {
+//                KhuyenMai km = new KhuyenMai();
+//                km.setMaKM(rs.getString("maKM"));
+//                LoaiKhuyenMai lkm = new LoaiKhuyenMai(rs.getString("maLoaiKM"), null);
+//                km.setLoaiKhuyenMai(lkm);
+//                km.setTyLe(rs.getBigDecimal("tyLe"));
+//                km.setSoTien(rs.getBigDecimal("soTien"));
+//                km.setNgayBatDau(rs.getDate("ngayBatDau").toLocalDate();
+//                km.setNgayKetThuc(rs.getDate("ngayKetThuc").toLocalDate();
+//                km.setMoTa(rs.getString("moTa"));
+//                ds.add(km);
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return ds;
+//    }
 
 
     public String taoMaKhuyenMaiMoi() {
@@ -90,27 +90,53 @@ public class KhuyenMaiDAO {
         return newId;
     }
     // ===== READ BY ID =====
-    public KhuyenMai timKhuyenMaiTheoMa(String maKM) {
-        String sql = "SELECT * FROM KhuyenMai WHERE maKM = ?";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+//    public KhuyenMai timKhuyenMaiTheoMa(String maKM) {
+//        String sql = "SELECT * FROM KhuyenMai WHERE maKM = ?";
+//        try (Connection conn = ConnectSQL.getConnection();
+//             PreparedStatement ps = conn.prepareStatement(sql)) {
+//
+//            ps.setString(1, maKM);
+//            try (ResultSet rs = ps.executeQuery()) {
+//                if (rs.next()) {
+//                    KhuyenMai km = new KhuyenMai();
+//                    km.setMaKM(rs.getString("maKM"));
+//                    LoaiKhuyenMai lkm = new LoaiKhuyenMai(rs.getString("maLoaiKM"), null);
+//                    km.setLoaiKhuyenMai(lkm);
+//                    km.setTyLe(rs.getBigDecimal("tyLe"));
+//                    km.setSoTien(rs.getBigDecimal("soTien"));
+//                    km.setNgayBatDau(rs.getDate("ngayBatDau") != null ? rs.getDate("ngayBatDau").toLocalDate() : null);
+//                    km.setNgayKetThuc(rs.getDate("ngayKetThuc") != null ? rs.getDate("ngayKetThuc").toLocalDate() : null);
+//                    km.setMoTa(rs.getString("moTa"));
+//                    return km;
+//                }
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
-            ps.setString(1, maKM);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    KhuyenMai km = new KhuyenMai();
-                    km.setMaKM(rs.getString("maKM"));
-                    LoaiKhuyenMai lkm = new LoaiKhuyenMai(rs.getString("maLoaiKM"), null);
-                    km.setLoaiKhuyenMai(lkm);
-                    km.setTyLe(rs.getBigDecimal("tyLe"));
-                    km.setSoTien(rs.getBigDecimal("soTien"));
-                    km.setNgayBatDau(rs.getDate("ngayBatDau") != null ? rs.getDate("ngayBatDau").toLocalDate() : null);
-                    km.setNgayKetThuc(rs.getDate("ngayKetThuc") != null ? rs.getDate("ngayKetThuc").toLocalDate() : null);
-                    km.setMoTa(rs.getString("moTa"));
-                    return km;
+    public KhuyenMai layKhuyenMaiTheoMa(String maKM) {
+        String sql = "select * from KhuyenMai where maKM=?";
+
+        try(Connection conn = ConnectSQL.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1,maKM);
+            try(ResultSet rs = ps.executeQuery()) {
+                if(rs.next()) {
+                    return new KhuyenMai(
+                            rs.getString("maKM"),
+                            new LoaiKhuyenMaiDAO().layLoaiKhuyenMaiTheoMa(rs.getString("maLoaiKM")),
+                            rs.getBigDecimal("tyLe"),
+                            rs.getBigDecimal("soTien"),
+                            rs.getTimestamp("ngayBatDau").toLocalDateTime(),
+                            rs.getTimestamp("ngayKetThuc").toLocalDateTime(),
+                            rs.getString("moTa")
+                    );
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -118,25 +144,25 @@ public class KhuyenMaiDAO {
     }
 
     // ===== UPDATE =====
-    public boolean capNhatKhuyenMai(KhuyenMai km) {
-        String sql = "UPDATE KhuyenMai SET maLoaiKM=?, tyLe=?, soTien=?, ngayBatDau=?, ngayKetThuc=?, moTa=? WHERE maKM=?";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, km.getLoaiKhuyenMai().getMaLoaiKM());
-            ps.setBigDecimal(2, km.getTyLe());
-            ps.setBigDecimal(3, km.getSoTien());
-            ps.setDate(4, km.getNgayBatDau() != null ? Date.valueOf(km.getNgayBatDau()) : null);
-            ps.setDate(5, km.getNgayKetThuc() != null ? Date.valueOf(km.getNgayKetThuc()) : null);
-            ps.setString(6, km.getMoTa());
-            ps.setString(7, km.getMaKM());
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+//    public boolean capNhatKhuyenMai(KhuyenMai km) {
+//        String sql = "UPDATE KhuyenMai SET maLoaiKM=?, tyLe=?, soTien=?, ngayBatDau=?, ngayKetThuc=?, moTa=? WHERE maKM=?";
+//        try (Connection conn = ConnectSQL.getConnection();
+//             PreparedStatement ps = conn.prepareStatement(sql)) {
+//
+//            ps.setString(1, km.getLoaiKhuyenMai().getMaLoaiKM());
+//            ps.setBigDecimal(2, km.getTyLe());
+//            ps.setBigDecimal(3, km.getSoTien());
+//            ps.setDate(4, km.getNgayBatDau() != null ? Date.valueOf(km.getNgayBatDau()) : null);
+//            ps.setDate(5, km.getNgayKetThuc() != null ? Date.valueOf(km.getNgayKetThuc()) : null);
+//            ps.setString(6, km.getMoTa());
+//            ps.setString(7, km.getMaKM());
+//            return ps.executeUpdate() > 0;
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
 
     // ===== DELETE =====
     public boolean xoaKhuyenMai(String maKM) {

@@ -29,6 +29,26 @@ public class LoaiKhuyenMaiDAO {
         return ds;
     }
 
+    public LoaiKhuyenMai layLoaiKhuyenMaiTheoMa(String maLoaiKM) {
+        String sql = "select * from LoaiKhuyenMai where maLoaiKM=?";
+
+        try(Connection conn = ConnectSQL.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maLoaiKM);
+            try(ResultSet rs = ps.executeQuery()){
+                if (rs.next()) {
+                    LoaiKhuyenMai loaiKM = new LoaiKhuyenMai();
+                    loaiKM.setMaLoaiKM(rs.getString("maLoaiKM"));
+                    loaiKM.setTenLoaiKM(rs.getString("tenLoaiKM"));
+                    return loaiKM;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean themLoaiKhuyenMai(LoaiKhuyenMai lkm) {
         String sql = "INSERT INTO LoaiKhuyenMai (maLoaiKM, tenLoaiKM) VALUES (?, ?)";
         try (Connection conn = ConnectSQL.getConnection();

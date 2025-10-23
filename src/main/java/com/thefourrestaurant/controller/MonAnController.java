@@ -34,7 +34,8 @@ public class MonAnController {
     }
 
     public List<KhuyenMai> layTatCaKhuyenMai() {
-        return khuyenMaiDAO.layTatCaKhuyenMai();
+//        return khuyenMaiDAO.layTatCaKhuyenMai();
+        return null;
     }
 
     public boolean themMoiMonAn(String maLoaiMonDefault) {
@@ -63,16 +64,16 @@ public class MonAnController {
     }
 
     public boolean tuyChinhMonAn(MonAn monAn) {
-        List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
-        List<KhuyenMai> allKhuyenMai = layTatCaKhuyenMai();
-
-        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon(), allKhuyenMai);
-        dialog.showAndWait();
-
-        MonAn ketQua = dialog.layKetQua();
-        if (ketQua != null) {
-            return monAnDAO.capNhatMonAn(ketQua);
-        }
+//        List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
+////        List<KhuyenMai> allKhuyenMai = layTatCaKhuyenMai();
+//
+//        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon(), allKhuyenMai);
+//        dialog.showAndWait();
+//
+//        MonAn ketQua = dialog.layKetQua();
+//        if (ketQua != null) {
+//            return monAnDAO.capNhatMonAn(ketQua);
+//        }
         return false;
     }
 

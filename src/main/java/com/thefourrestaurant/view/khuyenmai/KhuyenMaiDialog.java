@@ -107,8 +107,8 @@ public class KhuyenMaiDialog extends Dialog<KhuyenMai> {
     private void populateData() {
         txtMoTa.setText(resultKm.getMoTa());
         cboLoaiKM.setValue(resultKm.getLoaiKhuyenMai());
-        dpNgayBatDau.setValue(resultKm.getNgayBatDau());
-        dpNgayKetThuc.setValue(resultKm.getNgayKetThuc());
+//        dpNgayBatDau.setValue(resultKm.getNgayBatDau());
+//        dpNgayKetThuc.setValue(resultKm.getNgayKetThuc());
         if (resultKm.getTyLe() != null) txtTyLe.setText(resultKm.getTyLe().toPlainString());
         if (resultKm.getSoTien() != null) txtSoTien.setText(resultKm.getSoTien().toPlainString());
     }
@@ -116,8 +116,8 @@ public class KhuyenMaiDialog extends Dialog<KhuyenMai> {
     private KhuyenMai buildResult() {
         resultKm.setMoTa(txtMoTa.getText());
         resultKm.setLoaiKhuyenMai(cboLoaiKM.getValue());
-        resultKm.setNgayBatDau(dpNgayBatDau.getValue());
-        resultKm.setNgayKetThuc(dpNgayKetThuc.getValue());
+//        resultKm.setNgayBatDau(dpNgayBatDau.getValue());
+//        resultKm.setNgayKetThuc(dpNgayKetThuc.getValue());
         try {
             if (txtTyLe.getText() != null && !txtTyLe.getText().isEmpty()) {
                 resultKm.setTyLe(new BigDecimal(txtTyLe.getText()));

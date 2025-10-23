@@ -38,4 +38,31 @@ public class PhuongThucThanhToanDAO {
         }
         return list;
     }
+
+    public PhuongThucThanhToan layPTTTTheoMa(String maPTTT) {
+        String sql = "SELECT * FROM PhuongThucThanhToan WHERE maPTTT=?";
+
+        try(Connection conn = ConnectSQL.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maPTTT);
+            try(ResultSet rs = ps.executeQuery()) {
+                if(rs.next()) {
+                    String tenPT = rs.getString("tenPTTT");
+                    String moTa = rs.getString("moTa");
+                    PhuongThucThanhToan.LoaiPTTT loaiPTTT;
+                    if (tenPT.equalsIgnoreCase("Tiền mặt")) {
+                        loaiPTTT = PhuongThucThanhToan.LoaiPTTT.TIEN_MAT;
+                    } else {
+                        loaiPTTT = PhuongThucThanhToan.LoaiPTTT.CHUYEN_KHOAN;
+                    }
+
+                    return new PhuongThucThanhToan(maPTTT,loaiPTTT,moTa);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
