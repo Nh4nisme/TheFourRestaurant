@@ -1,7 +1,7 @@
 package com.thefourrestaurant.controller;
 
 import com.thefourrestaurant.DAO.KhuyenMaiDAO;
-import com.thefourrestaurant.DAO.LoaiMonAnDAO;
+import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.DAO.MonAnDAO;
 import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiMon;
@@ -16,12 +16,12 @@ import java.util.Optional;
 public class MonAnController {
 
     private final MonAnDAO monAnDAO;
-    private final LoaiMonAnDAO loaiMonAnDAO;
+    private final LoaiMonDAO loaiMonDAO;
     private final KhuyenMaiDAO khuyenMaiDAO;
 
     public MonAnController() {
         this.monAnDAO = new MonAnDAO();
-        this.loaiMonAnDAO = new LoaiMonAnDAO();
+        this.loaiMonDAO = new LoaiMonDAO();
         this.khuyenMaiDAO = new KhuyenMaiDAO();
     }
 
@@ -30,7 +30,7 @@ public class MonAnController {
     }
 
     public List<LoaiMon> layTatCaLoaiMonAn() {
-        return loaiMonAnDAO.layTatCaLoaiMonAn();
+        return loaiMonDAO.layTatCaLoaiMon();
     }
 
     public List<KhuyenMai> layTatCaKhuyenMai() {

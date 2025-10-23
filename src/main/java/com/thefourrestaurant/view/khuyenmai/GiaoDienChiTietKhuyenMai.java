@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.khuyenmai;
 
+import com.thefourrestaurant.model.ChiTietKhuyenMai;
 import com.thefourrestaurant.model.KhuyenMai;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -69,24 +70,36 @@ public class GiaoDienChiTietKhuyenMai extends VBox {
         lblLoaiKM.setText(km.getLoaiKhuyenMai() != null ? km.getLoaiKhuyenMai().getTenLoaiKM() : "");
         lblMoTa.setText(km.getMoTa());
 
-        // Build the detailed value string
-        String giaTri = "";
+        // Build the detailed value string from ChiTietKhuyenMais
+        StringBuilder sb = new StringBuilder();
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
-        if (km.getMonAnTang() != null) {
-            giaTri = "Tặng món: " + km.getMonAnTang().getTenMon();
-        } else {
-            if (km.getTyLe() != null && km.getTyLe().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                giaTri = "Giảm " + km.getTyLe() + "%";
-            } else if (km.getSoTien() != null && km.getSoTien().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                giaTri = "Giảm " + currencyFormatter.format(km.getSoTien());
+        if (km.getChiTietKhuyenMais() != null && !km.getChiTietKhuyenMais().isEmpty()) {
+            for (ChiTietKhuyenMai ct : km.getChiTietKhuyenMais()) {
+                if (ct.getMonApDung() != null) {
+                    sb.append("Áp dụng: ").append(ct.getMonApDung().getTenMon());
+                }
+                if (ct.getTyLeGiam() != null && ct.getTyLeGiam().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                    sb.append(" | Giảm ").append(ct.getTyLeGiam()).append("%");
+                } else if (ct.getSoTienGiam() != null && ct.getSoTienGiam().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                    sb.append(" | Giảm ").append(currencyFormatter.format(ct.getSoTienGiam()));
+                }
+                if (ct.getMonTang() != null) {
+                    sb.append(" | Tặng ").append(ct.getMonTang().getTenMon());
+                    if (ct.getSoLuongTang() != null) sb.append(" x").append(ct.getSoLuongTang());
+                }
+                sb.append("\n");
             }
-
-            if (km.getMonAnApDung() != null) {
-                giaTri += " cho món: " + km.getMonAnApDung().getTenMon();
+        } else {
+            // fall back to earlier fields if any (for backward compatibility)
+            if (km.getTyLe() != null && km.getTyLe().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                sb.append("Giảm ").append(km.getTyLe()).append("%");
+            } else if (km.getSoTien() != null && km.getSoTien().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                sb.append("Giảm ").append(currencyFormatter.format(km.getSoTien()));
             }
         }
-        lblGiaTri.setText(giaTri);
+
+        lblGiaTri.setText(sb.toString());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         lblNgayBatDau.setText(km.getNgayBatDau() != null ? km.getNgayBatDau().format(formatter) : "Không giới hạn");
