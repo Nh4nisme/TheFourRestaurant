@@ -7,9 +7,9 @@ public class LoaiKhachHang {
     public LoaiKhachHang() {
     }
 
-    public LoaiKhachHang(String maLoaiKH, String tenLoaiKH) {
-        this.maLoaiKH = maLoaiKH;
-        this.tenLoaiKH = tenLoaiKH;
+    public LoaiKhachHang(String maLoaiKH,  String tenLoaiKH) {
+        setMaLoaiKH(maLoaiKH);
+        setTenLoaiKH(tenLoaiKH);
     }
 
     public String getMaLoaiKH() {
