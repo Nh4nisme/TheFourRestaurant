@@ -15,7 +15,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -24,6 +23,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -39,7 +39,7 @@ public class GiaoDienGoiMon extends BorderPane {
     private Label lblTongTien;
 
 
-	public GiaoDienGoiMon() {
+	public GiaoDienGoiMon(StackPane mainContent) {
         this.setStyle("-fx-background-color: white;");
         HBox thanhTren = taoThanhTren();
 
@@ -162,7 +162,8 @@ public class GiaoDienGoiMon extends BorderPane {
 	    return container;
 	}
 
-    private VBox taoKhungPhieuGoiMon() {
+    @SuppressWarnings({ "unchecked", "deprecation" })
+	private VBox taoKhungPhieuGoiMon() {
 	    VBox panel = new VBox(15);
 	    panel.setPadding(new Insets(10));
 	    panel.setStyle("-fx-background-color: #E8E8E8; -fx-background-radius: 8;");

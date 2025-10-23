@@ -12,20 +12,20 @@ public class KhachHang {
     private boolean isDeleted;
 
     public KhachHang() {}
-    
+
     public KhachHang(String maKH) {
-    	this.maKH = maKH;
+        setMaKH(maKH);
     }
 
     public KhachHang(String maKH, String hoTen, Date ngaySinh, String gioiTinh,
                      String soDT, LoaiKhachHang loaiKH, boolean isDeleted) {
-        this.maKH = maKH;
-        this.hoTen = hoTen;
-        this.ngaySinh = ngaySinh;
-        this.gioiTinh = gioiTinh;
-        this.soDT = soDT;
-        this.loaiKH = loaiKH;
-        this.isDeleted = isDeleted;
+        setMaKH(maKH);
+        setHoTen(hoTen);
+        setNgaySinh(ngaySinh);
+        setGioiTinh(gioiTinh);
+        setSoDT(soDT);
+        setLoaiKH(loaiKH);
+        setDeleted(isDeleted);
     }
 
     public KhachHang(String maKH, String hoTen, Date ngaySinh, String gioiTinh,
@@ -33,25 +33,72 @@ public class KhachHang {
         this(maKH, hoTen, ngaySinh, gioiTinh, soDT, loaiKH, false);
     }
 
-    // Getters và setters
-    public String getMaKH() { return maKH; }
-    public void setMaKH(String maKH) { this.maKH = maKH; }
+    public String getMaKH() {
+        return maKH;
+    }
 
-    public String getHoTen() { return hoTen; }
-    public void setHoTen(String hoTen) { this.hoTen = hoTen; }
+    public void setMaKH(String maKH) {
+        this.maKH = maKH;
+    }
 
-    public Date getNgaySinh() { return ngaySinh; }
-    public void setNgaySinh(Date ngaySinh) { this.ngaySinh = ngaySinh; }
+    public String getHoTen() {
+        return hoTen;
+    }
 
-    public String getGioiTinh() { return gioiTinh; }
-    public void setGioiTinh(String gioiTinh) { this.gioiTinh = gioiTinh; }
+    public void setHoTen(String hoTen) {
+        this.hoTen = hoTen;
+    }
 
-    public String getSoDT() { return soDT; }
-    public void setSoDT(String soDT) { this.soDT = soDT; }
+    public Date getNgaySinh() {
+        return ngaySinh;
+    }
 
-    public LoaiKhachHang getMaLoaiKH() { return loaiKH; }
-    public void setMaLoaiKH(LoaiKhachHang loaiKH) { this.loaiKH = loaiKH; }
+    public void setNgaySinh(Date ngaySinh) {
+        this.ngaySinh = ngaySinh;
+    }
 
-    public boolean isDeleted() { return isDeleted; }
-    public void setDeleted(boolean deleted) { isDeleted = deleted; }
+    public String getGioiTinh() {
+        return gioiTinh;
+    }
+
+    public void setGioiTinh(String gioiTinh) {
+        this.gioiTinh = gioiTinh;
+    }
+
+    public String getSoDT() {
+        return soDT;
+    }
+
+    public void setSoDT(String soDT) {
+        this.soDT = soDT;
+    }
+
+    public LoaiKhachHang getLoaiKH() {
+        return loaiKH;
+    }
+
+    public void setLoaiKH(LoaiKhachHang loaiKH) {
+        this.loaiKH = loaiKH;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    @Override
+    public String toString() {
+        return "KhachHang{" +
+                "maKH='" + maKH + '\'' +
+                ", hoTen='" + hoTen + '\'' +
+                ", ngaySinh=" + ngaySinh +
+                ", gioiTinh='" + gioiTinh + '\'' +
+                ", soDT='" + soDT + '\'' +
+                ", loaiKH=" + (loaiKH != null ? loaiKH.getTenLoaiKH() : "null") +
+                ", isDeleted=" + isDeleted +
+                '}';
+    }
 }
