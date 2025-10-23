@@ -28,7 +28,8 @@ public class ChiTietPDBDAO {
                         new Ban(rs.getString("maBan")),
                         new MonAn(rs.getString("maMon")),
                         rs.getInt("soLuong"),
-                        rs.getDouble("donGia")
+                        rs.getDouble("donGia"),
+                        rs.getString("ghiChu")
                 );
                 dsChiTiet.add(ct);
             }
@@ -60,7 +61,8 @@ public class ChiTietPDBDAO {
                         new Ban(rs.getString("maBan")),
                         new MonAn(rs.getString("maMon")),
                         rs.getInt("soLuong"),
-                        rs.getDouble("donGia")
+                        rs.getDouble("donGia"),
+                        rs.getString("ghiChu")
                 ));
             }
         } catch (Exception e) {
@@ -72,19 +74,22 @@ public class ChiTietPDBDAO {
     // 🔹 Thêm chi tiết phiếu đặt bàn mới
     public boolean them(ChiTietPDB chiTiet) {
         String sql = """
-            INSERT INTO ChiTietPhieuDatBan (maCT, maPDB, maBan, maMon, soLuong, donGia)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO ChiTietPhieuDatBan (maCT, maPDB, maBan, maMon, soLuong, donGia, ghiChu)
+        	VALUES (?, ?, ?, ?, ?, ?, ?)
         """;
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, chiTiet.getMaCT());
-            ps.setString(2, chiTiet.getPhieuDatBan().getMaPDB());
-            ps.setString(3, chiTiet.getBan().getMaBan());
-            ps.setString(4, chiTiet.getMonAn().getMaMonAn());
-            ps.setInt(5, chiTiet.getSoLuong());
-            ps.setDouble(6, chiTiet.getDonGia());
+        	 String maMoi = taoMaChiTietMoi();
+             chiTiet.setMaCT(maMoi);
+
+             ps.setString(1, maMoi);
+             ps.setString(2, chiTiet.getPhieuDatBan().getMaPDB());
+             ps.setString(3, chiTiet.getBan().getMaBan());
+             ps.setString(4, chiTiet.getMonAn().getMaMonAn());
+             ps.setInt(5, chiTiet.getSoLuong());
+             ps.setDouble(6, chiTiet.getDonGia());
 
             return ps.executeUpdate() > 0;
 
@@ -98,8 +103,8 @@ public class ChiTietPDBDAO {
     public boolean capNhat(ChiTietPDB chiTiet) {
         String sql = """
             UPDATE ChiTietPhieuDatBan
-            SET maBan = ?, maMon = ?, soLuong = ?, donGia = ?
-            WHERE maCT = ?
+		    SET maBan = ?, maMon = ?, soLuong = ?, donGia = ?, ghiChu = ?
+		    WHERE maCT = ?
         """;
 
         try (Connection conn = ConnectSQL.getConnection();
@@ -133,4 +138,22 @@ public class ChiTietPDBDAO {
         }
         return false;
     }
+    
+    public String taoMaChiTietMoi() {
+        String sql = "SELECT TOP 1 maCT FROM ChiTietPhieuDatBan ORDER BY maCT DESC";
+        try (Connection conn = ConnectSQL.getConnection();
+        	 PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery(sql)) {
+
+            if (rs.next()) {
+                String lastId = rs.getString("maCT");
+                int number = Integer.parseInt(lastId.substring(3)) + 1;
+                return String.format("CTP%06d", number);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "CTP000001";
+    }
+
 }

@@ -162,7 +162,7 @@ public class NavBar extends HBox {
         Node newContent = switch (s) {
             case "Thực đơn" -> new QuanLyThucDon();
             case "Món ăn" -> new LoaiMonAn();
-            case "Đặt món" -> new GiaoDienGoiMon((StackPane) mainContent);
+            case "Đặt món" -> new GiaoDienGoiMon((StackPane) mainContent, null);
             case "Đặt bàn" -> new GiaoDienDatBan((StackPane) mainContent);
             case "Đặt bàn trước" -> new GiaoDienDatBanTruoc();
             case "Thêm khách hàng" -> new GiaoDienThemKhachHang();

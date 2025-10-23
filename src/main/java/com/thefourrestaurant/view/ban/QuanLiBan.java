@@ -19,6 +19,8 @@ public class QuanLiBan extends VBox {
     private final BanDAO banDAO = new BanDAO();
     private final Pane khuVucBan = new Pane(); // nơi hiển thị bàn
     private final Label lblBreadcrumb = new Label();
+    
+    private Ban banDangChon;
 
     public QuanLiBan() {
         // === Cấu hình chính cho layout ===
@@ -183,11 +185,34 @@ public class QuanLiBan extends VBox {
                 System.err.println("❌ Không thể lưu vị trí bàn " + ban.getTenBan());
             }
         });
+        
+        khungBan.setOnMouseClicked(e -> {
+            // Gán bàn được chọn
+            setBanDangChon(ban);
+            System.out.println("🔹 Bàn được chọn: " + ban.getTenBan());
+
+            // Hiệu ứng viền bàn được chọn
+            for (var node : pane.getChildren()) {
+                if (node instanceof StackPane sp) {
+                    sp.setStyle(sp == khungBan
+                            ? borderStyle + "-fx-effect: dropshadow(gaussian, gold, 20, 0.5, 0, 0);"
+                            : borderStyle);
+                }
+            }
+        });
 
         pane.getChildren().add(khungBan);
     }
 
     public Pane getKhuVucBan() {
         return khuVucBan;
+    }
+    
+    public Ban getBanDangChon() {
+        return banDangChon;
+    }
+
+    public void setBanDangChon(Ban ban) {
+        this.banDangChon = ban;
     }
 }
