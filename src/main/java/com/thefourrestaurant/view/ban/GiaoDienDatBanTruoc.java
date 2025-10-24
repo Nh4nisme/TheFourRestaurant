@@ -243,13 +243,15 @@ public class GiaoDienDatBanTruoc extends VBox {
             KhachHang kh = khachHangDAO.layKhachHangTheoSDT(sdt);
             if (kh != null) {
                 selectedKhachHang = kh;
-                lblTenKhachDat.setText(kh.getHoTen() + " (" + kh.getSoDT() + ")");
+                // Chỉ hiển thị tên khách, không kèm số điện thoại
+                lblTenKhachDat.setText(kh.getHoTen());
             } else {
                 Stage st = new Stage();
                 GiaoDienThemKhachHang view = new GiaoDienThemKhachHang(sdt, khMoi -> {
                     selectedKhachHang = khMoi;
                     txtSDTKhachDat.setText(khMoi.getSoDT());
-                    lblTenKhachDat.setText(khMoi.getHoTen() + " (" + khMoi.getSoDT() + ")");
+                    // Chỉ hiển thị tên khách, không kèm số điện thoại
+                    lblTenKhachDat.setText(khMoi.getHoTen());
                 });
                 st.setScene(new Scene(view));
                 st.initOwner(getScene() != null ? getScene().getWindow() : null);

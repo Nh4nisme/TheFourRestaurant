@@ -116,7 +116,8 @@ public class GiaoDienThemKhachHang extends VBox {
     Label lblGioiTinh = createLabel("Giới tính:");
     lblGioiTinh.setPrefWidth(100);
     cboGioiTinh = new ComboBox<>();
-    cboGioiTinh.getItems().addAll("Nam", "Nu");
+    // Hiển thị "Nam" hoặc "Nữ" cho người dùng (lưu DB sẽ map về "Nu")
+    cboGioiTinh.getItems().addAll("Nam", "Nữ");
     cboGioiTinh.setPrefWidth(230);
     row3.getChildren().addAll(lblNgaySinh, dpNgaySinh, lblGioiTinh, cboGioiTinh);
 
@@ -195,7 +196,7 @@ public class GiaoDienThemKhachHang extends VBox {
                 txtTenKhachHang.requestFocus();
                 return;
             }
-            if (gioiTinh == null || !("Nam".equals(gioiTinh) || "Nu".equals(gioiTinh))) {
+            if (gioiTinh == null || !("Nam".equals(gioiTinh) || "Nữ".equals(gioiTinh))) {
                 cboGioiTinh.requestFocus();
                 return;
             }
@@ -216,7 +217,9 @@ public class GiaoDienThemKhachHang extends VBox {
             KhachHang kh = new KhachHang();
             kh.setHoTen(ten);
             kh.setSoDT(sdt);
-            kh.setGioiTinh(gioiTinh);
+            // Map "Nữ" hiển thị sang giá trị DB hợp lệ "Nu"
+            String gioiTinhDb = "Nữ".equals(gioiTinh) ? "Nu" : gioiTinh;
+            kh.setGioiTinh(gioiTinhDb);
             kh.setNgaySinh(ns != null ? Date.valueOf(ns) : null);
             // Gán loại KH đầu tiên nếu có; nếu không có thì dừng vì maLoaiKH NOT NULL
             List<LoaiKhachHang> ds = new LoaiKhachHangDAO().layDanhSachLoaiKhachHang();

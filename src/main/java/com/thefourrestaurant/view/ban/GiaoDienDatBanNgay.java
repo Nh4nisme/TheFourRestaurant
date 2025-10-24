@@ -206,14 +206,14 @@ public class GiaoDienDatBanNgay extends VBox {
             KhachHang kh = khachHangDAO.layKhachHangTheoSDT(sdt);
             if (kh != null) {
                 selectedKhachHang = kh;
-                lblTenKhachDat.setText(kh.getHoTen() + " (" + kh.getSoDT() + ")");
+                lblTenKhachDat.setText(kh.getHoTen());
             } else {
                 // Không tìm thấy -> mở popup thêm khách hàng, preset SDT
                 Stage st = new Stage();
                 GiaoDienThemKhachHang view = new GiaoDienThemKhachHang(sdt, khMoi -> {
                     selectedKhachHang = khMoi;
                     txtSDTKhachDat.setText(khMoi.getSoDT());
-                    lblTenKhachDat.setText(khMoi.getHoTen() + " (" + khMoi.getSoDT() + ")");
+                    lblTenKhachDat.setText(khMoi.getHoTen());
                 });
                 st.setScene(new Scene(view));
                 st.initOwner(getScene() != null ? getScene().getWindow() : null);
