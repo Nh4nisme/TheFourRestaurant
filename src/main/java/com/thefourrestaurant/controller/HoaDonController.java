@@ -1,6 +1,8 @@
 package com.thefourrestaurant.controller;
 
+import com.thefourrestaurant.DAO.ChiTietHoaDonDAO;
 import com.thefourrestaurant.DAO.HoaDonDAO;
+import com.thefourrestaurant.model.ChiTietHoaDon;
 import com.thefourrestaurant.model.HoaDon;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,14 +10,15 @@ import javafx.collections.ObservableList;
 import java.util.List;
 
 public class HoaDonController {
-    private final HoaDonDAO hoaDonDAO;
+    private HoaDonDAO hoaDonDAO  = new HoaDonDAO();
+    private ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO();
 
-    public HoaDonController() {
-        this.hoaDonDAO = new HoaDonDAO();
+    public ObservableList<HoaDon> layDanhSachHoaDon(){
+        return FXCollections.observableArrayList(hoaDonDAO.getAll());
     }
 
-    public ObservableList<HoaDon> layDanhSachHoaDon() {
-        List<HoaDon> danhSach = hoaDonDAO.layTatCaHoaDon();
-        return FXCollections.observableArrayList(danhSach);
+    public List<ChiTietHoaDon> layCTHDTheoMa(String maHD){
+        return chiTietHoaDonDAO.layCTHDTheoMa(maHD);
     }
 }
+
