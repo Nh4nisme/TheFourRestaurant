@@ -119,7 +119,7 @@ public class GiaoDienKhuyenMai extends VBox {
         VBox.setVgrow(bangKhuyenMai, Priority.ALWAYS);
 
         TableColumn<KhuyenMai, String> maKMCol = new TableColumn<>("Mã KM");
-        maKMCol.setCellValueFactory(new PropertyValueFactory<>("maKM"));
+        maKMCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getMaKM()));
         maKMCol.setPrefWidth(80);
 
         TableColumn<KhuyenMai, String> moTaCol = new TableColumn<>("Mô tả");
@@ -217,7 +217,7 @@ public class GiaoDienKhuyenMai extends VBox {
         VBox.setVgrow(bangChiTietKhuyenMai, Priority.ALWAYS);
 
         TableColumn<ChiTietKhuyenMai, String> maCTKMCol = new TableColumn<>("Mã CTKM");
-        maCTKMCol.setCellValueFactory(new PropertyValueFactory<>("maCTKM"));
+        maCTKMCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getMaCTKM()));
         maCTKMCol.setPrefWidth(80);
 
         TableColumn<ChiTietKhuyenMai, String> monApDungCol = new TableColumn<>("Món áp dụng");
