@@ -57,7 +57,9 @@ public class ThoiGianSuKienGrid extends VBox {
         themMoiButton.setManaged(false);
 
         themMoiButton.setOnAction(event -> {
-            Map<String, Object> result = controller.themMoiSuKien();
+            ThoiGianSuKienDialog dialog = new ThoiGianSuKienDialog(null);
+            dialog.showAndWait();
+            Map<String, Object> result = dialog.layKetQua();
             if (result != null) {
                 danhSachSuKien.add(0, result);
                 capNhatLuoiSuKien();
@@ -118,10 +120,10 @@ public class ThoiGianSuKienGrid extends VBox {
 
             final int index = i;
             hopSuKien.setOnMouseClicked(event -> {
-                ThoiGianTuyChinh tuyChinh = new ThoiGianTuyChinh();
-                tuyChinh.showAndWait();
+                ThoiGianSuKienDialog dialog = new ThoiGianSuKienDialog(danhSachSuKien.get(index));
+                dialog.showAndWait();
 
-                Map<String, Object> ketQua = tuyChinh.layKetQua();
+                Map<String, Object> ketQua = dialog.layKetQua();
                 if (ketQua != null) {
                     danhSachSuKien.set(index, ketQua);
                     capNhatLuoiSuKien();
