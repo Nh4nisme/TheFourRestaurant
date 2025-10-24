@@ -176,8 +176,11 @@ CREATE TABLE Combo (
     maLoaiCombo CHAR(8) NOT NULL,
     moTa NVARCHAR(200) NULL,
     trangThai NVARCHAR(10) DEFAULT N'Con' CHECK(trangThai IN (N'Con', N'Het')),
+    ngayBatDau DATE NULL,
+    ngayKetThuc DATE NULL,
     isDeleted BIT DEFAULT 0,
-    CONSTRAINT FK_Combo_LoaiCombo FOREIGN KEY (maLoaiCombo) REFERENCES LoaiCombo(maLoaiCombo)
+    CONSTRAINT FK_Combo_LoaiCombo FOREIGN KEY (maLoaiCombo) REFERENCES LoaiCombo(maLoaiCombo),
+    CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau))
 );
 GO
 
@@ -199,6 +202,7 @@ GO
 -- ================================
 CREATE TABLE PhieuDatBan (
     maPDB CHAR(8) PRIMARY KEY CHECK (maPDB LIKE 'PD%' AND LEN(maPDB) = 8),
+    ngayTao DATETIME DEFAULT GETDATE(),
     ngayDat DATE CHECK(ngayDat >= CAST(GETDATE() AS DATE)),
     soNguoi INT CHECK(soNguoi > 0),
     maKH CHAR(8) NOT NULL,
@@ -219,6 +223,7 @@ CREATE TABLE ChiTietPDB (
     maMonAn CHAR(8) NULL,
     soLuong INT CHECK(soLuong > 0),
     donGia DECIMAL(12,2) CHECK(donGia >= 0),
+    ghiChu NVARCHAR(255) NULL,
     CONSTRAINT FK_ChiTietPDB_PDB FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB),
     CONSTRAINT FK_ChiTietPDB_Ban FOREIGN KEY (maBan) REFERENCES Ban(maBan),
     CONSTRAINT FK_ChiTietPDB_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)
@@ -289,16 +294,38 @@ CREATE TABLE ChiTietKhuyenMai (
 GO
 
 -- ================================
--- Bảng KhungGioKhuyenMai
+-- Bảng KhungGio (dùng chung cho KM và Combo)
 -- ================================
-CREATE TABLE KhungGioKhuyenMai (
-    maTGKM CHAR(8) PRIMARY KEY CHECK (maTGKM LIKE 'TGKM%' AND LEN(maTGKM) = 8),
-    maKM CHAR(8) NOT NULL,
+CREATE TABLE KhungGio (
+    maTG CHAR(8) PRIMARY KEY CHECK(maTG LIKE 'TG%' AND LEN(maTG) = 8),
     gioBatDau TIME NOT NULL,
     gioKetThuc TIME NOT NULL,
     lapLaiHangNgay BIT DEFAULT 0,
-    CONSTRAINT FK_KGKM_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
     CHECK (gioKetThuc > gioBatDau)
+);
+GO
+
+-- ================================
+-- Bảng liên kết KhungGio <-> KhuyenMai
+-- ================================
+CREATE TABLE KhungGio_KM (
+    maTG CHAR(8) NOT NULL,
+    maKM CHAR(8) NOT NULL,
+    PRIMARY KEY(maTG, maKM),
+    CONSTRAINT FK_KGKM_KhungGio FOREIGN KEY (maTG) REFERENCES KhungGio(maTG),
+    CONSTRAINT FK_KGKM_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
+);
+GO
+
+-- ================================
+-- Bảng liên kết KhungGio <-> Combo
+-- ================================
+CREATE TABLE KhungGio_Combo (
+    maTG CHAR(8) NOT NULL,
+    maCombo CHAR(8) NOT NULL,
+    PRIMARY KEY(maTG, maCombo),
+    CONSTRAINT FK_KGCombo_KhungGio FOREIGN KEY (maTG) REFERENCES KhungGio(maTG),
+    CONSTRAINT FK_KGCombo_Combo FOREIGN KEY (maCombo) REFERENCES Combo(maCombo)
 );
 GO
 
@@ -512,10 +539,10 @@ INSERT INTO LoaiCombo (maLoaiCombo, tenLoaiCombo, moTa) VALUES
 GO
 
 -- Combo
-INSERT INTO Combo (maCombo, tenCombo, giaCombo, maLoaiCombo, moTa, trangThai) VALUES
-('CB000001', N'Combo sáng năng lượng', 70000, 'LCB00001', N'Cơm + Nước cam', N'Con'),
-('CB000002', N'Combo trưa tiện lợi', 85000, 'LCB00002', N'Cơm gà + Sinh tố', N'Con'),
-('CB000003', N'Combo chiều thư giãn', 90000, 'LCB00003', N'Lẩu thái + Bánh flan', N'Con');
+INSERT INTO Combo (maCombo, tenCombo, giaCombo, maLoaiCombo, moTa, trangThai, ngayBatDau, ngayKetThuc) VALUES
+('CB000001', N'Combo sáng năng lượng', 70000, 'LCB00001', N'Cơm + Nước cam', N'Con', '2025-10-01', '2025-10-31'),
+('CB000002', N'Combo trưa tiện lợi', 85000, 'LCB00002', N'Cơm gà + Sinh tố', N'Con', '2025-10-10', '2025-10-31'),
+('CB000003', N'Combo chiều thư giãn', 90000, 'LCB00003', N'Lẩu thái + Bánh flan', N'Con', '2025-11-01', '2025-11-30');
 GO
 
 -- Chi tiết combo
@@ -529,16 +556,16 @@ INSERT INTO ChiTietCombo (maCombo, maMonAn, soLuong) VALUES
 GO
 
 -- Phiếu đặt bàn
-INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV) VALUES
-('PD000001', '2025-11-20', 4, 'KH000001', 'NV000001'),
-('PD000002', '2025-11-21', 2, 'KH000002', 'NV000002');
+INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, ngayTao) VALUES
+('PD000001', '2025-11-20', 4, 'KH000001', 'NV000001', '2025-10-23'),
+('PD000002', '2025-11-21', 2, 'KH000002', 'NV000002', '2025-10-23');
 GO
 
 -- Chi tiết phiếu đặt bàn
-INSERT INTO ChiTietPDB (maCT, maPDB, maBan, maMonAn, soLuong, donGia) VALUES
-('CTP00001', 'PD000001', 'BA000001', 'MA000001', 2, 55000),
-('CTP00002', 'PD000002', 'BA000001', 'MA000003', 2, 25000),
-('CTP00003', 'PD000002', 'BA000002', 'MA000002', 2, 60000);
+INSERT INTO ChiTietPDB (maCT, maPDB, maBan, maMonAn, soLuong, donGia, ghiChu) VALUES
+('CTP00001', 'PD000001', 'BA000001', 'MA000001', 2, 55000, N'Không hành'),
+('CTP00002', 'PD000002', 'BA000001', 'MA000003', 2, 25000, N'Ít cay'),
+('CTP00003', 'PD000002', 'BA000002', 'MA000002', 2, 60000, NULL);
 GO
 
 -- Loại thuế
@@ -574,11 +601,24 @@ INSERT INTO ChiTietKhuyenMai (maCTKM, maKM, maMonApDung, maMonTang, tyLeGiam, so
 ('CTKM0003', 'KM000003', 'MA000004', NULL, NULL, 15000, NULL);      -- Giảm 15k cho món bún bò Huế (MA000004)
 GO
 
--- Khung giờ khuyến mãi
-INSERT INTO KhungGioKhuyenMai (maTGKM, maKM, gioBatDau, gioKetThuc, lapLaiHangNgay) VALUES
-('TGKM0001', 'KM000001', '08:00', '22:00', 1),
-('TGKM0002', 'KM000002', '09:00', '21:00', 1),
-('TGKM0003', 'KM000003', '10:00', '14:00', 0);
+-- Khung giờ chung
+INSERT INTO KhungGio (maTG, gioBatDau, gioKetThuc, lapLaiHangNgay) VALUES
+('TG000001', '08:00', '22:00', 1),
+('TG000002', '09:00', '21:00', 1),
+('TG000003', '10:00', '14:00', 0);
+GO
+
+-- Khung giờ áp dụng cho KM
+INSERT INTO KhungGio_KM (maTG, maKM) VALUES
+('TG000001', 'KM000001'),  -- KM000001 áp dụng khung 08:00-22:00
+('TG000002', 'KM000002'),  -- KM000002 áp dụng khung 09:00-21:00
+('TG000003', 'KM000003');  -- KM000003 áp dụng khung 10:00-14:00
+GO
+
+INSERT INTO KhungGio_Combo (maTG, maCombo) VALUES
+('TG000001', 'CB000001'),  -- Combo sáng áp dụng khung 08:00-22:00
+('TG000002', 'CB000002'),  -- Combo trưa áp dụng khung 09:00-21:00
+('TG000003', 'CB000003');  -- Combo chiều áp dụng khung 10:00-14:00
 GO
 
 -- Phương thức thanh toán
@@ -600,6 +640,3 @@ INSERT INTO ChiTietHD (maHD, maMonAn, soLuong, donGia) VALUES
 ('HD000002','MA000002',2,60000),
 ('HD000002','MA000004',1,30000);
 GO
-
-
-
