@@ -161,12 +161,20 @@ public class KhuyenMaiDialog extends Stage {
         hopChanTrang.getChildren().addAll(nutLuu, nutHuy);
 
         if (laCheDoChinhSua) {
+            // Thêm nút Quản lý khung giờ
+            ButtonSample nutQuanLyKhungGio = new ButtonSample("Quản lý khung giờ", 35, 14, 2);
+            nutQuanLyKhungGio.setOnAction(e -> {
+                KhungGioManagerDialog khungGioDialog = new KhungGioManagerDialog(khuyenMaiHienTai.getMaKM());
+                khungGioDialog.showAndWait();
+            });
+            hopChanTrang.getChildren().add(0, nutQuanLyKhungGio);
+
             ButtonSample nutQuanLyChiTiet = new ButtonSample("Quản lý chi tiết", 35, 14, 2);
             nutQuanLyChiTiet.setOnAction(e -> {
                 ChiTietKhuyenMaiManagerDialog chiTietDialog = new ChiTietKhuyenMaiManagerDialog(khuyenMaiHienTai, boDieuKhien);
                 chiTietDialog.showAndWait();
             });
-            hopChanTrang.getChildren().add(0, nutQuanLyChiTiet);
+            hopChanTrang.getChildren().add(1, nutQuanLyChiTiet);
         }
 
         nutHuy.setOnAction(e -> this.close());
