@@ -13,6 +13,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.stage.Modality;
+import javafx.scene.Scene;
 
 import java.util.List;
 
@@ -329,8 +331,12 @@ public class GiaoDienDatBan extends BorderPane {
         if (banDuocChon == null) return;
 
         System.out.println("Đặt bàn ngay cho bàn: " + banDuocChon.getTenBan());
-        mainContent.getChildren().clear();
-        mainContent.getChildren().add(new GiaoDienDatBanNgay());
+        Stage st = new Stage();
+        st.initOwner(getScene() != null ? getScene().getWindow() : null);
+        st.initModality(Modality.APPLICATION_MODAL);
+        st.setTitle("Đặt bàn ngay - " + banDuocChon.getTenBan());
+        st.setScene(new Scene(new GiaoDienDatBanNgay()));
+        st.showAndWait();
     }
 
 
@@ -339,8 +345,12 @@ public class GiaoDienDatBan extends BorderPane {
         if (banDuocChon == null) return;
 
         System.out.println("Đặt bàn trước cho bàn: " + banDuocChon.getTenBan());
-        mainContent.getChildren().clear();
-        mainContent.getChildren().add(new GiaoDienDatBanTruoc());
+        Stage st = new Stage();
+        st.initOwner(getScene() != null ? getScene().getWindow() : null);
+        st.initModality(Modality.APPLICATION_MODAL);
+        st.setTitle("Đặt bàn trước - " + banDuocChon.getTenBan());
+        st.setScene(new Scene(new GiaoDienDatBanTruoc()));
+        st.showAndWait();
     }
 
     private void nhanBan() {

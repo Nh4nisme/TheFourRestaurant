@@ -14,7 +14,7 @@ public class LoaiKhachHangDAO {
 
     public List<LoaiKhachHang> layDanhSachLoaiKhachHang() {
         List<LoaiKhachHang> ds = new ArrayList<>();
-        String sql = "select * from LoaiKhachHang where isDeleted=0";
+        String sql = "select * from LoaiKhachHang";
 
         try(Connection conn = ConnectSQL.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);

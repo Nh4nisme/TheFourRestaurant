@@ -2,6 +2,10 @@ package com.thefourrestaurant.view;
 
 import com.thefourrestaurant.view.components.ButtonSample2;
 import com.thefourrestaurant.view.components.ButtonSample2.Variant;
+import com.thefourrestaurant.DAO.KhachHangDAO;
+import com.thefourrestaurant.DAO.LoaiKhachHangDAO;
+import com.thefourrestaurant.model.KhachHang;
+import com.thefourrestaurant.model.LoaiKhachHang;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,6 +13,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.DateCell;
+import javafx.scene.control.ComboBox;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -16,18 +23,33 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import javafx.stage.Stage;
+import java.util.function.UnaryOperator;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.time.LocalDate;
+import java.sql.Date;
+import java.util.List;
 
 public class GiaoDienThemKhachHang extends VBox {
 
     private TextField txtTenKhachHang;
     private TextField txtSoDT;
     private DatePicker dpNgaySinh;
-    private TextField txtGioiTinh;
+    private ComboBox<String> cboGioiTinh;
     private Button btnLamMoi;
     private Button btnThem;
     private Button btnQuayLai;
 
+    private final KhachHangDAO khachHangDAO = new KhachHangDAO();
+    private Consumer<KhachHang> onSaved;
+
     public GiaoDienThemKhachHang() {
+        this(null, null);
+    }
+
+    public GiaoDienThemKhachHang(String presetPhone, Consumer<KhachHang> onSaved) {
+        this.onSaved = onSaved;
         setStyle("-fx-background-color: #F5F5F5;");
         setSpacing(0);
         setAlignment(Pos.TOP_CENTER);
@@ -40,8 +62,8 @@ public class GiaoDienThemKhachHang extends VBox {
         titleBar.setStyle("-fx-background-color: #1E424D;");
         titleBar.setPrefHeight(50);
 
-        VBox contentCard = new VBox(20);
-        contentCard.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #CCCCCC; -fx-border-radius: 15;");
+    VBox contentCard = new VBox(20);
+    contentCard.setStyle("-fx-background-color: transparent;");
         contentCard.setPadding(new Insets(30));
         contentCard.setMaxWidth(650);
         contentCard.setAlignment(Pos.TOP_CENTER);
@@ -66,7 +88,8 @@ public class GiaoDienThemKhachHang extends VBox {
         row2.setAlignment(Pos.CENTER_LEFT);
         Label lblSoDT = createLabel("Số ĐT:");
         lblSoDT.setPrefWidth(120);
-        txtSoDT = createTextField();
+    txtSoDT = createNumericTextField(Pattern.compile("\\d{0,11}"));
+    if (presetPhone != null) txtSoDT.setText(presetPhone);
         HBox.setHgrow(txtSoDT, Priority.ALWAYS);
         row2.getChildren().addAll(lblSoDT, txtSoDT);
 
@@ -81,13 +104,21 @@ public class GiaoDienThemKhachHang extends VBox {
         dpNgaySinh.setPrefHeight(35);
         dpNgaySinh.setPrefWidth(230);
         dpNgaySinh.setEditable(false);
+        // Không cho chọn ngày sinh ở tương lai
+        dpNgaySinh.setDayCellFactory(picker -> new DateCell(){
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || date.isAfter(LocalDate.now()));
+            }
+        });
 
-        Label lblGioiTinh = createLabel("Giới tính:");
-        lblGioiTinh.setPrefWidth(100);
-        txtGioiTinh = createTextField();
-        txtGioiTinh.setPrefWidth(230);
-
-        row3.getChildren().addAll(lblNgaySinh, dpNgaySinh, lblGioiTinh, txtGioiTinh);
+    Label lblGioiTinh = createLabel("Giới tính:");
+    lblGioiTinh.setPrefWidth(100);
+    cboGioiTinh = new ComboBox<>();
+    cboGioiTinh.getItems().addAll("Nam", "Nu");
+    cboGioiTinh.setPrefWidth(230);
+    row3.getChildren().addAll(lblNgaySinh, dpNgaySinh, lblGioiTinh, cboGioiTinh);
 
         formBox.getChildren().addAll(row1, row2, row3);
 
@@ -113,6 +144,8 @@ public class GiaoDienThemKhachHang extends VBox {
         VBox.setVgrow(centerWrapper, Priority.ALWAYS);
 
         getChildren().addAll(titleBar, centerWrapper);
+
+        wireHandlers();
     }
 
     private Label createLabel(String text) {
@@ -129,12 +162,85 @@ public class GiaoDienThemKhachHang extends VBox {
         return textField;
     }
 
+    private TextField createNumericTextField(Pattern pattern) {
+        TextField tf = createTextField();
+        UnaryOperator<TextFormatter.Change> filter = change -> {
+            String newText = change.getControlNewText();
+            return pattern.matcher(newText).matches() ? change : null;
+        };
+        tf.setTextFormatter(new TextFormatter<>(filter));
+        return tf;
+    }
+
+    private void wireHandlers() {
+        btnLamMoi.setOnAction(e -> {
+            txtTenKhachHang.clear();
+            txtSoDT.clear();
+            dpNgaySinh.setValue(null);
+            cboGioiTinh.getSelectionModel().clearSelection();
+        });
+
+        btnQuayLai.setOnAction(e -> {
+            Stage st = (Stage) getScene().getWindow();
+            if (st != null) st.close();
+        });
+
+        btnThem.setOnAction(e -> {
+            String ten = txtTenKhachHang.getText() == null ? "" : txtTenKhachHang.getText().trim();
+            String sdt = txtSoDT.getText() == null ? "" : txtSoDT.getText().trim();
+            LocalDate ns = dpNgaySinh.getValue();
+            String gioiTinh = cboGioiTinh.getSelectionModel().getSelectedItem();
+
+            if (ten.isEmpty()) {
+                txtTenKhachHang.requestFocus();
+                return;
+            }
+            if (gioiTinh == null || !("Nam".equals(gioiTinh) || "Nu".equals(gioiTinh))) {
+                cboGioiTinh.requestFocus();
+                return;
+            }
+            if (sdt.length() < 10) {
+                txtSoDT.requestFocus();
+                return;
+            }
+
+            // Nếu đã tồn tại theo SDT -> dùng luôn
+            KhachHang existed = khachHangDAO.layKhachHangTheoSDT(sdt);
+            if (existed != null) {
+                if (onSaved != null) onSaved.accept(existed);
+                Stage st = (Stage) getScene().getWindow();
+                if (st != null) st.close();
+                return;
+            }
+
+            KhachHang kh = new KhachHang();
+            kh.setHoTen(ten);
+            kh.setSoDT(sdt);
+            kh.setGioiTinh(gioiTinh);
+            kh.setNgaySinh(ns != null ? Date.valueOf(ns) : null);
+            // Gán loại KH đầu tiên nếu có; nếu không có thì dừng vì maLoaiKH NOT NULL
+            List<LoaiKhachHang> ds = new LoaiKhachHangDAO().layDanhSachLoaiKhachHang();
+            if (!ds.isEmpty()) {
+                kh.setLoaiKH(ds.get(0));
+            } else {
+                // Không có loại KH trong DB -> không thể lưu theo schema
+                return;
+            }
+
+            boolean ok = khachHangDAO.themKhachHang(kh);
+            if (ok) {
+                if (onSaved != null) onSaved.accept(kh);
+                Stage st = (Stage) getScene().getWindow();
+                if (st != null) st.close();
+            }
+        });
+    }
     
 
     public TextField getTxtTenKhachHang() { return txtTenKhachHang; }
     public TextField getTxtSoDT() { return txtSoDT; }
     public DatePicker getDpNgaySinh() { return dpNgaySinh; }
-    public TextField getTxtGioiTinh() { return txtGioiTinh; }
+    public ComboBox<String> getCboGioiTinh() { return cboGioiTinh; }
     public Button getBtnLamMoi() { return btnLamMoi; }
     public Button getBtnThem() { return btnThem; }
     public Button getBtnQuayLai() { return btnQuayLai; }

@@ -7,6 +7,7 @@ import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.model.PhieuDatBan;
+import com.thefourrestaurant.view.GiaoDienThemKhachHang;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -31,6 +32,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -54,6 +58,7 @@ public class GiaoDienDatBanTruoc extends VBox {
     // DAOs
     private final PhieuDatBanDAO phieuDatBanDAO = new PhieuDatBanDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
+    private KhachHang selectedKhachHang;
 
     public GiaoDienDatBanTruoc() {
         setStyle("-fx-background-color: #F5F5F5;");
@@ -68,8 +73,8 @@ public class GiaoDienDatBanTruoc extends VBox {
         titleBar.setStyle("-fx-background-color: #1E424D;");
         titleBar.setPrefHeight(50);
 
-        VBox contentCard = new VBox(20);
-        contentCard.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-border-color: #CCCCCC; -fx-border-radius: 15;");
+    VBox contentCard = new VBox(20);
+    contentCard.setStyle("-fx-background-color: transparent;");
         contentCard.setPadding(new Insets(30));
         contentCard.setMaxWidth(650);
         contentCard.setAlignment(Pos.TOP_CENTER);
@@ -237,19 +242,20 @@ public class GiaoDienDatBanTruoc extends VBox {
             }
             KhachHang kh = khachHangDAO.layKhachHangTheoSDT(sdt);
             if (kh != null) {
-                lblTenKhachDat.setText(kh.getHoTen());
+                selectedKhachHang = kh;
+                lblTenKhachDat.setText(kh.getHoTen() + " (" + kh.getSoDT() + ")");
             } else {
-                // thêm hiển thị nếu là số điện thoại của nhân viên để tránh nhầm lẫn dữ liệu mẫu
-                NhanVienDAO nvDao = new NhanVienDAO();
-                NhanVien found = null;
-                for (NhanVien nv : nvDao.layDanhSachNhanVien()) {
-                    if (sdt.equals(nv.getSoDienThoai())) { found = nv; break; }
-                }
-                if (found != null) {
-                    lblTenKhachDat.setText("Số thuộc nhân viên: " + found.getHoTen());
-                } else {
-                    lblTenKhachDat.setText("Không tìm thấy khách hàng");
-                }
+                Stage st = new Stage();
+                GiaoDienThemKhachHang view = new GiaoDienThemKhachHang(sdt, khMoi -> {
+                    selectedKhachHang = khMoi;
+                    txtSDTKhachDat.setText(khMoi.getSoDT());
+                    lblTenKhachDat.setText(khMoi.getHoTen() + " (" + khMoi.getSoDT() + ")");
+                });
+                st.setScene(new Scene(view));
+                st.initOwner(getScene() != null ? getScene().getWindow() : null);
+                st.initModality(Modality.APPLICATION_MODAL);
+                st.setTitle("Thêm khách hàng");
+                st.showAndWait();
             }
         });
 
@@ -277,16 +283,8 @@ public class GiaoDienDatBanTruoc extends VBox {
                     return;
                 }
 
-                KhachHang kh = khachHangDAO.layKhachHangTheoSDT(sdt);
+                KhachHang kh = selectedKhachHang != null ? selectedKhachHang : khachHangDAO.layKhachHangTheoSDT(sdt);
                 if (kh == null) {
-                    // Nếu là số nhân viên, báo rõ ràng và không cho lưu theo schema
-                    NhanVienDAO nvDao = new NhanVienDAO();
-                    for (NhanVien nv : nvDao.layDanhSachNhanVien()) {
-                        if (sdt.equals(nv.getSoDienThoai())) {
-                            lblTenKhachDat.setText("SĐT thuộc nhân viên, vui lòng nhập SĐT khách hàng");
-                            return;
-                        }
-                    }
                     lblTenKhachDat.setText("Khách hàng chưa tồn tại");
                     return;
                 }
@@ -317,6 +315,11 @@ public class GiaoDienDatBanTruoc extends VBox {
             } catch (Exception ex) {
                 lblTenKhachDat.setText("Có lỗi khi lưu");
             }
+        });
+
+        btnQuayLai.setOnAction(e -> {
+            Stage st = (Stage) getScene().getWindow();
+            if (st != null) st.close();
         });
     }
     
