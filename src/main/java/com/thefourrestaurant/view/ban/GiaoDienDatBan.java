@@ -4,10 +4,10 @@ import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.GiaoDienGoiMon;
+import com.thefourrestaurant.view.ThanhToan;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -23,8 +23,9 @@ public class GiaoDienDatBan extends BorderPane {
     private static final String COLOR_TEXT = "#DDB248";
     
     private StackPane mainContent;
-    
     private QuanLiBan quanLiBan;
+    private ComboBox<Tang> cboSoTang;
+    
     TangDAO tangDAO = new TangDAO();
 
 	public GiaoDienDatBan(StackPane mainContent) {
@@ -33,7 +34,6 @@ public class GiaoDienDatBan extends BorderPane {
 	    this.setLeft(taoThanhBen());
 	    this.setCenter(taoNoiDungChinh());
 	
-	    // Lắng nghe phím F1–F8
 	    this.sceneProperty().addListener((obs, oldScene, newScene) -> {
 	        if (newScene != null) {
 	            newScene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
@@ -42,7 +42,7 @@ public class GiaoDienDatBan extends BorderPane {
 	                    case F2 -> datBanTruoc();
 	                    case F3 -> nhanBan();
 	                    case F4 -> huyBanDatTruoc();
-	                    case F5 -> datMon();     // Sửa phần này
+	                    case F5 -> datMon();
 	                    case F6 -> tinhTien();
 	                    case F7 -> tangTruoc();
 	                    case F8 -> tangSau();
@@ -239,7 +239,7 @@ public class GiaoDienDatBan extends BorderPane {
         Label lblSoTang = taoLabel("Số tầng:", 16, true);
         lblSoTang.setPrefWidth(70);
 
-        ComboBox<Tang> cboSoTang = new ComboBox<>();
+        cboSoTang = new ComboBox<>();
         List<Tang> dsTang = tangDAO.layTatCaTang();
 
         for (Tang tang : dsTang) {
@@ -361,15 +361,44 @@ public class GiaoDienDatBan extends BorderPane {
     }
 
     private void tinhTien() {
-        System.out.println("Tính tiền (F6)");
+        Ban banDuocChon = layBanDangChonHoacThongBao();
+        if (banDuocChon == null) return;
+
+        System.out.println("💰 Tính tiền cho bàn: " + banDuocChon.getTenBan());
+
+        Stage stageThanhToan = new Stage();
+        ThanhToan thanhToan = new ThanhToan();
+        thanhToan.show(stageThanhToan);
     }
 
     private void tangTruoc() {
-        System.out.println("Chuyển tầng trước (F7)");
+        int currentIndex = cboSoTang.getSelectionModel().getSelectedIndex();
+        if (currentIndex > 0) {
+            cboSoTang.getSelectionModel().select(currentIndex - 1);
+            Tang tangMoi = cboSoTang.getSelectionModel().getSelectedItem();
+            if (tangMoi != null) {
+                quanLiBan.hienThiBanTheoTang(tangMoi.getMaTang());
+                System.out.println("🔼 Chuyển đến " + tangMoi.getTenTang());
+            }
+        } else {
+            System.out.println("🚫 Đang ở tầng thấp nhất!");
+        }
     }
 
     private void tangSau() {
-        System.out.println("Chuyển tầng sau (F8)");
+        int currentIndex = cboSoTang.getSelectionModel().getSelectedIndex();
+        int maxIndex = cboSoTang.getItems().size() - 1;
+
+        if (currentIndex < maxIndex) {
+            cboSoTang.getSelectionModel().select(currentIndex + 1);
+            Tang tangMoi = cboSoTang.getSelectionModel().getSelectedItem();
+            if (tangMoi != null) {
+                quanLiBan.hienThiBanTheoTang(tangMoi.getMaTang());
+                System.out.println("🔽 Chuyển đến " + tangMoi.getTenTang());
+            }
+        } else {
+            System.out.println("🚫 Đang ở tầng cao nhất!");
+        }
     }
     
     private Ban layBanDangChonHoacThongBao() {
