@@ -1,146 +1,269 @@
 package com.thefourrestaurant.view.khuyenmai;
 
-import com.thefourrestaurant.model.ChiTietKhuyenMai;
+import com.thefourrestaurant.controller.KhuyenMaiController;
 import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiKhuyenMai;
-import com.thefourrestaurant.model.MonAn;
+import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
-public class KhuyenMaiDialog extends Dialog<KhuyenMai> {
+public class KhuyenMaiDialog extends Stage {
 
-    private final KhuyenMai resultKm;
+    private KhuyenMai ketQua = null;
+    private final boolean laCheDoChinhSua;
+    private final KhuyenMai khuyenMaiHienTai;
+    private final KhuyenMaiController boDieuKhien;
 
-    private final TextField txtMoTa = new TextField();
-    private final ComboBox<LoaiKhuyenMai> cboLoaiKM = new ComboBox<>();
-    private final DatePicker dpNgayBatDau = new DatePicker();
-    private final DatePicker dpNgayKetThuc = new DatePicker();
-    private final TextField txtTyLe = new TextField();
-    private final TextField txtSoTien = new TextField();
+    private final TextField truongMaKM = new TextField();
+    private final TextField truongMoTa = new TextField();
+    private final ComboBox<LoaiKhuyenMai> hopChonLoaiKhuyenMai = new ComboBox<>();
+    private final TextField truongTyLe = new TextField();
+    private final TextField truongSoTien = new TextField();
+    private final DatePicker boChonNgayBatDau = new DatePicker();
+    private final DatePicker boChonNgayKetThuc = new DatePicker();
 
-    private List<MonAn> allMonAn = new ArrayList<>();
-    private final List<ChiTietKhuyenMai> dsChiTiet = new ArrayList<>();
+    public KhuyenMaiDialog(KhuyenMai khuyenMai, List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai, String maKhuyenMaiMoi, KhuyenMaiController boDieuKhien) {
+        this.khuyenMaiHienTai = khuyenMai;
+        this.laCheDoChinhSua = (khuyenMai != null);
+        this.boDieuKhien = boDieuKhien;
 
-    public KhuyenMaiDialog(KhuyenMai km, List<LoaiKhuyenMai> allLoaiKM) {
-        this(km, allLoaiKM, null);
-    }
+        this.initModality(Modality.APPLICATION_MODAL);
+        this.setTitle(laCheDoChinhSua ? "Tùy Chỉnh Khuyến Mãi" : "Thêm Khuyến Mãi Mới");
 
-    public KhuyenMaiDialog(KhuyenMai km, List<LoaiKhuyenMai> allLoaiKM, List<MonAn> allMonAn) {
-        this.setTitle(km == null ? "Thêm Khuyến Mãi Mới" : "Sửa Khuyến Mãi");
-
-        boolean isEdit = km != null;
-        this.resultKm = isEdit ? km : new KhuyenMai();
-
-        if (allMonAn != null) this.allMonAn = allMonAn;
-
-        // Setup UI
-        VBox content = new VBox(15);
-        content.setPadding(new Insets(20));
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-
-        cboLoaiKM.setItems(FXCollections.observableArrayList(allLoaiKM));
-
-        grid.add(new Label("Mô tả:"), 0, 0);
-        grid.add(txtMoTa, 1, 0);
-        grid.add(new Label("Loại KM:"), 0, 1);
-        grid.add(cboLoaiKM, 1, 1);
-        grid.add(new Label("Ngày bắt đầu:"), 0, 2);
-        grid.add(dpNgayBatDau, 1, 2);
-        grid.add(new Label("Ngày kết thúc:"), 0, 3);
-        grid.add(dpNgayKetThuc, 1, 3);
-        grid.add(new Label("Tỷ lệ giảm (%):"), 0, 4);
-        grid.add(txtTyLe, 1, 4);
-        grid.add(new Label("Số tiền giảm (VND):"), 0, 5);
-        grid.add(txtSoTien, 1, 5);
-
-        // small button to add ChiTiet rows (keeps UI similar)
-        Button btnThemChiTiet = new Button("Thêm chi tiết...");
-        grid.add(btnThemChiTiet, 1, 6);
-
-        content.getChildren().add(grid);
-        getDialogPane().setContent(content);
-
-        // Add buttons
-        getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        // Populate data if editing
-        if (isEdit) {
-            populateData();
-            if (resultKm.getChiTietKhuyenMais() != null) {
-                dsChiTiet.addAll(resultKm.getChiTietKhuyenMais());
+        Font fontMontserrat = null;
+        try (InputStream luongFont = getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf")) {
+            if (luongFont != null) {
+                fontMontserrat = Font.loadFont(luongFont, 14);
             }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tải font: " + e.getMessage());
         }
 
-        // open ChiTiet dialog when clicked
-        btnThemChiTiet.setOnAction(e -> {
-            // If no monAn list provided, show warning
-            if (this.allMonAn == null || this.allMonAn.isEmpty()) {
-                Alert a = new Alert(Alert.AlertType.WARNING, "Không có danh sách món để chọn. Vui lòng đảm bảo danh sách món được truyền vào dialog.");
-                a.showAndWait();
+        String kieuFontStyle = (fontMontserrat != null) ? "-fx-font-family: '" + fontMontserrat.getFamily() + "';" : "";
+
+        BorderPane layoutChinh = new BorderPane();
+
+        Label nhanTieuDe = new Label(laCheDoChinhSua ? "Tùy chỉnh khuyến mãi" : "Thêm khuyến mãi");
+        nhanTieuDe.setStyle(kieuFontStyle + "-fx-text-fill: #D4A017; -fx-font-size: 18px; -fx-font-weight: bold;");
+        HBox hopTieuDe = new HBox(nhanTieuDe);
+        hopTieuDe.setAlignment(Pos.CENTER_LEFT);
+        hopTieuDe.setPadding(new Insets(15));
+        hopTieuDe.setStyle("-fx-background-color: #1E424D;");
+
+        GridPane luoiFormChinh = taoFormChinh(danhSachTatCaLoaiKhuyenMai, kieuFontStyle, maKhuyenMaiMoi);
+        VBox hopGiua = new VBox(20, luoiFormChinh);
+        hopGiua.setPadding(new Insets(20));
+
+        HBox hopChanTrang = taoChanTrang();
+
+        layoutChinh.setTop(hopTieuDe);
+        layoutChinh.setCenter(hopGiua);
+        layoutChinh.setBottom(hopChanTrang);
+
+        if (laCheDoChinhSua) {
+            dienDuLieuHienCo();
+        }
+
+        Scene khungCanh = new Scene(layoutChinh, 500, 550);
+        URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
+        if (urlCSS != null) {
+            khungCanh.getStylesheets().add(urlCSS.toExternalForm());
+        }
+        this.setScene(khungCanh);
+        this.setHeight(550);
+    }
+
+    private GridPane taoFormChinh(List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai, String kieuFontStyle, String maKhuyenMaiMoi) {
+        GridPane luoiForm = new GridPane();
+        luoiForm.setVgap(12);
+        luoiForm.setHgap(15);
+
+        String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8;";
+
+        truongMaKM.setStyle(kieuTruongNhap);
+        truongMaKM.getStyleClass().add("text-field");
+        truongMaKM.setEditable(false);
+        truongMaKM.setText(laCheDoChinhSua ? khuyenMaiHienTai.getMaKM() : maKhuyenMaiMoi);
+
+        truongMoTa.setStyle(kieuTruongNhap);
+        truongMoTa.getStyleClass().add("text-field");
+        hopChonLoaiKhuyenMai.setStyle(kieuTruongNhap);
+        hopChonLoaiKhuyenMai.getStyleClass().add("combo-box");
+        truongTyLe.setStyle(kieuTruongNhap);
+        truongTyLe.getStyleClass().add("text-field");
+        truongSoTien.setStyle(kieuTruongNhap);
+        truongSoTien.getStyleClass().add("text-field");
+        boChonNgayBatDau.setStyle(kieuTruongNhap);
+        boChonNgayBatDau.getStyleClass().add("date-picker");
+        boChonNgayKetThuc.setStyle(kieuTruongNhap);
+        boChonNgayKetThuc.getStyleClass().add("date-picker");
+
+        luoiForm.add(new Label("Mã KM:"), 0, 0);
+        luoiForm.add(truongMaKM, 1, 0);
+
+        luoiForm.add(new Label("Mô tả:"), 0, 1);
+        luoiForm.add(truongMoTa, 1, 1);
+
+        luoiForm.add(new Label("Loại KM:"), 0, 2);
+        hopChonLoaiKhuyenMai.setItems(FXCollections.observableArrayList(danhSachTatCaLoaiKhuyenMai));
+        hopChonLoaiKhuyenMai.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(LoaiKhuyenMai object) {
+                return object == null ? "" : object.getTenLoaiKM();
+            }
+
+            @Override
+            public LoaiKhuyenMai fromString(String string) {
+                return null;
+            }
+        });
+        luoiForm.add(hopChonLoaiKhuyenMai, 1, 2);
+
+        luoiForm.add(new Label("Tỷ lệ (%):"), 0, 3);
+        luoiForm.add(truongTyLe, 1, 3);
+
+        luoiForm.add(new Label("Số tiền:"), 0, 4);
+        luoiForm.add(truongSoTien, 1, 4);
+
+        luoiForm.add(new Label("Ngày BĐ:"), 0, 5);
+        luoiForm.add(boChonNgayBatDau, 1, 5);
+
+        luoiForm.add(new Label("Ngày KT:"), 0, 6);
+        luoiForm.add(boChonNgayKetThuc, 1, 6);
+
+        return luoiForm;
+    }
+
+    private HBox taoChanTrang() {
+        HBox hopChanTrang = new HBox(10);
+        hopChanTrang.setPadding(new Insets(15));
+        hopChanTrang.setAlignment(Pos.CENTER_RIGHT);
+        hopChanTrang.setStyle("-fx-background-color: #F0F0F0; -fx-border-color: #E0E0E0; -fx-border-width: 1 0 0 0;");
+
+        Button nutLuu = new ButtonSample("Lưu", 35, 14, 2);
+        Button nutHuy = new ButtonSample("Hủy", 35, 14, 2);
+
+        hopChanTrang.getChildren().addAll(nutLuu, nutHuy);
+
+        if (laCheDoChinhSua) {
+            ButtonSample nutQuanLyChiTiet = new ButtonSample("Quản lý chi tiết", 35, 14, 2);
+            nutQuanLyChiTiet.setOnAction(e -> {
+                ChiTietKhuyenMaiManagerDialog chiTietDialog = new ChiTietKhuyenMaiManagerDialog(khuyenMaiHienTai, boDieuKhien);
+                chiTietDialog.showAndWait();
+            });
+            hopChanTrang.getChildren().add(0, nutQuanLyChiTiet);
+        }
+
+        nutHuy.setOnAction(e -> this.close());
+        nutLuu.setOnAction(e -> luuThayDoi());
+
+        return hopChanTrang;
+    }
+
+    private void dienDuLieuHienCo() {
+        truongMoTa.setText(khuyenMaiHienTai.getMoTa());
+        hopChonLoaiKhuyenMai.setValue(khuyenMaiHienTai.getLoaiKhuyenMai());
+        if (khuyenMaiHienTai.getTyLe() != null) {
+            truongTyLe.setText(khuyenMaiHienTai.getTyLe().stripTrailingZeros().toPlainString());
+        }
+        if (khuyenMaiHienTai.getSoTien() != null) {
+            truongSoTien.setText(khuyenMaiHienTai.getSoTien().stripTrailingZeros().toPlainString());
+        }
+        if (khuyenMaiHienTai.getNgayBatDau() != null) {
+            boChonNgayBatDau.setValue(khuyenMaiHienTai.getNgayBatDau().toLocalDate());
+        }
+        if (khuyenMaiHienTai.getNgayKetThuc() != null) {
+            boChonNgayKetThuc.setValue(khuyenMaiHienTai.getNgayKetThuc().toLocalDate());
+        }
+    }
+
+    private void luuThayDoi() {
+        if (truongMoTa.getText().trim().isEmpty() || hopChonLoaiKhuyenMai.getValue() == null) {
+            new Alert(Alert.AlertType.WARNING, "Vui lòng nhập Mô tả và chọn Loại khuyến mãi!").showAndWait();
+            return;
+        }
+
+        BigDecimal tyLe = null;
+        if (!truongTyLe.getText().trim().isEmpty()) {
+            try {
+                tyLe = new BigDecimal(truongTyLe.getText().trim());
+                if (tyLe.compareTo(BigDecimal.ZERO) < 0 || tyLe.compareTo(new BigDecimal(100)) > 0) {
+                    new Alert(Alert.AlertType.WARNING, "Tỷ lệ phải là số từ 0 đến 100!").showAndWait();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                new Alert(Alert.AlertType.WARNING, "Tỷ lệ phải là một con số hợp lệ!").showAndWait();
                 return;
             }
-            ChiTietKhuyenMaiDialog ctDialog = new ChiTietKhuyenMaiDialog(null, this.allMonAn);
-            Optional<ChiTietKhuyenMai> opt = ctDialog.showAndWait();
-            opt.ifPresent(ct -> dsChiTiet.add(ct));
-        });
-
-        // Convert result when OK is clicked
-        this.setResultConverter(dialogButton -> {
-            if (dialogButton == ButtonType.OK) {
-                return buildResult();
-            }
-            return null;
-        });
-    }
-
-    private void populateData() {
-        txtMoTa.setText(resultKm.getMoTa());
-        cboLoaiKM.setValue(resultKm.getLoaiKhuyenMai());
-//        dpNgayBatDau.setValue(resultKm.getNgayBatDau());
-//        dpNgayKetThuc.setValue(resultKm.getNgayKetThuc());
-        if (resultKm.getTyLe() != null) txtTyLe.setText(resultKm.getTyLe().toPlainString());
-        if (resultKm.getSoTien() != null) txtSoTien.setText(resultKm.getSoTien().toPlainString());
-    }
-
-    private KhuyenMai buildResult() {
-        resultKm.setMoTa(txtMoTa.getText());
-        resultKm.setLoaiKhuyenMai(cboLoaiKM.getValue());
-//        resultKm.setNgayBatDau(dpNgayBatDau.getValue());
-//        resultKm.setNgayKetThuc(dpNgayKetThuc.getValue());
-        try {
-            if (txtTyLe.getText() != null && !txtTyLe.getText().isEmpty()) {
-                resultKm.setTyLe(new BigDecimal(txtTyLe.getText()));
-            } else {
-                resultKm.setTyLe(null);
-            }
-            if (txtSoTien.getText() != null && !txtSoTien.getText().isEmpty()) {
-                resultKm.setSoTien(new BigDecimal(txtSoTien.getText()));
-            } else {
-                resultKm.setSoTien(null);
-            }
-        } catch (NumberFormatException e) {
-            // Handle error appropriately - maybe show an alert
-            System.err.println("Invalid number format");
-            return null; // Prevent closing with invalid data
         }
 
-        // set chi tiết trước khi trả về
-        resultKm.setChiTietKhuyenMais(new ArrayList<>(dsChiTiet));
-        return resultKm;
+        BigDecimal soTien = null;
+        if (!truongSoTien.getText().trim().isEmpty()) {
+            try {
+                soTien = new BigDecimal(truongSoTien.getText().trim());
+                if (soTien.compareTo(BigDecimal.ZERO) < 0) {
+                    new Alert(Alert.AlertType.WARNING, "Số tiền không được là số âm!").showAndWait();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                new Alert(Alert.AlertType.WARNING, "Số tiền phải là một con số hợp lệ!").showAndWait();
+                return;
+            }
+        }
+
+        if (tyLe != null && soTien != null) {
+            new Alert(Alert.AlertType.WARNING, "Không thể nhập cả Tỷ lệ và Số tiền cùng lúc!").showAndWait();
+            return;
+        }
+        if (tyLe == null && soTien == null) {
+            new Alert(Alert.AlertType.WARNING, "Vui lòng nhập Tỷ lệ hoặc Số tiền!").showAndWait();
+            return;
+        }
+
+        LocalDate ngayBD_localDate = boChonNgayBatDau.getValue();
+        LocalDate ngayKT_localDate = boChonNgayKetThuc.getValue();
+
+        if (ngayBD_localDate != null && ngayKT_localDate != null && ngayKT_localDate.isBefore(ngayBD_localDate)) {
+            new Alert(Alert.AlertType.WARNING, "Ngày kết thúc không được trước ngày bắt đầu!").showAndWait();
+            return;
+        }
+        
+        LocalDateTime ngayBD = (ngayBD_localDate != null) ? ngayBD_localDate.atStartOfDay() : null;
+        LocalDateTime ngayKT = (ngayKT_localDate != null) ? ngayKT_localDate.atStartOfDay() : null;
+
+        if (laCheDoChinhSua) {
+            ketQua = this.khuyenMaiHienTai;
+        } else {
+            ketQua = new KhuyenMai();
+            ketQua.setMaKM(truongMaKM.getText());
+        }
+
+        ketQua.setMoTa(truongMoTa.getText().trim());
+        ketQua.setLoaiKhuyenMai(hopChonLoaiKhuyenMai.getValue());
+        ketQua.setTyLe(tyLe);
+        ketQua.setSoTien(soTien);
+        ketQua.setNgayBatDau(ngayBD);
+        ketQua.setNgayKetThuc(ngayKT);
+
+        this.close();
     }
 
     public KhuyenMai layKetQua() {
-        return resultKm;
+        return ketQua;
     }
 }

@@ -1,19 +1,17 @@
 package com.thefourrestaurant.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class KhuyenMai {
     private String maKM;
     private LoaiKhuyenMai loaiKhuyenMai;
-    private BigDecimal tyLe;      // Có thể null
-    private BigDecimal soTien;    // Có thể null
+    private BigDecimal tyLe;
+    private BigDecimal soTien;
     private LocalDateTime ngayBatDau;
     private LocalDateTime ngayKetThuc;
     private String moTa;
-    private List<ChiTietKhuyenMai> chiTietKhuyenMais; // Danh sách chi tiết KM
 
     public KhuyenMai() {}
 
@@ -28,8 +26,6 @@ public class KhuyenMai {
         this.moTa = moTa;
     }
 
-
-    // Getters & Setters
     public String getMaKM() {
         return maKM;
     }
@@ -84,14 +80,6 @@ public class KhuyenMai {
 
     public void setMoTa(String moTa) {
         this.moTa = moTa;
-    }
-
-    public List<ChiTietKhuyenMai> getChiTietKhuyenMais() {
-        return chiTietKhuyenMais;
-    }
-
-    public void setChiTietKhuyenMais(List<ChiTietKhuyenMai> chiTietKhuyenMais) {
-        this.chiTietKhuyenMais = chiTietKhuyenMais;
     }
 
     @Override
