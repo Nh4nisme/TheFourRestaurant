@@ -3,7 +3,7 @@ package com.thefourrestaurant.model;
 import java.math.BigDecimal;
 import java.sql.Date;
 
-public class    NhanVien {
+public class NhanVien {
     private String maNV;
     private String hoTen;
     private Date ngaySinh;
