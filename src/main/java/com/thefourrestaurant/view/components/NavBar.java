@@ -9,6 +9,7 @@ import com.thefourrestaurant.util.Session;
 import com.thefourrestaurant.view.ban.*;
 //import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
 import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
+import com.thefourrestaurant.view.khachhang.GiaoDienKhachHang;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 
@@ -173,6 +174,7 @@ public class NavBar extends HBox {
                 giaoDienBan.hienThiBanTheoTang("TG000001");
                 yield giaoDienBan;
             }
+            case "Khách hàng" -> new GiaoDienKhachHang();
             case "Hóa đơn" -> new GiaoDienHoaDon();
             case "Tài khoản" -> new GiaoDienTaiKhoan();
             default -> null;
