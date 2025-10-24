@@ -1,9 +1,7 @@
 package com.thefourrestaurant.controller;
 
-import com.thefourrestaurant.DAO.KhuyenMaiDAO;
 import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.DAO.MonAnDAO;
-import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.monan.MonAnDialog;
@@ -17,12 +15,10 @@ public class MonAnController {
 
     private final MonAnDAO monAnDAO;
     private final LoaiMonDAO loaiMonDAO;
-    private final KhuyenMaiDAO khuyenMaiDAO;
 
     public MonAnController() {
         this.monAnDAO = new MonAnDAO();
         this.loaiMonDAO = new LoaiMonDAO();
-        this.khuyenMaiDAO = new KhuyenMaiDAO();
     }
 
     public List<MonAn> layMonAnTheoLoai(String maLoaiMon) {
@@ -33,14 +29,8 @@ public class MonAnController {
         return loaiMonDAO.layTatCaLoaiMon();
     }
 
-    public List<KhuyenMai> layTatCaKhuyenMai() {
-//        return khuyenMaiDAO.layTatCaKhuyenMai();
-        return null;
-    }
-
     public boolean themMoiMonAn(String maLoaiMonDefault) {
         List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
-        List<KhuyenMai> allKhuyenMai = layTatCaKhuyenMai();
 
         if (allLoaiMon.isEmpty()) {
             new Alert(Alert.AlertType.ERROR, "Không có loại món ăn nào trong CSDL. Vui lòng thêm loại món ăn trước.").showAndWait();
@@ -52,7 +42,8 @@ public class MonAnController {
                 .findFirst()
                 .orElse(null);
 
-        MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, defaultLoaiMon, allKhuyenMai);
+        // Updated constructor call for MonAnDialog
+        MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, defaultLoaiMon);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();
@@ -64,16 +55,16 @@ public class MonAnController {
     }
 
     public boolean tuyChinhMonAn(MonAn monAn) {
-//        List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
-////        List<KhuyenMai> allKhuyenMai = layTatCaKhuyenMai();
-//
-//        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon(), allKhuyenMai);
-//        dialog.showAndWait();
-//
-//        MonAn ketQua = dialog.layKetQua();
-//        if (ketQua != null) {
-//            return monAnDAO.capNhatMonAn(ketQua);
-//        }
+        List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
+
+        // Updated constructor call for MonAnDialog
+        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon());
+        dialog.showAndWait();
+
+        MonAn ketQua = dialog.layKetQua();
+        if (ketQua != null) {
+            return monAnDAO.capNhatMonAn(ketQua);
+        }
         return false;
     }
 

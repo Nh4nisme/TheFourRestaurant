@@ -26,8 +26,7 @@ public class HoaDonDAO {
         chiTietHoaDonDAO = new ChiTietHoaDonDAO();
     }
 
-    // Lấy tất cả hóa đơn
-    public List<HoaDon> getAll() {
+    public List<HoaDon> layTatCaHoaDon() {
         List<HoaDon> dsHoaDon = new ArrayList<>();
         String sql = "SELECT * FROM HoaDon WHERE isDeleted = 0";
 
@@ -41,7 +40,7 @@ public class HoaDonDAO {
                         rs.getTimestamp("ngayLap").toLocalDateTime(),
                         nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")),
                         khachHangDAO.layKhachHangTheoMa(rs.getString("maKH")),
-                        phieuDatBanDAO.layPhieuTheoMa("MaPDB"),
+                        phieuDatBanDAO.layPhieuTheoMa(rs.getString("maPDB")),
                         khuyenMaiDAO.layKhuyenMaiTheoMa(rs.getString("maKM")),
                         thueDAO.layThueTheoMa(rs.getString("maThue")),
                         rs.getBigDecimal("tienKhachDua"),
@@ -58,7 +57,6 @@ public class HoaDonDAO {
         }
         return dsHoaDon;
     }
-
     // Lấy 1 hóa đơn theo ID
 //    public HoaDon getById(String maHD) {
 //        String sql = "SELECT * FROM HoaDon WHERE maHD = ? AND isDeleted = false";

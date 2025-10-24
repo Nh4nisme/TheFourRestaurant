@@ -23,17 +23,16 @@ import java.net.URL;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 public class ChiTietKhuyenMaiManagerDialog extends Stage {
 
-    private final KhuyenMai khuyenMaiCha; // The parent KhuyenMai
-    private final KhuyenMaiController controller; // To handle ChiTietKhuyenMai operations
-    private final TableView<ChiTietKhuyenMai> chiTietTableView = new TableView<>();
+    private final KhuyenMai khuyenMaiCha;
+    private final KhuyenMaiController boDieuKhien;
+    private final TableView<ChiTietKhuyenMai> bangChiTiet = new TableView<>();
 
-    public ChiTietKhuyenMaiManagerDialog(KhuyenMai khuyenMaiCha, KhuyenMaiController controller) {
+    public ChiTietKhuyenMaiManagerDialog(KhuyenMai khuyenMaiCha, KhuyenMaiController boDieuKhien) {
         this.khuyenMaiCha = khuyenMaiCha;
-        this.controller = controller;
+        this.boDieuKhien = boDieuKhien;
 
         this.initModality(Modality.APPLICATION_MODAL);
         this.setTitle("Quản lý Chi tiết Khuyến mãi cho: " + khuyenMaiCha.getMoTa());
@@ -51,7 +50,6 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
 
         String kieuFontStyle = (fontMontserrat != null) ? "-fx-font-family: '" + fontMontserrat.getFamily() + "';" : "";
 
-        // Header
         Label nhanTieuDe = new Label("Chi tiết Khuyến mãi: " + khuyenMaiCha.getMoTa());
         nhanTieuDe.setStyle(kieuFontStyle + "-fx-text-fill: #D4A017; -fx-font-size: 18px; -fx-font-weight: bold;");
         HBox hopTieuDe = new HBox(nhanTieuDe);
@@ -60,16 +58,14 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
         hopTieuDe.setStyle("-fx-background-color: #1E424D;");
         layoutChinh.setTop(hopTieuDe);
 
-        // Main Content (Table and Buttons)
         VBox content = new VBox(10);
         content.setPadding(new Insets(20));
         content.setAlignment(Pos.TOP_CENTER);
-        VBox.setVgrow(chiTietTableView, Priority.ALWAYS);
+        VBox.setVgrow(bangChiTiet, Priority.ALWAYS);
 
-        setupChiTietTableView();
-        content.getChildren().add(chiTietTableView);
+        caiDatBangChiTiet();
+        content.getChildren().add(bangChiTiet);
 
-        // Action Buttons
         HBox actionButtons = new HBox(10);
         actionButtons.setAlignment(Pos.CENTER_RIGHT);
         actionButtons.setPadding(new Insets(10, 0, 0, 0));
@@ -88,7 +84,6 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
 
         layoutChinh.setCenter(content);
 
-        // Footer
         HBox hopChanTrang = new HBox(10);
         hopChanTrang.setPadding(new Insets(15));
         hopChanTrang.setAlignment(Pos.CENTER_RIGHT);
@@ -105,16 +100,14 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
             khungCanh.getStylesheets().add(urlCSS.toExternalForm());
         }
         this.setScene(khungCanh);
-        refreshTableView();
+        lamMoiBang();
     }
 
-    private void setupChiTietTableView() {
-        // maCTKM
+    private void caiDatBangChiTiet() {
         TableColumn<ChiTietKhuyenMai, String> maCTKMCol = new TableColumn<>("Mã CTKM");
         maCTKMCol.setCellValueFactory(new PropertyValueFactory<>("maCTKM"));
         maCTKMCol.setPrefWidth(80);
 
-        // MonApDung
         TableColumn<ChiTietKhuyenMai, String> monApDungCol = new TableColumn<>("Món áp dụng");
         monApDungCol.setCellValueFactory(cellData -> {
             MonAn mon = cellData.getValue().getMonApDung();
@@ -122,7 +115,6 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
         });
         monApDungCol.setPrefWidth(120);
 
-        // MonTang
         TableColumn<ChiTietKhuyenMai, String> monTangCol = new TableColumn<>("Món tặng");
         monTangCol.setCellValueFactory(cellData -> {
             MonAn mon = cellData.getValue().getMonTang();
@@ -130,7 +122,6 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
         });
         monTangCol.setPrefWidth(120);
 
-        // GiaTriGiam (combined)
         TableColumn<ChiTietKhuyenMai, String> giaTriGiamCol = new TableColumn<>("Giá trị giảm");
         giaTriGiamCol.setCellValueFactory(cellData -> {
             ChiTietKhuyenMai ct = cellData.getValue();
@@ -148,7 +139,6 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
         });
         giaTriGiamCol.setPrefWidth(120);
 
-        // SoLuongTang
         TableColumn<ChiTietKhuyenMai, String> soLuongTangCol = new TableColumn<>("SL tặng");
         soLuongTangCol.setCellValueFactory(cellData -> {
             Integer soLuong = cellData.getValue().getSoLuongTang();
@@ -156,58 +146,58 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
         });
         soLuongTangCol.setPrefWidth(60);
 
-        chiTietTableView.getColumns().addAll(maCTKMCol, monApDungCol, monTangCol, giaTriGiamCol, soLuongTangCol);
-        chiTietTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        bangChiTiet.getColumns().addAll(maCTKMCol, monApDungCol, monTangCol, giaTriGiamCol, soLuongTangCol);
+        bangChiTiet.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
-    private void refreshTableView() {
-        chiTietTableView.setItems(FXCollections.observableArrayList(controller.layChiTietKhuyenMaiTheoMaKM(khuyenMaiCha.getMaKM())));
-        chiTietTableView.refresh();
+    private void lamMoiBang() {
+        bangChiTiet.setItems(FXCollections.observableArrayList(boDieuKhien.layChiTietKhuyenMaiTheoMaKM(khuyenMaiCha.getMaKM())));
+        bangChiTiet.refresh();
     }
 
     private void themChiTiet() {
-        List<MonAn> tatCaMonAn = controller.layTatCaMonAn();
-        String maCTKMMoi = controller.taoMaChiTietKhuyenMaiMoi();
+        List<MonAn> tatCaMonAn = boDieuKhien.layDanhSachMonAn(); // Corrected method call
+        String maCTKMMoi = boDieuKhien.taoMaChiTietKhuyenMaiMoi();
 
         ChiTietKhuyenMaiDialog dialog = new ChiTietKhuyenMaiDialog(null, khuyenMaiCha, tatCaMonAn, maCTKMMoi);
         dialog.showAndWait();
 
         ChiTietKhuyenMai ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            if (controller.themMoiChiTietKhuyenMai(ketQua)) {
-                refreshTableView();
+            if (boDieuKhien.themChiTietKhuyenMaiMoi(ketQua)) {
+                lamMoiBang();
             }
         }
     }
 
     private void suaChiTiet() {
-        ChiTietKhuyenMai selected = chiTietTableView.getSelectionModel().getSelectedItem();
+        ChiTietKhuyenMai selected = bangChiTiet.getSelectionModel().getSelectedItem();
         if (selected == null) {
             new Alert(Alert.AlertType.WARNING, "Vui lòng chọn một chi tiết khuyến mãi để sửa.").showAndWait();
             return;
         }
 
-        List<MonAn> tatCaMonAn = controller.layTatCaMonAn();
+        List<MonAn> tatCaMonAn = boDieuKhien.layDanhSachMonAn(); // Corrected method call
         ChiTietKhuyenMaiDialog dialog = new ChiTietKhuyenMaiDialog(selected, khuyenMaiCha, tatCaMonAn, null);
         dialog.showAndWait();
 
         ChiTietKhuyenMai ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            if (controller.tuyChinhChiTietKhuyenMai(ketQua)) {
-                refreshTableView();
+            if (boDieuKhien.capNhatChiTietKhuyenMai(ketQua)) {
+                lamMoiBang();
             }
         }
     }
 
     private void xoaChiTiet() {
-        ChiTietKhuyenMai selected = chiTietTableView.getSelectionModel().getSelectedItem();
+        ChiTietKhuyenMai selected = bangChiTiet.getSelectionModel().getSelectedItem();
         if (selected == null) {
             new Alert(Alert.AlertType.WARNING, "Vui lòng chọn một chi tiết khuyến mãi để xóa.").showAndWait();
             return;
         }
 
-        if (controller.xoaChiTietKhuyenMai(selected)) {
-            refreshTableView();
+        if (boDieuKhien.xoaChiTietKhuyenMai(selected)) {
+            lamMoiBang();
         }
     }
 }

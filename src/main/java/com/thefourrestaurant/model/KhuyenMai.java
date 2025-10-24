@@ -1,24 +1,22 @@
 package com.thefourrestaurant.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class KhuyenMai {
     private String maKM;
     private LoaiKhuyenMai loaiKhuyenMai;
-    private BigDecimal tyLe;      // Có thể null
-    private BigDecimal soTien;    // Có thể null
-    private LocalDate ngayBatDau;
-    private LocalDate ngayKetThuc;
+    private BigDecimal tyLe;
+    private BigDecimal soTien;
+    private LocalDateTime ngayBatDau;
+    private LocalDateTime ngayKetThuc;
     private String moTa;
-    private MonAn monAnApDung;
-    private MonAn monAnTang;
 
     public KhuyenMai() {}
 
     public KhuyenMai(String maKM, LoaiKhuyenMai loaiKhuyenMai, BigDecimal tyLe, BigDecimal soTien,
-                     LocalDate ngayBatDau, LocalDate ngayKetThuc, String moTa, MonAn monAnApDung, MonAn monAnTang) {
+                     LocalDateTime ngayBatDau, LocalDateTime ngayKetThuc, String moTa) {
         this.maKM = maKM;
         this.loaiKhuyenMai = loaiKhuyenMai;
         this.tyLe = tyLe;
@@ -26,12 +24,8 @@ public class KhuyenMai {
         this.ngayBatDau = ngayBatDau;
         this.ngayKetThuc = ngayKetThuc;
         this.moTa = moTa;
-        this.monAnApDung = monAnApDung;
-        this.monAnTang = monAnTang;
     }
 
-
-    // Getters & Setters
     public String getMaKM() {
         return maKM;
     }
@@ -64,19 +58,19 @@ public class KhuyenMai {
         this.soTien = soTien;
     }
 
-    public LocalDate getNgayBatDau() {
+    public LocalDateTime getNgayBatDau() {
         return ngayBatDau;
     }
 
-    public void setNgayBatDau(LocalDate ngayBatDau) {
+    public void setNgayBatDau(LocalDateTime ngayBatDau) {
         this.ngayBatDau = ngayBatDau;
     }
 
-    public LocalDate getNgayKetThuc() {
+    public LocalDateTime getNgayKetThuc() {
         return ngayKetThuc;
     }
 
-    public void setNgayKetThuc(LocalDate ngayKetThuc) {
+    public void setNgayKetThuc(LocalDateTime ngayKetThuc) {
         this.ngayKetThuc = ngayKetThuc;
     }
 
@@ -86,22 +80,6 @@ public class KhuyenMai {
 
     public void setMoTa(String moTa) {
         this.moTa = moTa;
-    }
-
-    public MonAn getMonAnApDung() {
-        return monAnApDung;
-    }
-
-    public void setMonAnApDung(MonAn monAnApDung) {
-        this.monAnApDung = monAnApDung;
-    }
-
-    public MonAn getMonAnTang() {
-        return monAnTang;
-    }
-
-    public void setMonAnTang(MonAn monAnTang) {
-        this.monAnTang = monAnTang;
     }
 
     @Override

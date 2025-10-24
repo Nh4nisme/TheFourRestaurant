@@ -8,7 +8,7 @@ import com.thefourrestaurant.model.ChiTietKhuyenMai;
 import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiKhuyenMai;
 import com.thefourrestaurant.model.MonAn;
-import com.thefourrestaurant.view.khuyenmai.ChiTietKhuyenMaiDialog;
+import com.thefourrestaurant.view.khuyenmai.ChiTietKhuyenMaiManagerDialog;
 import com.thefourrestaurant.view.khuyenmai.KhuyenMaiDialog;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -21,17 +21,17 @@ public class KhuyenMaiController {
     private final KhuyenMaiDAO khuyenMaiDAO;
     private final LoaiKhuyenMaiDAO loaiKhuyenMaiDAO;
     private final ChiTietKhuyenMaiDAO chiTietKhuyenMaiDAO;
-    private final MonAnDAO monAnDAO; // Added MonAnDAO
+    private final MonAnDAO monAnDAO;
 
     public KhuyenMaiController() {
         this.khuyenMaiDAO = new KhuyenMaiDAO();
         this.loaiKhuyenMaiDAO = new LoaiKhuyenMaiDAO();
         this.chiTietKhuyenMaiDAO = new ChiTietKhuyenMaiDAO();
-        this.monAnDAO = new MonAnDAO(); // Initialized MonAnDAO
+        this.monAnDAO = new MonAnDAO();
     }
 
-    public List<KhuyenMai> layTatCaKhuyenMai() {
-        return khuyenMaiDAO.layTatCaKhuyenMai();
+    public List<KhuyenMai> layDanhSachKhuyenMai() {
+        return khuyenMaiDAO.layDanhSachKhuyenMai();
     }
 
     public String taoMaKhuyenMaiMoi() {
@@ -42,11 +42,11 @@ public class KhuyenMaiController {
         return chiTietKhuyenMaiDAO.layTheoMaKM(maKM);
     }
 
-    public boolean themMoiKhuyenMai() {
+    public boolean themKhuyenMaiMoi() {
         List<LoaiKhuyenMai> tatCaLoaiKM = loaiKhuyenMaiDAO.layTatCaLoaiKhuyenMai();
         String maKMMoi = khuyenMaiDAO.taoMaKhuyenMaiMoi();
 
-        KhuyenMaiDialog dialog = new KhuyenMaiDialog(null, tatCaLoaiKM, maKMMoi, this); // Pass 'this' controller
+        KhuyenMaiDialog dialog = new KhuyenMaiDialog(null, tatCaLoaiKM, maKMMoi, this);
         dialog.showAndWait();
 
         KhuyenMai ketQua = dialog.layKetQua();
@@ -61,10 +61,10 @@ public class KhuyenMaiController {
         return false;
     }
 
-    public boolean tuyChinhKhuyenMai(KhuyenMai km) {
+    public boolean capNhatKhuyenMai(KhuyenMai km) {
         List<LoaiKhuyenMai> tatCaLoaiKM = loaiKhuyenMaiDAO.layTatCaLoaiKhuyenMai();
 
-        KhuyenMaiDialog dialog = new KhuyenMaiDialog(km, tatCaLoaiKM, null, this); // Pass 'this' controller
+        KhuyenMaiDialog dialog = new KhuyenMaiDialog(km, tatCaLoaiKM, null, this);
         dialog.showAndWait();
 
         KhuyenMai ketQua = dialog.layKetQua();
@@ -84,7 +84,6 @@ public class KhuyenMaiController {
         Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.YES) {
-            // First, delete associated ChiTietKhuyenMai
             if (chiTietKhuyenMaiDAO.xoaTheoMaKM(km.getMaKM())) {
                 if (khuyenMaiDAO.xoaKhuyenMai(km.getMaKM())) {
                     new Alert(Alert.AlertType.INFORMATION, "Xóa khuyến mãi thành công!").showAndWait();
@@ -99,9 +98,7 @@ public class KhuyenMaiController {
         return false;
     }
 
-    // --- ChiTietKhuyenMai Operations ---
-
-    public List<MonAn> layTatCaMonAn() {
+    public List<MonAn> layDanhSachMonAn() {
         return monAnDAO.layTatCaMonAn();
     }
 
@@ -109,7 +106,7 @@ public class KhuyenMaiController {
         return chiTietKhuyenMaiDAO.taoMaChiTietKhuyenMaiMoi();
     }
 
-    public boolean themMoiChiTietKhuyenMai(ChiTietKhuyenMai ct) {
+    public boolean themChiTietKhuyenMaiMoi(ChiTietKhuyenMai ct) {
         if (chiTietKhuyenMaiDAO.themChiTiet(ct)) {
             new Alert(Alert.AlertType.INFORMATION, "Thêm chi tiết khuyến mãi thành công!").showAndWait();
             return true;
@@ -119,7 +116,7 @@ public class KhuyenMaiController {
         }
     }
 
-    public boolean tuyChinhChiTietKhuyenMai(ChiTietKhuyenMai ct) {
+    public boolean capNhatChiTietKhuyenMai(ChiTietKhuyenMai ct) {
         if (chiTietKhuyenMaiDAO.capNhatChiTiet(ct)) {
             new Alert(Alert.AlertType.INFORMATION, "Cập nhật chi tiết khuyến mãi thành công!").showAndWait();
             return true;

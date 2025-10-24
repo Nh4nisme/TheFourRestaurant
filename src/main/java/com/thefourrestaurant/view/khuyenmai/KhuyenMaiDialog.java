@@ -5,7 +5,6 @@ import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiKhuyenMai;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -20,32 +19,31 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 public class KhuyenMaiDialog extends Stage {
 
     private KhuyenMai ketQua = null;
-    private final boolean isEditMode;
+    private final boolean laCheDoChinhSua;
     private final KhuyenMai khuyenMaiHienTai;
-    private final KhuyenMaiController controller; // Thêm controller vào đây
+    private final KhuyenMaiController boDieuKhien;
 
-    // UI Components
     private final TextField truongMaKM = new TextField();
     private final TextField truongMoTa = new TextField();
-    private final ComboBox<LoaiKhuyenMai> loaiKhuyenMaiComboBox = new ComboBox<>();
+    private final ComboBox<LoaiKhuyenMai> hopChonLoaiKhuyenMai = new ComboBox<>();
     private final TextField truongTyLe = new TextField();
     private final TextField truongSoTien = new TextField();
-    private final DatePicker ngayBatDauPicker = new DatePicker();
-    private final DatePicker ngayKetThucPicker = new DatePicker();
+    private final DatePicker boChonNgayBatDau = new DatePicker();
+    private final DatePicker boChonNgayKetThuc = new DatePicker();
 
-    public KhuyenMaiDialog(KhuyenMai khuyenMai, List<LoaiKhuyenMai> tatCaLoaiKhuyenMai, String maKMMoi, KhuyenMaiController controller) {
+    public KhuyenMaiDialog(KhuyenMai khuyenMai, List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai, String maKhuyenMaiMoi, KhuyenMaiController boDieuKhien) {
         this.khuyenMaiHienTai = khuyenMai;
-        this.isEditMode = (khuyenMai != null);
-        this.controller = controller; // Gán controller
+        this.laCheDoChinhSua = (khuyenMai != null);
+        this.boDieuKhien = boDieuKhien;
 
         this.initModality(Modality.APPLICATION_MODAL);
-        this.setTitle(isEditMode ? "Tùy Chỉnh Khuyến Mãi" : "Thêm Khuyến Mãi Mới");
+        this.setTitle(laCheDoChinhSua ? "Tùy Chỉnh Khuyến Mãi" : "Thêm Khuyến Mãi Mới");
 
         Font fontMontserrat = null;
         try (InputStream luongFont = getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf")) {
@@ -60,25 +58,24 @@ public class KhuyenMaiDialog extends Stage {
 
         BorderPane layoutChinh = new BorderPane();
 
-
-        Label nhanTieuDe = new Label(isEditMode ? "Tùy chỉnh khuyến mãi" : "Thêm khuyến mãi");
+        Label nhanTieuDe = new Label(laCheDoChinhSua ? "Tùy chỉnh khuyến mãi" : "Thêm khuyến mãi");
         nhanTieuDe.setStyle(kieuFontStyle + "-fx-text-fill: #D4A017; -fx-font-size: 18px; -fx-font-weight: bold;");
         HBox hopTieuDe = new HBox(nhanTieuDe);
         hopTieuDe.setAlignment(Pos.CENTER_LEFT);
         hopTieuDe.setPadding(new Insets(15));
         hopTieuDe.setStyle("-fx-background-color: #1E424D;");
 
-        GridPane luoiFormChinh = createMainForm(tatCaLoaiKhuyenMai, kieuFontStyle, maKMMoi);
+        GridPane luoiFormChinh = taoFormChinh(danhSachTatCaLoaiKhuyenMai, kieuFontStyle, maKhuyenMaiMoi);
         VBox hopGiua = new VBox(20, luoiFormChinh);
         hopGiua.setPadding(new Insets(20));
 
-        HBox hopChanTrang = createFooter();
+        HBox hopChanTrang = taoChanTrang();
 
         layoutChinh.setTop(hopTieuDe);
         layoutChinh.setCenter(hopGiua);
         layoutChinh.setBottom(hopChanTrang);
 
-        if (isEditMode) {
+        if (laCheDoChinhSua) {
             dienDuLieuHienCo();
         }
 
@@ -88,27 +85,33 @@ public class KhuyenMaiDialog extends Stage {
             khungCanh.getStylesheets().add(urlCSS.toExternalForm());
         }
         this.setScene(khungCanh);
-        this.setHeight(550); // Chiều cao cố định
+        this.setHeight(550);
     }
 
-    private GridPane createMainForm(List<LoaiKhuyenMai> tatCaLoaiKhuyenMai, String kieuFontStyle, String maKMMoi) {
+    private GridPane taoFormChinh(List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai, String kieuFontStyle, String maKhuyenMaiMoi) {
         GridPane luoiForm = new GridPane();
         luoiForm.setVgap(12);
         luoiForm.setHgap(15);
 
         String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8;";
 
-        truongMaKM.setStyle(kieuTruongNhap); truongMaKM.getStyleClass().add("text-field");
+        truongMaKM.setStyle(kieuTruongNhap);
+        truongMaKM.getStyleClass().add("text-field");
         truongMaKM.setEditable(false);
-        truongMaKM.setText(isEditMode ? khuyenMaiHienTai.getMaKM() : maKMMoi);
+        truongMaKM.setText(laCheDoChinhSua ? khuyenMaiHienTai.getMaKM() : maKhuyenMaiMoi);
 
-        truongMoTa.setStyle(kieuTruongNhap); truongMoTa.getStyleClass().add("text-field");
-        loaiKhuyenMaiComboBox.setStyle(kieuTruongNhap); loaiKhuyenMaiComboBox.getStyleClass().add("combo-box");
-        truongTyLe.setStyle(kieuTruongNhap); truongTyLe.getStyleClass().add("text-field");
-        truongSoTien.setStyle(kieuTruongNhap); truongSoTien.getStyleClass().add("text-field");
-        ngayBatDauPicker.setStyle(kieuTruongNhap); ngayBatDauPicker.getStyleClass().add("date-picker");
-        ngayKetThucPicker.setStyle(kieuTruongNhap); ngayKetThucPicker.getStyleClass().add("date-picker");
-
+        truongMoTa.setStyle(kieuTruongNhap);
+        truongMoTa.getStyleClass().add("text-field");
+        hopChonLoaiKhuyenMai.setStyle(kieuTruongNhap);
+        hopChonLoaiKhuyenMai.getStyleClass().add("combo-box");
+        truongTyLe.setStyle(kieuTruongNhap);
+        truongTyLe.getStyleClass().add("text-field");
+        truongSoTien.setStyle(kieuTruongNhap);
+        truongSoTien.getStyleClass().add("text-field");
+        boChonNgayBatDau.setStyle(kieuTruongNhap);
+        boChonNgayBatDau.getStyleClass().add("date-picker");
+        boChonNgayKetThuc.setStyle(kieuTruongNhap);
+        boChonNgayKetThuc.getStyleClass().add("date-picker");
 
         luoiForm.add(new Label("Mã KM:"), 0, 0);
         luoiForm.add(truongMaKM, 1, 0);
@@ -117,12 +120,19 @@ public class KhuyenMaiDialog extends Stage {
         luoiForm.add(truongMoTa, 1, 1);
 
         luoiForm.add(new Label("Loại KM:"), 0, 2);
-        loaiKhuyenMaiComboBox.setItems(FXCollections.observableArrayList(tatCaLoaiKhuyenMai));
-        loaiKhuyenMaiComboBox.setConverter(new StringConverter<>() {
-            @Override public String toString(LoaiKhuyenMai object) { return object == null ? "" : object.getTenLoaiKM(); }
-            @Override public LoaiKhuyenMai fromString(String string) { return null; }
+        hopChonLoaiKhuyenMai.setItems(FXCollections.observableArrayList(danhSachTatCaLoaiKhuyenMai));
+        hopChonLoaiKhuyenMai.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(LoaiKhuyenMai object) {
+                return object == null ? "" : object.getTenLoaiKM();
+            }
+
+            @Override
+            public LoaiKhuyenMai fromString(String string) {
+                return null;
+            }
         });
-        luoiForm.add(loaiKhuyenMaiComboBox, 1, 2);
+        luoiForm.add(hopChonLoaiKhuyenMai, 1, 2);
 
         luoiForm.add(new Label("Tỷ lệ (%):"), 0, 3);
         luoiForm.add(truongTyLe, 1, 3);
@@ -131,15 +141,15 @@ public class KhuyenMaiDialog extends Stage {
         luoiForm.add(truongSoTien, 1, 4);
 
         luoiForm.add(new Label("Ngày BĐ:"), 0, 5);
-        luoiForm.add(ngayBatDauPicker, 1, 5);
+        luoiForm.add(boChonNgayBatDau, 1, 5);
 
         luoiForm.add(new Label("Ngày KT:"), 0, 6);
-        luoiForm.add(ngayKetThucPicker, 1, 6);
+        luoiForm.add(boChonNgayKetThuc, 1, 6);
 
         return luoiForm;
     }
 
-    private HBox createFooter() {
+    private HBox taoChanTrang() {
         HBox hopChanTrang = new HBox(10);
         hopChanTrang.setPadding(new Insets(15));
         hopChanTrang.setAlignment(Pos.CENTER_RIGHT);
@@ -150,15 +160,13 @@ public class KhuyenMaiDialog extends Stage {
 
         hopChanTrang.getChildren().addAll(nutLuu, nutHuy);
 
-        // Thêm nút "Quản lý chi tiết" nếu đang ở chế độ chỉnh sửa
-        if (isEditMode) {
-            ButtonSample btnQuanLyChiTiet = new ButtonSample("Quản lý chi tiết", 35, 14, 2);
-            btnQuanLyChiTiet.setOnAction(e -> {
-                // Mở ChiTietKhuyenMaiManagerDialog
-                ChiTietKhuyenMaiManagerDialog chiTietDialog = new ChiTietKhuyenMaiManagerDialog(khuyenMaiHienTai, controller);
+        if (laCheDoChinhSua) {
+            ButtonSample nutQuanLyChiTiet = new ButtonSample("Quản lý chi tiết", 35, 14, 2);
+            nutQuanLyChiTiet.setOnAction(e -> {
+                ChiTietKhuyenMaiManagerDialog chiTietDialog = new ChiTietKhuyenMaiManagerDialog(khuyenMaiHienTai, boDieuKhien);
                 chiTietDialog.showAndWait();
             });
-            hopChanTrang.getChildren().add(0, btnQuanLyChiTiet); // Thêm vào đầu HBox
+            hopChanTrang.getChildren().add(0, nutQuanLyChiTiet);
         }
 
         nutHuy.setOnAction(e -> this.close());
@@ -169,19 +177,23 @@ public class KhuyenMaiDialog extends Stage {
 
     private void dienDuLieuHienCo() {
         truongMoTa.setText(khuyenMaiHienTai.getMoTa());
-        loaiKhuyenMaiComboBox.setValue(khuyenMaiHienTai.getLoaiKhuyenMai());
+        hopChonLoaiKhuyenMai.setValue(khuyenMaiHienTai.getLoaiKhuyenMai());
         if (khuyenMaiHienTai.getTyLe() != null) {
             truongTyLe.setText(khuyenMaiHienTai.getTyLe().stripTrailingZeros().toPlainString());
         }
         if (khuyenMaiHienTai.getSoTien() != null) {
             truongSoTien.setText(khuyenMaiHienTai.getSoTien().stripTrailingZeros().toPlainString());
         }
-        ngayBatDauPicker.setValue(khuyenMaiHienTai.getNgayBatDau());
-        ngayKetThucPicker.setValue(khuyenMaiHienTai.getNgayKetThuc());
+        if (khuyenMaiHienTai.getNgayBatDau() != null) {
+            boChonNgayBatDau.setValue(khuyenMaiHienTai.getNgayBatDau().toLocalDate());
+        }
+        if (khuyenMaiHienTai.getNgayKetThuc() != null) {
+            boChonNgayKetThuc.setValue(khuyenMaiHienTai.getNgayKetThuc().toLocalDate());
+        }
     }
 
     private void luuThayDoi() {
-        if (truongMoTa.getText().trim().isEmpty() || loaiKhuyenMaiComboBox.getValue() == null) {
+        if (truongMoTa.getText().trim().isEmpty() || hopChonLoaiKhuyenMai.getValue() == null) {
             new Alert(Alert.AlertType.WARNING, "Vui lòng nhập Mô tả và chọn Loại khuyến mãi!").showAndWait();
             return;
         }
@@ -223,24 +235,26 @@ public class KhuyenMaiDialog extends Stage {
             return;
         }
 
-        LocalDate ngayBD = ngayBatDauPicker.getValue();
-        LocalDate ngayKT = ngayKetThucPicker.getValue();
+        LocalDate ngayBD_localDate = boChonNgayBatDau.getValue();
+        LocalDate ngayKT_localDate = boChonNgayKetThuc.getValue();
 
-        if (ngayBD != null && ngayKT != null && ngayKT.isBefore(ngayBD)) {
+        if (ngayBD_localDate != null && ngayKT_localDate != null && ngayKT_localDate.isBefore(ngayBD_localDate)) {
             new Alert(Alert.AlertType.WARNING, "Ngày kết thúc không được trước ngày bắt đầu!").showAndWait();
             return;
         }
+        
+        LocalDateTime ngayBD = (ngayBD_localDate != null) ? ngayBD_localDate.atStartOfDay() : null;
+        LocalDateTime ngayKT = (ngayKT_localDate != null) ? ngayKT_localDate.atStartOfDay() : null;
 
-        if (isEditMode) {
+        if (laCheDoChinhSua) {
             ketQua = this.khuyenMaiHienTai;
-        }
-        else {
+        } else {
             ketQua = new KhuyenMai();
-            ketQua.setMaKM(truongMaKM.getText()); // Gán mã KM mới được tạo
+            ketQua.setMaKM(truongMaKM.getText());
         }
 
         ketQua.setMoTa(truongMoTa.getText().trim());
-        ketQua.setLoaiKhuyenMai(loaiKhuyenMaiComboBox.getValue());
+        ketQua.setLoaiKhuyenMai(hopChonLoaiKhuyenMai.getValue());
         ketQua.setTyLe(tyLe);
         ketQua.setSoTien(soTien);
         ketQua.setNgayBatDau(ngayBD);
@@ -248,7 +262,6 @@ public class KhuyenMaiDialog extends Stage {
 
         this.close();
     }
-
 
     public KhuyenMai layKetQua() {
         return ketQua;
