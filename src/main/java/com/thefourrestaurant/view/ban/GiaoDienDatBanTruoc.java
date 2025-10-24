@@ -7,7 +7,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import jfxtras.scene.control.LocalTimeTextField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -15,15 +19,18 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class GiaoDienDatBanTruoc extends VBox {
 
     private TextField txtTrangThai;
     private ComboBox<String> cbLoaiBan;
     private TextField txtSoNguoi;
-    private ComboBox<String> cbGiaTien;
-    private TextField txtNgayNhanBan;
-    private TextField txtGioNhanBan;
+    private TextField txtGiaTien;
+    private DatePicker dtpNgayNhanBan;
+    private LocalTimeTextField timeNhanBan;
     private TextField txtSDTKhachDat;
     private Label lblTenKhachDat;
     private Button btnKiemTra;
@@ -80,12 +87,12 @@ public class GiaoDienDatBanTruoc extends VBox {
         txtSoNguoi = createTextField();
         txtSoNguoi.setPrefWidth(230);
 
-        Label lblGiaTien = createLabel("Giá tiền:");
-        lblGiaTien.setPrefWidth(100);
-        cbGiaTien = createComboBox();
-        cbGiaTien.setPrefWidth(230);
+    Label lblGiaTien = createLabel("Giá tiền:");
+    lblGiaTien.setPrefWidth(100);
+    txtGiaTien = createTextField();
+    txtGiaTien.setPrefWidth(230);
 
-        row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, lblGiaTien, cbGiaTien);
+    row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, lblGiaTien, txtGiaTien);
 
         // Row 3: Ngày nhận bàn and Giờ nhận bàn
         HBox row3 = new HBox(20);
@@ -93,15 +100,17 @@ public class GiaoDienDatBanTruoc extends VBox {
 
         Label lblNgayNhanBan = createLabel("Ngày nhận bàn:");
         lblNgayNhanBan.setPrefWidth(120);
-        txtNgayNhanBan = createTextField();
-        txtNgayNhanBan.setPrefWidth(230);
+        dtpNgayNhanBan = new DatePicker();
+        dtpNgayNhanBan.setPrefWidth(230);
 
-        Label lblGioNhanBan = createLabel("Giờ nhận bàn:");
-        lblGioNhanBan.setPrefWidth(100);
-        txtGioNhanBan = createTextField();
-        txtGioNhanBan.setPrefWidth(230);
+    Label lblGioNhanBan = createLabel("Giờ nhận bàn:");
+    lblGioNhanBan.setPrefWidth(100);
+    timeNhanBan = new LocalTimeTextField();
+    timeNhanBan.setPrefHeight(35);
+    timeNhanBan.setPrefWidth(230);
+    timeNhanBan.setPromptText("HH:mm:ss");
 
-        row3.getChildren().addAll(lblNgayNhanBan, txtNgayNhanBan, lblGioNhanBan, txtGioNhanBan);
+    row3.getChildren().addAll(lblNgayNhanBan, dtpNgayNhanBan, lblGioNhanBan, timeNhanBan);
 
         // Row 4: SDT khách đặt
         HBox row4 = new HBox(10);
@@ -168,15 +177,20 @@ public class GiaoDienDatBanTruoc extends VBox {
         comboBox.setMaxWidth(Double.MAX_VALUE);
         return comboBox;
     }
-
     
-
     public TextField getTxtTrangThai() { return txtTrangThai; }
     public ComboBox<String> getCbLoaiBan() { return cbLoaiBan; }
     public TextField getTxtSoNguoi() { return txtSoNguoi; }
-    public ComboBox<String> getCbGiaTien() { return cbGiaTien; }
-    public TextField getTxtNgayNhanBan() { return txtNgayNhanBan; }
-    public TextField getTxtGioNhanBan() { return txtGioNhanBan; }
+    public TextField getTxtGiaTien() { return txtGiaTien; }
+    public DatePicker getDtpNgayNhanBan() { return dtpNgayNhanBan; }
+    public LocalTimeTextField getTimeNhanBan() { return timeNhanBan; }
+    public LocalDateTime getGioNhanBan() {
+        LocalDate date = dtpNgayNhanBan.getValue();
+        if (date == null) return null;
+        LocalTime t = timeNhanBan.getLocalTime();
+        if (t == null) t = LocalTime.MIDNIGHT;
+        return LocalDateTime.of(date, t);
+    }
     public TextField getTxtSDTKhachDat() { return txtSDTKhachDat; }
     public Label getLblTenKhachDat() { return lblTenKhachDat; }
     public Button getBtnKiemTra() { return btnKiemTra; }

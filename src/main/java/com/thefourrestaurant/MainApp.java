@@ -3,6 +3,7 @@ package com.thefourrestaurant;
 import java.sql.Connection;
 
 import com.thefourrestaurant.connect.ConnectSQL;
+import com.thefourrestaurant.view.GiaoDienDangNhap;
 import com.thefourrestaurant.view.GiaoDienChinh;
 
 import javafx.application.Application;
@@ -20,15 +21,15 @@ public class MainApp extends Application {
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 14);
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"), 14);
 
-//        GiaoDienDangNhap giaoDienDangNhap = new GiaoDienDangNhap();
-//        giaoDienDangNhap.show(primaryStage);
+//       GiaoDienDangNhap giaoDienDangNhap = new GiaoDienDangNhap();
+//       giaoDienDangNhap.show(primaryStage);
 //        GiaoDienGoiMon giaoDienGoiMon = new GiaoDienGoiMon();
 //        javafx.scene.Scene scene = new javafx.scene.Scene(giaoDienGoiMon, 1200, 700);
 //        primaryStage.setTitle("Test Gọi Món");
 //        primaryStage.setScene(scene);
 //        primaryStage.show();
-        GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
-        giaoDienChinh.show(primaryStage);
+         GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
+         giaoDienChinh.show(primaryStage);
 
         // Sau khi giao diện đã mở, chạy kết nối DB ở thread riêng
         Task<Connection> ketNoiTask = new Task<>() {

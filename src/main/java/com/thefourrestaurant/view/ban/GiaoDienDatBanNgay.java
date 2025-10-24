@@ -18,7 +18,7 @@ public class GiaoDienDatBanNgay extends VBox {
     private TextField txtTrangThai;
     private ComboBox<String> cbLoaiBan;
     private TextField txtSoNguoi;
-    private ComboBox<String> cbGiaTien;
+    private TextField txtGiaTien;
     private TextField txtSDTKhachDat;
     private Label lblTenKhachDat;
     private Button btnKiemTra;
@@ -75,12 +75,12 @@ public class GiaoDienDatBanNgay extends VBox {
         txtSoNguoi = createTextField();
         txtSoNguoi.setPrefWidth(230);
 
-        Label lblGiaTien = createLabel("Giá tiền:");
-        lblGiaTien.setPrefWidth(100);
-        cbGiaTien = createComboBox();
-        cbGiaTien.setPrefWidth(230);
+    Label lblGiaTien = createLabel("Giá tiền:");
+    lblGiaTien.setPrefWidth(100);
+    txtGiaTien = createTextField();
+    txtGiaTien.setPrefWidth(230);
 
-        row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, lblGiaTien, cbGiaTien);
+    row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, lblGiaTien, txtGiaTien);
 
         // Row 3: SDT khách đặt
         HBox row3 = new HBox(10);
@@ -153,7 +153,7 @@ public class GiaoDienDatBanNgay extends VBox {
     public TextField getTxtTrangThai() { return txtTrangThai; }
     public ComboBox<String> getCbLoaiBan() { return cbLoaiBan; }
     public TextField getTxtSoNguoi() { return txtSoNguoi; }
-    public ComboBox<String> getCbGiaTien() { return cbGiaTien; }
+    public TextField getTxtGiaTien() { return txtGiaTien; }
     public TextField getTxtSDTKhachDat() { return txtSDTKhachDat; }
     public Label getLblTenKhachDat() { return lblTenKhachDat; }
     public Button getBtnKiemTra() { return btnKiemTra; }
