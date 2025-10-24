@@ -63,4 +63,28 @@ public class KhachHangDAO {
         }
         return null;
     }
+
+    public KhachHang layKhachHangTheoSDT(String soDT) {
+        String sql = "SELECT * FROM KhachHang WHERE soDT = ? AND isDeleted = 0";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, soDT);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new KhachHang(
+                            rs.getString("maKH"),
+                            rs.getString("hoTen"),
+                            rs.getDate("ngaySinh"),
+                            rs.getString("gioiTinh"),
+                            rs.getString("soDT"),
+                            LoaiKhachHangDAO.layLoaiKhachHangTheoMa(rs.getString("maLoaiKH")),
+                            rs.getBoolean("isDeleted")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

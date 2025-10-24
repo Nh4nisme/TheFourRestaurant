@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,7 +69,7 @@ public class PhieuDatBanDAO {
 
     // 🔹 Thêm mới phiếu đặt bàn (tự sinh mã tự động)
     public boolean themPhieu(PhieuDatBan pdb) {
-        String sql = "INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
