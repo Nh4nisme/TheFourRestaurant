@@ -16,19 +16,23 @@ import javafx.scene.control.TableView;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GiaoDienHoaDon extends GiaoDienThucThe {
     private final HoaDonController hoaDonController = new HoaDonController();
+    private GiaoDienChiTietHoaDon gdChiTietHoaDon;
+    private TableView<HoaDon> table;
 
     public GiaoDienHoaDon() {
         super("Hóa đơn", new GiaoDienChiTietHoaDon());
+        gdChiTietHoaDon = (GiaoDienChiTietHoaDon) getChiTietNode();
         khoiTaoGiaoDien();
     }
 
     @Override
     protected TableView<?> taoBangChinh() {
-        TableView<HoaDon> table = new TableView<>();
+        table = new TableView<>();
 
         // ===== Cột Mã hóa đơn =====
         TableColumn<HoaDon, String> colMaHD = new TableColumn<>("Mã HĐ");
@@ -71,32 +75,25 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
         colTongTien.setStyle("-fx-alignment: CENTER-RIGHT;");
 
         table.getColumns().addAll(colMaHD, colNgayLap, colSoDT, colPTTT, colTongTien);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // ===== Lấy dữ liệu từ Controller =====
-        table.setItems(hoaDonController.layDanhSachHoaDon());
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setPlaceholder(new Label("Chưa có hóa đơn nào."));
+        List<HoaDon> dsHoaDon = hoaDonController.layDanhSachHoaDon();
+        table.getItems().setAll(dsHoaDon);
 
-//        table.setRowFactory(tv -> {
-//            TableRow<HoaDon> row = new TableRow<>();
-//            row.setOnMouseClicked(event -> {
-//                if (!row.isEmpty() && event.getClickCount() == 1) {
-//                    HoaDon selectedHoaDon = row.getItem();
-//
-//                    // Gọi controller để lấy chi tiết hóa đơn
-//                    List<ChiTietHoaDon> chiTietList = hoaDonController.layCTHDTheoMa(selectedHoaDon.getMaHD());
-//
-//                    // Hiển thị ra giao diện chi tiết
-//                    GiaoDienChiTietHoaDon chiTietView = new GiaoDienChiTietHoaDon();
-//                    chiTietView.hienThiThongTin(selectedHoaDon, chiTietList);
-//
-//                    // Có thể hiển thị ở khu vực bên phải, hoặc popup
-//                    someContainer.setRight(chiTietView);
-//                }
-//            });
-//            return row;
-//        });
+        table.setRowFactory(t ->{
+            TableRow<HoaDon> row = new TableRow<>();
+            row.setOnMouseClicked((e) -> {
+                if (!row.isEmpty()) {
+                    HoaDon hd = row.getItem();
+                    hienThiChiTiet(hd);
+                }
+            });
+            return row;
+        });
 
         return table;
     }
+
+    private void hienThiChiTiet(HoaDon hd) {gdChiTietHoaDon.hienThiThongTin(hd);}
 }

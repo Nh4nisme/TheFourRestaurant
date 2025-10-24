@@ -43,13 +43,4 @@ public class ChiTietHoaDonDAO {
 
         return ds;
     }
-
-//    private ChiTietHoaDon mapResultSetToChiTiet(ResultSet rs) throws SQLException {
-//        String maHD = rs.getString("maHD");
-//        String maMonAn = rs.getString("maMonAn");
-//        int soLuong = rs.getInt("soLuong");
-//        BigDecimal donGia = rs.getBigDecimal("donGia");
-//
-//        return new ChiTietHoaDon(maHD, maMonAn, soLuong, donGia);
-//    }
 }

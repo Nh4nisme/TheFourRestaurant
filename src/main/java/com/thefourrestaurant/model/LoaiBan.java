@@ -1,8 +1,11 @@
 package com.thefourrestaurant.model;
 
+import java.math.BigDecimal;
+
 public class LoaiBan {
     private String maLoaiBan;
     private String tenLoaiBan;
+    private BigDecimal giaTien;
 
     public LoaiBan() {}
 
@@ -10,9 +13,10 @@ public class LoaiBan {
         setMaLoaiBan(maLoaiBan);
     }
 
-    public LoaiBan(String maLoaiBan, String tenLoaiBan) {
+    public LoaiBan(String maLoaiBan, String tenLoaiBan,  BigDecimal giaTien) {
         setMaLoaiBan(maLoaiBan);
         setTenLoaiBan(tenLoaiBan);
+        setGiaTien(giaTien);
     }
 
     public String getMaLoaiBan() {
@@ -30,7 +34,15 @@ public class LoaiBan {
     public void setTenLoaiBan(String tenLoaiBan) {
         this.tenLoaiBan = tenLoaiBan;
     }
-    
+
+    public BigDecimal getGiaTien() {
+        return giaTien;
+    }
+
+    public void setGiaTien(BigDecimal giaTien) {
+        this.giaTien = giaTien;
+    }
+
     public int getSoNguoi() {
         if (tenLoaiBan != null) {
             try {
