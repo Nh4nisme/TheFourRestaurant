@@ -1,5 +1,8 @@
 package com.thefourrestaurant.view.ban;
 
+import com.thefourrestaurant.model.Ban;
+import com.thefourrestaurant.model.PhieuDatBan;
+import com.thefourrestaurant.view.ThanhToan;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import javafx.beans.value.ChangeListener;
@@ -19,12 +22,20 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 public class GiaoDienChiTietBan extends BorderPane {
-	public GiaoDienChiTietBan() {
+	
+	private StackPane mainContent;
+	private Ban ban;
+	private PhieuDatBan pdb;
+	
+	public GiaoDienChiTietBan(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
+		this.mainContent = mainContent;
+		this.ban = ban;
+		this.pdb = pdb;
+		
 		setStyle("-fx-background-color: #F5F5F5;");
-
-	setTop(buildHeader());
-	setCenter(buildCenter());
-	setBottom(buildFooter());
+		setTop(buildHeader());
+		setCenter(buildCenter());
+		setBottom(buildFooter());
 
 		ChangeListener<javafx.scene.Parent> ganKichThuoc = (obs, cu, moi) -> {
 			if (moi instanceof Region r) {
@@ -53,10 +64,13 @@ public class GiaoDienChiTietBan extends BorderPane {
 		footer.setPadding(new Insets(12, 20, 12, 20));
 		footer.setStyle("-fx-background-color: #1E424D ;");
 
-	Button nutQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 120);
+		Button nutQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 120);
+		nutQuayLai.setOnAction(e -> mainContent.getChildren().setAll(new GiaoDienDatBan(mainContent)));
+
 		Region dayCach = new Region();
 		HBox.setHgrow(dayCach, Priority.ALWAYS);
-	Button nutTinhTien = new ButtonSample2("Tính tiền", Variant.YELLOW, 120);
+		Button nutTinhTien = new ButtonSample2("Tính tiền", Variant.YELLOW, 120);
+//		nutQuayLai.setOnAction(e -> mainContent.getChildren().setAll(new ThanhToan()));
 		footer.getChildren().addAll(nutQuayLai, dayCach, nutTinhTien);
 		return footer;
 	}

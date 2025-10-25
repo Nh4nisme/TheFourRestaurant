@@ -202,7 +202,7 @@ public class GiaoDienDatBan extends BorderPane {
 
         VBox thanhDieuHuong = taoThanhDieuHuong();
 
-        quanLiBan = new QuanLiBan();
+        quanLiBan = new QuanLiBan(mainContent);
         quanLiBan.hienThiBanTheoTang("TG000001");
 
         Pane khuVucBan = quanLiBan.getKhuVucBan();
@@ -388,7 +388,7 @@ public class GiaoDienDatBan extends BorderPane {
                 System.out.println("🔼 Chuyển đến " + tangMoi.getTenTang());
             }
         } else {
-            System.out.println("🚫 Đang ở tầng thấp nhất!");
+            System.out.println("Đang ở tầng thấp nhất!");
         }
     }
 
@@ -401,10 +401,10 @@ public class GiaoDienDatBan extends BorderPane {
             Tang tangMoi = cboSoTang.getSelectionModel().getSelectedItem();
             if (tangMoi != null) {
                 quanLiBan.hienThiBanTheoTang(tangMoi.getMaTang());
-                System.out.println("🔽 Chuyển đến " + tangMoi.getTenTang());
+                System.out.println("Chuyển đến " + tangMoi.getTenTang());
             }
         } else {
-            System.out.println("🚫 Đang ở tầng cao nhất!");
+            System.out.println("Đang ở tầng cao nhất!");
         }
     }
     

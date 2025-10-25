@@ -14,7 +14,7 @@ public class ChiTietPDBDAO {
         List<ChiTietPDB> dsChiTiet = new ArrayList<>();
         String sql = """
             SELECT maCT, maPDB, maBan, maMon, soLuong, donGia
-            FROM ChiTietPhieuDatBan
+            FROM ChiTietPDB
         """;
 
         try (Connection conn = ConnectSQL.getConnection();
@@ -44,7 +44,7 @@ public class ChiTietPDBDAO {
         List<ChiTietPDB> dsChiTiet = new ArrayList<>();
         String sql = """
             SELECT maCT, maPDB, maBan, maMon, soLuong, donGia
-            FROM ChiTietPhieuDatBan
+            FROM ChiTietPDB
             WHERE maPDB = ?
         """;
 
@@ -74,7 +74,7 @@ public class ChiTietPDBDAO {
     // 🔹 Thêm chi tiết phiếu đặt bàn mới
     public boolean them(ChiTietPDB chiTiet) {
         String sql = """
-            INSERT INTO ChiTietPhieuDatBan (maCT, maPDB, maBan, maMon, soLuong, donGia, ghiChu)
+            INSERT INTO ChiTietPDB (maCT, maPDB, maBan, maMon, soLuong, donGia, ghiChu)
         	VALUES (?, ?, ?, ?, ?, ?, ?)
         """;
 
@@ -102,7 +102,7 @@ public class ChiTietPDBDAO {
     // 🔹 Cập nhật chi tiết phiếu (VD: khi đổi món hoặc số lượng)
     public boolean capNhat(ChiTietPDB chiTiet) {
         String sql = """
-            UPDATE ChiTietPhieuDatBan
+            UPDATE ChiTietPDB
 		    SET maBan = ?, maMon = ?, soLuong = ?, donGia = ?, ghiChu = ?
 		    WHERE maCT = ?
         """;
@@ -126,7 +126,7 @@ public class ChiTietPDBDAO {
 
     // 🔹 Xóa chi tiết phiếu
     public boolean xoa(String maCT) {
-        String sql = "DELETE FROM ChiTietPhieuDatBan WHERE maCT = ?";
+        String sql = "DELETE FROM ChiTietPDB WHERE maCT = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -140,7 +140,7 @@ public class ChiTietPDBDAO {
     }
     
     public String taoMaChiTietMoi() {
-        String sql = "SELECT TOP 1 maCT FROM ChiTietPhieuDatBan ORDER BY maCT DESC";
+        String sql = "SELECT TOP 1 maCT FROM ChiTietPDB ORDER BY maCT DESC";
         try (Connection conn = ConnectSQL.getConnection();
         	 PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery(sql)) {
