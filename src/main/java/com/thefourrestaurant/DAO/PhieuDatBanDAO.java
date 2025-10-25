@@ -15,7 +15,7 @@ import com.thefourrestaurant.model.PhieuDatBan;
 
 public class PhieuDatBanDAO {
 
-    // 🔹 Lấy toàn bộ phiếu đặt bàn (chưa xóa)
+    // Lấy toàn bộ phiếu đặt bàn (chưa xóa)
     public List<PhieuDatBan> layTatCaPhieu() {
         List<PhieuDatBan> danhSach = new ArrayList<>();
         String sql = "SELECT maPDB, ngayDat, soNguoi, maKH, maNV, isDeleted FROM PhieuDatBan WHERE isDeleted = 0";
