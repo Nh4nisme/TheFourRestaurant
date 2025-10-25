@@ -163,13 +163,12 @@ public class NavBar extends HBox {
             case "Thực đơn" -> new QuanLyThucDon();
             case "Món ăn" -> new LoaiMonAn();
             case "Đặt bàn" -> new GiaoDienDatBan((StackPane) mainContent);
-            case "Đặt bàn trước" -> new GiaoDienDatBanTruoc();
-            case "Thêm khách hàng" -> new GiaoDienThemKhachHang();
             case "Bàn" -> {
                 QuanLiBan giaoDienBan = new QuanLiBan((StackPane) mainContent);
                 giaoDienBan.hienThiBanTheoTang("TG000001");
                 yield giaoDienBan;
             }
+            case "Khách hàng" -> new GiaoDienThemKhachHang();
             case "Hóa đơn" -> new GiaoDienHoaDon();
             case "Tài khoản" -> new GiaoDienTaiKhoan();
             default -> null;
