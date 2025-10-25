@@ -10,23 +10,25 @@ public class PhieuDatBan {
     private int soNguoi;
     private KhachHang khachHang;
     private NhanVien nhanVien;
+    private String trangThai;
     private boolean isDeleted;
 
     public PhieuDatBan() {}
 
     public PhieuDatBan(String maPDB) {
-        setMaPDB(maPDB);
+        this.maPDB = maPDB;
     }
 
     public PhieuDatBan(String maPDB, LocalDate ngayDat, LocalDateTime ngayTao, int soNguoi,
-                       KhachHang khachHang, NhanVien nhanVien, boolean isDeleted) {
-        setMaPDB(maPDB);
-        setNgayDat(ngayDat);
-        setNgayTao(ngayTao);
-        setSoNguoi(soNguoi);
-        setKhachHang(khachHang);
-        setNhanVien(nhanVien);
-        setDeleted(isDeleted);
+                       KhachHang khachHang, NhanVien nhanVien, String trangThai, boolean isDeleted) {
+        this.maPDB = maPDB;
+        this.ngayDat = ngayDat;
+        this.ngayTao = ngayTao;
+        this.soNguoi = soNguoi;
+        this.khachHang = khachHang;
+        this.nhanVien = nhanVien;
+        this.trangThai = trangThai;
+        this.isDeleted = isDeleted;
     }
 
     public String getMaPDB() { return maPDB; }
@@ -46,6 +48,9 @@ public class PhieuDatBan {
 
     public NhanVien getNhanVien() { return nhanVien; }
     public void setNhanVien(NhanVien nhanVien) { this.nhanVien = nhanVien; }
+
+    public String getTrangThai() { return trangThai; }
+    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
 
     public boolean isDeleted() { return isDeleted; }
     public void setDeleted(boolean deleted) { isDeleted = deleted; }

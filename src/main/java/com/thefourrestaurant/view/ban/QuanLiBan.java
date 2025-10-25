@@ -3,26 +3,34 @@ package com.thefourrestaurant.view.ban;
 import java.util.List;
 
 import com.thefourrestaurant.DAO.BanDAO;
+import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.model.Ban;
+import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 public class QuanLiBan extends VBox {
 
     private final BanDAO banDAO = new BanDAO();
+    private PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
     private final Pane khuVucBan = new Pane(); // nơi hiển thị bàn
     private final Label lblBreadcrumb = new Label();
     
     private Ban banDangChon;
+    private StackPane mainContent;
 
-    public QuanLiBan() {
+    public QuanLiBan(StackPane mainContent) {
+    	this.mainContent = mainContent;
         // === Cấu hình chính cho layout ===
         this.setPrefSize(1200, 700);
         this.setSpacing(0);
@@ -180,23 +188,40 @@ public class QuanLiBan extends VBox {
 
             boolean ok = banDAO.capNhatToaDo(ban.getMaBan(), newX, newY);
             if (ok) {
-                System.out.println("✅ Lưu vị trí bàn " + ban.getTenBan() + " thành công: (" + newX + ", " + newY + ")");
+                System.out.println("Lưu vị trí bàn " + ban.getTenBan() + " thành công: (" + newX + ", " + newY + ")");
             } else {
-                System.err.println("❌ Không thể lưu vị trí bàn " + ban.getTenBan());
+                System.err.println("Không thể lưu vị trí bàn " + ban.getTenBan());
             }
         });
         
-        khungBan.setOnMouseClicked(e -> {
-            // Gán bàn được chọn
-            setBanDangChon(ban);
-            System.out.println("🔹 Bàn được chọn: " + ban.getTenBan());
 
-            // Hiệu ứng viền bàn được chọn
-            for (var node : pane.getChildren()) {
-                if (node instanceof StackPane sp) {
-                    sp.setStyle(sp == khungBan
-                            ? borderStyle + "-fx-effect: dropshadow(gaussian, gold, 20, 0.5, 0, 0);"
-                            : borderStyle);
+
+        khungBan.setOnMouseClicked(e -> {
+            PauseTransition delay = new PauseTransition(Duration.millis(200)); // Trì hoãn để phân biệt click đơn & đúp
+
+            if (e.getClickCount() == 1) {
+                delay.setOnFinished(ev -> {
+                    setBanDangChon(ban);
+                    System.out.println("Bàn được chọn: " + ban.getTenBan());
+
+                });
+                delay.playFromStart();
+            } 
+            
+            else if (e.getClickCount() == 2) {
+                delay.stop();
+                
+                PhieuDatBan pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
+                System.out.println("Nhấp đúp vào: " + ban.getTenBan());
+
+                if (pdb != null) {
+                    mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban, pdb));
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Thông báo");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Bàn này hiện chưa có phiếu hoạt động.");
+                    alert.showAndWait();
                 }
             }
         });
