@@ -13,32 +13,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KhachHangDAO {
+    private LoaiKhachHangDAO loaiKhachHangDAO = new  LoaiKhachHangDAO();
 
-//    public List<KhachHang> getAll() {
-//        List<KhachHang> ds = new ArrayList<>();
-//        String sql = "SELECT * FROM KhachHang WHERE isDeleted = false";
-//        try (Connection conn = ConnectSQL.getConnection();
-//             PreparedStatement ps = conn.prepareStatement(sql);
-//             ResultSet rs = ps.executeQuery()) {
-//
-//            while (rs.next()) {
-//                KhachHang kh = new KhachHang(
-//                        rs.getString("maKH"),
-//                        rs.getString("hoTen"),
-//                        rs.getDate("ngaySinh"),
-//                        rs.getString("gioiTinh"),
-//                        rs.getString("soDT"),
-//                        new LoaiKhachHang()
-//                        rs.getBoolean("isDeleted")
-//                );
-//                ds.add(kh);
-//            }
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return ds;
-//    }
+    public List<KhachHang> layDanhSachKhachHang() {
+        List<KhachHang> ds = new ArrayList<>();
+        String sql = "SELECT * FROM KhachHang WHERE isDeleted = 0";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                String maLoaiKH = rs.getString("maLoaiKH");
+                LoaiKhachHang loaiKH = null;
+                if (maLoaiKH != null) {
+                    loaiKH = loaiKhachHangDAO.layLoaiKhachHangTheoMa(maLoaiKH);
+                }
+
+                KhachHang kh = new KhachHang(
+                        rs.getString("maKH"),
+                        rs.getString("hoTen"),
+                        rs.getDate("ngaySinh"),
+                        rs.getString("gioiTinh"),
+                        rs.getString("soDT"),
+                        loaiKH,
+                        rs.getBoolean("isDeleted")
+                );
+                ds.add(kh);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ds;
+    }
 
     public KhachHang layKhachHangTheoMa(String maKH) {
         String sql = "SELECT * FROM KhachHang WHERE maKH = ? AND isDeleted = 0";
@@ -138,5 +145,39 @@ public class KhachHangDAO {
             e.printStackTrace();
         }
         return "KH000001";
+    }
+
+    public boolean capNhatKhachHang(KhachHang kh) {
+        String sql = "UPDATE KhachHang SET hoTen = ?, ngaySinh = ?, gioiTinh = ?, soDT = ?, maLoaiKH = ? " +
+                "WHERE maKH = ? AND isDeleted = 0";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, kh.getHoTen());
+            ps.setDate(2, kh.getNgaySinh());
+            ps.setString(3, kh.getGioiTinh());
+            ps.setString(4, kh.getSoDT());
+            ps.setString(5, kh.getLoaiKH() != null ? kh.getLoaiKH().getMaLoaiKH() : null);
+            ps.setString(6, kh.getMaKH());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean xoaKhachHang(String maKH) {
+        String sql = "UPDATE KhachHang SET isDeleted = 1 WHERE maKH = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maKH);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

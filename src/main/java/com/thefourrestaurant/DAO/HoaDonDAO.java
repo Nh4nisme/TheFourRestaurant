@@ -41,7 +41,7 @@ public class HoaDonDAO {
                         rs.getTimestamp("ngayLap").toLocalDateTime(),
                         nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")),
                         khachHangDAO.layKhachHangTheoMa(rs.getString("maKH")),
-                        phieuDatBanDAO.layPhieuTheoMa("MaPDB"),
+                        phieuDatBanDAO.layPhieuTheoMa(rs.getString("maPDB")),
                         khuyenMaiDAO.layKhuyenMaiTheoMa(rs.getString("maKM")),
                         thueDAO.layThueTheoMa(rs.getString("maThue")),
                         rs.getBigDecimal("tienKhachDua"),
@@ -49,7 +49,7 @@ public class HoaDonDAO {
                         phuongThucThanhToanDAO.layPTTTTheoMa(rs.getString("maPTTT")),
                         rs.getBoolean("isDeleted")
                 );
-                hd.setchiTietHoaDon(chiTietHoaDonDAO.layCTHDTheoMa(hd.getMaHD()));
+                hd.setChiTietHoaDon(chiTietHoaDonDAO.layCTHDTheoMa(hd.getMaHD()));
                 dsHoaDon.add(hd);
             }
 

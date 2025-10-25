@@ -12,7 +12,7 @@ public class LoaiBanDAO {
     // 🔹 Lấy tất cả loại bàn
     public List<LoaiBan> layTatCa() {
         List<LoaiBan> dsLoaiBan = new ArrayList<>();
-        String sql = "SELECT maLoaiBan, tenLoaiBan FROM LoaiBan ORDER BY maLoaiBan";
+        String sql = "SELECT * FROM LoaiBan ORDER BY maLoaiBan";
 
         try (Connection conn = ConnectSQL.getConnection();
              Statement st = conn.createStatement();
@@ -21,7 +21,8 @@ public class LoaiBanDAO {
             while (rs.next()) {
                 LoaiBan lb = new LoaiBan(
                         rs.getString("maLoaiBan"),
-                        rs.getString("tenLoaiBan")
+                        rs.getString("tenLoaiBan"),
+                        rs.getBigDecimal("giaTien")
                 );
                 dsLoaiBan.add(lb);
             }
@@ -46,7 +47,8 @@ public class LoaiBanDAO {
             if (rs.next()) {
                 return new LoaiBan(
                         rs.getString("maLoaiBan"),
-                        rs.getString("tenLoaiBan")
+                        rs.getString("tenLoaiBan"),
+                        rs.getBigDecimal("giaTien")
                 );
             }
 

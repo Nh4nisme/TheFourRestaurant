@@ -109,7 +109,8 @@ GO
 -- ================================
 CREATE TABLE LoaiBan (
     maLoaiBan CHAR(8) PRIMARY KEY CHECK (maLoaiBan LIKE 'LB%' AND LEN(maLoaiBan) = 8),
-    tenLoaiBan NVARCHAR(50) NOT NULL UNIQUE
+    tenLoaiBan NVARCHAR(50) NOT NULL UNIQUE,
+    giaTien DECIMAL(10, 2) NOT NULL CHECK (giaTien >= 0)
 );
 GO
 
@@ -437,11 +438,11 @@ GO
 
 -- Loại bàn
 -- ==============================
-INSERT INTO LoaiBan (maLoaiBan, tenLoaiBan) VALUES
-('LB000001', N'Bàn 8'),
-('LB000002', N'Bàn 6'),
-('LB000003', N'Bàn 4'),
-('LB000004', N'Bàn 2');
+INSERT INTO LoaiBan (maLoaiBan, tenLoaiBan, giaTien) VALUES
+('LB000001', N'Bàn 8', 500000),
+('LB000002', N'Bàn 6', 400000),
+('LB000003', N'Bàn 4', 300000),
+('LB000004', N'Bàn 2', 200000);
 GO
 
 -- ==============================
@@ -581,18 +582,18 @@ INSERT INTO Thue (maThue, tyLe, ghiChu, maLoaiThue) VALUES
 GO
 
 -- Loại khuyến mãi
-INSERT INTO LoaiKhuyenMai (maLoaiKM, tenLoaiKM) VALUES
-('LKM00001', N'Giảm giá theo tỷ lệ'),
-('LKM00002', N'Tặng món'),
-('LKM00003', N'Giảm giá theo số tiền');
-GO
+    INSERT INTO LoaiKhuyenMai (maLoaiKM, tenLoaiKM) VALUES
+    ('LKM00001', N'Giảm giá theo tỷ lệ'),
+    ('LKM00002', N'Tặng món'),
+    ('LKM00003', N'Giảm giá theo số tiền');
+    GO
 
--- Khuyến mãi
-INSERT INTO KhuyenMai (maKM, maLoaiKM, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) VALUES
-('KM000001', 'LKM00001', 10, NULL, '2025-10-01', '2025-10-31', N'Giảm 10% hóa đơn tháng 10'),
-('KM000002', 'LKM00002', NULL, NULL, '2025-10-10', '2025-10-31', N'Mua cà phê tặng nước cam ép'),
-('KM000003', 'LKM00003', NULL, 15000, '2025-11-01', '2025-11-30', N'Giảm 15.000đ cho món bún bò Huế');
-GO
+    -- Khuyến mãi
+    INSERT INTO KhuyenMai (maKM, maLoaiKM, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) VALUES
+    ('KM000001', 'LKM00001', 10, NULL, '2025-10-01', '2025-10-31', N'Giảm 10% hóa đơn tháng 10'),
+    ('KM000002', 'LKM00002', NULL, NULL, '2025-10-10', '2025-10-31', N'Mua cà phê tặng nước cam ép'),
+    ('KM000003', 'LKM00003', NULL, 15000, '2025-11-01', '2025-11-30', N'Giảm 15.000đ cho món bún bò Huế');
+    GO
 
 -- Chi tiết khuyến mãi
 INSERT INTO ChiTietKhuyenMai (maCTKM, maKM, maMonApDung, maMonTang, tyLeGiam, soTienGiam, soLuongTang)  VALUES
@@ -640,3 +641,6 @@ INSERT INTO ChiTietHD (maHD, maMonAn, soLuong, donGia) VALUES
 ('HD000002','MA000002',2,60000),
 ('HD000002','MA000004',1,30000);
 GO
+
+
+

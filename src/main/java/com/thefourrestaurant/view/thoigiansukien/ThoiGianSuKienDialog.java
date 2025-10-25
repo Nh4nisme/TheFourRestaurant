@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.thoigiansukien;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDate;
@@ -7,38 +8,52 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import com.thefourrestaurant.view.components.ButtonSample;
+import com.thefourrestaurant.view.components.ButtonSample2;
+import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class ThoiGianSuKienThem extends Stage {
+public class ThoiGianSuKienDialog extends Stage {
 
-    // Giữ lại biến ketQua để lưu trữ dữ liệu
     private Map<String, Object> ketQua = null;
+    private File tepAnhDaChon = null;
+    private boolean isEditMode = false;
 
-    public ThoiGianSuKienThem() {
+    public ThoiGianSuKienDialog(Map<String, Object> suKienHienCo) {
+        this.isEditMode = suKienHienCo != null;
         this.initModality(Modality.APPLICATION_MODAL);
-        this.setTitle("Thêm sự kiện khuyến mãi");
+        this.setTitle(isEditMode ? "Tùy chỉnh thời gian sự kiện" : "Thêm sự kiện khuyến mãi");
 
         // --- Font ---
         Font fontMontserrat = null;
@@ -59,7 +74,7 @@ public class ThoiGianSuKienThem extends Stage {
 
         // --- Kiểu dáng chung ---
         String kieuNhan = kieuFontStyle + "-fx-text-fill: #E19E11; -fx-font-size: 14px;";
-        String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #E19E11;";
+        String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8; -fx-font-size: 12px;";
         String kieuNutToggle = kieuFontStyle + "-fx-background-color: #DDB248; -fx-text-fill: #1E424D; -fx-background-radius: 5; -fx-font-size: 13px;";
         String kieuNutToggleSelected = kieuFontStyle + "-fx-background-color: #1E424D; -fx-text-fill: #DDB248; -fx-background-radius: 5; -fx-font-size: 13px;";
 
@@ -67,7 +82,7 @@ public class ThoiGianSuKienThem extends Stage {
         BorderPane layoutChinh = new BorderPane();
 
         // --- Header ---
-        Label nhanTieuDe = new Label("Thêm sự kiện khuyến mãi");
+        Label nhanTieuDe = new Label(isEditMode ? "Tùy chỉnh thời gian sự kiện" : "Thêm sự kiện khuyến mãi");
         nhanTieuDe.setStyle(kieuFontStyle + "-fx-text-fill: #D4A017; -fx-font-size: 18px; -fx-font-weight: bold;");
         HBox phanDau = new HBox(nhanTieuDe);
         phanDau.setAlignment(Pos.CENTER_LEFT);
@@ -217,6 +232,10 @@ public class ThoiGianSuKienThem extends Stage {
             pickerTuNgay.setDisable(isChecked);
             pickerDenNgay.setDisable(isChecked);
         });
+
+        if (isEditMode) {
+            // Populate fields with existing data
+        }
 
         // ===== KHUNG CẢNH =====
         Scene khungCanh = new Scene(layoutChinh, 680, 520);

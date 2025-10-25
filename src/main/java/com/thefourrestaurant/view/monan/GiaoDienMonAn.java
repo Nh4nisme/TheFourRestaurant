@@ -157,17 +157,15 @@ public class GiaoDienMonAn extends VBox {
         luoiThem.setPadding(new Insets(0, 0, 0, 15));
         luoiThem.add(hopThemMoi, 0, 0);
 
-        Button themMoiButton = new Button();
-        themMoiButton.setVisible(false);
-        themMoiButton.setManaged(false);
-        themMoiButton.setOnAction(event -> {
+        // Removed the hidden button and directly call the controller method
+        hopThemMoi.setPickOnBounds(true); // Ensure the VBox receives clicks
+        hopThemMoi.setOnMouseClicked(event -> {
             if (controller.themMoiMonAn(this.maLoaiMon)) {
                 refreshViews();
             }
         });
-        hopThemMoi.setOnMouseClicked(event -> themMoiButton.fire());
 
-        gridContainer.getChildren().addAll(luoiThem, scrollPane, themMoiButton);
+        gridContainer.getChildren().addAll(luoiThem, scrollPane);
         return gridContainer;
     }
 
@@ -208,6 +206,8 @@ public class GiaoDienMonAn extends VBox {
             MonAn item = danhSachMonAn.get(i);
             String formattedPrice = currencyFormatter.format(item.getDonGia());
             MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh());
+
+            hopMonAn.setPickOnBounds(true); // Ensure the MonAnBox receives clicks
 
             ContextMenu contextMenu = createContextMenu(item);
             hopMonAn.setOnMouseClicked(event -> {

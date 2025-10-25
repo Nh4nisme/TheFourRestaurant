@@ -229,9 +229,6 @@ public class GiaoDienDatBan extends BorderPane {
         hang1.setPadding(new Insets(0,0,0,20));
         hang1.setAlignment(Pos.CENTER_LEFT);
 
-        Label lblBanDatTruoc = taoLabel("Bàn đặt trước:", 16, true);
-        lblBanDatTruoc.setPrefWidth(120);
-
         ComboBox<String> cboBanDatTruoc = new ComboBox<>();
         cboBanDatTruoc.setPrefHeight(45);
         cboBanDatTruoc.getItems().add("Bàn đặt trước");
@@ -272,7 +269,7 @@ public class GiaoDienDatBan extends BorderPane {
 
         ButtonSample2 btnTim = new ButtonSample2("Tìm", ButtonSample2.Variant.YELLOW, 120, 45);
 
-        hang1.getChildren().addAll(lblBanDatTruoc, cboBanDatTruoc, taoSpacerH(60), lblSoTang, cboSoTang, taoSpacerH(60), lblMaBan, txtMaBan, taoSpacerH(60), btnTim);
+        hang1.getChildren().addAll(cboBanDatTruoc, taoSpacerH(60), lblSoTang, cboSoTang, taoSpacerH(60), lblMaBan, txtMaBan, taoSpacerH(60), btnTim);
         return hang1;
     }
 
@@ -288,7 +285,7 @@ public class GiaoDienDatBan extends BorderPane {
         ComboBox<String> cboLoaiBan = new ComboBox<>();
         cboLoaiBan.getItems().addAll("Tất cả", "Bàn tròn", "Bàn vuông");
         cboLoaiBan.setPromptText("Chọn");
-        cboLoaiBan.setPrefWidth(250);
+        cboLoaiBan.setPrefWidth(200);
 
         Label lblSoGhe = taoLabel("Số ghế:", 16, true);
         lblSoGhe.setPrefWidth(70);
@@ -296,11 +293,11 @@ public class GiaoDienDatBan extends BorderPane {
         ComboBox<String> cboSoGhe = new ComboBox<>();
         cboSoGhe.getItems().addAll("Tất cả", "Có ghi chú", "Không ghi chú");
         cboSoGhe.setPromptText("Chọn");
-        cboSoGhe.setPrefWidth(300);
+        cboSoGhe.setPrefWidth(100);
 
         ButtonSample2 btnLamMoi = new ButtonSample2("Làm mới", ButtonSample2.Variant.YELLOW, 120, 45);
 
-        hang2.getChildren().addAll(taoSpacerH(350),lblLoaiBan, cboLoaiBan, taoSpacerH(60),lblSoGhe, cboSoGhe, taoSpacerH(60),btnLamMoi);
+        hang2.getChildren().addAll(taoSpacerH(220),lblLoaiBan, cboLoaiBan, taoSpacerH(60),lblSoGhe, cboSoGhe, taoSpacerH(185),btnLamMoi);
         return hang2;
     }
 

@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.hoadon;
 
 import com.thefourrestaurant.controller.HoaDonController;
+import com.thefourrestaurant.model.ChiTietHoaDon;
 import com.thefourrestaurant.model.HoaDon;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.PhuongThucThanhToan;
@@ -9,23 +10,29 @@ import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GiaoDienHoaDon extends GiaoDienThucThe {
     private final HoaDonController hoaDonController = new HoaDonController();
+    private GiaoDienChiTietHoaDon gdChiTietHoaDon;
+    private TableView<HoaDon> table;
 
     public GiaoDienHoaDon() {
         super("Hóa đơn", new GiaoDienChiTietHoaDon());
+        gdChiTietHoaDon = (GiaoDienChiTietHoaDon) getChiTietNode();
         khoiTaoGiaoDien();
     }
 
     @Override
     protected TableView<?> taoBangChinh() {
-        TableView<HoaDon> table = new TableView<>();
+        table = new TableView<>();
 
         // ===== Cột Mã hóa đơn =====
         TableColumn<HoaDon, String> colMaHD = new TableColumn<>("Mã HĐ");
@@ -68,14 +75,25 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
         colTongTien.setStyle("-fx-alignment: CENTER-RIGHT;");
 
         table.getColumns().addAll(colMaHD, colNgayLap, colSoDT, colPTTT, colTongTien);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // ===== Lấy dữ liệu từ Controller =====
-        table.setItems(hoaDonController.layDanhSachHoaDon());
+        List<HoaDon> dsHoaDon = hoaDonController.layDanhSachHoaDon();
+        table.getItems().setAll(dsHoaDon);
 
-        // ===== Style =====
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.setPlaceholder(new Label("Chưa có hóa đơn nào."));
+        table.setRowFactory(t ->{
+            TableRow<HoaDon> row = new TableRow<>();
+            row.setOnMouseClicked((e) -> {
+                if (!row.isEmpty()) {
+                    HoaDon hd = row.getItem();
+                    hienThiChiTiet(hd);
+                }
+            });
+            return row;
+        });
 
         return table;
     }
+
+    private void hienThiChiTiet(HoaDon hd) {gdChiTietHoaDon.hienThiThongTin(hd);}
 }

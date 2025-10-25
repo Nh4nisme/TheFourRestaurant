@@ -20,12 +20,12 @@ public class GiaoDienChiTietTaiKhoan extends VBox {
     public GiaoDienChiTietTaiKhoan() {
         setPadding(new Insets(20));
         setSpacing(15);
-        setAlignment(Pos.TOP_LEFT);
+        setAlignment(Pos.TOP_CENTER);
         getStyleClass().add("giao-dien-chi-tiet-tai-khoan");
 
         // ==== Tiêu đề ====
         Label lblTieuDe = new Label("Thông tin tài khoản");
-        lblTieuDe.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        lblTieuDe.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #DDB248;");
 
         // ==== Các trường nhập ====
         txtMaTK = taoTextField("Mã tài khoản");

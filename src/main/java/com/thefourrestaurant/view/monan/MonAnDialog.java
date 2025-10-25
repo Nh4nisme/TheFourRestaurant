@@ -1,6 +1,5 @@
 package com.thefourrestaurant.view.monan;
 
-import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.components.ButtonSample;
@@ -35,14 +34,13 @@ public class MonAnDialog extends Stage {
     private final TextField truongGia = new TextField();
     private final ComboBox<LoaiMon> loaiMonComboBox = new ComboBox<>();
     private final CheckBox hopKiemHienThi = new CheckBox();
-    private final ComboBox<KhuyenMai> khuyenMaiComboBox = new ComboBox<>();
 
-    // UI Components for display only
+    // UI Components for display only (removed KhuyenMaiComboBox)
     private final TextField truongVAT = new TextField();
     private final TextField truongMoTa = new TextField();
     private final TextField truongSoLuong = new TextField();
 
-    public MonAnDialog(MonAn monAn, List<LoaiMon> tatCaLoaiMon, LoaiMon loaiMonMacDinh, List<KhuyenMai> tatCaKhuyenMai) {
+    public MonAnDialog(MonAn monAn, List<LoaiMon> tatCaLoaiMon, LoaiMon loaiMonMacDinh) { // Removed tatCaKhuyenMai parameter
         this.monAnHienTai = monAn;
         this.isEditMode = (monAn != null);
 
@@ -70,7 +68,7 @@ public class MonAnDialog extends Stage {
         hopTieuDe.setStyle("-fx-background-color: #1E424D;");
 
         GridPane luoiFormChinh = createMainForm(tatCaLoaiMon, loaiMonMacDinh, kieuFontStyle);
-        TitledPane khungNangCao = createAdvancedPane(kieuFontStyle, tatCaKhuyenMai);
+        TitledPane khungNangCao = createAdvancedPane(kieuFontStyle); // Removed tatCaKhuyenMai parameter
         VBox hopGiua = new VBox(20, luoiFormChinh, khungNangCao);
         hopGiua.setPadding(new Insets(20));
 
@@ -105,9 +103,12 @@ public class MonAnDialog extends Stage {
         String kieuNhan = kieuFontStyle + "-fx-text-fill: #E19E11; -fx-font-size: 14px;";
         String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8;";
 
-        truongTen.setStyle(kieuTruongNhap); truongTen.getStyleClass().add("text-field");
-        truongGia.setStyle(kieuTruongNhap); truongGia.getStyleClass().add("text-field");
-        loaiMonComboBox.setStyle(kieuTruongNhap); loaiMonComboBox.getStyleClass().add("combo-box");
+        truongTen.setStyle(kieuTruongNhap);
+        truongTen.getStyleClass().add("text-field");
+        truongGia.setStyle(kieuTruongNhap);
+        truongGia.getStyleClass().add("text-field");
+        loaiMonComboBox.setStyle(kieuTruongNhap);
+        loaiMonComboBox.getStyleClass().add("combo-box");
         hopKiemHienThi.getStyleClass().add("custom-checkbox");
 
         luoiForm.add(new Label("Tên:"), 0, 0);
@@ -115,7 +116,8 @@ public class MonAnDialog extends Stage {
 
         TextField truongMa = new TextField(isEditMode ? monAnHienTai.getMaMonAn() : "Tạo tự động");
         truongMa.setEditable(false);
-        truongMa.setStyle(kieuTruongNhap); truongMa.getStyleClass().add("text-field");
+        truongMa.setStyle(kieuTruongNhap);
+        truongMa.getStyleClass().add("text-field");
         luoiForm.add(new Label("Mã Món Ăn:"), 0, 1);
         luoiForm.add(truongMa, 1, 1);
 
@@ -125,8 +127,15 @@ public class MonAnDialog extends Stage {
         luoiForm.add(new Label("Loại món:"), 0, 3);
         loaiMonComboBox.setItems(FXCollections.observableArrayList(tatCaLoaiMon));
         loaiMonComboBox.setConverter(new StringConverter<>() {
-            @Override public String toString(LoaiMon object) { return object == null ? "" : object.getTenLoaiMon(); }
-            @Override public LoaiMon fromString(String string) { return null; }
+            @Override
+            public String toString(LoaiMon object) {
+                return object == null ? "" : object.getTenLoaiMon();
+            }
+
+            @Override
+            public LoaiMon fromString(String string) {
+                return null;
+            }
         });
         if (loaiMonMacDinh != null) {
             loaiMonComboBox.setValue(loaiMonMacDinh);
@@ -145,7 +154,7 @@ public class MonAnDialog extends Stage {
         return luoiForm;
     }
 
-    private TitledPane createAdvancedPane(String kieuFontStyle, List<KhuyenMai> tatCaKhuyenMai) {
+    private TitledPane createAdvancedPane(String kieuFontStyle) { // Removed tatCaKhuyenMai parameter
         TitledPane khungNangCao = new TitledPane("Tùy chỉnh nâng cao", new GridPane());
         khungNangCao.setCollapsible(true);
         khungNangCao.setExpanded(false);
@@ -158,10 +167,13 @@ public class MonAnDialog extends Stage {
         String kieuNhan = kieuFontStyle + "-fx-text-fill: #E19E11; -fx-font-size: 14px;";
         String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8;";
 
-        truongVAT.setStyle(kieuTruongNhap); truongVAT.getStyleClass().add("text-field");
-        truongMoTa.setStyle(kieuTruongNhap); truongMoTa.getStyleClass().add("text-field");
-        truongSoLuong.setStyle(kieuTruongNhap); truongSoLuong.getStyleClass().add("text-field");
-        khuyenMaiComboBox.setStyle(kieuTruongNhap); khuyenMaiComboBox.getStyleClass().add("combo-box");
+        truongVAT.setStyle(kieuTruongNhap);
+        truongVAT.getStyleClass().add("text-field");
+        truongMoTa.setStyle(kieuTruongNhap);
+        truongMoTa.getStyleClass().add("text-field");
+        truongSoLuong.setStyle(kieuTruongNhap);
+        truongSoLuong.getStyleClass().add("text-field");
+        // Removed khuyenMaiComboBox related styling
 
         luoiNangCao.add(new Label("VAT:"), 0, 0);
         luoiNangCao.add(truongVAT, 1, 0);
@@ -169,21 +181,10 @@ public class MonAnDialog extends Stage {
         luoiNangCao.add(new Label("Mô tả:"), 0, 1);
         luoiNangCao.add(truongMoTa, 1, 1);
 
-        Label nhanKhuyenMai = new Label("Khuyến mãi:");
-        nhanKhuyenMai.setStyle(kieuNhan);
-        luoiNangCao.add(nhanKhuyenMai, 0, 2);
-        
-        ObservableList<KhuyenMai> kmItems = FXCollections.observableArrayList(tatCaKhuyenMai);
-        kmItems.add(0, null); // Add a null item for "None" option
-        khuyenMaiComboBox.setItems(kmItems);
-        khuyenMaiComboBox.setConverter(new StringConverter<>() {
-            @Override public String toString(KhuyenMai km) { return km == null ? "Không áp dụng" : km.getMoTa(); }
-            @Override public KhuyenMai fromString(String s) { return null; }
-        });
-        luoiNangCao.add(khuyenMaiComboBox, 1, 2);
+        // Removed KhuyenMai related UI elements
 
-        luoiNangCao.add(new Label("Số lượng:"), 0, 3);
-        luoiNangCao.add(truongSoLuong, 1, 3);
+        luoiNangCao.add(new Label("Số lượng:"), 0, 2); // Adjusted row index
+        luoiNangCao.add(truongSoLuong, 1, 2); // Adjusted row index
 
         return khungNangCao;
     }

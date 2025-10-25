@@ -36,29 +36,42 @@ public class HoaDon {
         setDeleted(isDeleted);
     }
 
-    public void setchiTietHoaDon(List<ChiTietHoaDon> chiTietHoaDon) {
+    public List<ChiTietHoaDon> getChiTietHoaDon() {return chiTietHoaDon;}
+    public void setChiTietHoaDon(List<ChiTietHoaDon> chiTietHoaDon) {
         this.chiTietHoaDon = chiTietHoaDon;
     }
 
     public BigDecimal getTongTien() {
-        if(chiTietHoaDon==null || chiTietHoaDon.isEmpty()){return BigDecimal.ZERO;}
+        if (chiTietHoaDon == null || chiTietHoaDon.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
 
         BigDecimal tong = BigDecimal.ZERO;
         for (ChiTietHoaDon c : chiTietHoaDon) {
             tong = tong.add(c.getThanhTien());
         }
 
-        if(khuyenMai!=null && khuyenMai.getTyLe() != null){
-            tong = tong.subtract(tong.multiply(khuyenMai.getTyLe()));
+        if (khuyenMai != null && khuyenMai.getLoaiKhuyenMai() != null) {
+            String loaiKM = khuyenMai.getLoaiKhuyenMai().getTenLoaiKM();
+
+            if (loaiKM.equalsIgnoreCase("Giảm giá theo tỷ lệ") && khuyenMai.getTyLe() != null) {
+                BigDecimal tyLeKM = khuyenMai.getTyLe().divide(BigDecimal.valueOf(100));
+                tong = tong.subtract(tong.multiply(tyLeKM));
+
+            } else if (loaiKM.equalsIgnoreCase("Giảm giá theo số tiền") && khuyenMai.getSoTien() != null) {
+                tong = tong.subtract(khuyenMai.getSoTien());
+
+            } else if (loaiKM.equalsIgnoreCase("Tặng món")) {
+                // Không trừ tiền, chỉ hiển thị bên UI
+            }
         }
 
-        if(thue != null) {
-            BigDecimal tyLeThue = BigDecimal.valueOf(thue.getTyLe())
-                    .divide(BigDecimal.valueOf(100)); //ep kieu int sang bigdecimal
+        if (thue != null) {
+            BigDecimal tyLeThue = BigDecimal.valueOf(thue.getTyLe()).divide(BigDecimal.valueOf(100));
             tong = tong.add(tong.multiply(tyLeThue));
         }
 
-        return tong;
+        return tong.max(BigDecimal.ZERO);
     }
 
     public String getMaHD() {
