@@ -32,5 +32,7 @@ public class VaiTro {
     public boolean isDeleted() {
         return isDeleted;
     }
-    public void setDeleted(boolean deleted) {}
+    public void setDeleted(boolean deleted) {
+        this.isDeleted = deleted;
+    }
 }
