@@ -301,6 +301,7 @@ public class GiaoDienDatBanTruoc extends VBox {
                 }
 
                 PhieuDatBan pdb = new PhieuDatBan();
+                pdb.setBan(this.ban);
                 pdb.setNgayDat(ngayNhan); 
                 pdb.setSoNguoi(soNguoi);
                 pdb.setKhachHang(kh);

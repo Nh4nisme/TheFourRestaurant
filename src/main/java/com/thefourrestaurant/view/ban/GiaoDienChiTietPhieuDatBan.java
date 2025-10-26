@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GiaoDienChiTietPhieuDatBan extends VBox {
@@ -107,7 +108,7 @@ public class GiaoDienChiTietPhieuDatBan extends VBox {
                 : "");
 
         // Lọc danh sách bàn
-        tableBan.getItems().setAll(pdb.getDanhSachBan());
+        tableBan.getItems().setAll(pdb.getBan() != null ? List.of(pdb.getBan()) : List.of());
 
         // Lọc danh sách món
         tableMonAn.getItems().setAll(pdb.getChiTietPDB());
