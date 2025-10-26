@@ -95,7 +95,6 @@ public class SideBarDanhMuc extends BaseSideBar {
             scrollMucCon.setFitToWidth(true);
             scrollMucCon.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             scrollMucCon.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-            //scrollMucCon.setPrefHeight(300); // Chiều cao tối đa vùng con
             scrollMucCon.setVisible(false);
             scrollMucCon.setManaged(false);
             scrollMucCon.getStyleClass().add("scroll-muc-con");

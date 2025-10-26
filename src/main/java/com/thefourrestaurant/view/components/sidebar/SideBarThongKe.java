@@ -30,7 +30,7 @@ public class SideBarThongKe extends BaseSideBar {
         luoiBieuDo.setHgap(10);
         luoiBieuDo.setVgap(10);
         luoiBieuDo.setPadding(new Insets(10));
-        luoiBieuDo.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+        luoiBieuDo.setStyle("-fx-background-color: white;");
 
         luoiBieuDo.prefWidthProperty().bind(mainContent.widthProperty());
         luoiBieuDo.prefHeightProperty().bind(mainContent.heightProperty());
@@ -78,7 +78,6 @@ public class SideBarThongKe extends BaseSideBar {
             scrollMucCon.setFitToWidth(true);
             scrollMucCon.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             scrollMucCon.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-            scrollMucCon.setPrefHeight(300);
             scrollMucCon.setVisible(false);
             scrollMucCon.setManaged(false);
             scrollMucCon.getStyleClass().add("scroll-muc-con");
