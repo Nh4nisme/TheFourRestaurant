@@ -80,10 +80,10 @@ public class ChiTietPDBDAO {
 
     // 🔹 Thêm chi tiết phiếu đặt bàn mới
     public boolean them(ChiTietPDB chiTiet) {
-        String sql = """
-            INSERT INTO ChiTietPDB (maCT, maPDB, maBan, maMon, soLuong, donGia, ghiChu)
-        	VALUES (?, ?, ?, ?, ?, ?, ?)
-        """;
+    	String sql = """
+    		    INSERT INTO ChiTietPDB (maCT, maPDB, maBan, maMonAn, soLuong, donGia, ghiChu)
+    		    VALUES (?, ?, ?, ?, ?, ?, ?)
+    		""";
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -97,6 +97,7 @@ public class ChiTietPDBDAO {
              ps.setString(4, chiTiet.getMonAn().getMaMonAn());
              ps.setInt(5, chiTiet.getSoLuong());
              ps.setDouble(6, chiTiet.getDonGia());
+             ps.setString(7, chiTiet.getGhiChu());
 
             return ps.executeUpdate() > 0;
 
@@ -121,7 +122,8 @@ public class ChiTietPDBDAO {
             ps.setString(2, chiTiet.getMonAn().getMaMonAn());
             ps.setInt(3, chiTiet.getSoLuong());
             ps.setDouble(4, chiTiet.getDonGia());
-            ps.setString(5, chiTiet.getMaCT());
+            ps.setString(5, chiTiet.getGhiChu());
+            ps.setString(6, chiTiet.getMaCT());
 
             return ps.executeUpdate() > 0;
 
@@ -149,18 +151,18 @@ public class ChiTietPDBDAO {
     public String taoMaChiTietMoi() {
         String sql = "SELECT TOP 1 maCT FROM ChiTietPDB ORDER BY maCT DESC";
         try (Connection conn = ConnectSQL.getConnection();
-        	 PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery(sql)) {
+        	     PreparedStatement ps = conn.prepareStatement(sql);
+        	     ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
                 String lastId = rs.getString("maCT");
                 int number = Integer.parseInt(lastId.substring(3)) + 1;
-                return String.format("CTP%06d", number);
+                return String.format("CTP%05d", number);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "CTP000001";
+        return "CTP00001";
     }
 
 }

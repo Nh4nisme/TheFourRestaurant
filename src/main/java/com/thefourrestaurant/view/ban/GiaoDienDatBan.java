@@ -369,6 +369,7 @@ public class GiaoDienDatBan extends BorderPane {
         PhieuDatBan pdbHienCo = phieuDAO.layPhieuDangHoatDongTheoBan(banDuocChon.getMaBan());
 
         System.out.println("🍽️ Đặt món cho bàn: " + banDuocChon.getTenBan());
+        System.out.println(pdbHienCo.toString());
         mainContent.getChildren().clear();
         mainContent.getChildren().add(new GiaoDienGoiMon(mainContent, banDuocChon, pdbHienCo));
     }

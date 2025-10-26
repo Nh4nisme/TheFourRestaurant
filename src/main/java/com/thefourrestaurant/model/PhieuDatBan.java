@@ -64,4 +64,14 @@ public class    PhieuDatBan {
 
     public boolean isDeleted() { return isDeleted; }
     public void setDeleted(boolean deleted) { isDeleted = deleted; }
+    
+    @Override
+    public String toString() {
+        return "PhieuDatBan{" +
+               "maPhieu='" + maPDB + '\'' +
+               ", ngayDat=" + ngayDat +
+               ", trangThai='" + trangThai + '\'' +
+               '}';
+    }
+
 }
