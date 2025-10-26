@@ -1,14 +1,15 @@
 package com.thefourrestaurant.view.monan;
 
+import com.thefourrestaurant.controller.MonAnController;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -28,6 +29,7 @@ public class MonAnDialog extends Stage {
     private File tepAnhDaChon = null;
     private final boolean isEditMode;
     private final MonAn monAnHienTai;
+    private final MonAnController controller;
 
     // UI Components
     private final TextField truongTen = new TextField();
@@ -35,14 +37,15 @@ public class MonAnDialog extends Stage {
     private final ComboBox<LoaiMon> loaiMonComboBox = new ComboBox<>();
     private final CheckBox hopKiemHienThi = new CheckBox();
 
-    // UI Components for display only (removed KhuyenMaiComboBox)
+    // UI Components for display only
     private final TextField truongVAT = new TextField();
     private final TextField truongMoTa = new TextField();
     private final TextField truongSoLuong = new TextField();
 
-    public MonAnDialog(MonAn monAn, List<LoaiMon> tatCaLoaiMon, LoaiMon loaiMonMacDinh) { // Removed tatCaKhuyenMai parameter
+    public MonAnDialog(MonAn monAn, List<LoaiMon> tatCaLoaiMon, LoaiMon loaiMonMacDinh, MonAnController controller) {
         this.monAnHienTai = monAn;
         this.isEditMode = (monAn != null);
+        this.controller = controller;
 
         this.initModality(Modality.APPLICATION_MODAL);
         this.setTitle(isEditMode ? "Tùy Chỉnh Món Ăn" : "Thêm Món Ăn Mới");
@@ -68,7 +71,7 @@ public class MonAnDialog extends Stage {
         hopTieuDe.setStyle("-fx-background-color: #1E424D;");
 
         GridPane luoiFormChinh = createMainForm(tatCaLoaiMon, loaiMonMacDinh, kieuFontStyle);
-        TitledPane khungNangCao = createAdvancedPane(kieuFontStyle); // Removed tatCaKhuyenMai parameter
+        TitledPane khungNangCao = createAdvancedPane(kieuFontStyle);
         VBox hopGiua = new VBox(20, luoiFormChinh, khungNangCao);
         hopGiua.setPadding(new Insets(20));
 
@@ -154,7 +157,7 @@ public class MonAnDialog extends Stage {
         return luoiForm;
     }
 
-    private TitledPane createAdvancedPane(String kieuFontStyle) { // Removed tatCaKhuyenMai parameter
+    private TitledPane createAdvancedPane(String kieuFontStyle) {
         TitledPane khungNangCao = new TitledPane("Tùy chỉnh nâng cao", new GridPane());
         khungNangCao.setCollapsible(true);
         khungNangCao.setExpanded(false);
@@ -173,7 +176,6 @@ public class MonAnDialog extends Stage {
         truongMoTa.getStyleClass().add("text-field");
         truongSoLuong.setStyle(kieuTruongNhap);
         truongSoLuong.getStyleClass().add("text-field");
-        // Removed khuyenMaiComboBox related styling
 
         luoiNangCao.add(new Label("VAT:"), 0, 0);
         luoiNangCao.add(truongVAT, 1, 0);
@@ -181,10 +183,8 @@ public class MonAnDialog extends Stage {
         luoiNangCao.add(new Label("Mô tả:"), 0, 1);
         luoiNangCao.add(truongMoTa, 1, 1);
 
-        // Removed KhuyenMai related UI elements
-
-        luoiNangCao.add(new Label("Số lượng:"), 0, 2); // Adjusted row index
-        luoiNangCao.add(truongSoLuong, 1, 2); // Adjusted row index
+        luoiNangCao.add(new Label("Số lượng:"), 0, 2);
+        luoiNangCao.add(truongSoLuong, 1, 2);
 
         return khungNangCao;
     }
@@ -211,6 +211,7 @@ public class MonAnDialog extends Stage {
         hopKiemHienThi.setSelected(monAnHienTai.getTrangThai().equalsIgnoreCase("Con"));
 
         loaiMonComboBox.setValue(monAnHienTai.getLoaiMon());
+        // Note: Image is not pre-loaded in this dialog, only a link is shown.
     }
 
     private void chonAnh() {
@@ -220,6 +221,7 @@ public class MonAnDialog extends Stage {
         File tep = boChonTep.showOpenDialog(this);
         if (tep != null) {
             tepAnhDaChon = tep;
+            // Optionally, show a confirmation label
         }
     }
 
@@ -253,7 +255,13 @@ public class MonAnDialog extends Stage {
         ketQua.setLoaiMon(loaiMonComboBox.getValue());
 
         if (tepAnhDaChon != null) {
-            ketQua.setHinhAnh(tepAnhDaChon.toURI().toString());
+            String newImagePath = controller.saoChepHinhAnhVaoProject(tepAnhDaChon.getAbsolutePath());
+            if (newImagePath != null) {
+                ketQua.setHinhAnh(newImagePath);
+            } else {
+                new Alert(Alert.AlertType.ERROR, "Lỗi khi sao chép hình ảnh!").showAndWait();
+                return; // Stop saving if image copy fails
+            }
         } else if (!isEditMode) {
             ketQua.setHinhAnh(null);
         }

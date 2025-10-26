@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.loaimonan;
 
+import com.thefourrestaurant.controller.LoaiMonAnController;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.view.components.ButtonSample;
 
@@ -25,13 +26,15 @@ public class LoaiMonAnDialog extends Stage {
     private File tepAnhDaChon = null;
     private final boolean isEditMode;
     private final LoaiMon loaiMonHienTai;
+    private final LoaiMonAnController controller;
 
     private final TextField truongTen = new TextField();
     private final ImageView khungHinhAnh = new ImageView();
 
-    public LoaiMonAnDialog(LoaiMon loaiMon) {
+    public LoaiMonAnDialog(LoaiMon loaiMon, LoaiMonAnController controller) {
         this.loaiMonHienTai = loaiMon;
         this.isEditMode = (loaiMon != null);
+        this.controller = controller;
 
         this.initModality(Modality.APPLICATION_MODAL);
         this.setTitle(isEditMode ? "Tùy Chỉnh Loại Món Ăn" : "Thêm Loại Món Ăn Mới");
@@ -194,7 +197,13 @@ public class LoaiMonAnDialog extends Stage {
         ketQua.setTenLoaiMon(tenLoaiMonAn);
 
         if (tepAnhDaChon != null) {
-            ketQua.setHinhAnh(tepAnhDaChon.toURI().toString());
+            String newImagePath = controller.saoChepHinhAnhVaoProject(tepAnhDaChon.getAbsolutePath());
+            if (newImagePath != null) {
+                ketQua.setHinhAnh(newImagePath);
+            } else {
+                new Alert(Alert.AlertType.ERROR, "Lỗi khi sao chép hình ảnh!").showAndWait();
+                return;
+            }
         } else if (!isEditMode) {
             ketQua.setHinhAnh(null); // No new image for new item
         }

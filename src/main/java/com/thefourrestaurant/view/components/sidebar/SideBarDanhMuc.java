@@ -53,9 +53,13 @@ public class SideBarDanhMuc extends BaseSideBar {
     protected void khoiTaoDanhMuc() {
         themDanhMuc("Thực đơn");
         themDanhMuc("Loại món ăn");
-        themDanhMuc("Món ăn", List.of(
-                "Cơm", "Đồ nước", "Tráng miệng", "Món đặc biệt"
-        ));
+
+        // Món ăn
+        List<LoaiMon> dsLoaiMon = loaiMonDAO.layTatCaLoaiMon();
+        List<String> danhSachLoaiMon = dsLoaiMon.stream()
+                .map(LoaiMon::getTenLoaiMon)
+                .collect(Collectors.toList());
+        themDanhMuc("Món ăn", danhSachLoaiMon);
 
         themDanhMuc("Khuyến mãi");
         themDanhMuc("Hóa đơn");

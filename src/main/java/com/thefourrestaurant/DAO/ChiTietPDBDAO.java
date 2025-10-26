@@ -9,42 +9,10 @@ import com.thefourrestaurant.model.*;
 
 public class ChiTietPDBDAO {
 
-    // 🔹 Lấy toàn bộ chi tiết phiếu đặt bàn
-    public List<ChiTietPDB> layTatCa() {
-        List<ChiTietPDB> dsChiTiet = new ArrayList<>();
-        String sql = """
-            SELECT *
-            FROM ChiTietPDB
-        """;
-
-        try (Connection conn = ConnectSQL.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-
-            while (rs.next()) {
-                ChiTietPDB ct = new ChiTietPDB(
-                        rs.getString("maCT"),
-                        new PhieuDatBan(rs.getString("maPDB")),
-                        new Ban(rs.getString("maBan")),
-                        new MonAn(rs.getString("maMon")),
-                        rs.getInt("soLuong"),
-                        rs.getDouble("donGia"),
-                        rs.getString("ghiChu")
-                );
-                dsChiTiet.add(ct);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return dsChiTiet;
-    }
-
-    // 🔹 Lấy chi tiết theo mã phiếu đặt bàn
+    // 🔹 Lấy danh sách chi tiết theo phiếu
     public List<ChiTietPDB> layTheoPhieu(String maPDB) {
         List<ChiTietPDB> dsChiTiet = new ArrayList<>();
-        String sql = """
-        SELECT * FROM ChiTietPDB WHERE maPDB = ?
-    """;
+        String sql = "SELECT * FROM ChiTietPDB WHERE maPDB = ?";
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -52,18 +20,15 @@ public class ChiTietPDBDAO {
             ps.setString(1, maPDB);
             ResultSet rs = ps.executeQuery();
 
-            BanDAO banDAO = new BanDAO();
             MonAnDAO monAnDAO = new MonAnDAO();
 
             while (rs.next()) {
-                Ban ban = banDAO.layTheoMa(rs.getString("maBan"));
                 MonAn monAn = monAnDAO.layMonAnTheoMa(rs.getString("maMonAn"));
                 PhieuDatBan pdb = new PhieuDatBan(rs.getString("maPDB"));
 
                 ChiTietPDB ct = new ChiTietPDB(
                         rs.getString("maCT"),
                         pdb,
-                        ban,
                         monAn,
                         rs.getInt("soLuong"),
                         rs.getDouble("donGia"),
@@ -78,25 +43,22 @@ public class ChiTietPDBDAO {
         return dsChiTiet;
     }
 
-    // 🔹 Thêm chi tiết phiếu đặt bàn mới
+    // 🔹 Thêm chi tiết phiếu
     public boolean them(ChiTietPDB chiTiet) {
-        String sql = """
-            INSERT INTO ChiTietPDB (maCT, maPDB, maBan, maMon, soLuong, donGia, ghiChu)
-        	VALUES (?, ?, ?, ?, ?, ?, ?)
-        """;
+        String sql = "INSERT INTO ChiTietPDB (maCT, maPDB, maMonAn, soLuong, donGia, ghiChu) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        	 String maMoi = taoMaChiTietMoi();
-             chiTiet.setMaCT(maMoi);
+            String maMoi = taoMaChiTietMoi();
+            chiTiet.setMaCT(maMoi);
 
-             ps.setString(1, maMoi);
-             ps.setString(2, chiTiet.getPhieuDatBan().getMaPDB());
-             ps.setString(3, chiTiet.getBan().getMaBan());
-             ps.setString(4, chiTiet.getMonAn().getMaMonAn());
-             ps.setInt(5, chiTiet.getSoLuong());
-             ps.setDouble(6, chiTiet.getDonGia());
+            ps.setString(1, maMoi);
+            ps.setString(2, chiTiet.getPhieuDatBan().getMaPDB());
+            ps.setString(3, chiTiet.getMonAn().getMaMonAn());
+            ps.setInt(4, chiTiet.getSoLuong());
+            ps.setDouble(5, chiTiet.getDonGia());
+            ps.setString(6, chiTiet.getGhiChu());
 
             return ps.executeUpdate() > 0;
 
@@ -106,51 +68,11 @@ public class ChiTietPDBDAO {
         return false;
     }
 
-    // 🔹 Cập nhật chi tiết phiếu (VD: khi đổi món hoặc số lượng)
-    public boolean capNhat(ChiTietPDB chiTiet) {
-        String sql = """
-            UPDATE ChiTietPDB
-		    SET maBan = ?, maMon = ?, soLuong = ?, donGia = ?, ghiChu = ?
-		    WHERE maCT = ?
-        """;
-
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, chiTiet.getBan().getMaBan());
-            ps.setString(2, chiTiet.getMonAn().getMaMonAn());
-            ps.setInt(3, chiTiet.getSoLuong());
-            ps.setDouble(4, chiTiet.getDonGia());
-            ps.setString(5, chiTiet.getMaCT());
-
-            return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    // 🔹 Xóa chi tiết phiếu
-    public boolean xoa(String maCT) {
-        String sql = "DELETE FROM ChiTietPDB WHERE maCT = ?";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, maCT);
-            return ps.executeUpdate() > 0;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    
     public String taoMaChiTietMoi() {
         String sql = "SELECT TOP 1 maCT FROM ChiTietPDB ORDER BY maCT DESC";
         try (Connection conn = ConnectSQL.getConnection();
-        	 PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
                 String lastId = rs.getString("maCT");
@@ -160,7 +82,6 @@ public class ChiTietPDBDAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "CTP000001";
+        return "CTP00001";
     }
-
 }
