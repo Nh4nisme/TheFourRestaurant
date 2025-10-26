@@ -46,7 +46,7 @@ GO
 CREATE TABLE NhanVien (
     maNV CHAR(8) PRIMARY KEY CHECK (maNV LIKE 'NV%' AND LEN(maNV) = 8),
     hoTen NVARCHAR(50) NOT NULL,
-    ngaySinh DATE CHECK(ngaySinh < GETDATE()),
+    ngaySinh DATETIME CHECK(ngaySinh < GETDATE()),
     gioiTinh VARCHAR(5) CHECK(gioiTinh IN ('Nam','Nu')),
     soDienThoai VARCHAR(15) UNIQUE,
     luong DECIMAL(12,2) CHECK(luong >= 0),
@@ -62,7 +62,7 @@ GO
 CREATE TABLE PhanCongCa (
     maNV CHAR(8) NOT NULL,
     maCa CHAR(8) NOT NULL,
-    ngay DATE NOT NULL CHECK(ngay <= GETDATE()),
+    ngay DATETIME NOT NULL CHECK (ngay >= '2000-01-01'),
     PRIMARY KEY(maNV, maCa, ngay),
     CONSTRAINT FK_PhanCongCa_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     CONSTRAINT FK_PhanCongCa_CaLamViec FOREIGN KEY (maCa) REFERENCES CaLamViec(maCa)
@@ -84,7 +84,7 @@ GO
 CREATE TABLE KhachHang (
     maKH CHAR(8) PRIMARY KEY CHECK (maKH LIKE 'KH%' AND LEN(maKH) = 8),
     hoTen NVARCHAR(50) NOT NULL,
-    ngaySinh DATE CHECK(ngaySinh < GETDATE()),
+    ngaySinh DATETIME CHECK(ngaySinh < GETDATE()),
     gioiTinh VARCHAR(5) CHECK(gioiTinh IN ('Nam','Nu')),
     soDT VARCHAR(15) UNIQUE,
     maLoaiKH CHAR(8) NOT NULL,
@@ -177,8 +177,8 @@ CREATE TABLE Combo (
     maLoaiCombo CHAR(8) NOT NULL,
     moTa NVARCHAR(200) NULL,
     trangThai NVARCHAR(10) DEFAULT N'Con' CHECK(trangThai IN (N'Con', N'Het')),
-    ngayBatDau DATE NULL,
-    ngayKetThuc DATE NULL,
+    ngayBatDau DATETIME NULL,
+    ngayKetThuc DATETIME NULL,
     isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_Combo_LoaiCombo FOREIGN KEY (maLoaiCombo) REFERENCES LoaiCombo(maLoaiCombo),
     CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau))
@@ -204,10 +204,11 @@ GO
 CREATE TABLE PhieuDatBan (
     maPDB CHAR(8) PRIMARY KEY CHECK (maPDB LIKE 'PD%' AND LEN(maPDB) = 8),
     ngayTao DATETIME DEFAULT GETDATE(),
-    ngayDat DATE CHECK(ngayDat >= CAST(GETDATE() AS DATE)),
+    ngayDat DATETIME CHECK(ngayDat >= CAST(GETDATE() AS DATE)),
     soNguoi INT CHECK(soNguoi > 0),
     maKH CHAR(8) NOT NULL,
     maNV CHAR(8) NOT NULL,
+    trangThai NVARCHAR(50) DEFAULT N'Đang phục vụ' CHECK (trangThai IN (N'Đang phục vụ', N'Đặt trước', N'Đã thanh toán', N'Đã hủy')),
     isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_PDB_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
     CONSTRAINT FK_PDB_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
@@ -267,13 +268,19 @@ GO
 CREATE TABLE KhuyenMai (
     maKM CHAR(8) PRIMARY KEY CHECK (maKM LIKE 'KM%' AND LEN(maKM) = 8),
     maLoaiKM CHAR(8) NOT NULL,
+    tenKM NVARCHAR(100) NOT NULL DEFAULT N'',
     tyLe DECIMAL(5,2) NULL CHECK(tyLe >= 0 AND tyLe <= 100),
     soTien DECIMAL(12,2) NULL CHECK(soTien >= 0),
-    ngayBatDau DATE NULL,
-    ngayKetThuc DATE NULL,
+    ngayBatDau DATETIME NULL,
+    ngayKetThuc DATETIME NULL,
     moTa NVARCHAR(200) NULL,
     CONSTRAINT FK_KM_LoaiKM FOREIGN KEY (maLoaiKM) REFERENCES LoaiKhuyenMai(maLoaiKM),
-    CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau))
+    CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau)),
+    CHECK (
+    (tyLe IS NOT NULL AND soTien IS NULL) OR
+    (tyLe IS NULL AND soTien IS NOT NULL) OR
+    (tyLe IS NULL AND soTien IS NULL)
+    )
 );
 GO
 
@@ -345,7 +352,7 @@ GO
 -- ================================
 CREATE TABLE HoaDon (
     maHD CHAR(8) PRIMARY KEY CHECK (maHD LIKE 'HD%' AND LEN(maHD) = 8),
-    ngayLap DATE NOT NULL,
+    ngayLap DATETIME NOT NULL,
     maNV CHAR(8) NOT NULL,
     maKH CHAR(8) NULL,
     maPDB CHAR(8) NULL,
@@ -450,7 +457,7 @@ GO
 -- ==============================
 INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
 -- ===== Tầng 1 =====
-('BA000001', N'Bàn 1-T1', N'Trống', 100, 100, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000001', N'Bàn 1-T1', N'Đang sử dụng', 8, 2, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
 ('BA000002', N'Bàn 2-T1', N'Đang sử dụng', 100, 300, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
 ('BA000003', N'Bàn 3-T1', N'Đặt trước', 100, 500, 'TG000001', 'LB000001', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
 ('BA000004', N'Bàn 4-T1', N'Trống', 400, 100, 'TG000001', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
@@ -557,9 +564,11 @@ INSERT INTO ChiTietCombo (maCombo, maMonAn, soLuong) VALUES
 GO
 
 -- Phiếu đặt bàn
-INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, ngayTao) VALUES
-('PD000001', '2025-11-20', 4, 'KH000001', 'NV000001', '2025-10-23'),
-('PD000002', '2025-11-21', 2, 'KH000002', 'NV000002', '2025-10-23');
+INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, ngayTao, trangThai) VALUES
+('PD000001', '2025-11-20', 4, 'KH000001', 'NV000001', '2025-10-23', N'Đặt trước'),
+('PD000002', '2025-11-24', 2, 'KH000002', 'NV000002', '2025-10-23', N'Đang phục vụ'),
+('PD000003', '2025-11-26', 3, 'KH000001', 'NV000002', '2025-10-22', N'Đã thanh toán'),
+('PD000004', '2025-11-25', 5, 'KH000002', 'NV000001', '2025-10-23', N'Đã hủy');
 GO
 
 -- Chi tiết phiếu đặt bàn
@@ -582,18 +591,18 @@ INSERT INTO Thue (maThue, tyLe, ghiChu, maLoaiThue) VALUES
 GO
 
 -- Loại khuyến mãi
-    INSERT INTO LoaiKhuyenMai (maLoaiKM, tenLoaiKM) VALUES
-    ('LKM00001', N'Giảm giá theo tỷ lệ'),
-    ('LKM00002', N'Tặng món'),
-    ('LKM00003', N'Giảm giá theo số tiền');
-    GO
+INSERT INTO LoaiKhuyenMai (maLoaiKM, tenLoaiKM) VALUES
+('LKM00001', N'Giảm giá theo tỷ lệ'),
+('LKM00002', N'Tặng món'),
+('LKM00003', N'Giảm giá theo số tiền');
+GO
 
-    -- Khuyến mãi
-    INSERT INTO KhuyenMai (maKM, maLoaiKM, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) VALUES
-    ('KM000001', 'LKM00001', 10, NULL, '2025-10-01', '2025-10-31', N'Giảm 10% hóa đơn tháng 10'),
-    ('KM000002', 'LKM00002', NULL, NULL, '2025-10-10', '2025-10-31', N'Mua cà phê tặng nước cam ép'),
-    ('KM000003', 'LKM00003', NULL, 15000, '2025-11-01', '2025-11-30', N'Giảm 15.000đ cho món bún bò Huế');
-    GO
+-- Khuyến mãi
+INSERT INTO KhuyenMai (maKM, maLoaiKM, tenKM, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) VALUES
+('KM000001', 'LKM00001', N'Giảm 10% hóa đơn', 10, NULL, '2025-10-01', '2025-10-31', N'Áp dụng cho tất cả đơn hàng trong tháng 10'),
+('KM000002', 'LKM00002', N'Mua cà phê tặng nước cam', NULL, NULL, '2025-10-10', '2025-10-31', N'Chương trình khuyến mãi đặc biệt cho khách hàng thân thiết'),
+('KM000003', 'LKM00003', N'Giảm 15.000đ cho bún bò Huế', NULL, 15000, '2025-11-01', '2025-11-30', N'Áp dụng cho món bún bò Huế tại tất cả chi nhánh');
+GO
 
 -- Chi tiết khuyến mãi
 INSERT INTO ChiTietKhuyenMai (maCTKM, maKM, maMonApDung, maMonTang, tyLeGiam, soTienGiam, soLuongTang)  VALUES

@@ -126,7 +126,7 @@ public class GiaoDienChiTietHoaDon extends VBox {
             } else if (loai.equalsIgnoreCase("Giảm giá theo số tiền")) {
                 thongTinPhu.get("Chiết khấu:").setText(String.format("%,.0f đ", hd.getKhuyenMai().getSoTien()));
             } else if (loai.equalsIgnoreCase("Tặng món")) {
-                thongTinPhu.get("Chiết khấu:").setText("🎁 Tặng món: " + hd.getKhuyenMai().getMoTa());
+                thongTinPhu.get("Chiết khấu:").setText("🎁 Tặng món: " + hd.getKhuyenMai().getTenKM());
             }
         } else {
             thongTinPhu.get("Chiết khấu:").setText("Không áp dụng");
