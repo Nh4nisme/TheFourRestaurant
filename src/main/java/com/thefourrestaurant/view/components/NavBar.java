@@ -170,6 +170,7 @@ public class NavBar extends HBox {
                 giaoDienBan.hienThiBanTheoTang("TG000001");
                 yield giaoDienBan;
             }
+            case "Phiếu đặt bàn" -> new GiaoDienPhieuDatBan();
             case "Khách hàng" -> new GiaoDienKhachHang();
             case "Hóa đơn" -> new GiaoDienHoaDon();
             case "Tài khoản" -> new GiaoDienTaiKhoan();

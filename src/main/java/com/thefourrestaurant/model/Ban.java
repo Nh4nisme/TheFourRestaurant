@@ -24,6 +24,8 @@ public class Ban {
         setAnhBan(anhBan);
     }
 
+
+
     public Ban(String maBan) {
         setMaBan(maBan);
     }

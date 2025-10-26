@@ -219,13 +219,13 @@ GO
 -- Bảng ChiTietPDB
 -- ================================
 CREATE TABLE ChiTietPDB (
-    maCT CHAR(8) PRIMARY KEY CHECK(maCT LIKE 'CTP%' AND LEN(maCT) = 8),
-    maPDB CHAR(8) NOT NULL,
-    maBan CHAR(8) NOT NULL,
-    maMonAn CHAR(8) NULL,
-    soLuong INT CHECK(soLuong > 0),
-    donGia DECIMAL(12,2) CHECK(donGia >= 0),
-    ghiChu NVARCHAR(255) NULL,
+        maCT CHAR(8) PRIMARY KEY CHECK(maCT LIKE 'CTP%' AND LEN(maCT) = 8),
+        maPDB CHAR(8) NOT NULL,
+        maBan CHAR(8) NOT NULL,
+        maMonAn CHAR(8) NULL,
+        soLuong INT CHECK(soLuong > 0),
+        donGia DECIMAL(12,2) CHECK(donGia >= 0),
+        ghiChu NVARCHAR(255) NULL,
     CONSTRAINT FK_ChiTietPDB_PDB FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB),
     CONSTRAINT FK_ChiTietPDB_Ban FOREIGN KEY (maBan) REFERENCES Ban(maBan),
     CONSTRAINT FK_ChiTietPDB_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)

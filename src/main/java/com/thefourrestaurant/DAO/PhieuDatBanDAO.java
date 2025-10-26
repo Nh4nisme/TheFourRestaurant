@@ -15,6 +15,10 @@ import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.model.PhieuDatBan;
 
 public class PhieuDatBanDAO {
+    private KhachHangDAO khachHangDAO = new KhachHangDAO();
+    private NhanVienDAO nhanVienDAO = new NhanVienDAO();
+    private ChiTietPDBDAO chiTietPDBDAO = new ChiTietPDBDAO();
+    private BanDAO banDAO = new BanDAO();
 
     // Lấy toàn bộ phiếu đặt bàn (chưa xóa)
     public List<PhieuDatBan> layTatCaPhieu() {
@@ -35,10 +39,11 @@ public class PhieuDatBanDAO {
                 pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
                 pdb.setNgayDat(rs.getDate("ngayDat").toLocalDate());
                 pdb.setSoNguoi(rs.getInt("soNguoi"));
-                pdb.setKhachHang(new KhachHang(rs.getString("maKH")));
-                pdb.setNhanVien(new NhanVien(rs.getString("maNV")));
+                pdb.setKhachHang(khachHangDAO.layKhachHangTheoMa(rs.getString("maKH")));
+                pdb.setNhanVien(nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")));
                 pdb.setTrangThai(rs.getString("trangThai"));
                 pdb.setDeleted(rs.getBoolean("isDeleted"));
+                pdb.setChiTietPDB(chiTietPDBDAO.layTheoPhieu(pdb.getMaPDB()));
                 danhSach.add(pdb);
             }
 
@@ -67,8 +72,8 @@ public class PhieuDatBanDAO {
                 pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
                 pdb.setNgayDat(rs.getDate("ngayDat").toLocalDate());
                 pdb.setSoNguoi(rs.getInt("soNguoi"));
-                pdb.setKhachHang(new KhachHang(rs.getString("maKH")));
-                pdb.setNhanVien(new NhanVien(rs.getString("maNV")));
+                pdb.setKhachHang(khachHangDAO.layKhachHangTheoMa(rs.getString("maKH")));
+                pdb.setNhanVien(nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")));
                 pdb.setTrangThai(rs.getString("trangThai"));
                 pdb.setDeleted(rs.getBoolean("isDeleted"));
                 return pdb;

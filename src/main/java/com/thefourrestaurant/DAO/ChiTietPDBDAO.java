@@ -13,7 +13,7 @@ public class ChiTietPDBDAO {
     public List<ChiTietPDB> layTatCa() {
         List<ChiTietPDB> dsChiTiet = new ArrayList<>();
         String sql = """
-            SELECT maCT, maPDB, maBan, maMon, soLuong, donGia
+            SELECT *
             FROM ChiTietPDB
         """;
 
@@ -43,10 +43,8 @@ public class ChiTietPDBDAO {
     public List<ChiTietPDB> layTheoPhieu(String maPDB) {
         List<ChiTietPDB> dsChiTiet = new ArrayList<>();
         String sql = """
-            SELECT maCT, maPDB, maBan, maMon, soLuong, donGia
-            FROM ChiTietPDB
-            WHERE maPDB = ?
-        """;
+        SELECT * FROM ChiTietPDB WHERE maPDB = ?
+    """;
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -54,17 +52,26 @@ public class ChiTietPDBDAO {
             ps.setString(1, maPDB);
             ResultSet rs = ps.executeQuery();
 
+            BanDAO banDAO = new BanDAO();
+            MonAnDAO monAnDAO = new MonAnDAO();
+
             while (rs.next()) {
-                dsChiTiet.add(new ChiTietPDB(
+                Ban ban = banDAO.layTheoMa(rs.getString("maBan"));
+                MonAn monAn = monAnDAO.layMonAnTheoMa(rs.getString("maMonAn"));
+                PhieuDatBan pdb = new PhieuDatBan(rs.getString("maPDB"));
+
+                ChiTietPDB ct = new ChiTietPDB(
                         rs.getString("maCT"),
-                        new PhieuDatBan(rs.getString("maPDB")),
-                        new Ban(rs.getString("maBan")),
-                        new MonAn(rs.getString("maMon")),
+                        pdb,
+                        ban,
+                        monAn,
                         rs.getInt("soLuong"),
                         rs.getDouble("donGia"),
                         rs.getString("ghiChu")
-                ));
+                );
+                dsChiTiet.add(ct);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

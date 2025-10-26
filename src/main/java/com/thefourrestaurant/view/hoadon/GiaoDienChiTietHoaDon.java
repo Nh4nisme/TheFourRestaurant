@@ -108,10 +108,6 @@ public class GiaoDienChiTietHoaDon extends VBox {
         lblGioNhan.setText(hd.getPhieuDatBan() != null && hd.getPhieuDatBan().getNgayDat() != null
                 ? hd.getPhieuDatBan().getNgayDat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                 : "");
-//        lblGioTra.setText(hd.getPhieuDatBan() != null && hd.getPhieuDatBan().getGioTra() != null
-//                ? hd.getPhieuDatBan().getGioTra().format(DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy"))
-//                : "");
-
         // Table chi tiết món
         table.getItems().setAll(hd.getChiTietHoaDon());
 

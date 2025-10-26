@@ -2,8 +2,10 @@ package com.thefourrestaurant.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-public class PhieuDatBan {
+public class    PhieuDatBan {
     private String maPDB;
     private LocalDateTime ngayTao;
     private LocalDate ngayDat;
@@ -12,6 +14,8 @@ public class PhieuDatBan {
     private NhanVien nhanVien;
     private String trangThai;
     private boolean isDeleted;
+    private List<ChiTietPDB> chiTietPDB = new ArrayList<>();
+    private List<Ban> danhSachBan =  new ArrayList<>();
 
     public PhieuDatBan() {}
 
@@ -30,6 +34,12 @@ public class PhieuDatBan {
         this.trangThai = trangThai;
         this.isDeleted = isDeleted;
     }
+
+    public List<ChiTietPDB> getChiTietPDB() { return chiTietPDB; }
+    public void setChiTietPDB(List<ChiTietPDB> chiTietPDB) { this.chiTietPDB = chiTietPDB; }
+
+    public List<Ban> getDanhSachBan() { return danhSachBan; }
+    public void setDanhSachBan(List<Ban> danhSachBan) { this.danhSachBan = danhSachBan; }
 
     public String getMaPDB() { return maPDB; }
     public void setMaPDB(String maPDB) { this.maPDB = maPDB; }
