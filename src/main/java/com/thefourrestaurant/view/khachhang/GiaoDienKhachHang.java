@@ -28,6 +28,7 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
         khoiTaoGiaoDien();
         napDanhSachLoaiKhachHang();
         khoiTaoSuKien();
+        lamMoiDuLieu();
     }
 
     @Override
@@ -87,7 +88,7 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
 
     @Override
     protected void lamMoiDuLieu() {
-        danhSachGoc = FXCollections.observableArrayList(new KhachHangDAO().layDanhSachKhachHang());
+        danhSachGoc = FXCollections.observableArrayList(new KhachHangController().layDanhSachKhachHang());
         danhSachHienThi = FXCollections.observableArrayList(danhSachGoc);
         table.setItems(danhSachHienThi);
     }

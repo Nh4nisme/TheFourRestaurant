@@ -7,6 +7,8 @@ import com.thefourrestaurant.model.PhuongThucThanhToan;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
@@ -19,11 +21,14 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
     private final HoaDonController controller = new HoaDonController();
     private GiaoDienChiTietHoaDon gdChiTietHoaDon;
     private TableView<HoaDon> table;
+    private ObservableList<HoaDon> danhSachGoc;
+    private ObservableList<HoaDon> danhSachHienThi;
 
     public GiaoDienHoaDon() {
         super("Hóa đơn", new GiaoDienChiTietHoaDon());
         gdChiTietHoaDon = (GiaoDienChiTietHoaDon) getChiTietNode();
         khoiTaoGiaoDien();
+        lamMoiDuLieu();
     }
 
     @Override
@@ -122,13 +127,27 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
     }
 
     @Override
-    protected void thucHienTimKiem(String tuKhoa) {
-
+    protected void lamMoiDuLieu() {
+        danhSachGoc = FXCollections.observableArrayList(new HoaDonController().layDanhSachHoaDon());
+        danhSachHienThi = FXCollections.observableArrayList(danhSachGoc);
+        table.setItems(danhSachHienThi);
     }
 
     @Override
-    protected void lamMoiDuLieu() {
+    protected void thucHienTimKiem(String tuKhoa) {
+        if (danhSachGoc == null || danhSachGoc.isEmpty()) return;
+        if (tuKhoa.isEmpty()) {
+            table.setItems(danhSachGoc);
+            return;
+        }
 
+        String lowerKey = tuKhoa.toLowerCase();
+        ObservableList<HoaDon> ketQua = danhSachGoc.filtered(
+                hd -> hd.getMaHD().toLowerCase().contains(lowerKey)
+                        || hd.getKhachHang().getSoDT().toLowerCase().contains(lowerKey)
+                        || String.valueOf(hd.getTongTien()).contains(lowerKey)
+        );
+        table.setItems(ketQua);
     }
 
     private void hienThiChiTiet(HoaDon hd) {gdChiTietHoaDon.hienThiThongTin(hd);}
