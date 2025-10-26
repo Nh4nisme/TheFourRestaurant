@@ -80,6 +80,27 @@ public class ThongKeBan {
         }
 
         bieuDo.getData().add(series);
+        String[] colors = {
+                "#4CAF50", // xanh lá
+                "#2196F3", // xanh dương
+                "#FFC107", // vàng
+                "#E91E63", // hồng
+                "#9C27B0", // tím
+                "#FF5722", // cam
+                "#009688"  // teal
+        };
+
+        // Áp dụng màu cho từng cột
+        for (int i = 0; i < series.getData().size(); i++) {
+            XYChart.Data<Number, String> data = series.getData().get(i);
+            final int colorIndex = i % colors.length;
+
+            data.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                if (newNode != null) {
+                    newNode.setStyle("-fx-bar-fill: " + colors[colorIndex] + ";");
+                }
+            });
+        }
         return bieuDo;
     }
 }
