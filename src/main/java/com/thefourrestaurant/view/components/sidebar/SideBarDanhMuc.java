@@ -5,10 +5,14 @@ import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.QuanLyThucDon;
+import com.thefourrestaurant.view.ban.GiaoDienPhieuDatBan;
 import com.thefourrestaurant.view.ban.QuanLiBan;
+import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
+import com.thefourrestaurant.view.khachhang.GiaoDienKhachHang;
 import com.thefourrestaurant.view.khuyenmai.GiaoDienKhuyenMai;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.GiaoDienMonAn;
+import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -50,10 +54,13 @@ public class SideBarDanhMuc extends BaseSideBar {
         themDanhMuc("Thực đơn");
         themDanhMuc("Loại món ăn");
         themDanhMuc("Món ăn", List.of(
-                "Cơm", "Đồ nước", "Tráng miệng", "Món đặc biệt",
-                "Cơm gà", "Bún bò", "Hủ tiếu", "Phở", "Miến", "Mì cay"
+                "Cơm", "Đồ nước", "Tráng miệng", "Món đặc biệt"
         ));
+
         themDanhMuc("Khuyến mãi");
+        themDanhMuc("Hóa đơn");
+        themDanhMuc("Khách hàng");
+        themDanhMuc("Tài khoản");
 
         // Tầng và bàn
         TangDAO tangDAO = new TangDAO();
@@ -126,41 +133,41 @@ public class SideBarDanhMuc extends BaseSideBar {
             }
         }
 
-        Node newContent = null;
-        switch (tenMuc) {
-            case "Thực đơn":
-                newContent = new QuanLyThucDon();
-                break;
-            case "Loại món ăn":
-                newContent = new LoaiMonAn();
-                break;
-            case "Khuyến mãi":
-                newContent = new GiaoDienKhuyenMai();
-                break;
-            default:
-                // Check if it's a LoaiMon
+        Node newContent = switch (tenMuc) {
+            case "Thực đơn" -> new QuanLyThucDon();
+            case "Loại món ăn" -> new LoaiMonAn();
+            case "Khuyến mãi" -> new GiaoDienKhuyenMai();
+            case "Phiếu đặt bàn" -> new GiaoDienPhieuDatBan();
+            case "Khách hàng" -> new GiaoDienKhachHang();
+            case "Hóa đơn" -> new GiaoDienHoaDon();
+            case "Tài khoản" -> new GiaoDienTaiKhoan();
+            default -> {
+                // Kiểm tra nếu là loại món
                 Optional<LoaiMon> loaiMonOpt = loaiMonDAO.layTatCaLoaiMon().stream()
                         .filter(lm -> lm.getTenLoaiMon().equals(tenMuc))
                         .findFirst();
 
                 if (loaiMonOpt.isPresent()) {
-                    LoaiMon selectedLoaiMon = loaiMonOpt.get();
-                    newContent = new GiaoDienMonAn(selectedLoaiMon.getMaLoaiMon(), selectedLoaiMon.getTenLoaiMon());
-                } else {
-                    // If not a LoaiMon, check if it's a Tang (floor)
-                    TangDAO tangDAO = new TangDAO();
-                    Optional<Tang> tangOpt = tangDAO.layTatCaTang().stream()
-                            .filter(t -> t.getTenTang().equals(tenMuc))
-                            .findFirst();
-
-                    if (tangOpt.isPresent()) {
-                        QuanLiBan qlBan = new QuanLiBan((StackPane) mainContent);
-                        qlBan.hienThiBanTheoTang(tangOpt.get().getMaTang());
-                        newContent = qlBan;
-                    }
+                    LoaiMon lm = loaiMonOpt.get();
+                    yield new GiaoDienMonAn(lm.getMaLoaiMon(), lm.getTenLoaiMon());
                 }
-                break;
-        }
+
+                // Kiểm tra nếu là tầng
+                TangDAO tangDAO = new TangDAO();
+                Optional<Tang> tangOpt = tangDAO.layTatCaTang().stream()
+                        .filter(t -> t.getTenTang().equals(tenMuc))
+                        .findFirst();
+
+                if (tangOpt.isPresent()) {
+                    Tang tang = tangOpt.get();
+                    QuanLiBan qlBan = new QuanLiBan((StackPane) mainContent);
+                    qlBan.hienThiBanTheoTang(tang.getMaTang());
+                    yield qlBan;
+                }
+
+                yield null; // Không tìm thấy gì
+            }
+        };
 
         if (newContent != null) {
             mainContent.getChildren().setAll(newContent);
