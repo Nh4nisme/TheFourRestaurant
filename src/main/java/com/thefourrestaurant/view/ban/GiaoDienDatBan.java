@@ -1,7 +1,9 @@
 package com.thefourrestaurant.view.ban;
 
+import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.model.Ban;
+import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.GiaoDienGoiMon;
 import com.thefourrestaurant.view.ThanhToan;
@@ -29,6 +31,7 @@ public class GiaoDienDatBan extends BorderPane {
     private ComboBox<Tang> cboSoTang;
     
     TangDAO tangDAO = new TangDAO();
+	private PhieuDatBanDAO phieuDAO;
 
 	public GiaoDienDatBan(StackPane mainContent) {
 	    this.mainContent = mainContent;
@@ -332,7 +335,7 @@ public class GiaoDienDatBan extends BorderPane {
         st.initOwner(getScene() != null ? getScene().getWindow() : null);
         st.initModality(Modality.APPLICATION_MODAL);
         st.setTitle("Đặt bàn ngay - " + banDuocChon.getTenBan());
-        st.setScene(new Scene(new GiaoDienDatBanNgay()));
+        st.setScene(new Scene(new GiaoDienDatBanNgay(banDuocChon, mainContent)));
         st.showAndWait();
     }
 
@@ -346,7 +349,7 @@ public class GiaoDienDatBan extends BorderPane {
         st.initOwner(getScene() != null ? getScene().getWindow() : null);
         st.initModality(Modality.APPLICATION_MODAL);
         st.setTitle("Đặt bàn trước - " + banDuocChon.getTenBan());
-        st.setScene(new Scene(new GiaoDienDatBanTruoc()));
+        st.setScene(new Scene(new GiaoDienDatBanTruoc(banDuocChon, mainContent)));
         st.showAndWait();
     }
 
@@ -361,10 +364,13 @@ public class GiaoDienDatBan extends BorderPane {
     private void datMon() {
         Ban banDuocChon = layBanDangChonHoacThongBao();
         if (banDuocChon == null) return;
+        
+        phieuDAO = new PhieuDatBanDAO();
+        PhieuDatBan pdbHienCo = phieuDAO.layPhieuDangHoatDongTheoBan(banDuocChon.getMaBan());
 
         System.out.println("🍽️ Đặt món cho bàn: " + banDuocChon.getTenBan());
         mainContent.getChildren().clear();
-        mainContent.getChildren().add(new GiaoDienGoiMon(mainContent, banDuocChon));
+        mainContent.getChildren().add(new GiaoDienGoiMon(mainContent, banDuocChon, pdbHienCo));
     }
 
     private void tinhTien() {
