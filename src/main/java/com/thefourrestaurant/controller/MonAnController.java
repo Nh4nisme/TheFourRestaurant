@@ -8,8 +8,15 @@ import com.thefourrestaurant.view.monan.MonAnDialog;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class MonAnController {
 
@@ -42,8 +49,7 @@ public class MonAnController {
                 .findFirst()
                 .orElse(null);
 
-        // Updated constructor call for MonAnDialog
-        MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, defaultLoaiMon);
+        MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, defaultLoaiMon, this);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();
@@ -57,8 +63,7 @@ public class MonAnController {
     public boolean tuyChinhMonAn(MonAn monAn) {
         List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
 
-        // Updated constructor call for MonAnDialog
-        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon());
+        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon(), this);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();
@@ -79,5 +84,41 @@ public class MonAnController {
             return monAnDAO.xoaMonAn(monAn.getMaMonAn());
         }
         return false;
+    }
+
+    public String saoChepHinhAnhVaoProject(String sourceImagePath) {
+        try {
+            // 1. Xác định thư mục đích trong src/main/resources
+            String projectDir = System.getProperty("user.dir");
+            String relativeDestPath = "src/main/resources/com/thefourrestaurant/images/MonAn/";
+            Path destDir = Paths.get(projectDir, relativeDestPath);
+
+            // Tạo thư mục nếu nó không tồn tại
+            if (Files.notExists(destDir)) {
+                Files.createDirectories(destDir);
+            }
+
+            // 2. Tạo tên tệp mới để tránh trùng lặp
+            File sourceFile = new File(sourceImagePath);
+            String originalFileName = sourceFile.getName();
+            String fileExtension = "";
+            int i = originalFileName.lastIndexOf('.');
+            if (i > 0) {
+                fileExtension = originalFileName.substring(i);
+            }
+            String newFileName = UUID.randomUUID().toString() + fileExtension;
+
+            // 3. Thực hiện sao chép
+            Path sourcePath = sourceFile.toPath();
+            Path destPath = destDir.resolve(newFileName);
+            Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
+
+            // 4. Trả về đường dẫn tương đối (classpath resource path) để lưu vào DB
+            return "/com/thefourrestaurant/images/MonAn/" + newFileName;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
