@@ -7,6 +7,7 @@ import com.thefourrestaurant.view.components.GiaoDienThucThe;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 import java.util.List;
 
@@ -58,14 +59,15 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
             {
                 btnXoa.setOnAction(event -> {
                     TaiKhoan tk = getTableView().getItems().get(getIndex());
+                    Stage stage = (Stage) btnXoa.getScene().getWindow();
 
-                    if (xacNhan("Xác nhận xóa", "Bạn có chắc muốn xóa tài khoản: " + tk.getTenDN() + " ?")) {
+                    if (xacNhan(stage, "Bạn có chắc muốn xóa tài khoản: " + tk.getTenDN() + " ?")) {
                         boolean ok = controller.xoaTaiKhoan(tk.getMaTK());
                         if (ok) {
                             getTableView().getItems().remove(tk);
-                            hienThongBao("Đã xóa tài khoản!");
+                            hienThongBao(stage,"Đã xóa tài khoản!");
                         } else {
-                            hienThongBao("Không thể xóa tài khoản này!", Alert.AlertType.ERROR);
+                            hienThongBao(stage,"Không thể xóa tài khoản này!", Alert.AlertType.ERROR);
                         }
                     }
                 });
@@ -108,12 +110,14 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
             VaiTro vt = gdChiTietTK.getCboVaiTro().getValue();
 
             String result = controller.taoTaiKhoan(maTK, tenDN, matKhau, vt);
+            Stage  stage = (Stage) gdChiTietTK.getScene().getWindow();
+
             if (result.equals("OK")) {
                 gdChiTietTK.Clear(); // chỉ xóa form khi tạo mới thành công
                 refreshBangChinh();
-                hienThongBao("Tạo tài khoản thành công!", Alert.AlertType.INFORMATION);
+                hienThongBao(stage,"Tạo tài khoản thành công!", Alert.AlertType.INFORMATION);
             } else {
-                hienThongBao(result, Alert.AlertType.WARNING);
+                hienThongBao(stage,result, Alert.AlertType.WARNING);
             }
         });
 
@@ -125,11 +129,13 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
             VaiTro vt = gdChiTietTK.getCboVaiTro().getValue();
 
             String result = controller.capNhatTaiKhoan(maTK, tenDN, matKhau, vt);
+            Stage  stage = (Stage) gdChiTietTK.getScene().getWindow();
+
             if (result.equals("OK")) {
                 refreshBangChinh();
-                hienThongBao("Cập nhật thành công!", Alert.AlertType.INFORMATION);
+                hienThongBao(stage,"Cập nhật thành công!", Alert.AlertType.INFORMATION);
             } else {
-                hienThongBao(result, Alert.AlertType.WARNING);
+                hienThongBao(stage, result, Alert.AlertType.WARNING);
             }
         });
     }

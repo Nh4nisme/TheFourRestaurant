@@ -7,6 +7,7 @@ import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -95,12 +96,14 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
             LoaiKhachHang loai = gdChiTietKH.getCboLoaiKH().getValue();
 
             String result = controller.taoKhachHang(hoTen, ngaySinh, gioiTinh, soDT, loai);
+            Stage stage = (Stage) gdChiTietKH.getScene().getWindow();
+
             if (result.equals("OK")) {
                 gdChiTietKH.Clear();
                 refreshBangChinh();
-                hienThongBao("Tạo khách hàng thành công!", Alert.AlertType.INFORMATION);
+                hienThongBao(stage,"Tạo khách hàng thành công!", Alert.AlertType.INFORMATION);
             } else {
-                hienThongBao(result, Alert.AlertType.WARNING);
+                hienThongBao(stage,result, Alert.AlertType.WARNING);
             }
         });
 
@@ -113,11 +116,13 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
             LoaiKhachHang loai = gdChiTietKH.getCboLoaiKH().getValue();
 
             String result = controller.capNhatKhachHang(maKH, hoTen, ngaySinh, gioiTinh, soDT, loai);
+            Stage stage = (Stage) gdChiTietKH.getScene().getWindow();
+
             if (result.equals("OK")) {
                 refreshBangChinh();
-                hienThongBao("Cập nhật khách hàng thành công!", Alert.AlertType.INFORMATION);
+                hienThongBao(stage,"Cập nhật khách hàng thành công!", Alert.AlertType.INFORMATION);
             } else {
-                hienThongBao(result, Alert.AlertType.WARNING);
+                hienThongBao(stage,result, Alert.AlertType.WARNING);
             }
         });
     }

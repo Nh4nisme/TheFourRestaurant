@@ -20,5 +20,7 @@ public class HoaDonController {
     public List<ChiTietHoaDon> layCTHDTheoMa(String maHD){
         return chiTietHoaDonDAO.layCTHDTheoMa(maHD);
     }
+
+    public boolean xoaHoaDon(String maHD) {return hoaDonDAO.xoaHoaDon(maHD);}
 }
 

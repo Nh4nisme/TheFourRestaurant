@@ -8,6 +8,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.Optional;
 
@@ -99,25 +100,29 @@ public abstract class GiaoDienThucThe extends VBox {
     }
 
     /** Hiển thị thông báo dạng Alert đơn giản */
-    protected void hienThongBao(String noiDung) {
-        hienThongBao(noiDung, Alert.AlertType.INFORMATION);
+    protected void hienThongBao(Stage stage, String noiDung) {
+        hienThongBao(stage, noiDung, Alert.AlertType.INFORMATION);
     }
 
     /** Hiển thị thông báo với loại Alert tùy chọn */
-    protected void hienThongBao(String noiDung, Alert.AlertType loai) {
+    protected void hienThongBao(Stage stage, String noiDung, Alert.AlertType loai) {
         Alert alert = new Alert(loai);
         alert.setTitle("Thông báo");
         alert.setHeaderText(null);
         alert.setContentText(noiDung);
+        alert.initOwner(stage);
         alert.show();
     }
 
     /** Hiển thị hộp thoại xác nhận, trả về true nếu người dùng chọn OK */
-    protected boolean xacNhan(String tieuDe, String noiDung) {
+    protected boolean xacNhan(Stage stage, String noiDung) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle(tieuDe);
+        confirm.setTitle("Xác nhận xóa");
         confirm.setHeaderText(null);
         confirm.setContentText(noiDung);
+
+        confirm.initOwner(stage);
+
 
         Optional<ButtonType> result = confirm.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
