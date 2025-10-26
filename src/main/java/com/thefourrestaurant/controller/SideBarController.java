@@ -62,7 +62,7 @@ public class SideBarController {
         sideBarExtended.setVisible(false);
         sideBarExtended.setManaged(false);
         sideBarExtended.getChildren().clear();
-        mainContent.getChildren().clear(); // Cũng xóa nội dung chính khi đóng
+//        mainContent.getChildren().clear(); // Cũng xóa nội dung chính khi đóng
         panelDangMo = null;
     }
 }

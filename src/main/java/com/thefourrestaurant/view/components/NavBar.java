@@ -148,6 +148,7 @@ public class NavBar extends HBox {
 ////        }
 
         Node newContent = switch (s) {
+            case "Đặt bàn" -> new GiaoDienDatBan((StackPane) mainContent);
             case "Phiếu đặt bàn" -> new GiaoDienPhieuDatBan();
             default -> null;
         };

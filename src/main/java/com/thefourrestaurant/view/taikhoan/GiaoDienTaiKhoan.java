@@ -101,6 +101,16 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
         return table;
     }
 
+    @Override
+    protected void thucHienTimKiem(String tuKhoa) {
+
+    }
+
+    @Override
+    protected void lamMoiDuLieu() {
+
+    }
+
     private void khoiTaoSuKien() {
         // ==== Tạo mới tài khoản ====
         gdChiTietTK.getBtnTaoMoi().setOnAction(e -> {

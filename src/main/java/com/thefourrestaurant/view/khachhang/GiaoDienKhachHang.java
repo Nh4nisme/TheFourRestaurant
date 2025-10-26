@@ -1,15 +1,16 @@
 package com.thefourrestaurant.view.khachhang;
 
+import com.thefourrestaurant.DAO.KhachHangDAO;
 import com.thefourrestaurant.controller.KhachHangController;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.LoaiKhachHang;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class GiaoDienKhachHang extends GiaoDienThucThe {
@@ -17,6 +18,8 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
     private final KhachHangController controller;
     private final GiaoDienChiTietKhachHang gdChiTietKH;
     private TableView<KhachHang> table;
+    private ObservableList<KhachHang> danhSachGoc;
+    private ObservableList<KhachHang> danhSachHienThi;
 
     public GiaoDienKhachHang() {
         super("Khách hàng", new GiaoDienChiTietKhachHang());
@@ -82,6 +85,29 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
         return table;
     }
 
+    @Override
+    protected void lamMoiDuLieu() {
+        danhSachGoc = FXCollections.observableArrayList(new KhachHangDAO().layDanhSachKhachHang());
+        danhSachHienThi = FXCollections.observableArrayList(danhSachGoc);
+        table.setItems(danhSachHienThi);
+    }
+
+    @Override
+    protected void thucHienTimKiem(String tuKhoa) {
+        if (tuKhoa.isEmpty()) {
+            table.setItems(danhSachGoc);
+            return;
+        }
+
+        String lowerKey = tuKhoa.toLowerCase();
+        ObservableList<KhachHang> ketQua = danhSachGoc.filtered(
+                kh -> kh.getMaKH().toLowerCase().contains(lowerKey)
+                        || kh.getHoTen().toLowerCase().contains(lowerKey)
+                        || kh.getSoDT().contains(lowerKey)
+        );
+        table.setItems(ketQua);
+    }
+
     private void hienThiChiTiet(KhachHang kh) {
         gdChiTietKH.hienThiThongTin(kh);
     }
@@ -137,4 +163,6 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
             table.getItems().setAll(controller.layDanhSachKhachHang());
         }
     }
+
+
 }
