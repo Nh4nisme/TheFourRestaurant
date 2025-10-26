@@ -23,7 +23,7 @@ import javafx.scene.control.ButtonType;
 
 public class NavBar extends HBox {
 
-    private final DropDownButton btnHeThong, btnTimKiem, btnXuLi, btnDanhMucNav;
+    private final DropDownButton btnHeThong, btnTimKiem, btnXuLi;
     private final Pane mainContent; // Pane trung tâm dưới navBar
     private final Pane sideBar;
     private final Pane sideBarExtended;
@@ -67,15 +67,6 @@ public class NavBar extends HBox {
 
         ButtonSample btnTKDN = new ButtonSample("null", "/com/thefourrestaurant/images/icon/accountIcon.png",45, 16, 1);
 
-        btnDanhMucNav = new DropDownButton(
-                "Danh mục",
-                List.of("Thực đơn", "Loại Món ăn", "Món ăn","Khách hàng","Hóa đơn","Bàn","Tài khoản"),
-                "/com/thefourrestaurant/images/icon/danhMucNavIcon.png",
-                45,
-                16,
-                1
-        );
-
         btnXuLi = new DropDownButton(
                 "Xử lí",
                 List.of("Đặt bàn"),
@@ -106,21 +97,15 @@ public class NavBar extends HBox {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        getChildren().addAll(btnDanhMucNav, btnXuLi, btnTimKiem, btnHeThong, spacer, btnTKDN);
+        getChildren().addAll(btnHeThong, btnXuLi, btnTimKiem, spacer, btnTKDN);
 
         // Event handler load nội dung vào mainContent
-        btnDanhMucNav.setOnItemSelected(this::showPanel);
         btnXuLi.setOnItemSelected(this::showPanel);
         btnTimKiem.setOnItemSelected(this::showPanel);
 
         if (current != null) {
             String roleRaw = current.getVaiTro().getTenVaiTro();
             boolean isManager = roleRaw != null && roleRaw.equalsIgnoreCase("QuanLy");
-
-            if (!isManager) {
-                btnDanhMucNav.setVisible(false);
-                btnDanhMucNav.setManaged(false);
-            }
         }
     }
 
@@ -163,18 +148,7 @@ public class NavBar extends HBox {
 ////        }
 
         Node newContent = switch (s) {
-            case "Thực đơn" -> new QuanLyThucDon();
-            case "Món ăn" -> new LoaiMonAn();
-            case "Đặt bàn" -> new GiaoDienDatBan((StackPane) mainContent);
-            case "Bàn" -> {
-                QuanLiBan giaoDienBan = new QuanLiBan((StackPane) mainContent);
-                giaoDienBan.hienThiBanTheoTang("TG000001");
-                yield giaoDienBan;
-            }
             case "Phiếu đặt bàn" -> new GiaoDienPhieuDatBan();
-            case "Khách hàng" -> new GiaoDienKhachHang();
-            case "Hóa đơn" -> new GiaoDienHoaDon();
-            case "Tài khoản" -> new GiaoDienTaiKhoan();
             default -> null;
         };
 

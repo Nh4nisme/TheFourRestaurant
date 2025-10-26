@@ -34,7 +34,7 @@ public class SideBarDanhMuc extends BaseSideBar {
     private final VBox container;
 
     public SideBarDanhMuc(Pane mainContent) {
-        super("Quản Lý");
+        super("Danh mục");
         this.mainContent = mainContent;
         this.loaiMonDAO = new LoaiMonDAO();
         VBox.setVgrow(mainContent, Priority.ALWAYS);
