@@ -13,7 +13,6 @@ import java.util.List;
 public class KhuyenMaiGrid extends VBox {
     private final KhuyenMaiController boDieuKhien = new KhuyenMaiController();
     private FlowPane grid;
-    private KhuyenMaiBox selectedBox = null;
 
     public KhuyenMaiGrid(GiaoDienKhuyenMai mainView) {
         grid = new FlowPane(15, 15); // Horizontal and vertical gap
@@ -47,14 +46,8 @@ public class KhuyenMaiGrid extends VBox {
         for (KhuyenMai km : danhSachKhuyenMai) {
             KhuyenMaiBox box = new KhuyenMaiBox(km);
             box.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                if (event.getClickCount() == 1) {
-                    if (selectedBox != null) {
-                        selectedBox.setDefaultStyle();
-                    }
-                    selectedBox = box;
-                    box.setSelectedStyle();
-                    mainView.hienThiChiTietKhuyenMai(km);
-                } else if (event.getClickCount() == 2) {
+                // Giữ lại logic nhấp đúp chuột để sửa
+                if (event.getClickCount() == 2) {
                     if (boDieuKhien.capNhatKhuyenMai(km)) {
                         mainView.lamMoiGiaoDien();
                     }
