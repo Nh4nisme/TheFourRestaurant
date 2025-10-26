@@ -10,10 +10,9 @@ import javafx.scene.control.ButtonType;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
@@ -89,23 +88,17 @@ public class MonAnController {
 
     public String saoChepHinhAnhVaoProject(String sourceImagePath) {
         try {
-            String relativeDestDir = "/com/thefourrestaurant/images/MonAn/";
-            URL resourceDirUrl = getClass().getResource(relativeDestDir);
+            // 1. Xác định thư mục đích trong src/main/resources
+            String projectDir = System.getProperty("user.dir");
+            String relativeDestPath = "src/main/resources/com/thefourrestaurant/images/MonAn/";
+            Path destDir = Paths.get(projectDir, relativeDestPath);
 
-            File destDir;
-            if (resourceDirUrl == null) {
-                URL rootUrl = getClass().getResource("/");
-                if (rootUrl == null) {
-                    throw new IOException("Không thể tìm thấy thư mục gốc của resources.");
-                }
-                destDir = new File(new File(rootUrl.toURI()).getAbsolutePath() + relativeDestDir.replace("/", File.separator));
-                if (!destDir.exists()) {
-                    destDir.mkdirs();
-                }
-            } else {
-                destDir = new File(resourceDirUrl.toURI());
+            // Tạo thư mục nếu nó không tồn tại
+            if (Files.notExists(destDir)) {
+                Files.createDirectories(destDir);
             }
 
+            // 2. Tạo tên tệp mới để tránh trùng lặp
             File sourceFile = new File(sourceImagePath);
             String originalFileName = sourceFile.getName();
             String fileExtension = "";
@@ -115,13 +108,15 @@ public class MonAnController {
             }
             String newFileName = UUID.randomUUID().toString() + fileExtension;
 
+            // 3. Thực hiện sao chép
             Path sourcePath = sourceFile.toPath();
-            Path destPath = new File(destDir, newFileName).toPath();
+            Path destPath = destDir.resolve(newFileName);
             Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
 
-            return relativeDestDir + newFileName;
+            // 4. Trả về đường dẫn tương đối (classpath resource path) để lưu vào DB
+            return "/com/thefourrestaurant/images/MonAn/" + newFileName;
 
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
