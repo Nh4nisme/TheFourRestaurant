@@ -36,7 +36,7 @@ public class LoaiBanDAO {
 
     // Lấy loại bàn theo mã
     public LoaiBan layTheoMa(String maLoaiBan) {
-        String sql = "SELECT maLoaiBan, tenLoaiBan FROM LoaiBan WHERE maLoaiBan = ?";
+    	String sql = "SELECT maLoaiBan, tenLoaiBan, giaTien FROM LoaiBan WHERE maLoaiBan = ?";
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

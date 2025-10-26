@@ -211,18 +211,7 @@ public class QuanLiBan extends VBox {
             else if (e.getClickCount() == 2) {
                 delay.stop();
                 
-                PhieuDatBan pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
-                System.out.println("Nhấp đúp vào: " + ban.getTenBan());
-
-                if (pdb != null) {
-                    mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban, pdb));
-                } else {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Thông báo");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Bàn này hiện chưa có phiếu hoạt động.");
-                    alert.showAndWait();
-                }
+                mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban));
             }
         });
 
