@@ -247,3 +247,7 @@
     -fx-border-radius: 5;
     -fx-background-radius: 5;
 }
+
+.doughnut-chart .chart-pie {
+    -fx-pie-inner-radius: 50;
+}
