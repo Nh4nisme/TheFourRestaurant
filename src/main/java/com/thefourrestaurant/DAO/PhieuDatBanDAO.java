@@ -8,11 +8,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.thefourrestaurant.connect.ConnectSQL;
-import com.thefourrestaurant.model.KhachHang;
-import com.thefourrestaurant.model.NhanVien;
-import com.thefourrestaurant.model.PhieuDatBan;
+import com.thefourrestaurant.model.*;
 
 public class PhieuDatBanDAO {
     private KhachHangDAO khachHangDAO = new KhachHangDAO();
@@ -43,7 +43,17 @@ public class PhieuDatBanDAO {
                 pdb.setNhanVien(nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")));
                 pdb.setTrangThai(rs.getString("trangThai"));
                 pdb.setDeleted(rs.getBoolean("isDeleted"));
-                pdb.setChiTietPDB(chiTietPDBDAO.layTheoPhieu(pdb.getMaPDB()));
+
+                List<ChiTietPDB> dsChiTiet = chiTietPDBDAO.layTheoPhieu(pdb.getMaPDB());
+                pdb.setChiTietPDB(dsChiTiet);
+
+                List<Ban> dsBan = dsChiTiet.stream()
+                        .map(ChiTietPDB::getBan)
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .collect(Collectors.toList());
+                pdb.setDanhSachBan(dsBan);
+
                 danhSach.add(pdb);
             }
 
