@@ -47,11 +47,13 @@ public class GiaoDienGoiMon extends BorderPane {
     private TableView<ChiTietPDB> bangPhieu;
     private Label lblTongTien;
     private ObservableList<ChiTietPDB> danhSachChiTiet = FXCollections.observableArrayList();
+    private PhieuDatBan pdb;
 
 
-	public GiaoDienGoiMon(StackPane mainContent, Ban ban) {
+	public GiaoDienGoiMon(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
         this.setStyle("-fx-background-color: white;");
         this.ban = ban;
+        this.pdb = pdb;
         HBox thanhTren = taoThanhTren();
 
         VBox topContainer = new VBox(thanhTren);

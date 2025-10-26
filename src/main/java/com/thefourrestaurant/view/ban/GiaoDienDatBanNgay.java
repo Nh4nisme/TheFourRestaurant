@@ -9,9 +9,11 @@ import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.util.Session;
 import com.thefourrestaurant.DAO.LoaiBanDAO;
 import com.thefourrestaurant.model.LoaiBan;
+import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.model.PhieuDatBan;
+import com.thefourrestaurant.view.GiaoDienGoiMon;
 import com.thefourrestaurant.view.GiaoDienThemKhachHang;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
@@ -19,6 +21,7 @@ import javafx.stage.Stage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -26,6 +29,7 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
@@ -46,8 +50,13 @@ public class GiaoDienDatBanNgay extends VBox {
     private final PhieuDatBanDAO phieuDatBanDAO = new PhieuDatBanDAO();
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
     private KhachHang selectedKhachHang;
+    private Ban ban;
+    private final StackPane parentPane;
 
-    public GiaoDienDatBanNgay() {
+    public GiaoDienDatBanNgay(Ban ban, StackPane parentPane) {
+        this.ban = ban;
+        this.parentPane = parentPane;
+        
         setStyle("-fx-background-color: #F5F5F5;");
         setSpacing(0);
         setAlignment(Pos.TOP_CENTER);
@@ -66,7 +75,7 @@ public class GiaoDienDatBanNgay extends VBox {
         contentCard.setMaxWidth(650);
         contentCard.setAlignment(Pos.TOP_CENTER);
 
-        Label lblBanHeader = new Label("Bàn B101");
+        Label lblBanHeader = new Label(ban.getTenBan());
         lblBanHeader.setStyle("-fx-font-size: 22px; -fx-text-fill: #DDB248; -fx-font-weight: bold;");
 
         VBox formBox = new VBox(15);
@@ -78,7 +87,7 @@ public class GiaoDienDatBanNgay extends VBox {
 
     Label lblTrangThai = createLabel("Trạng Thái:");
     lblTrangThai.setPrefWidth(120);
-    lblTrangThaiStatus = new Label("Bàn đang sử dụng.");
+    lblTrangThaiStatus = new Label(ban.getTrangThai());
     lblTrangThaiStatus.setStyle("-fx-font-size:14px; -fx-text-fill: black;");
     lblTrangThaiStatus.setPrefWidth(230);
 
@@ -268,9 +277,38 @@ public class GiaoDienDatBanNgay extends VBox {
                 pdb.setNhanVien(assigned);
 
                 boolean ok = phieuDatBanDAO.themPhieu(pdb);
-                lblTenKhachDat.setText(ok ? "Đã lưu phiếu đặt bàn" : "Lưu phiếu thất bại");
                 if (ok) {
-                    btnDatBan.setDisable(true);
+                    javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.CONFIRMATION,
+                        "Đặt bàn thành công!\nBạn có muốn gọi món ngay không?",
+                        javafx.scene.control.ButtonType.YES,
+                        javafx.scene.control.ButtonType.NO
+                    );
+                    alert.setTitle("Xác nhận");
+                    alert.setHeaderText(null);
+                    alert.initOwner(getScene().getWindow());
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        Stage st = (Stage) getScene().getWindow();
+                        if (buttonType == ButtonType.YES) {
+                            if (parentPane != null) {
+                                parentPane.getChildren().setAll(new GiaoDienGoiMon(parentPane, ban, pdb));
+                            }
+                            if (st != null) st.close();
+                        } else {
+                            if (parentPane != null) {
+                            }
+                            if (st != null) st.close();
+                        }
+                    });
+                } else {
+                    javafx.scene.control.Alert failAlert = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.ERROR,
+                        "Lưu phiếu thất bại! Vui lòng thử lại."
+                    );
+                    failAlert.setTitle("Lỗi");
+                    failAlert.setHeaderText(null);
+                    failAlert.initOwner(getScene().getWindow());
+                    failAlert.showAndWait();
                 }
             } catch (Exception ex) {
                 lblTenKhachDat.setText("Có lỗi khi lưu");

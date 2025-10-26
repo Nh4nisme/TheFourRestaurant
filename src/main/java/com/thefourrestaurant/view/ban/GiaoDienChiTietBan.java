@@ -194,7 +194,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 	Button nutKiemTra = new ButtonSample2("Kiểm tra", Variant.YELLOW, 120);
 	Button nutGoiMon = new ButtonSample2("Gọi thêm món", Variant.YELLOW, 120);
 	nutGoiMon.setOnAction(e -> {
-	    mainContent.getChildren().setAll(new GiaoDienGoiMon(mainContent, ban));
+	    mainContent.getChildren().setAll(new GiaoDienGoiMon(mainContent, ban, pdb));
 	});
 		Region dayPhai = new Region();
 		HBox.setHgrow(dayPhai, Priority.ALWAYS);
