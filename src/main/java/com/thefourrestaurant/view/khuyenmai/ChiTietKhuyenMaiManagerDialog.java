@@ -105,7 +105,7 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
 
     private void caiDatBangChiTiet() {
         TableColumn<ChiTietKhuyenMai, String> maCTKMCol = new TableColumn<>("Mã CTKM");
-        maCTKMCol.setCellValueFactory(new PropertyValueFactory<>("maCTKM"));
+        maCTKMCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getMaCTKM()));
         maCTKMCol.setPrefWidth(80);
 
         TableColumn<ChiTietKhuyenMai, String> monApDungCol = new TableColumn<>("Món áp dụng");

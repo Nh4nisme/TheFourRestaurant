@@ -9,7 +9,6 @@ import com.thefourrestaurant.view.ban.QuanLiBan;
 import com.thefourrestaurant.view.khuyenmai.GiaoDienKhuyenMai;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.GiaoDienMonAn;
-import com.thefourrestaurant.view.thoigiansukien.ThoiGianSuKien;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -54,7 +53,6 @@ public class SideBarDanhMuc extends BaseSideBar {
                 "Cơm", "Đồ nước", "Tráng miệng", "Món đặc biệt",
                 "Cơm gà", "Bún bò", "Hủ tiếu", "Phở", "Miến", "Mì cay"
         ));
-        themDanhMuc("Thời gian sự kiện");
         themDanhMuc("Khuyến mãi");
 
         // Tầng và bàn
@@ -90,7 +88,7 @@ public class SideBarDanhMuc extends BaseSideBar {
             scrollMucCon.setFitToWidth(true);
             scrollMucCon.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             scrollMucCon.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-            scrollMucCon.setPrefHeight(300); // Chiều cao tối đa vùng con
+            //scrollMucCon.setPrefHeight(300); // Chiều cao tối đa vùng con
             scrollMucCon.setVisible(false);
             scrollMucCon.setManaged(false);
             scrollMucCon.getStyleClass().add("scroll-muc-con");
@@ -135,9 +133,6 @@ public class SideBarDanhMuc extends BaseSideBar {
                 break;
             case "Loại món ăn":
                 newContent = new LoaiMonAn();
-                break;
-            case "Thời gian sự kiện":
-                newContent = new ThoiGianSuKien();
                 break;
             case "Khuyến mãi":
                 newContent = new GiaoDienKhuyenMai();
