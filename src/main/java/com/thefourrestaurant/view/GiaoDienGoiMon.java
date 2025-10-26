@@ -282,9 +282,8 @@ public class GiaoDienGoiMon extends BorderPane {
 	        ChiTietPDBDAO chiTietDAO = new ChiTietPDBDAO();
 	
 	        for (ChiTietPDB ct : danhSachChiTiet) {
-	            ct.setPhieuDatBan(pdb);  // gán phiếu có sẵn
-	            ct.setBan(ban);
-	            chiTietDAO.them(ct);     // insert từng món
+	            ct.setPhieuDatBan(pdb);
+	            chiTietDAO.them(ct);
 	        }
 	
 	        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(

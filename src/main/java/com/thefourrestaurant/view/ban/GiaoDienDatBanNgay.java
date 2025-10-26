@@ -258,6 +258,7 @@ public class GiaoDienDatBanNgay extends VBox {
                 }
 
                 PhieuDatBan pdb = new PhieuDatBan();
+                pdb.setBan(this.ban);
                 pdb.setNgayDat(LocalDate.now());
                 pdb.setSoNguoi(soNguoi);
                 pdb.setKhachHang(kh);
