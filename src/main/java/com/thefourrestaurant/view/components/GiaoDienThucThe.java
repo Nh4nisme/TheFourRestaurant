@@ -74,7 +74,20 @@ public abstract class GiaoDienThucThe extends VBox {
         btnLamMoi = new ButtonSample("Làm mới",45,16,3);
 
         toolbar.getChildren().addAll(lblTieuDe, spacer, thanhTimKiem,btnLamMoi);
+
+        // === Gắn sự kiện cho nút ===
+        btnTimKiem.setOnAction(e -> {
+            String tuKhoa = txtTimKiem.getText() == null ? "" : txtTimKiem.getText().trim();
+            thucHienTimKiem(tuKhoa);
+        });
+
+        btnLamMoi.setOnAction(e -> {
+            txtTimKiem.clear();
+            lamMoiDuLieu();
+        });
+
         return toolbar;
+
     }
 
     /** Tạo SplitPane chứa bảng và chi tiết */
@@ -130,4 +143,10 @@ public abstract class GiaoDienThucThe extends VBox {
 
     /* Hàm con cần override để tạo bảng tương ứng */
     protected abstract TableView<?> taoBangChinh();
+
+    /** Hàm con định nghĩa cách lọc dữ liệu trong bảng */
+    protected abstract void thucHienTimKiem(String tuKhoa);
+
+    /** Hàm con định nghĩa cách làm mới dữ liệu trong bảng */
+    protected abstract void lamMoiDuLieu();
 }

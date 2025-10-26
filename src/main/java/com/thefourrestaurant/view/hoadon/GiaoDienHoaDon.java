@@ -121,5 +121,15 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
         return table;
     }
 
+    @Override
+    protected void thucHienTimKiem(String tuKhoa) {
+
+    }
+
+    @Override
+    protected void lamMoiDuLieu() {
+
+    }
+
     private void hienThiChiTiet(HoaDon hd) {gdChiTietHoaDon.hienThiThongTin(hd);}
 }

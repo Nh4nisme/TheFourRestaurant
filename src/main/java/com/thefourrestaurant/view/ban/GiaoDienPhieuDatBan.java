@@ -105,5 +105,15 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
         return table;
     }
 
+    @Override
+    protected void thucHienTimKiem(String tuKhoa) {
+
+    }
+
+    @Override
+    protected void lamMoiDuLieu() {
+
+    }
+
     public void hienThiChiTiet(PhieuDatBan pdb){gdChiTietPhieuDatBan.hienThiThongTin(pdb);}
 }
