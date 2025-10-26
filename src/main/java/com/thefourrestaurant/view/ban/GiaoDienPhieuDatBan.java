@@ -1,7 +1,5 @@
 package com.thefourrestaurant.view.ban;
 
-import com.thefourrestaurant.DAO.PhieuDatBanDAO;
-import com.thefourrestaurant.controller.KhachHangController;
 import com.thefourrestaurant.controller.PhieuDatBanController;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.NhanVien;
@@ -9,6 +7,7 @@ import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -63,17 +62,18 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
                 btnXoa.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 14;");
                 btnXoa.setOnAction(event -> {
                     PhieuDatBan pdb = getTableView().getItems().get(getIndex());
+                    Stage stage = (Stage) btnXoa.getScene().getWindow();
 
                     // Hộp thoại xác nhận
-                    if (xacNhan("Xác nhận xóa", "Bạn có chắc muốn xóa phiếu đặt bàn: " + pdb.getMaPDB() + " ?")) {
+                    if (xacNhan(stage, "Bạn có chắc muốn xóa phiếu đặt bàn: " + pdb.getMaPDB() + " ?")) {
 
                         boolean ok = controller.xoaPhieuDatBan(pdb.getMaPDB()); // gọi DAO/controller xóa
 
                         if (ok) {
                             getTableView().getItems().remove(pdb);
-                            hienThongBao("Đã xóa phiếu đặt bàn!");
+                            hienThongBao(stage,"Đã xóa phiếu đặt bàn!");
                         } else {
-                            hienThongBao("Không thể xóa phiếu đặt bàn này!", Alert.AlertType.ERROR);
+                            hienThongBao(stage,"Không thể xóa phiếu đặt bàn này!", Alert.AlertType.ERROR);
                         }
                     }
                 });

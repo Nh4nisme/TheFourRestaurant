@@ -89,4 +89,17 @@ public class HoaDonDAO {
 //        }
 //        return null;
 //    }
+
+    public static boolean xoaHoaDon(String maHD) {
+        String sql = "UPDATE HoaDon SET isDeleted = 1 WHERE maHD = ?";
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, maHD);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

@@ -1,26 +1,22 @@
 package com.thefourrestaurant.view.hoadon;
 
 import com.thefourrestaurant.controller.HoaDonController;
-import com.thefourrestaurant.model.ChiTietHoaDon;
 import com.thefourrestaurant.model.HoaDon;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.PhuongThucThanhToan;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 public class GiaoDienHoaDon extends GiaoDienThucThe {
-    private final HoaDonController hoaDonController = new HoaDonController();
+    private final HoaDonController controller = new HoaDonController();
     private GiaoDienChiTietHoaDon gdChiTietHoaDon;
     private TableView<HoaDon> table;
 
@@ -74,11 +70,41 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
         });
         colTongTien.setStyle("-fx-alignment: CENTER-RIGHT;");
 
-        table.getColumns().addAll(colMaHD, colNgayLap, colSoDT, colPTTT, colTongTien);
+        TableColumn<HoaDon, Void> colHanhDong = new TableColumn<>("Hành động");
+        colHanhDong.setCellFactory(col -> new TableCell<>() {
+            private final Button btnXoa = new Button("🗑");
+
+            {
+                btnXoa.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 14;");
+                btnXoa.setOnAction(event -> {
+                    HoaDon hd = getTableView().getItems().get(getIndex());
+                    Stage stage = (Stage) btnXoa.getScene().getWindow();
+
+                    if (xacNhan(stage, "Bạn có chắc muốn xóa hóa đơn: " + hd.getMaHD() + " ?")) {
+                        boolean ok = controller.xoaHoaDon(hd.getMaHD()); // Gọi controller/DAO xóa hóa đơn
+
+                        if (ok) {
+                            getTableView().getItems().remove(hd);
+                            hienThongBao(stage,"Đã xóa hóa đơn!");
+                        } else {
+                            hienThongBao(stage,"Không thể xóa hóa đơn này!", Alert.AlertType.ERROR);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btnXoa);
+            }
+        });
+
+        table.getColumns().addAll(colMaHD, colNgayLap, colSoDT, colPTTT, colTongTien, colHanhDong);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // ===== Lấy dữ liệu từ Controller =====
-        List<HoaDon> dsHoaDon = hoaDonController.layDanhSachHoaDon();
+        List<HoaDon> dsHoaDon = controller.layDanhSachHoaDon();
         table.getItems().setAll(dsHoaDon);
 
         table.setRowFactory(t ->{
