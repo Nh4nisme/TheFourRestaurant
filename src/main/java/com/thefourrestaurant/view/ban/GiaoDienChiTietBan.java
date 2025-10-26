@@ -2,6 +2,7 @@ package com.thefourrestaurant.view.ban;
 
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.model.Ban;
+import com.thefourrestaurant.model.ChiTietPDB;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.view.GiaoDienGoiMon;
 import com.thefourrestaurant.view.ThanhToan;
@@ -26,6 +27,7 @@ import javafx.util.Duration;
 
 public class GiaoDienChiTietBan extends BorderPane {
 	
+	
 	private StackPane mainContent;
 	private Ban ban;
 	private PhieuDatBan pdb;
@@ -34,6 +36,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 	public GiaoDienChiTietBan(StackPane mainContent, Ban ban) {
         this.mainContent = mainContent;
         this.ban = ban;
+        pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
 
         setStyle("-fx-background-color: #F5F5F5;");
         setTop(buildHeader());
@@ -94,24 +97,71 @@ public class GiaoDienChiTietBan extends BorderPane {
 	}
 
 	private VBox buildLeftColumn() {
-		// cột trái
-		VBox trai = new VBox(16);
-		trai.setPrefWidth(380);
+	    VBox trai = new VBox(16);
+	    trai.setPrefWidth(380);
 
-		Label tieuDeTtb = new Label("Thông tin bàn");
-		tieuDeTtb.setMaxWidth(Double.MAX_VALUE);
-		tieuDeTtb.setAlignment(Pos.CENTER);
-		tieuDeTtb.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
-	VBox theTtb = buildInfoCard(new String[]{"Trạng Thái:", "Loại bàn:", "Số người:"}, true);
+	    // Tiêu đề cột "Thông tin bàn"
+	    Label tieuDeTtb = new Label("Thông tin bàn");
+	    tieuDeTtb.setMaxWidth(Double.MAX_VALUE);
+	    tieuDeTtb.setAlignment(Pos.CENTER);
+	    tieuDeTtb.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
 
-		Label tieuDePdb = new Label("Phiếu đặt bàn");
-		tieuDePdb.setMaxWidth(Double.MAX_VALUE);
-		tieuDePdb.setAlignment(Pos.CENTER);
-		tieuDePdb.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
-	VBox thePdb = buildInfoCard(new String[]{"Tên khách:", "Số điện thoại:", "Giờ nhận bàn:"}, true);
+	    // Dữ liệu bàn
+	    String[] thongTinBan = new String[]{
+	        ban.getTrangThai(), 
+	        ban.getLoaiBan().getTenLoaiBan(), 
+	        String.valueOf(ban.getLoaiBan().getSoNguoi())
+	    };
 
-		trai.getChildren().addAll(tieuDeTtb, theTtb, tieuDePdb, thePdb);
-		return trai;
+	    VBox theTtb = buildInfoCardWithData(
+	        new String[]{"Trạng Thái:", "Loại bàn:", "Số người:"}, thongTinBan
+	    );
+
+	    // Tiêu đề cột "Phiếu đặt bàn"
+	    Label tieuDePdb = new Label("Phiếu đặt bàn");
+	    tieuDePdb.setMaxWidth(Double.MAX_VALUE);
+	    tieuDePdb.setAlignment(Pos.CENTER);
+	    tieuDePdb.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+	    // Dữ liệu phiếu đặt bàn
+	    String[] thongTinPdb = new String[]{
+	        pdb != null && pdb.getKhachHang() != null ? pdb.getKhachHang().getHoTen() : "",
+	        pdb != null && pdb.getKhachHang() != null ? pdb.getKhachHang().getSoDT() : "",
+	        pdb != null && pdb.getNgayDat() != null ? pdb.getNgayDat().toString() : ""
+	    };
+
+	    VBox thePdb = buildInfoCardWithData(
+	        new String[]{"Tên khách:", "Số điện thoại:", "Giờ nhận bàn:"}, thongTinPdb
+	    );
+
+	    // Thêm tất cả vào VBox cột trái
+	    trai.getChildren().addAll(tieuDeTtb, theTtb, tieuDePdb, thePdb);
+
+	    return trai;
+	}
+
+	/**
+	 * Xây dựng thẻ thông tin nhãn + giá trị
+	 */
+	private VBox buildInfoCardWithData(String[] nhanText, String[] giaTri) {
+	    VBox card = new VBox(8);
+	    card.setPadding(new Insets(12));
+	    card.setStyle("-fx-background-color: white; -fx-border-color: #000000; -fx-border-radius: 10; -fx-background-radius: 10;");
+
+	    for (int i = 0; i < nhanText.length; i++) {
+	        HBox row = new HBox(8);
+
+	        Label lblNhan = new Label(nhanText[i]);
+	        lblNhan.setStyle("-fx-font-size: 16px; -fx-text-fill: #DDB248; -fx-font-weight: bold;");
+
+	        Label lblGiaTri = new Label(giaTri[i]);
+	        lblGiaTri.setStyle("-fx-font-size: 16px; -fx-text-fill: #000000;");
+
+	        row.getChildren().addAll(lblNhan, lblGiaTri);
+	        card.getChildren().add(row);
+	    }
+
+	    return card;
 	}
 
 	private VBox buildInfoCard(String[] dong) {
@@ -170,57 +220,38 @@ public class GiaoDienChiTietBan extends BorderPane {
 		hopDen.setPadding(new Insets(8));
 		VBox.setVgrow(hopDen, Priority.ALWAYS);
 
-	HBox dongTieuDe = buildRow("STT", "Tên món", "Đơn giá", "Số lượng", "Thành tiền", "Hành động", true);
+		HBox dongTieuDe = buildRow("STT", "Tên món", "Đơn giá", "Số lượng", "Thành tiền", "Ghi chú", true);
 
 	VBox danhSachDong = new VBox(0);
-	danhSachDong.getChildren().addAll(
-		buildDataRow(1, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
-		buildDataRow(2, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
-		buildDataRow(3, "Cơm bò", "45,000 VND", "2", "90,000 VND"),
-		buildDataRow(4, "Cơm bò", "45,000 VND", "2", "90,000 VND")
-	);
+	if (pdb != null && pdb.getChiTietPDB() != null) {
+	    int stt = 1;
+	    for (ChiTietPDB ct : pdb.getChiTietPDB()) {
+	        String tenMon = ct.getMonAn().getTenMon();
+	        String donGia = String.format("%,.0f VND", ct.getDonGia());
+	        String soLuong = String.valueOf(ct.getSoLuong());
+	        String thanhTien = String.format("%,.0f VND", ct.getDonGia() * ct.getSoLuong());
+	        String ghiChu = ct.getGhiChu() != null ? ct.getGhiChu() : "";
+	        danhSachDong.getChildren().add(buildDataRow(stt++, tenMon, donGia, soLuong, thanhTien, ghiChu));
+	    }
+	}
 
 		hopDen.getChildren().addAll(dongTieuDe, danhSachDong);
 
-		HBox thanhMaGiamGia = new HBox(12);
-		thanhMaGiamGia.setAlignment(Pos.CENTER_LEFT);
-		thanhMaGiamGia.setPadding(new Insets(12, 0, 0, 0));
-	Label lblMa = new Label("Mã giảm giá:");
-	lblMa.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
-		TextField txtMa = new TextField();
-		txtMa.setPrefWidth(220);
-		txtMa.setPrefHeight(40);
-		txtMa.setStyle("-fx-background-color: white; -fx-border-color: #C9C9C9; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 0 12 0 12;");
-	Button nutKiemTra = new ButtonSample2("Kiểm tra", Variant.YELLOW, 120);
-	Button nutGoiMon = new ButtonSample2("Gọi thêm món", Variant.YELLOW, 120);
-	nutGoiMon.setOnAction(e -> {
-	    mainContent.getChildren().setAll(new GiaoDienGoiMon(mainContent, ban, pdb));
-	});
-		Region dayPhai = new Region();
-		HBox.setHgrow(dayPhai, Priority.ALWAYS);
-		thanhMaGiamGia.getChildren().addAll(lblMa, txtMa, nutKiemTra, dayPhai, nutGoiMon);
+		HBox thanhChucNang = new HBox();
+		thanhChucNang.setAlignment(Pos.CENTER_RIGHT);
+		thanhChucNang.setPadding(new Insets(12, 0, 0, 0));
 
-		GridPane tongKet = new GridPane();
-		tongKet.setHgap(60);
-		tongKet.setVgap(10);
-		tongKet.setPadding(new Insets(8, 0, 0, 0));
-		ColumnConstraints tk1 = new ColumnConstraints(); tk1.setPercentWidth(50);
-		ColumnConstraints tk2 = new ColumnConstraints(); tk2.setPercentWidth(50);
-		tongKet.getColumnConstraints().addAll(tk1, tk2);
-	Label l1 = new Label("Chiết khấu:"); l1.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
-	Label l2 = new Label("Thuế VAT:"); l2.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
-	Label l3 = new Label("Tạm tính:"); l3.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
-	Label r1 = new Label("Tiền đặt cọc trước:"); r1.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
-	Label r2 = new Label("Tổng cộng:"); r2.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
-		tongKet.add(l1, 0, 0);
-		tongKet.add(l2, 0, 1);
-		tongKet.add(l3, 0, 2);
-		tongKet.add(r1, 1, 0);
-		tongKet.add(r2, 1, 1);
+		Button nutGoiMon = new ButtonSample2("Gọi thêm món", Variant.YELLOW, 120);
+		nutGoiMon.setOnAction(e -> {
+		    mainContent.getChildren().setAll(new GiaoDienGoiMon(mainContent, ban, pdb));
+		});
 
-		khungPhai.getChildren().addAll(tieuDe, thongTinNho, hopDen, thanhMaGiamGia, tongKet);
+		thanhChucNang.getChildren().add(nutGoiMon);
+
+		khungPhai.getChildren().addAll(tieuDe, thongTinNho, hopDen, thanhChucNang);
 		phai.getChildren().add(khungPhai);
 		return phai;
+
 	}
 
 	// headers
@@ -243,30 +274,25 @@ public class GiaoDienChiTietBan extends BorderPane {
 	}
 
 	// + -
-	private HBox buildDataRow(int stt, String ten, String donGia, String soLuong, String thanhTien) {
-		HBox dong = new HBox();
-		dong.setAlignment(Pos.CENTER_LEFT);
-		dong.setPadding(new Insets(8, 10, 8, 10));
-		dong.setStyle("-fx-border-color: black transparent transparent transparent; -fx-border-width: 1 0 0 0;");
+	private HBox buildDataRow(int stt, String ten, String donGia, String soLuong, String thanhTien, String ghiChu) {
+	    HBox dong = new HBox();
+	    dong.setAlignment(Pos.CENTER_LEFT);
+	    dong.setPadding(new Insets(8, 10, 8, 10));
+	    dong.setStyle("-fx-border-color: black transparent transparent transparent; -fx-border-width: 1 0 0 0;");
 
-		Region o1 = cellText(String.valueOf(stt), 50, Pos.CENTER_LEFT, false);
-		Region o2 = cellText(ten, 300, Pos.CENTER_LEFT, false);
-		Region o3 = cellText(donGia, 130, Pos.CENTER_LEFT, false);
-		Region o4 = cellText(soLuong, 110, Pos.CENTER_LEFT, false);
-		Region o5 = cellText(thanhTien, 140, Pos.CENTER_LEFT, false);
+	    Region o1 = cellText(String.valueOf(stt), 50, Pos.CENTER_LEFT, false);
+	    Region o2 = cellText(ten, 300, Pos.CENTER_LEFT, false);
+	    Region o3 = cellText(donGia, 130, Pos.CENTER_LEFT, false);
+	    Region o4 = cellText(soLuong, 110, Pos.CENTER_LEFT, false);
+	    Region o5 = cellText(thanhTien, 140, Pos.CENTER_LEFT, false);
+	    
+	    Label lblGhiChu = new Label(ghiChu);
+	    lblGhiChu.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000;");
+	    Region o6 = cellNode(lblGhiChu, 140, Pos.CENTER);
 
-		HBox hopHanhDong = new HBox(10);
-		hopHanhDong.setAlignment(Pos.CENTER);
-		Button nutTru = transparentIconButton("−");
-		Label soLuongHienThi = new Label("0");
-		soLuongHienThi.setStyle("-fx-font-size: 14px; -fx-text-fill: #000000;");
-		Button nutCong = transparentIconButton("+");
-		hopHanhDong.getChildren().addAll(nutTru, soLuongHienThi, nutCong);
-		Region o6 = cellNode(hopHanhDong, 140, Pos.CENTER);
-
-		HBox.setHgrow(o2, Priority.ALWAYS);
-		dong.getChildren().addAll(o1, o2, o3, o4, o5, o6);
-		return dong;
+	    HBox.setHgrow(o2, Priority.ALWAYS);
+	    dong.getChildren().addAll(o1, o2, o3, o4, o5, o6);
+	    return dong;
 	}
 
 	private Region cellText(String text, double width, Pos align, boolean dam) {
@@ -281,13 +307,6 @@ public class GiaoDienChiTietBan extends BorderPane {
 		p.setMinWidth(width);
 		p.setPrefWidth(width);
 		return p;
-	}
-
-	private Button transparentIconButton(String text) {
-		Button b = new Button(text);
-		b.setFocusTraversable(false);
-		b.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-font-size: 16px; -fx-text-fill: #000000;");
-		return b;
 	}
 
     
