@@ -24,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -198,11 +199,19 @@ public class GiaoDienGoiMon extends BorderPane {
 	    bangPhieu.setPrefHeight(450);
 	    bangPhieu.setStyle("-fx-background-color: white;");
 	    bangPhieu.setItems(danhSachChiTiet);
+	    bangPhieu.setEditable(true);
 	
 	    TableColumn<ChiTietPDB, String> tenMonCol = new TableColumn<>("Tên món");
 	    TableColumn<ChiTietPDB, String> donGiaCol = new TableColumn<>("Đơn giá");
 	    TableColumn<ChiTietPDB, String> soLuongCol = new TableColumn<>("Số lượng");
 	    TableColumn<ChiTietPDB, String> thanhTienCol = new TableColumn<>("Thành tiền");
+	    TableColumn<ChiTietPDB, String> ghiChuCol = new TableColumn<>("Ghi chú");
+	    
+	    ghiChuCol.setCellValueFactory(c ->
+        	new SimpleStringProperty(c.getValue().getGhiChu() != null ? c.getValue().getGhiChu() : "")
+	    );
+	    ghiChuCol.setCellFactory(TextFieldTableCell.forTableColumn());
+	    ghiChuCol.setOnEditCommit(e -> e.getRowValue().setGhiChu(e.getNewValue()));
 	
 	    tenMonCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
 	    donGiaCol.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f", c.getValue().getDonGia())));
@@ -212,7 +221,7 @@ public class GiaoDienGoiMon extends BorderPane {
 	    ));
 	
 	    bangPhieu.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-	    bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, soLuongCol, thanhTienCol);
+	    bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, soLuongCol, thanhTienCol, ghiChuCol);
 	
 	    lblTongTien = new Label("Tổng tiền: 0 VND");
 	    lblTongTien.setFont(Font.font("System", FontWeight.BOLD, 16));
@@ -235,7 +244,7 @@ public class GiaoDienGoiMon extends BorderPane {
         for (ChiTietPDB ct : danhSachChiTiet) {
             if (ct.getMonAn().getMaMonAn().equals(mon.getMaMonAn())) {
                 ct.setSoLuong(ct.getSoLuong() + 1);
-                bangPhieu.refresh(); // cập nhật giao diện TableView
+                bangPhieu.refresh();
                 capNhatTongTien();
                 return;
             }
@@ -260,62 +269,43 @@ public class GiaoDienGoiMon extends BorderPane {
     }
     
     private void xuLyGuiBep() {
-        try {
-            if (danhSachChiTiet.isEmpty()) {
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                    javafx.scene.control.Alert.AlertType.WARNING, 
-                    "Chưa có món nào trong phiếu!"
-                );
-                alert.showAndWait();
-                return;
-            }
-
-            PhieuDatBanDAO phieuDAO = new PhieuDatBanDAO();
-            ChiTietPDBDAO chiTietDAO = new ChiTietPDBDAO();
-
-            // 🔹 Tạo phiếu đặt bàn mới
-            PhieuDatBan phieuMoi = new PhieuDatBan();
-            phieuMoi.setNgayDat(java.time.LocalDate.now());
-            phieuMoi.setSoNguoi(ban.getLoaiBan().getSoNguoi());
-            phieuMoi.setKhachHang(new KhachHang("KH000001")); // tạm thời gán cứng
-            phieuMoi.setNhanVien(new NhanVien("NV000001"));   // tạm thời gán cứng
-            phieuMoi.setDeleted(false);
-
-            if (phieuDAO.themPhieu(phieuMoi)) {
-                // 🔹 Lưu từng chi tiết món ăn
-                for (ChiTietPDB ct : danhSachChiTiet) {
-                    ct.setPhieuDatBan(phieuMoi);
-                    ct.setBan(ban);
-                    chiTietDAO.them(ct);
-                }
-
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                    javafx.scene.control.Alert.AlertType.INFORMATION,
-                    "Đã gửi bếp thành công!"
-                );
-                alert.showAndWait();
-
-                danhSachChiTiet.clear();
-                bangPhieu.refresh();
-                capNhatTongTien();
-            } else {
-                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                    javafx.scene.control.Alert.AlertType.ERROR,
-                    "Không thể tạo phiếu gọi món!"
-                );
-                alert.showAndWait();
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                javafx.scene.control.Alert.AlertType.ERROR,
-                "Lỗi khi gửi bếp: " + ex.getMessage()
-            );
-            alert.showAndWait();
-        }
-    }
-
+	    try {
+	        if (danhSachChiTiet.isEmpty()) {
+	            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+	                javafx.scene.control.Alert.AlertType.WARNING, 
+	                "Chưa có món nào trong phiếu!"
+	            );
+	            alert.showAndWait();
+	            return;
+	        }
+	
+	        ChiTietPDBDAO chiTietDAO = new ChiTietPDBDAO();
+	
+	        for (ChiTietPDB ct : danhSachChiTiet) {
+	            ct.setPhieuDatBan(pdb);  // gán phiếu có sẵn
+	            ct.setBan(ban);
+	            chiTietDAO.them(ct);     // insert từng món
+	        }
+	
+	        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+	            javafx.scene.control.Alert.AlertType.INFORMATION,
+	            "Đã gửi bếp thành công!"
+	        );
+	        alert.showAndWait();
+	
+	        danhSachChiTiet.clear();
+	        bangPhieu.refresh();
+	        capNhatTongTien();
+	
+	    } catch (Exception ex) {
+	        ex.printStackTrace();
+	        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+	            javafx.scene.control.Alert.AlertType.ERROR,
+	            "Lỗi khi gửi bếp: " + ex.getMessage()
+	        );
+	        alert.showAndWait();
+	    }
+	}
 
 
 }
