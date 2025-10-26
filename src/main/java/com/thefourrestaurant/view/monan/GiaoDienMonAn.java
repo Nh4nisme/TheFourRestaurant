@@ -173,10 +173,10 @@ public class GiaoDienMonAn extends VBox {
         VBox.setVgrow(listViewPane, Priority.ALWAYS);
 
         TableColumn<MonAn, String> maMonCol = new TableColumn<>("Mã món");
-        maMonCol.setCellValueFactory(new PropertyValueFactory<>("maMonAn"));
+        maMonCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getMaMonAn()));
 
         TableColumn<MonAn, String> tenMonAnCol = new TableColumn<>("Tên món ăn");
-        tenMonAnCol.setCellValueFactory(new PropertyValueFactory<>("tenMon"));
+        tenMonAnCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTenMon()));
 
         TableColumn<MonAn, String> donGiaCol = new TableColumn<>("Đơn giá (VND)");
         donGiaCol.setCellValueFactory(cellData -> {
@@ -186,7 +186,7 @@ public class GiaoDienMonAn extends VBox {
         });
 
         TableColumn<MonAn, String> trangThaiCol = new TableColumn<>("Trạng thái");
-        trangThaiCol.setCellValueFactory(new PropertyValueFactory<>("trangThai"));
+        trangThaiCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTrangThai()));
 
         listViewPane.getColumns().addAll(maMonCol, tenMonAnCol, donGiaCol, trangThaiCol);
         listViewPane.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

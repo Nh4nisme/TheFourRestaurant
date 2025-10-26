@@ -1,7 +1,6 @@
 package com.thefourrestaurant.view.khuyenmai;
 
 import com.thefourrestaurant.controller.KhuyenMaiController;
-import com.thefourrestaurant.model.ChiTietKhuyenMai;
 import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.beans.property.SimpleStringProperty;
@@ -28,7 +27,6 @@ public class GiaoDienKhuyenMai extends VBox {
     private final KhuyenMaiController boDieuKhien;
     private List<KhuyenMai> danhSachKhuyenMai = new ArrayList<>();
     private final TableView<KhuyenMai> bangKhuyenMai = new TableView<>();
-    private final TableView<ChiTietKhuyenMai> bangChiTietKhuyenMai = new TableView<>();
 
     private VBox khuyenMaiViewContainer;
     private KhuyenMaiGrid gridView;
@@ -42,39 +40,29 @@ public class GiaoDienKhuyenMai extends VBox {
         VBox.setVgrow(contentPane, Priority.ALWAYS);
         contentPane.setStyle("-fx-background-color: #F5F5F5;");
 
+        // Thêm các khung trên và giữa
         contentPane.add(taoKhungTren(), 0, 0);
         contentPane.add(taoKhungGiua(), 0, 1);
 
-        SplitPane mainSplitPane = new SplitPane();
-        mainSplitPane.setDividerPositions(0.6f);
-        GridPane.setMargin(mainSplitPane, new Insets(10, 10, 10, 10));
-        GridPane.setHgrow(mainSplitPane, Priority.ALWAYS);
-        GridPane.setVgrow(mainSplitPane, Priority.ALWAYS);
-        contentPane.add(mainSplitPane, 0, 2);
-
+        // Container chính cho danh sách/lưới khuyến mãi
         VBox khuyenMaiTableContainer = new VBox(10);
         khuyenMaiTableContainer.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
         khuyenMaiTableContainer.setPadding(new Insets(20));
+        GridPane.setMargin(khuyenMaiTableContainer, new Insets(10, 10, 10, 10));
+        GridPane.setHgrow(khuyenMaiTableContainer, Priority.ALWAYS);
+        GridPane.setVgrow(khuyenMaiTableContainer, Priority.ALWAYS);
+        contentPane.add(khuyenMaiTableContainer, 0, 2);
 
         khuyenMaiViewContainer = new VBox();
         VBox.setVgrow(khuyenMaiViewContainer, Priority.ALWAYS);
         khuyenMaiTableContainer.getChildren().add(khuyenMaiViewContainer);
 
-        VBox chiTietKhuyenMaiTableContainer = new VBox(10);
-        chiTietKhuyenMaiTableContainer.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
-        chiTietKhuyenMaiTableContainer.setPadding(new Insets(20));
-        chiTietKhuyenMaiTableContainer.getChildren().add(new Label("Chi tiết khuyến mãi"));
-        chiTietKhuyenMaiTableContainer.getChildren().add(bangChiTietKhuyenMai);
-        VBox.setVgrow(bangChiTietKhuyenMai, Priority.ALWAYS);
-
-        mainSplitPane.getItems().addAll(khuyenMaiTableContainer, chiTietKhuyenMaiTableContainer);
-
+        // Cài đặt và khởi tạo các view
         caiDatBangKhuyenMai();
-        caiDatBangChiTietKhuyenMai();
-
         listView = bangKhuyenMai;
         gridView = new KhuyenMaiGrid(this);
 
+        // View mặc định là GridView
         khuyenMaiViewContainer.getChildren().add(gridView);
 
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
@@ -225,13 +213,8 @@ public class GiaoDienKhuyenMai extends VBox {
         bangKhuyenMai.getColumns().addAll(maKMCol, moTaCol, loaiKMCol, tyLeCol, soTienCol, ngayBDCol, ngayKTCol, trangThaiCol);
         bangKhuyenMai.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        bangKhuyenMai.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                lamMoiBangChiTietKhuyenMai(newSelection.getMaKM());
-            } else {
-                bangChiTietKhuyenMai.getItems().clear();
-            }
-        });
+        // Xóa listener không cần thiết
+        // bangKhuyenMai.getSelectionModel().selectedItemProperty().addListener(...);
 
         bangKhuyenMai.setRowFactory(tv -> {
             TableRow<KhuyenMai> row = new TableRow<>();
@@ -252,54 +235,6 @@ public class GiaoDienKhuyenMai extends VBox {
         });
     }
 
-    private void caiDatBangChiTietKhuyenMai() {
-        VBox.setVgrow(bangChiTietKhuyenMai, Priority.ALWAYS);
-
-        TableColumn<ChiTietKhuyenMai, String> monApDungCol = new TableColumn<>("Món áp dụng");
-        monApDungCol.setCellValueFactory(cellData -> {
-            if (cellData.getValue().getMonApDung() != null) {
-                return new SimpleStringProperty(cellData.getValue().getMonApDung().getTenMon());
-            }
-            return new SimpleStringProperty("");
-        });
-        monApDungCol.setPrefWidth(120);
-
-        TableColumn<ChiTietKhuyenMai, String> monTangCol = new TableColumn<>("Món tặng");
-        monTangCol.setCellValueFactory(cellData -> {
-            if (cellData.getValue().getMonTang() != null) {
-                return new SimpleStringProperty(cellData.getValue().getMonTang().getTenMon());
-            }
-            return new SimpleStringProperty("");
-        });
-        monTangCol.setPrefWidth(120);
-
-        TableColumn<ChiTietKhuyenMai, String> giaTriGiamCol = new TableColumn<>("Giá trị giảm");
-        giaTriGiamCol.setCellValueFactory(cellData -> {
-            BigDecimal tyLe = cellData.getValue().getTyLeGiam();
-            BigDecimal soTien = cellData.getValue().getSoTienGiam();
-            NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-
-            if (tyLe != null && tyLe.compareTo(BigDecimal.ZERO) > 0) {
-                return new SimpleStringProperty(tyLe.stripTrailingZeros().toPlainString() + "%");
-            } else if (soTien != null && soTien.compareTo(BigDecimal.ZERO) >= 0) {
-                return new SimpleStringProperty(soTien.stripTrailingZeros().toPlainString() + " VND");
-            } else {
-                return new SimpleStringProperty("");
-            }
-        });
-        giaTriGiamCol.setPrefWidth(120);
-
-        TableColumn<ChiTietKhuyenMai, String> soLuongTangCol = new TableColumn<>("SL tặng");
-        soLuongTangCol.setCellValueFactory(cellData -> {
-            Integer soLuong = cellData.getValue().getSoLuongTang();
-            return new SimpleStringProperty(soLuong != null && soLuong > 0 ? String.valueOf(soLuong) : "");
-        });
-        soLuongTangCol.setPrefWidth(60);
-
-        bangChiTietKhuyenMai.getColumns().addAll(monApDungCol, monTangCol, giaTriGiamCol, soLuongTangCol);
-        bangChiTietKhuyenMai.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-    }
-
     public void lamMoiGiaoDien() {
         this.danhSachKhuyenMai = boDieuKhien.layDanhSachKhuyenMai();
         bangKhuyenMai.setItems(FXCollections.observableArrayList(danhSachKhuyenMai));
@@ -307,22 +242,10 @@ public class GiaoDienKhuyenMai extends VBox {
         if (gridView != null) {
             gridView.refresh(this);
         }
-        bangChiTietKhuyenMai.getItems().clear();
     }
 
-    private void lamMoiBangChiTietKhuyenMai(String maKM) {
-        List<ChiTietKhuyenMai> chiTietList = boDieuKhien.layChiTietKhuyenMaiTheoMaKM(maKM);
-        bangChiTietKhuyenMai.setItems(FXCollections.observableArrayList(chiTietList));
-        bangChiTietKhuyenMai.refresh();
-    }
-
-    public void hienThiChiTietKhuyenMai(KhuyenMai khuyenMai) {
-        if (khuyenMai != null) {
-            lamMoiBangChiTietKhuyenMai(khuyenMai.getMaKM());
-        } else {
-            bangChiTietKhuyenMai.getItems().clear();
-        }
-    }
+    // Phương thức này không còn cần thiết nữa
+    // public void hienThiChiTietKhuyenMai(KhuyenMai khuyenMai) { ... }
 
     private ContextMenu taoMenuNguCanh(TableRow<KhuyenMai> row) {
         ContextMenu contextMenu = new ContextMenu();
