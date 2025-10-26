@@ -15,6 +15,7 @@ public class KhuyenMaiDAO {
         KhuyenMai km = new KhuyenMai();
         km.setMaKM(rs.getString("maKM"));
         km.setTyLe(rs.getBigDecimal("tyLe"));
+        km.setTenKM(rs.getString("tenKM"));
         km.setSoTien(rs.getBigDecimal("soTien"));
         Timestamp ngayBDTimestamp = rs.getTimestamp("ngayBatDau");
         if (ngayBDTimestamp != null) km.setNgayBatDau(ngayBDTimestamp.toLocalDateTime());

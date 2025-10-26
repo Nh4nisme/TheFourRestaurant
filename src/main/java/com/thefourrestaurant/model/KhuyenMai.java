@@ -7,6 +7,7 @@ import java.util.List;
 public class KhuyenMai {
     private String maKM;
     private LoaiKhuyenMai loaiKhuyenMai;
+    private String tenKM;
     private BigDecimal tyLe;
     private BigDecimal soTien;
     private LocalDateTime ngayBatDau;
@@ -15,10 +16,11 @@ public class KhuyenMai {
 
     public KhuyenMai() {}
 
-    public KhuyenMai(String maKM, LoaiKhuyenMai loaiKhuyenMai, BigDecimal tyLe, BigDecimal soTien,
+    public KhuyenMai(String maKM, LoaiKhuyenMai loaiKhuyenMai, String tenKM, BigDecimal tyLe, BigDecimal soTien,
                      LocalDateTime ngayBatDau, LocalDateTime ngayKetThuc, String moTa) {
         this.maKM = maKM;
         this.loaiKhuyenMai = loaiKhuyenMai;
+        setTenKM(tenKM);
         this.tyLe = tyLe;
         this.soTien = soTien;
         this.ngayBatDau = ngayBatDau;
@@ -41,6 +43,10 @@ public class KhuyenMai {
     public void setLoaiKhuyenMai(LoaiKhuyenMai loaiKhuyenMai) {
         this.loaiKhuyenMai = loaiKhuyenMai;
     }
+
+    public String getTenKM() {return tenKM;}
+
+    public void setTenKM(String tenKM) {this.tenKM = tenKM;}
 
     public BigDecimal getTyLe() {
         return tyLe;
