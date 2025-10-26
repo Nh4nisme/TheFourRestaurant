@@ -19,4 +19,6 @@ public class PhieuDatBanController {
 
     public List<ChiTietPDB> layChiTietPDB(String maPDB) {return chiTietPDBDAO.layTheoPhieu(maPDB);}
 
+    public boolean xoaPhieuDatBan(String maPDB) {return phieuDatBanDAO.xoaPhieu(maPDB);}
+
 }

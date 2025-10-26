@@ -8,9 +8,7 @@ import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -57,7 +55,38 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
         TableColumn<PhieuDatBan, String> colTrangThai = new TableColumn<>("Trạng thái");
         colTrangThai.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTrangThai()));
 
-        table.getColumns().addAll(colMaPDB, colNgayTao, colNgayDat, colTenKH, colTenNV, colTrangThai);
+        TableColumn<PhieuDatBan, Void> colHanhDong = new TableColumn<>("Hành động");
+        colHanhDong.setCellFactory(col -> new TableCell<>() {
+            private final Button btnXoa = new Button("🗑");
+
+            {
+                btnXoa.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 14;");
+                btnXoa.setOnAction(event -> {
+                    PhieuDatBan pdb = getTableView().getItems().get(getIndex());
+
+                    // Hộp thoại xác nhận
+                    if (xacNhan("Xác nhận xóa", "Bạn có chắc muốn xóa phiếu đặt bàn: " + pdb.getMaPDB() + " ?")) {
+
+                        boolean ok = controller.xoaPhieuDatBan(pdb.getMaPDB()); // gọi DAO/controller xóa
+
+                        if (ok) {
+                            getTableView().getItems().remove(pdb);
+                            hienThongBao("Đã xóa phiếu đặt bàn!");
+                        } else {
+                            hienThongBao("Không thể xóa phiếu đặt bàn này!", Alert.AlertType.ERROR);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btnXoa);
+            }
+        });
+
+        table.getColumns().addAll(colMaPDB, colNgayTao, colNgayDat, colTenKH, colTenNV, colTrangThai, colHanhDong);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         List<PhieuDatBan> dsPDB = controller.layDanhSachPDB();
