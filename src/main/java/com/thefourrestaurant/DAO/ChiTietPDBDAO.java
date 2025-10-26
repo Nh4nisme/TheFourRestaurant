@@ -155,7 +155,7 @@ public class ChiTietPDBDAO {
             if (rs.next()) {
                 String lastId = rs.getString("maCT");
                 int number = Integer.parseInt(lastId.substring(3)) + 1;
-                return String.format("CTP%06d", number);
+                return String.format("CTP%05d", number);
             }
         } catch (Exception e) {
             e.printStackTrace();
