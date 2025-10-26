@@ -8,8 +8,16 @@ import com.thefourrestaurant.view.monan.MonAnDialog;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class MonAnController {
 
@@ -42,8 +50,7 @@ public class MonAnController {
                 .findFirst()
                 .orElse(null);
 
-        // Updated constructor call for MonAnDialog
-        MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, defaultLoaiMon);
+        MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, defaultLoaiMon, this);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();
@@ -57,8 +64,7 @@ public class MonAnController {
     public boolean tuyChinhMonAn(MonAn monAn) {
         List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
 
-        // Updated constructor call for MonAnDialog
-        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon());
+        MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon(), this);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();
@@ -79,5 +85,45 @@ public class MonAnController {
             return monAnDAO.xoaMonAn(monAn.getMaMonAn());
         }
         return false;
+    }
+
+    public String saoChepHinhAnhVaoProject(String sourceImagePath) {
+        try {
+            String relativeDestDir = "/com/thefourrestaurant/images/MonAn/";
+            URL resourceDirUrl = getClass().getResource(relativeDestDir);
+
+            File destDir;
+            if (resourceDirUrl == null) {
+                URL rootUrl = getClass().getResource("/");
+                if (rootUrl == null) {
+                    throw new IOException("Không thể tìm thấy thư mục gốc của resources.");
+                }
+                destDir = new File(new File(rootUrl.toURI()).getAbsolutePath() + relativeDestDir.replace("/", File.separator));
+                if (!destDir.exists()) {
+                    destDir.mkdirs();
+                }
+            } else {
+                destDir = new File(resourceDirUrl.toURI());
+            }
+
+            File sourceFile = new File(sourceImagePath);
+            String originalFileName = sourceFile.getName();
+            String fileExtension = "";
+            int i = originalFileName.lastIndexOf('.');
+            if (i > 0) {
+                fileExtension = originalFileName.substring(i);
+            }
+            String newFileName = UUID.randomUUID().toString() + fileExtension;
+
+            Path sourcePath = sourceFile.toPath();
+            Path destPath = new File(destDir, newFileName).toPath();
+            Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
+
+            return relativeDestDir + newFileName;
+
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

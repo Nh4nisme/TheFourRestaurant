@@ -86,17 +86,24 @@ public class LoaiMonDAO {
     }
 
     public String taoMaLoaiMonMoi() {
-        String sql = "SELECT COUNT(*) FROM LoaiMonAn";
-        int count = 0;
+        String sql = "SELECT MAX(maLoaiMon) FROM LoaiMonAn";
+        String maxMaLoaiMon = null;
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                count = rs.getInt(1);
+                maxMaLoaiMon = rs.getString(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return "LM" + String.format("%03d", count + 1);
+
+        if (maxMaLoaiMon == null) {
+            return "LM000001";
+        } else {
+            int number = Integer.parseInt(maxMaLoaiMon.substring(2)); // bỏ "LM"
+            return "LM" + String.format("%06d", number + 1);
+        }
+
     }
 }
