@@ -1,13 +1,16 @@
 package com.thefourrestaurant.view.ban;
 
+import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
+import com.thefourrestaurant.view.GiaoDienGoiMon;
 import com.thefourrestaurant.view.ThanhToan;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -26,25 +29,26 @@ public class GiaoDienChiTietBan extends BorderPane {
 	private StackPane mainContent;
 	private Ban ban;
 	private PhieuDatBan pdb;
+	private final PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
 	
-	public GiaoDienChiTietBan(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
-		this.mainContent = mainContent;
-		this.ban = ban;
-		this.pdb = pdb;
-		
-		setStyle("-fx-background-color: #F5F5F5;");
-		setTop(buildHeader());
-		setCenter(buildCenter());
-		setBottom(buildFooter());
+	public GiaoDienChiTietBan(StackPane mainContent, Ban ban) {
+        this.mainContent = mainContent;
+        this.ban = ban;
 
-		ChangeListener<javafx.scene.Parent> ganKichThuoc = (obs, cu, moi) -> {
-			if (moi instanceof Region r) {
-				this.prefWidthProperty().bind(r.widthProperty());
-				this.prefHeightProperty().bind(r.heightProperty());
-			}
-		};
-		parentProperty().addListener(ganKichThuoc);
-	}
+        setStyle("-fx-background-color: #F5F5F5;");
+        setTop(buildHeader());
+        setCenter(buildCenter());
+        setBottom(buildFooter());
+
+        pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
+        if (pdb == null) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Thông báo");
+            alert.setHeaderText(null);
+            alert.setContentText("Bàn này hiện chưa có phiếu hoạt động.");
+            alert.showAndWait();
+        }
+    }
 
 	private HBox buildHeader() {
 		HBox header = new HBox();
@@ -189,6 +193,9 @@ public class GiaoDienChiTietBan extends BorderPane {
 		txtMa.setStyle("-fx-background-color: white; -fx-border-color: #C9C9C9; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 0 12 0 12;");
 	Button nutKiemTra = new ButtonSample2("Kiểm tra", Variant.YELLOW, 120);
 	Button nutGoiMon = new ButtonSample2("Gọi thêm món", Variant.YELLOW, 120);
+	nutGoiMon.setOnAction(e -> {
+	    mainContent.getChildren().setAll(new GiaoDienGoiMon(mainContent, ban));
+	});
 		Region dayPhai = new Region();
 		HBox.setHgrow(dayPhai, Priority.ALWAYS);
 		thanhMaGiamGia.getChildren().addAll(lblMa, txtMa, nutKiemTra, dayPhai, nutGoiMon);
