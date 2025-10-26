@@ -69,7 +69,7 @@ public class NavBar extends HBox {
 
         btnDanhMucNav = new DropDownButton(
                 "Danh mục",
-                List.of("Thực đơn", "Món ăn", "Phiếu đặt bàn", "Khách hàng","Hóa đơn","Bàn","Tài khoản"),
+                List.of("Thực đơn", "Loại Món ăn", "Món ăn","Khách hàng","Hóa đơn","Bàn","Tài khoản"),
                 "/com/thefourrestaurant/images/icon/danhMucNavIcon.png",
                 45,
                 16,
@@ -87,7 +87,7 @@ public class NavBar extends HBox {
 
         btnTimKiem = new DropDownButton(
                 "Tìm kiếm",
-                List.of("Món ăn", "Phiếu đặt bàn", "Khách hàng","Hóa đơn","Bàn","Tài khoản"),
+                List.of("Phiếu đặt bàn"),
                 "/com/thefourrestaurant/images/icon/timKiemIcon.png",
                 45,
                 16,
@@ -111,6 +111,7 @@ public class NavBar extends HBox {
         // Event handler load nội dung vào mainContent
         btnDanhMucNav.setOnItemSelected(this::showPanel);
         btnXuLi.setOnItemSelected(this::showPanel);
+        btnTimKiem.setOnItemSelected(this::showPanel);
 
         if (current != null) {
             String roleRaw = current.getVaiTro().getTenVaiTro();
