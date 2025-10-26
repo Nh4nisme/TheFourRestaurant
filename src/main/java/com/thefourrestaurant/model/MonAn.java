@@ -3,6 +3,7 @@ package com.thefourrestaurant.model;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class MonAn {
     private String maMonAn;
@@ -57,5 +58,18 @@ public class MonAn {
     @Override
     public String toString() {
         return tenMon;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MonAn monAn = (MonAn) o;
+        return Objects.equals(maMonAn, monAn.maMonAn);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(maMonAn);
     }
 }
