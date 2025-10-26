@@ -2,7 +2,6 @@ package com.thefourrestaurant.view.thongke;
 
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.model.Ban;
-import com.thefourrestaurant.model.ChiTietPDB;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
 import javafx.scene.Node;
@@ -50,8 +49,7 @@ public class ThongKeBan {
         // Thống kê số lần bàn được đặt ở mỗi tầng
         Map<String, Long> luotSuDungTheoTang = tatCaPhieu.stream()
                 .filter(boLoc) // Lọc phiếu theo ngày/tháng/năm
-                .flatMap(pdb -> pdb.getChiTietPDB().stream()) // Lấy tất cả các chi tiết đặt bàn
-                .map(ChiTietPDB::getBan) // Lấy ra đối tượng Bàn từ chi tiết
+                .map(PhieuDatBan::getBan) // Lấy ra đối tượng Bàn từ PhieuDatBan
                 .filter(Objects::nonNull)
                 .map(Ban::getTang) // Lấy ra đối tượng Tầng từ Bàn
                 .filter(Objects::nonNull)
