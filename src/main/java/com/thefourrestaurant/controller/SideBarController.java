@@ -5,11 +5,9 @@ import com.thefourrestaurant.view.components.sidebar.SideBar;
 import com.thefourrestaurant.view.components.sidebar.SideBarDanhMuc;
 import com.thefourrestaurant.view.components.sidebar.SideBarThongKe;
 
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 
 public class SideBarController {
 
@@ -35,14 +33,12 @@ public class SideBarController {
     }
 
     private void moHoacDongPanel(String loaiPanel) {
-        // Nếu panel đang mở và trùng loại => đóng
         if (panelDangMo != null && panelDangMo.getUserData() != null
                 && panelDangMo.getUserData().equals(loaiPanel)) {
             dongSideBarMoRong();
             return;
         }
 
-        // Tạo panel mới theo loại
         Pane panelMoi = switch (loaiPanel) {
             case "DanhMuc" -> new SideBarDanhMuc(mainContent);
             case "ThongKe" -> new SideBarThongKe(mainContent);
@@ -55,7 +51,6 @@ public class SideBarController {
             panelMoi.setMinWidth(300);
             panelMoi.setUserData(loaiPanel);
 
-            // Hiển thị panel mới
             sideBarExtended.getChildren().setAll(panelMoi);
             sideBarExtended.setVisible(true);
             sideBarExtended.setManaged(true);
@@ -67,6 +62,7 @@ public class SideBarController {
         sideBarExtended.setVisible(false);
         sideBarExtended.setManaged(false);
         sideBarExtended.getChildren().clear();
+        mainContent.getChildren().clear(); // Cũng xóa nội dung chính khi đóng
         panelDangMo = null;
     }
 }

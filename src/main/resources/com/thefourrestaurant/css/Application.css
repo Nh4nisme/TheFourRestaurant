@@ -120,7 +120,6 @@
 
 .base-sidebar {
     -fx-background-color: #1E424D;
-    -fx-opacity: 0.9;
     -fx-padding: 10 20 20 20;
     -fx-spacing: 10;
 }
