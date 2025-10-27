@@ -181,7 +181,7 @@ public class MonAnDialog extends Stage {
 
     private void luuThayDoi() {
         if (truongTen.getText().trim().isEmpty() || truongGia.getText().trim().isEmpty() || loaiMonComboBox.getValue() == null) {
-            new Alert(Alert.AlertType.WARNING, "Vui lòng nhập Tên, Giá và chọn Loại món ăn!").showAndWait();
+            showAlert(Alert.AlertType.WARNING, "Vui lòng nhập Tên, Giá và chọn Loại món ăn!");
             return;
         }
 
@@ -189,11 +189,11 @@ public class MonAnDialog extends Stage {
         try {
             donGia = new BigDecimal(truongGia.getText().trim());
             if (donGia.compareTo(BigDecimal.ZERO) < 0) {
-                new Alert(Alert.AlertType.WARNING, "Đơn giá không được là số âm!").showAndWait();
+                showAlert(Alert.AlertType.WARNING, "Đơn giá không được là số âm!");
                 return;
             }
         } catch (NumberFormatException e) {
-            new Alert(Alert.AlertType.WARNING, "Đơn giá phải là một con số hợp lệ!").showAndWait();
+            showAlert(Alert.AlertType.WARNING, "Đơn giá phải là một con số hợp lệ!");
             return;
         }
 
@@ -213,7 +213,7 @@ public class MonAnDialog extends Stage {
             if (newImagePath != null) {
                 ketQua.setHinhAnh(newImagePath);
             } else {
-                new Alert(Alert.AlertType.ERROR, "Lỗi khi sao chép hình ảnh!").showAndWait();
+                showAlert(Alert.AlertType.ERROR, "Lỗi khi sao chép hình ảnh!");
                 return; // Stop saving if image copy fails
             }
         } else if (!isEditMode) {
@@ -221,6 +221,12 @@ public class MonAnDialog extends Stage {
         }
 
         this.close();
+    }
+
+    private void showAlert(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message);
+        alert.initOwner(this);
+        alert.showAndWait();
     }
 
     public MonAn layKetQua() {
