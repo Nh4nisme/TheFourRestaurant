@@ -47,22 +47,22 @@ public class ThongKeBan {
                 return new Label("Loại thống kê không hợp lệ");
         }
 
-        // Thống kê số lần bàn được đặt ở mỗi tầng
-        Map<String, Long> luotSuDungTheoTang = tatCaPhieu.stream()
-                .filter(boLoc) // Lọc phiếu theo ngày/tháng/năm
-                .flatMap(pdb -> pdb.getChiTietPDB().stream()) // Lấy tất cả các chi tiết đặt bàn
-                .map(ChiTietPDB::getBan) // Lấy ra đối tượng Bàn từ chi tiết
-                .filter(Objects::nonNull)
-                .map(Ban::getTang) // Lấy ra đối tượng Tầng từ Bàn
-                .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(
-                        Tang::getTenTang, // Nhóm theo tên tầng
-                        Collectors.counting() // Đếm số lần xuất hiện
-                ));
+//        // Thống kê số lần bàn được đặt ở mỗi tầng
+//        Map<String, Long> luotSuDungTheoTang = tatCaPhieu.stream()
+//                .filter(boLoc) // Lọc phiếu theo ngày/tháng/năm
+//                .flatMap(pdb -> pdb.getChiTietPDB().stream()) // Lấy tất cả các chi tiết đặt bàn
+//                .map(ChiTietPDB::getBan) // Lấy ra đối tượng Bàn từ chi tiết
+//                .filter(Objects::nonNull)
+//                .map(Ban::getTang) // Lấy ra đối tượng Tầng từ Bàn
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.groupingBy(
+//                        Tang::getTenTang, // Nhóm theo tên tầng
+//                        Collectors.counting() // Đếm số lần xuất hiện
+//                ));
 
-        if (luotSuDungTheoTang.isEmpty()) {
-            return new Label("Không có dữ liệu đặt bàn " + giaiDoanTieuDe);
-        }
+//        if (luotSuDungTheoTang.isEmpty()) {
+//            return new Label("Không có dữ liệu đặt bàn " + giaiDoanTieuDe);
+//        }
 
         // Tạo biểu đồ thanh ngang
         CategoryAxis yAxis = new CategoryAxis(); // Trục Y là tên tầng
@@ -76,10 +76,10 @@ public class ThongKeBan {
 
         XYChart.Series<Number, String> series = new XYChart.Series<>();
 
-        // Thêm dữ liệu vào biểu đồ
-        for (Map.Entry<String, Long> entry : luotSuDungTheoTang.entrySet()) {
-            series.getData().add(new XYChart.Data<>(entry.getValue(), entry.getKey()));
-        }
+//        // Thêm dữ liệu vào biểu đồ
+//        for (Map.Entry<String, Long> entry : luotSuDungTheoTang.entrySet()) {
+//            series.getData().add(new XYChart.Data<>(entry.getValue(), entry.getKey()));
+//        }
 
         bieuDo.getData().add(series);
         return bieuDo;

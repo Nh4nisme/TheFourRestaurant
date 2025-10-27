@@ -38,6 +38,21 @@ public class GiaoDienChiTietPhieuDatBan extends VBox {
                 taoDongThongTin("Ngày đặt bàn:", lblNgayDat)
         );
 
+        // ==== Thông tin phụ ====
+        GridPane infoGrid = new GridPane();
+        infoGrid.setHgap(10);
+        infoGrid.setVgap(5);
+        infoGrid.setPadding(new Insets(10, 0, 0, 0));
+
+        String[] labels = {"Số người:", "Nhân viên lập:", "Trạng thái:"};
+        for (int i = 0; i < labels.length; i++) {
+            Label left = new Label(labels[i]);
+            Label right = new Label();
+            thongTinPhu.put(labels[i], right);
+            infoGrid.add(left, 0, i);
+            infoGrid.add(right, 1, i);
+        }
+
         // ==== Table danh sách bàn ====
         Label lblBan = new Label("Danh sách bàn được đặt:");
         lblBan.setStyle("-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #333;");
@@ -80,22 +95,7 @@ public class GiaoDienChiTietPhieuDatBan extends VBox {
 
         tableMonAn.getColumns().addAll(tenMonCol, soLuongCol, donGiaCol, ghiChuCol);
 
-        // ==== Thông tin phụ ====
-        GridPane infoGrid = new GridPane();
-        infoGrid.setHgap(10);
-        infoGrid.setVgap(5);
-        infoGrid.setPadding(new Insets(10, 0, 0, 0));
-
-        String[] labels = {"Số người:", "Nhân viên lập:", "Trạng thái:"};
-        for (int i = 0; i < labels.length; i++) {
-            Label left = new Label(labels[i]);
-            Label right = new Label();
-            thongTinPhu.put(labels[i], right);
-            infoGrid.add(left, 0, i);
-            infoGrid.add(right, 1, i);
-        }
-
-        getChildren().addAll(lblBan, tableBan, lblMon, tableMonAn, infoGrid);
+        getChildren().addAll(infoGrid, lblBan, tableBan, lblMon, tableMonAn);
     }
 
     // ===== Hàm hiển thị thông tin =====
@@ -106,17 +106,14 @@ public class GiaoDienChiTietPhieuDatBan extends VBox {
         lblNgayDat.setText(pdb.getNgayDat() != null
                 ? pdb.getNgayDat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                 : "");
-
+        thongTinPhu.get("Số người:").setText(String.valueOf(pdb.getSoNguoi()));
+        thongTinPhu.get("Nhân viên lập:").setText(pdb.getNhanVien() != null ? pdb.getNhanVien().getHoTen() : "");
+        thongTinPhu.get("Trạng thái:").setText(pdb.getTrangThai());
         // Lọc danh sách bàn
         tableBan.getItems().setAll(pdb.getBan() != null ? List.of(pdb.getBan()) : List.of());
 
         // Lọc danh sách món
         tableMonAn.getItems().setAll(pdb.getChiTietPDB());
-
-        // Thông tin phụ
-        thongTinPhu.get("Số người:").setText(String.valueOf(pdb.getSoNguoi()));
-        thongTinPhu.get("Nhân viên lập:").setText(pdb.getNhanVien() != null ? pdb.getNhanVien().getHoTen() : "");
-        thongTinPhu.get("Trạng thái:").setText(pdb.getTrangThai());
     }
 
     private HBox taoDongThongTin(String tieuDe, Label lblGiaTri) {

@@ -1,27 +1,34 @@
 package com.thefourrestaurant.view.ban;
 
 import com.thefourrestaurant.controller.PhieuDatBanController;
-import com.thefourrestaurant.model.KhachHang;
-import com.thefourrestaurant.model.NhanVien;
-import com.thefourrestaurant.model.PhieuDatBan;
+import com.thefourrestaurant.controller.TaiKhoanController;
+import com.thefourrestaurant.model.*;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
     private final PhieuDatBanController controller;
     private final GiaoDienChiTietPhieuDatBan gdChiTietPhieuDatBan;
     private TableView<PhieuDatBan> table;
+    private ObservableList<PhieuDatBan> danhSachGoc;
+    private ObservableList<PhieuDatBan> danhSachHienThi;
 
     public GiaoDienPhieuDatBan() {
         super("Phiếu đặt bàn", new GiaoDienChiTietPhieuDatBan());
         controller = new PhieuDatBanController();
         gdChiTietPhieuDatBan = (GiaoDienChiTietPhieuDatBan) getChiTietNode();
         khoiTaoGiaoDien();
+        lamMoiDuLieu();
     }
 
     @Override
@@ -107,12 +114,60 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
 
     @Override
     protected void thucHienTimKiem(String tuKhoa) {
+        if (danhSachGoc == null || danhSachGoc.isEmpty()) return;
+        if (tuKhoa.isEmpty()) {
+            table.setItems(danhSachGoc);
+            return;
+        }
 
+        String lowerKey = tuKhoa.toLowerCase().trim();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate ngayTimKiem = null;
+
+        try {
+            ngayTimKiem = LocalDate.parse(tuKhoa, fmt);
+        } catch (DateTimeParseException ignored) {
+            // không làm gì, có thể người dùng đang tìm bằng text
+        }
+
+        LocalDate finalNgayTimKiem = ngayTimKiem;
+        ObservableList<PhieuDatBan> ketQua = danhSachGoc.filtered(pdb -> {
+            boolean match = false;
+
+            // So sánh theo chuỗi text
+            if(pdb.getMaPDB() != null && pdb.getMaPDB().toLowerCase().contains(lowerKey))
+                match = true;
+            if(pdb.getKhachHang().getHoTen() != null && pdb.getKhachHang().getHoTen().toLowerCase().contains(lowerKey))
+                match = true;
+            if(pdb.getNhanVien().getHoTen()  != null && pdb.getNhanVien().getHoTen().toLowerCase().contains(lowerKey))
+                match = true;
+            if(pdb.getTrangThai() != null && pdb.getTrangThai().toLowerCase().contains(lowerKey))
+                match = true;
+
+            // So sánh theo ngày
+            LocalDate ngayDat = pdb.getNgayDat();
+            if (ngayDat != null) {
+                // Nếu người dùng nhập đúng ngày dd/MM/yyyy
+                if (ngayDat.equals(finalNgayTimKiem))
+                    match = true;
+
+                // Hoặc nếu chuỗi ngày chứa text tìm kiếm (ví dụ: 10/2025)
+                String ngayStr = ngayDat.format(fmt).toLowerCase();
+                if (ngayStr.contains(lowerKey))
+                    match = true;
+            }
+
+            return match;
+        });
+
+        table.setItems(ketQua);
     }
 
     @Override
     protected void lamMoiDuLieu() {
-
+        danhSachGoc = FXCollections.observableArrayList(new PhieuDatBanController().layDanhSachPDB());
+        danhSachHienThi = FXCollections.observableArrayList(danhSachGoc);
+        table.setItems(danhSachHienThi);
     }
 
     public void hienThiChiTiet(PhieuDatBan pdb){gdChiTietPhieuDatBan.hienThiThongTin(pdb);}

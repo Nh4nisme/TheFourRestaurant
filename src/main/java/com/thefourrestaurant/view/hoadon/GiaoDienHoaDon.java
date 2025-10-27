@@ -13,8 +13,10 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class GiaoDienHoaDon extends GiaoDienThucThe {
@@ -141,12 +143,42 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
             return;
         }
 
-        String lowerKey = tuKhoa.toLowerCase();
-        ObservableList<HoaDon> ketQua = danhSachGoc.filtered(
-                hd -> hd.getMaHD().toLowerCase().contains(lowerKey)
-                        || hd.getKhachHang().getSoDT().toLowerCase().contains(lowerKey)
-                        || String.valueOf(hd.getTongTien()).contains(lowerKey)
-        );
+        String lowerKey = tuKhoa.toLowerCase().trim();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate ngayTimKiem = null;
+
+        try {
+            ngayTimKiem = LocalDate.parse(tuKhoa, fmt);
+        } catch (DateTimeParseException ignored) {
+            // không làm gì, có thể người dùng đang tìm bằng text
+        }
+
+        LocalDate finalNgayTimKiem = ngayTimKiem;
+        ObservableList<HoaDon> ketQua = danhSachGoc.filtered(hd -> {
+            boolean match = false;
+
+            // So sánh theo chuỗi text
+            if (hd.getMaHD() != null && hd.getMaHD().toLowerCase().contains(lowerKey))
+                match = true;
+            if (hd.getKhachHang().getSoDT() != null && hd.getKhachHang().getSoDT().toLowerCase().contains(lowerKey))
+                match = true;
+
+            // So sánh theo ngày
+            LocalDateTime ngayDat = hd.getNgayLap();
+            if (ngayDat != null) {
+                // Nếu người dùng nhập đúng ngày dd/MM/yyyy
+                if (finalNgayTimKiem != null && ngayDat.equals(finalNgayTimKiem))
+                    match = true;
+
+                // Hoặc nếu chuỗi ngày chứa text tìm kiếm (ví dụ: 10/2025)
+                String ngayStr = ngayDat.format(fmt).toLowerCase();
+                if (ngayStr.contains(lowerKey))
+                    match = true;
+            }
+
+            return match;
+        });
+
         table.setItems(ketQua);
     }
 

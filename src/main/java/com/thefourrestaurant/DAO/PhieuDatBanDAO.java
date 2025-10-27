@@ -33,7 +33,7 @@ public class PhieuDatBanDAO {
                 pdb.setBan(banDAO.layTheoMa(rs.getString("maBan")));
                 pdb.setTrangThai(rs.getString("trangThai"));
                 pdb.setDeleted(rs.getBoolean("isDeleted"));
-                
+                pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(rs.getString("maPDB")));
 
                 danhSach.add(pdb);
             }
