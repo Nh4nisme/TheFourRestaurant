@@ -184,7 +184,7 @@ public class LoaiMonAnDialog extends Stage {
     private void luuThayDoi() {
         String tenLoaiMonAn = truongTen.getText();
         if (tenLoaiMonAn == null || tenLoaiMonAn.trim().isEmpty()) {
-            new Alert(Alert.AlertType.WARNING, "Tên loại món ăn không được để trống!").showAndWait();
+            showAlert(Alert.AlertType.WARNING, "Tên loại món ăn không được để trống!");
             return;
         }
 
@@ -201,7 +201,7 @@ public class LoaiMonAnDialog extends Stage {
             if (newImagePath != null) {
                 ketQua.setHinhAnh(newImagePath);
             } else {
-                new Alert(Alert.AlertType.ERROR, "Lỗi khi sao chép hình ảnh!").showAndWait();
+                showAlert(Alert.AlertType.ERROR, "Lỗi khi sao chép hình ảnh!");
                 return;
             }
         } else if (!isEditMode) {
@@ -210,6 +210,12 @@ public class LoaiMonAnDialog extends Stage {
         // if editing and no new image is chosen, the old image path is kept by default
 
         this.close();
+    }
+
+    private void showAlert(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message);
+        alert.initOwner(this);
+        alert.showAndWait();
     }
 
     public LoaiMon layKetQua() {

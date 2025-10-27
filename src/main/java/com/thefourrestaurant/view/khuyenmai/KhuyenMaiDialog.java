@@ -171,6 +171,7 @@ public class KhuyenMaiDialog extends Stage {
             ButtonSample nutQuanLyKhungGio = new ButtonSample("Quản lý khung giờ", 35, 14, 2);
             nutQuanLyKhungGio.setOnAction(e -> {
                 KhungGioManagerDialog khungGioDialog = new KhungGioManagerDialog(khuyenMaiHienTai.getMaKM());
+                khungGioDialog.initOwner(this);
                 khungGioDialog.showAndWait();
             });
             hopChanTrang.getChildren().add(0, nutQuanLyKhungGio);
@@ -178,6 +179,7 @@ public class KhuyenMaiDialog extends Stage {
             ButtonSample nutQuanLyChiTiet = new ButtonSample("Quản lý chi tiết", 35, 14, 2);
             nutQuanLyChiTiet.setOnAction(e -> {
                 ChiTietKhuyenMaiManagerDialog chiTietDialog = new ChiTietKhuyenMaiManagerDialog(khuyenMaiHienTai, boDieuKhien);
+                chiTietDialog.initOwner(this);
                 chiTietDialog.showAndWait();
             });
             hopChanTrang.getChildren().add(1, nutQuanLyChiTiet);
@@ -208,59 +210,76 @@ public class KhuyenMaiDialog extends Stage {
     }
 
     private void luuThayDoi() {
+        // 1. Kiểm tra các trường cơ bản
         if (truongTenKM.getText().trim().isEmpty() || truongMoTa.getText().trim().isEmpty() || hopChonLoaiKhuyenMai.getValue() == null) {
-            new Alert(Alert.AlertType.WARNING, "Vui lòng nhập Tên, Mô tả và chọn Loại khuyến mãi!").showAndWait();
+            showAlert(Alert.AlertType.WARNING, "Vui lòng nhập Tên, Mô tả và chọn Loại khuyến mãi!");
             return;
         }
 
+        LoaiKhuyenMai loaiKM = hopChonLoaiKhuyenMai.getValue();
+        String tenLoaiKM = loaiKM.getTenLoaiKM();
         BigDecimal tyLe = null;
-        if (!truongTyLe.getText().trim().isEmpty()) {
+        BigDecimal soTien = null;
+
+        // 2. Kiểm tra logic dựa trên Loại Khuyến Mãi
+        if ("Giảm giá theo tỷ lệ".equals(tenLoaiKM)) {
+            if (!truongSoTien.getText().trim().isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Với 'Giảm giá theo tỷ lệ', ô 'Số tiền' phải để trống.");
+                return;
+            }
+            if (truongTyLe.getText().trim().isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Với 'Giảm giá theo tỷ lệ', bạn phải nhập 'Tỷ lệ'.");
+                return;
+            }
             try {
                 tyLe = new BigDecimal(truongTyLe.getText().trim());
-                if (tyLe.compareTo(BigDecimal.ZERO) < 0 || tyLe.compareTo(new BigDecimal(100)) > 0) {
-                    new Alert(Alert.AlertType.WARNING, "Tỷ lệ phải là số từ 0 đến 100!").showAndWait();
+                if (tyLe.compareTo(BigDecimal.ZERO) <= 0 || tyLe.compareTo(new BigDecimal(100)) > 0) {
+                    showAlert(Alert.AlertType.WARNING, "Tỷ lệ phải là số lớn hơn 0 và nhỏ hơn hoặc bằng 100!");
                     return;
                 }
             } catch (NumberFormatException e) {
-                new Alert(Alert.AlertType.WARNING, "Tỷ lệ phải là một con số hợp lệ!").showAndWait();
+                showAlert(Alert.AlertType.WARNING, "Tỷ lệ phải là một con số hợp lệ!");
                 return;
             }
-        }
-
-        BigDecimal soTien = null;
-        if (!truongSoTien.getText().trim().isEmpty()) {
+        } else if ("Giảm giá theo giá trị".equals(tenLoaiKM)) {
+            if (!truongTyLe.getText().trim().isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Với 'Giảm giá theo giá trị', ô 'Tỷ lệ' phải để trống.");
+                return;
+            }
+            if (truongSoTien.getText().trim().isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Với 'Giảm giá theo giá trị', bạn phải nhập 'Số tiền'.");
+                return;
+            }
             try {
                 soTien = new BigDecimal(truongSoTien.getText().trim());
-                if (soTien.compareTo(BigDecimal.ZERO) < 0) {
-                    new Alert(Alert.AlertType.WARNING, "Số tiền không được là số âm!").showAndWait();
+                if (soTien.compareTo(BigDecimal.ZERO) <= 0) {
+                    showAlert(Alert.AlertType.WARNING, "Số tiền phải là số lớn hơn 0!");
                     return;
                 }
             } catch (NumberFormatException e) {
-                new Alert(Alert.AlertType.WARNING, "Số tiền phải là một con số hợp lệ!").showAndWait();
+                showAlert(Alert.AlertType.WARNING, "Số tiền phải là một con số hợp lệ!");
+                return;
+            }
+        } else if ("Tặng món ăn".equals(tenLoaiKM)) {
+            if (!truongTyLe.getText().trim().isEmpty() || !truongSoTien.getText().trim().isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Với 'Tặng món ăn', ô 'Tỷ lệ' và 'Số tiền' phải để trống.");
                 return;
             }
         }
 
-        if (tyLe != null && soTien != null) {
-            new Alert(Alert.AlertType.WARNING, "Không thể nhập cả Tỷ lệ và Số tiền cùng lúc!").showAndWait();
-            return;
-        }
-        if (tyLe == null && soTien == null) {
-            new Alert(Alert.AlertType.WARNING, "Vui lòng nhập Tỷ lệ hoặc Số tiền!").showAndWait();
-            return;
-        }
-
+        // 3. Kiểm tra ngày tháng
         LocalDate ngayBD_localDate = boChonNgayBatDau.getValue();
         LocalDate ngayKT_localDate = boChonNgayKetThuc.getValue();
 
         if (ngayBD_localDate != null && ngayKT_localDate != null && ngayKT_localDate.isBefore(ngayBD_localDate)) {
-            new Alert(Alert.AlertType.WARNING, "Ngày kết thúc không được trước ngày bắt đầu!").showAndWait();
+            showAlert(Alert.AlertType.WARNING, "Ngày kết thúc không được trước ngày bắt đầu!");
             return;
         }
-        
+
         LocalDateTime ngayBD = (ngayBD_localDate != null) ? ngayBD_localDate.atStartOfDay() : null;
         LocalDateTime ngayKT = (ngayKT_localDate != null) ? ngayKT_localDate.atStartOfDay() : null;
 
+        // 4. Tạo hoặc cập nhật đối tượng KhuyenMai
         if (laCheDoChinhSua) {
             ketQua = this.khuyenMaiHienTai;
         } else {
@@ -270,13 +289,19 @@ public class KhuyenMaiDialog extends Stage {
 
         ketQua.setTenKM(truongTenKM.getText().trim());
         ketQua.setMoTa(truongMoTa.getText().trim());
-        ketQua.setLoaiKhuyenMai(hopChonLoaiKhuyenMai.getValue());
-        ketQua.setTyLe(tyLe);
-        ketQua.setSoTien(soTien);
+        ketQua.setLoaiKhuyenMai(loaiKM);
+        ketQua.setTyLe(tyLe); // Sẽ là null nếu không phải loại giảm giá theo tỷ lệ
+        ketQua.setSoTien(soTien); // Sẽ là null nếu không phải loại giảm giá theo giá trị
         ketQua.setNgayBatDau(ngayBD);
         ketQua.setNgayKetThuc(ngayKT);
 
         this.close();
+    }
+
+    private void showAlert(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message);
+        alert.initOwner(this);
+        alert.showAndWait();
     }
 
     public KhuyenMai layKetQua() {
