@@ -1,9 +1,6 @@
 package com.thefourrestaurant.controller;
 
-import com.thefourrestaurant.DAO.ChiTietKhuyenMaiDAO;
-import com.thefourrestaurant.DAO.KhuyenMaiDAO;
-import com.thefourrestaurant.DAO.LoaiKhuyenMaiDAO;
-import com.thefourrestaurant.DAO.MonAnDAO;
+import com.thefourrestaurant.DAO.*;
 import com.thefourrestaurant.model.ChiTietKhuyenMai;
 import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiKhuyenMai;
@@ -22,12 +19,14 @@ public class KhuyenMaiController {
     private final LoaiKhuyenMaiDAO loaiKhuyenMaiDAO;
     private final ChiTietKhuyenMaiDAO chiTietKhuyenMaiDAO;
     private final MonAnDAO monAnDAO;
+    private final KhungGio_KM_DAO khungGio_KM_DAO; // Sửa thành KhungGio_KM_DAO
 
     public KhuyenMaiController() {
         this.khuyenMaiDAO = new KhuyenMaiDAO();
         this.loaiKhuyenMaiDAO = new LoaiKhuyenMaiDAO();
         this.chiTietKhuyenMaiDAO = new ChiTietKhuyenMaiDAO();
         this.monAnDAO = new MonAnDAO();
+        this.khungGio_KM_DAO = new KhungGio_KM_DAO(); // Khởi tạo DAO chính xác
     }
 
     public List<KhuyenMai> layDanhSachKhuyenMai() {
@@ -82,20 +81,31 @@ public class KhuyenMaiController {
     }
 
     public boolean xoaKhuyenMai(Stage owner, KhuyenMai km) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Bạn có chắc chắn muốn xóa khuyến mãi này không?", ButtonType.YES, ButtonType.NO);
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Bạn có chắc chắn muốn xóa khuyến mãi '" + km.getTenKM() + "' không?\nTất cả chi tiết và khung giờ liên quan cũng sẽ bị xóa.", ButtonType.YES, ButtonType.NO);
         confirm.initOwner(owner);
         Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.YES) {
-            if (chiTietKhuyenMaiDAO.xoaTheoMaKM(km.getMaKM())) {
+            try {
+                // Bước 1: Xóa tất cả các ChiTietKhuyenMai liên quan
+                chiTietKhuyenMaiDAO.xoaTheoMaKM(km.getMaKM());
+
+                // Bước 2: Xóa tất cả các liên kết KhungGio_KM
+                khungGio_KM_DAO.xoaTatCaKhungGio_KMTheoMaKM(km.getMaKM());
+
+                // Bước 3: Xóa bản thân KhuyenMai
                 if (khuyenMaiDAO.xoaKhuyenMai(km.getMaKM())) {
                     showAlert(owner, Alert.AlertType.INFORMATION, "Xóa khuyến mãi thành công!");
                     return true;
                 } else {
-                    showAlert(owner, Alert.AlertType.ERROR, "Xóa khuyến mãi thất bại.");
+                    // Trường hợp này ít khi xảy ra nếu các bước trên thành công
+                    showAlert(owner, Alert.AlertType.ERROR, "Xóa khuyến mãi thất bại sau khi đã xóa các dữ liệu liên quan.");
+                    return false;
                 }
-            } else {
-                showAlert(owner, Alert.AlertType.ERROR, "Không thể xóa chi tiết khuyến mãi liên quan.");
+            } catch (Exception e) {
+                e.printStackTrace(); // In lỗi ra console để debug
+                showAlert(owner, Alert.AlertType.ERROR, "Đã xảy ra lỗi trong quá trình xóa: " + e.getMessage());
+                return false;
             }
         }
         return false;

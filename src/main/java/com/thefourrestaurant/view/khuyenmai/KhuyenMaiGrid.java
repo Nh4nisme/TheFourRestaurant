@@ -3,7 +3,10 @@ package com.thefourrestaurant.view.khuyenmai;
 import com.thefourrestaurant.controller.KhuyenMaiController;
 import com.thefourrestaurant.model.KhuyenMai;
 import javafx.geometry.Insets;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -47,9 +50,32 @@ public class KhuyenMaiGrid extends VBox {
         List<KhuyenMai> danhSachKhuyenMai = mainView.getDanhSachKhuyenMaiHienThi(); // Lấy danh sách đã lọc/hiển thị
         for (KhuyenMai km : danhSachKhuyenMai) {
             KhuyenMaiBox box = new KhuyenMaiBox(km);
+
+            // --- START: Thêm Context Menu --- 
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem suaItem = new MenuItem("Sửa");
+            suaItem.setOnAction(event -> {
+                Stage owner = (Stage) getScene().getWindow();
+                if (boDieuKhien.capNhatKhuyenMai(owner, km)) {
+                    mainView.lamMoiGiaoDien();
+                }
+            });
+
+            MenuItem xoaItem = new MenuItem("Xóa");
+            xoaItem.setOnAction(event -> {
+                Stage owner = (Stage) getScene().getWindow();
+                if (boDieuKhien.xoaKhuyenMai(owner, km)) {
+                    mainView.lamMoiGiaoDien();
+                }
+            });
+
+            contextMenu.getItems().addAll(suaItem, xoaItem);
+            // --- END: Thêm Context Menu ---
+
             box.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                // Giữ lại logic nhấp đúp chuột để sửa
-                if (event.getClickCount() == 2) {
+                if (event.getButton() == MouseButton.SECONDARY) { // Chuột phải
+                    contextMenu.show(box, event.getScreenX(), event.getScreenY());
+                } else if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) { // Nhấn đúp chuột trái
                     Stage owner = (Stage) getScene().getWindow();
                     if (boDieuKhien.capNhatKhuyenMai(owner, km)) {
                         mainView.lamMoiGiaoDien();

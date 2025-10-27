@@ -92,18 +92,19 @@ public class KhuyenMaiDAO {
     }
 
     public boolean themKhuyenMai(KhuyenMai km) {
-        String sql = "INSERT INTO KhuyenMai (maKM, maLoaiKM, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO KhuyenMai (maKM, tenKM, maLoaiKM, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, km.getMaKM());
-            ps.setString(2, km.getLoaiKhuyenMai() != null ? km.getLoaiKhuyenMai().getMaLoaiKM() : null);
-            ps.setBigDecimal(3, km.getTyLe());
-            ps.setBigDecimal(4, km.getSoTien());
-            ps.setObject(5, km.getNgayBatDau());
-            ps.setObject(6, km.getNgayKetThuc());
-            ps.setString(7, km.getMoTa());
+            ps.setString(2, km.getTenKM());
+            ps.setString(3, km.getLoaiKhuyenMai() != null ? km.getLoaiKhuyenMai().getMaLoaiKM() : null);
+            ps.setBigDecimal(4, km.getTyLe());
+            ps.setBigDecimal(5, km.getSoTien());
+            ps.setObject(6, km.getNgayBatDau());
+            ps.setObject(7, km.getNgayKetThuc());
+            ps.setString(8, km.getMoTa());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -113,18 +114,19 @@ public class KhuyenMaiDAO {
     }
 
     public boolean capNhatKhuyenMai(KhuyenMai km) {
-        String sql = "UPDATE KhuyenMai SET maLoaiKM = ?, tyLe = ?, soTien = ?, " +
+        String sql = "UPDATE KhuyenMai SET tenKM = ?, maLoaiKM = ?, tyLe = ?, soTien = ?, " +
                      "ngayBatDau = ?, ngayKetThuc = ?, moTa = ? WHERE maKM = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, km.getLoaiKhuyenMai() != null ? km.getLoaiKhuyenMai().getMaLoaiKM() : null);
-            ps.setBigDecimal(2, km.getTyLe());
-            ps.setBigDecimal(3, km.getSoTien());
-            ps.setObject(4, km.getNgayBatDau());
-            ps.setObject(5, km.getNgayKetThuc());
-            ps.setString(6, km.getMoTa());
-            ps.setString(7, km.getMaKM());
+            ps.setString(1, km.getTenKM());
+            ps.setString(2, km.getLoaiKhuyenMai() != null ? km.getLoaiKhuyenMai().getMaLoaiKM() : null);
+            ps.setBigDecimal(3, km.getTyLe());
+            ps.setBigDecimal(4, km.getSoTien());
+            ps.setObject(5, km.getNgayBatDau());
+            ps.setObject(6, km.getNgayKetThuc());
+            ps.setString(7, km.getMoTa());
+            ps.setString(8, km.getMaKM());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {

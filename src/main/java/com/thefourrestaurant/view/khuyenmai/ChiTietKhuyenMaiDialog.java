@@ -170,7 +170,7 @@ public class ChiTietKhuyenMaiDialog extends Stage {
 
     private void luuThayDoi() {
         if (monApDungComboBox.getValue() == null) {
-            new Alert(Alert.AlertType.WARNING, "Vui lòng chọn Món áp dụng!").showAndWait();
+            showAlert(Alert.AlertType.WARNING, "Vui lòng chọn Món áp dụng!");
             return;
         }
 
@@ -179,11 +179,11 @@ public class ChiTietKhuyenMaiDialog extends Stage {
             try {
                 tyLeGiam = new BigDecimal(truongTyLeGiam.getText().trim());
                 if (tyLeGiam.compareTo(BigDecimal.ZERO) < 0 || tyLeGiam.compareTo(new BigDecimal(100)) > 0) {
-                    new Alert(Alert.AlertType.WARNING, "Tỷ lệ giảm phải là số từ 0 đến 100!").showAndWait();
+                    showAlert(Alert.AlertType.WARNING, "Tỷ lệ giảm phải là số từ 0 đến 100!");
                     return;
                 }
             } catch (NumberFormatException e) {
-                new Alert(Alert.AlertType.WARNING, "Tỷ lệ giảm phải là một con số hợp lệ!").showAndWait();
+                showAlert(Alert.AlertType.WARNING, "Tỷ lệ giảm phải là một con số hợp lệ!");
                 return;
             }
         }
@@ -193,11 +193,11 @@ public class ChiTietKhuyenMaiDialog extends Stage {
             try {
                 soTienGiam = new BigDecimal(truongSoTienGiam.getText().trim());
                 if (soTienGiam.compareTo(BigDecimal.ZERO) < 0) {
-                    new Alert(Alert.AlertType.WARNING, "Số tiền giảm không được là số âm!").showAndWait();
+                    showAlert(Alert.AlertType.WARNING, "Số tiền giảm không được là số âm!");
                     return;
                 }
             } catch (NumberFormatException e) {
-                new Alert(Alert.AlertType.WARNING, "Số tiền giảm phải là một con số hợp lệ!").showAndWait();
+                showAlert(Alert.AlertType.WARNING, "Số tiền giảm phải là một con số hợp lệ!");
                 return;
             }
         }
@@ -207,21 +207,21 @@ public class ChiTietKhuyenMaiDialog extends Stage {
             try {
                 soLuongTang = Integer.parseInt(truongSoLuongTang.getText().trim());
                 if (soLuongTang < 0) {
-                    new Alert(Alert.AlertType.WARNING, "Số lượng tặng không được là số âm!").showAndWait();
+                    showAlert(Alert.AlertType.WARNING, "Số lượng tặng không được là số âm!");
                     return;
                 }
             } catch (NumberFormatException e) {
-                new Alert(Alert.AlertType.WARNING, "Số lượng tặng phải là một số nguyên hợp lệ!").showAndWait();
+                showAlert(Alert.AlertType.WARNING, "Số lượng tặng phải là một số nguyên hợp lệ!");
                 return;
             }
         }
 
         if (tyLeGiam != null && soTienGiam != null) {
-            new Alert(Alert.AlertType.WARNING, "Không thể nhập cả Tỷ lệ giảm và Số tiền giảm cùng lúc!").showAndWait();
+            showAlert(Alert.AlertType.WARNING, "Không thể nhập cả Tỷ lệ giảm và Số tiền giảm cùng lúc!");
             return;
         }
         if (tyLeGiam == null && soTienGiam == null && soLuongTang == null) {
-            new Alert(Alert.AlertType.WARNING, "Vui lòng nhập Tỷ lệ giảm, Số tiền giảm hoặc Số lượng tặng!").showAndWait();
+            showAlert(Alert.AlertType.WARNING, "Vui lòng nhập Tỷ lệ giảm, Số tiền giảm hoặc Số lượng tặng!");
             return;
         }
 
@@ -240,6 +240,12 @@ public class ChiTietKhuyenMaiDialog extends Stage {
         ketQua.setSoLuongTang(soLuongTang);
 
         this.close();
+    }
+
+    private void showAlert(Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message);
+        alert.initOwner(this);
+        alert.showAndWait();
     }
 
     public ChiTietKhuyenMai layKetQua() {
