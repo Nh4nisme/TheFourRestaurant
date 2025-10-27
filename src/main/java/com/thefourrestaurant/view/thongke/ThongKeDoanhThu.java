@@ -23,7 +23,7 @@ public class ThongKeDoanhThu {
     private static final HoaDonDAO hoaDonDAO = new HoaDonDAO();
 
     public static Node taoBieuDo(String loai) {
-        List<HoaDon> tatCaHoaDon = hoaDonDAO.getAll();
+        List<HoaDon> tatCaHoaDon = hoaDonDAO.layDanhSachHoaDon();
         LocalDate homNay = LocalDate.now();
 
         switch (loai) {

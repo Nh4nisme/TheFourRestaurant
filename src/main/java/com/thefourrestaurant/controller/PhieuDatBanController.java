@@ -17,7 +17,13 @@ public class PhieuDatBanController {
 
     public List<PhieuDatBan> layDanhSachPDB() {return phieuDatBanDAO.layTatCaPhieu();}
 
-    public List<ChiTietPDB> layChiTietPDB(String maPDB) {return chiTietPDBDAO.layTheoPhieu(maPDB);}
+    public PhieuDatBan layPhieuTheoBan(String maBan) {
+        PhieuDatBan pdb = phieuDatBanDAO.layPhieuDangHoatDongTheoBan(maBan);
+        if (pdb != null) {
+            pdb.setChiTietPDB(chiTietPDBDAO.layTheoPhieu(pdb.getMaPDB()));
+        }
+        return pdb;
+    }
 
     public boolean xoaPhieuDatBan(String maPDB) {return phieuDatBanDAO.xoaPhieu(maPDB);}
 

@@ -22,11 +22,11 @@ public class MainApp extends Application {
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 14);
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"), 14);
 
-//      GiaoDienDangNhap giaoDienDangNhap = new GiaoDienDangNhap();
-//      giaoDienDangNhap.show(primaryStage);
-          GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
-          giaoDienChinh.show(primaryStage);
-//        GiaoDienLapHoaDon gd = new GiaoDienLapHoaDon(primaryStage);
+      GiaoDienDangNhap giaoDienDangNhap = new GiaoDienDangNhap();
+      giaoDienDangNhap.show(primaryStage);
+//      GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
+//      giaoDienChinh.show(primaryStage);
+//      GiaoDienLapHoaDon gd = new GiaoDienLapHoaDon(primaryStage);
 
 
         // Sau khi giao diện đã mở, chạy kết nối DB ở thread riêng
