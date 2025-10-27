@@ -1,5 +1,4 @@
 package com.thefourrestaurant.view.ban;
-
 import com.thefourrestaurant.view.components.ButtonSample2;
 import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import com.thefourrestaurant.DAO.KhachHangDAO;
@@ -44,13 +43,16 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class GiaoDienDatBanTruoc extends VBox {
 
     private Label lblTrangThaiStatus;
     private Label lblLoaiBanValue;
     private TextField txtSoNguoi;
-    private TextField txtGiaTien;
+    private Label lblGiaTienValue;
     private DatePicker dtpNgayNhanBan;
     private LocalTimeTextField timeNhanBan;
     private TextField txtSDTKhachDat;
@@ -83,8 +85,8 @@ public class GiaoDienDatBanTruoc extends VBox {
         titleBar.setStyle("-fx-background-color: #1E424D;");
         titleBar.setPrefHeight(50);
 
-    VBox contentCard = new VBox(20);
-    contentCard.setStyle("-fx-background-color: transparent;");
+        VBox contentCard = new VBox(20);
+        contentCard.setStyle("-fx-background-color: transparent;");
         contentCard.setPadding(new Insets(30));
         contentCard.setMaxWidth(650);
         contentCard.setAlignment(Pos.TOP_CENTER);
@@ -120,7 +122,7 @@ public class GiaoDienDatBanTruoc extends VBox {
         lblLoaiBanValue.setStyle("-fx-font-size:14px; -fx-text-fill: black;");
         lblLoaiBanValue.setPrefWidth(230);
 
-    row1.getChildren().addAll(lblTrangThai, lblTrangThaiStatus, lblLoaiBan, lblLoaiBanValue);
+       row1.getChildren().addAll(lblTrangThai, lblTrangThaiStatus, lblLoaiBan, lblLoaiBanValue);
 
         // Row 2: Số người and Giá tiền
         HBox row2 = new HBox(20);
@@ -132,13 +134,13 @@ public class GiaoDienDatBanTruoc extends VBox {
         txtSoNguoi.setPromptText("Chỉ nhập số");
         txtSoNguoi.setPrefWidth(230);
 
-    Label lblGiaTien = createLabel("Giá tiền:");
-    lblGiaTien.setPrefWidth(100);
-    txtGiaTien = createNumericTextField(Pattern.compile("\\d{0,12}"));
-    txtGiaTien.setPromptText("Chỉ nhập số");
-    txtGiaTien.setPrefWidth(230);
+        Label lblGiaTien = createLabel("Giá tiền:");
+        lblGiaTien.setPrefWidth(100);
+        lblGiaTienValue = new Label("");
+        lblGiaTienValue.setStyle("-fx-font-size:14px; -fx-text-fill: black;");
+        lblGiaTienValue.setPrefWidth(230);
 
-    row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, lblGiaTien, txtGiaTien);
+    row2.getChildren().addAll(lblSoNguoi, txtSoNguoi, lblGiaTien, lblGiaTienValue);
 
         // Row 3: Ngày nhận bàn and Giờ nhận bàn
         HBox row3 = new HBox(20);
@@ -156,14 +158,14 @@ public class GiaoDienDatBanTruoc extends VBox {
         });
         dtpNgayNhanBan.setPrefWidth(230);
 
-    Label lblGioNhanBan = createLabel("Giờ nhận bàn:");
-    lblGioNhanBan.setPrefWidth(100);
-    timeNhanBan = new LocalTimeTextField();
-    timeNhanBan.setPrefHeight(35);
-    timeNhanBan.setPrefWidth(230);
-    timeNhanBan.setPromptText("HH:mm:ss");
+        Label lblGioNhanBan = createLabel("Giờ nhận bàn:");
+        lblGioNhanBan.setPrefWidth(100);
+        timeNhanBan = new LocalTimeTextField();
+        timeNhanBan.setPrefHeight(35);
+        timeNhanBan.setPrefWidth(230);
+        timeNhanBan.setPromptText("HH:mm:ss");
 
-    row3.getChildren().addAll(lblNgayNhanBan, dtpNgayNhanBan, lblGioNhanBan, timeNhanBan);
+        row3.getChildren().addAll(lblNgayNhanBan, dtpNgayNhanBan, lblGioNhanBan, timeNhanBan);
 
         // Row 4: SDT khách đặt
         HBox row4 = new HBox(10);
@@ -173,7 +175,7 @@ public class GiaoDienDatBanTruoc extends VBox {
         txtSDTKhachDat = createNumericTextField(Pattern.compile("\\d{0,11}"));
         txtSDTKhachDat.setPromptText("Chỉ nhập số (10-11 chữ số)");
         HBox.setHgrow(txtSDTKhachDat, Priority.ALWAYS);
-    btnKiemTra = new ButtonSample2("Kiểm tra", Variant.YELLOW, 100);
+         btnKiemTra = new ButtonSample2("Kiểm tra", Variant.YELLOW, 100);
         row4.getChildren().addAll(lblSDT, txtSDTKhachDat, btnKiemTra);
 
         // Row 5: Tên khách đặt
@@ -191,16 +193,14 @@ public class GiaoDienDatBanTruoc extends VBox {
         buttonBar.setAlignment(Pos.CENTER_LEFT);
         buttonBar.setPadding(new Insets(20, 0, 0, 0));
 
-    btnQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 100);
+         btnQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 100);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-    btnDatBan = new ButtonSample2("Đặt bàn", Variant.YELLOW, 100);
-
+         btnDatBan = new ButtonSample2("Đặt bàn", Variant.YELLOW, 100);
         buttonBar.getChildren().addAll(btnQuayLai, spacer, btnDatBan);
-
-    contentCard.getChildren().addAll(lblBanHeader, formBox, buttonBar);
+        contentCard.getChildren().addAll(lblBanHeader, formBox, buttonBar);
 
         VBox centerWrapper = new VBox(contentCard);
         centerWrapper.setAlignment(Pos.CENTER);
@@ -211,6 +211,7 @@ public class GiaoDienDatBanTruoc extends VBox {
 
         wireHandlers();
         loadLoaiBan();
+        loadGiaTienTheoLoaiBan();
     }
 
     private Label createLabel(String text) {
@@ -260,6 +261,45 @@ public class GiaoDienDatBanTruoc extends VBox {
         }
     }
     
+    private void loadGiaTienTheoLoaiBan() {
+        try {
+            BigDecimal gia = null;
+            if (ban != null) {
+                if (ban.getLoaiBan() != null && ban.getLoaiBan().getGiaTien() != null) {
+                    gia = ban.getLoaiBan().getGiaTien();
+                } else if (ban.getMaBan() != null) {
+                    Ban refreshed = new BanDAO().layTheoMa(ban.getMaBan());
+                    if (refreshed != null && refreshed.getLoaiBan() != null) {
+                        gia = refreshed.getLoaiBan().getGiaTien();
+                    }
+                }
+            }
+            if (gia == null || gia.compareTo(BigDecimal.ZERO) <= 0) {
+                String tenLoai = lblLoaiBanValue != null ? lblLoaiBanValue.getText() : null;
+                if (tenLoai != null) {
+                    if (tenLoai.contains("8")) {
+                        gia = new BigDecimal(500000);
+                    } else if (tenLoai.contains("6")) {
+                        gia = new BigDecimal(400000);
+                    } else if (tenLoai.contains("4")) {
+                        gia = new BigDecimal(300000);
+                    } else if (tenLoai.contains("2")) {
+                        gia = new BigDecimal(200000);
+                    }
+                }
+            }
+            lblGiaTienValue.setText(gia != null ? dinhDangTienVND(gia) + " VNĐ" : "");
+        } catch (Exception e) {
+            lblGiaTienValue.setText("");
+        }
+    }
+
+    private String dinhDangTienVND(BigDecimal amount) {
+        NumberFormat nf = NumberFormat.getInstance(new Locale("vi", "VN"));
+        nf.setMaximumFractionDigits(0);
+        return nf.format(amount);
+    }
+    
     private void wireHandlers() {
         btnKiemTra.setOnAction(e -> {
             String sdt = txtSDTKhachDat.getText() == null ? "" : txtSDTKhachDat.getText().trim();
@@ -270,14 +310,12 @@ public class GiaoDienDatBanTruoc extends VBox {
             KhachHang kh = khachHangDAO.layKhachHangTheoSDT(sdt);
             if (kh != null) {
                 selectedKhachHang = kh;
-                // Chỉ hiển thị tên khách, không kèm số điện thoại
                 lblTenKhachDat.setText(kh.getHoTen());
             } else {
                 Stage st = new Stage();
                 GiaoDienThemKhachHang view = new GiaoDienThemKhachHang(sdt, khMoi -> {
                     selectedKhachHang = khMoi;
                     txtSDTKhachDat.setText(khMoi.getSoDT());
-                    // Chỉ hiển thị tên khách, không kèm số điện thoại
                     lblTenKhachDat.setText(khMoi.getHoTen());
                 });
                 st.setScene(new Scene(view));
@@ -378,10 +416,9 @@ public class GiaoDienDatBanTruoc extends VBox {
     }
     
     public Label getLblTrangThai() { return lblTrangThaiStatus; }
-    // Giữ nguyên chữ ký để tương thích ngược; hiện không còn ComboBox cho Loại bàn
     public ComboBox<String> getCbLoaiBan() { return null; }
     public TextField getTxtSoNguoi() { return txtSoNguoi; }
-    public TextField getTxtGiaTien() { return txtGiaTien; }
+    public TextField getTxtGiaTien() { return null; }
     public DatePicker getDtpNgayNhanBan() { return dtpNgayNhanBan; }
     public LocalTimeTextField getTimeNhanBan() { return timeNhanBan; }
     public LocalDateTime getGioNhanBan() {
