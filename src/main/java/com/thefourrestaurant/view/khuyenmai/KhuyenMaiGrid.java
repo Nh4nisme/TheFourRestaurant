@@ -7,6 +7,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class KhuyenMaiGrid extends VBox {
         this.getChildren().add(scrollPane);
         this.setStyle("-fx-background-color: transparent;");
 
-        loadKhuyenMai(mainView);
+        refresh(mainView);
     }
 
     private void loadKhuyenMai(GiaoDienKhuyenMai mainView) {
@@ -35,20 +36,22 @@ public class KhuyenMaiGrid extends VBox {
         // Add "Them moi" box
         KhuyenMaiBox themMoiBox = KhuyenMaiBox.createThemMoiBox();
         themMoiBox.setOnMouseClicked(event -> {
-            if (boDieuKhien.themKhuyenMaiMoi()) {
+            Stage owner = (Stage) getScene().getWindow();
+            if (boDieuKhien.themKhuyenMaiMoi(owner)) {
                 mainView.lamMoiGiaoDien();
             }
         });
         grid.getChildren().add(themMoiBox);
 
         // Load existing KhuyenMai
-        List<KhuyenMai> danhSachKhuyenMai = boDieuKhien.layDanhSachKhuyenMai();
+        List<KhuyenMai> danhSachKhuyenMai = mainView.getDanhSachKhuyenMaiHienThi(); // Lấy danh sách đã lọc/hiển thị
         for (KhuyenMai km : danhSachKhuyenMai) {
             KhuyenMaiBox box = new KhuyenMaiBox(km);
             box.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
                 // Giữ lại logic nhấp đúp chuột để sửa
                 if (event.getClickCount() == 2) {
-                    if (boDieuKhien.capNhatKhuyenMai(km)) {
+                    Stage owner = (Stage) getScene().getWindow();
+                    if (boDieuKhien.capNhatKhuyenMai(owner, km)) {
                         mainView.lamMoiGiaoDien();
                     }
                 }

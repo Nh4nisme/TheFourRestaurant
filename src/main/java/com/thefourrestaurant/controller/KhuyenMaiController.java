@@ -8,10 +8,10 @@ import com.thefourrestaurant.model.ChiTietKhuyenMai;
 import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiKhuyenMai;
 import com.thefourrestaurant.model.MonAn;
-import com.thefourrestaurant.view.khuyenmai.ChiTietKhuyenMaiManagerDialog;
 import com.thefourrestaurant.view.khuyenmai.KhuyenMaiDialog;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,57 +42,60 @@ public class KhuyenMaiController {
         return chiTietKhuyenMaiDAO.layTheoMaKM(maKM);
     }
 
-    public boolean themKhuyenMaiMoi() {
+    public boolean themKhuyenMaiMoi(Stage owner) {
         List<LoaiKhuyenMai> tatCaLoaiKM = loaiKhuyenMaiDAO.layTatCaLoaiKhuyenMai();
         String maKMMoi = khuyenMaiDAO.taoMaKhuyenMaiMoi();
 
         KhuyenMaiDialog dialog = new KhuyenMaiDialog(null, tatCaLoaiKM, maKMMoi, this);
+        dialog.initOwner(owner);
         dialog.showAndWait();
 
         KhuyenMai ketQua = dialog.layKetQua();
         if (ketQua != null) {
             if (khuyenMaiDAO.themKhuyenMai(ketQua)) {
-                new Alert(Alert.AlertType.INFORMATION, "Thêm khuyến mãi thành công!").showAndWait();
+                showAlert(owner, Alert.AlertType.INFORMATION, "Thêm khuyến mãi thành công!");
                 return true;
             } else {
-                new Alert(Alert.AlertType.ERROR, "Thêm khuyến mãi thất bại.").showAndWait();
+                showAlert(owner, Alert.AlertType.ERROR, "Thêm khuyến mãi thất bại.");
             }
         }
         return false;
     }
 
-    public boolean capNhatKhuyenMai(KhuyenMai km) {
+    public boolean capNhatKhuyenMai(Stage owner, KhuyenMai km) {
         List<LoaiKhuyenMai> tatCaLoaiKM = loaiKhuyenMaiDAO.layTatCaLoaiKhuyenMai();
 
         KhuyenMaiDialog dialog = new KhuyenMaiDialog(km, tatCaLoaiKM, null, this);
+        dialog.initOwner(owner);
         dialog.showAndWait();
 
         KhuyenMai ketQua = dialog.layKetQua();
         if (ketQua != null) {
             if (khuyenMaiDAO.capNhatKhuyenMai(ketQua)) {
-                new Alert(Alert.AlertType.INFORMATION, "Cập nhật khuyến mãi thành công!").showAndWait();
+                showAlert(owner, Alert.AlertType.INFORMATION, "Cập nhật khuyến mãi thành công!");
                 return true;
             } else {
-                new Alert(Alert.AlertType.ERROR, "Cập nhật khuyến mãi thất bại.").showAndWait();
+                showAlert(owner, Alert.AlertType.ERROR, "Cập nhật khuyến mãi thất bại.");
             }
         }
         return false;
     }
 
-    public boolean xoaKhuyenMai(KhuyenMai km) {
+    public boolean xoaKhuyenMai(Stage owner, KhuyenMai km) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Bạn có chắc chắn muốn xóa khuyến mãi này không?", ButtonType.YES, ButtonType.NO);
+        confirm.initOwner(owner);
         Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.YES) {
             if (chiTietKhuyenMaiDAO.xoaTheoMaKM(km.getMaKM())) {
                 if (khuyenMaiDAO.xoaKhuyenMai(km.getMaKM())) {
-                    new Alert(Alert.AlertType.INFORMATION, "Xóa khuyến mãi thành công!").showAndWait();
+                    showAlert(owner, Alert.AlertType.INFORMATION, "Xóa khuyến mãi thành công!");
                     return true;
                 } else {
-                    new Alert(Alert.AlertType.ERROR, "Xóa khuyến mãi thất bại.").showAndWait();
+                    showAlert(owner, Alert.AlertType.ERROR, "Xóa khuyến mãi thất bại.");
                 }
             } else {
-                new Alert(Alert.AlertType.ERROR, "Không thể xóa chi tiết khuyến mãi liên quan.").showAndWait();
+                showAlert(owner, Alert.AlertType.ERROR, "Không thể xóa chi tiết khuyến mãi liên quan.");
             }
         }
         return false;
@@ -106,39 +109,46 @@ public class KhuyenMaiController {
         return chiTietKhuyenMaiDAO.taoMaChiTietKhuyenMaiMoi();
     }
 
-    public boolean themChiTietKhuyenMaiMoi(ChiTietKhuyenMai ct) {
+    public boolean themChiTietKhuyenMaiMoi(Stage owner, ChiTietKhuyenMai ct) {
         if (chiTietKhuyenMaiDAO.themChiTiet(ct)) {
-            new Alert(Alert.AlertType.INFORMATION, "Thêm chi tiết khuyến mãi thành công!").showAndWait();
+            showAlert(owner, Alert.AlertType.INFORMATION, "Thêm chi tiết khuyến mãi thành công!");
             return true;
         } else {
-            new Alert(Alert.AlertType.ERROR, "Thêm chi tiết khuyến mãi thất bại.").showAndWait();
+            showAlert(owner, Alert.AlertType.ERROR, "Thêm chi tiết khuyến mãi thất bại.");
             return false;
         }
     }
 
-    public boolean capNhatChiTietKhuyenMai(ChiTietKhuyenMai ct) {
+    public boolean capNhatChiTietKhuyenMai(Stage owner, ChiTietKhuyenMai ct) {
         if (chiTietKhuyenMaiDAO.capNhatChiTiet(ct)) {
-            new Alert(Alert.AlertType.INFORMATION, "Cập nhật chi tiết khuyến mãi thành công!").showAndWait();
+            showAlert(owner, Alert.AlertType.INFORMATION, "Cập nhật chi tiết khuyến mãi thành công!");
             return true;
         } else {
-            new Alert(Alert.AlertType.ERROR, "Cập nhật chi tiết khuyến mãi thất bại.").showAndWait();
+            showAlert(owner, Alert.AlertType.ERROR, "Cập nhật chi tiết khuyến mãi thất bại.");
             return false;
         }
     }
 
-    public boolean xoaChiTietKhuyenMai(ChiTietKhuyenMai ct) {
+    public boolean xoaChiTietKhuyenMai(Stage owner, ChiTietKhuyenMai ct) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Bạn có chắc chắn muốn xóa chi tiết khuyến mãi này không?", ButtonType.YES, ButtonType.NO);
+        confirm.initOwner(owner);
         Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.YES) {
             if (chiTietKhuyenMaiDAO.xoaChiTiet(ct.getMaCTKM())) {
-                new Alert(Alert.AlertType.INFORMATION, "Xóa chi tiết khuyến mãi thành công!").showAndWait();
+                showAlert(owner, Alert.AlertType.INFORMATION, "Xóa chi tiết khuyến mãi thành công!");
                 return true;
             } else {
-                new Alert(Alert.AlertType.ERROR, "Xóa chi tiết khuyến mãi thất bại.").showAndWait();
+                showAlert(owner, Alert.AlertType.ERROR, "Xóa chi tiết khuyến mãi thất bại.");
                 return false;
             }
         }
         return false;
+    }
+
+    private void showAlert(Stage owner, Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message);
+        alert.initOwner(owner);
+        alert.showAndWait();
     }
 }

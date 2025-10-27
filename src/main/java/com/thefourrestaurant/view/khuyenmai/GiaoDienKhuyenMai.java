@@ -9,9 +9,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -21,11 +21,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class GiaoDienKhuyenMai extends VBox {
 
     private final KhuyenMaiController boDieuKhien;
-    private List<KhuyenMai> danhSachKhuyenMai = new ArrayList<>();
+    private List<KhuyenMai> danhSachKhuyenMaiGoc = new ArrayList<>();
+    private List<KhuyenMai> danhSachKhuyenMaiHienThi = new ArrayList<>();
     private final TableView<KhuyenMai> bangKhuyenMai = new TableView<>();
 
     private VBox khuyenMaiViewContainer;
@@ -121,7 +123,8 @@ public class GiaoDienKhuyenMai extends VBox {
 
         ButtonSample btnThemMoi = new ButtonSample("Thêm khuyến mãi", "", 35, 14, 3);
         btnThemMoi.setOnAction(e -> {
-            if (boDieuKhien.themKhuyenMaiMoi()) {
+            Stage owner = (Stage) getScene().getWindow();
+            if (boDieuKhien.themKhuyenMaiMoi(owner)) {
                 lamMoiGiaoDien();
             }
         });
@@ -130,13 +133,12 @@ public class GiaoDienKhuyenMai extends VBox {
         HBox.setHgrow(space, Priority.ALWAYS);
 
         TextField txtTimKiem = new TextField();
-        txtTimKiem.setPromptText("Tìm theo mã, mô tả...");
+        txtTimKiem.setPromptText("Tìm theo mã, tên...");
         txtTimKiem.setPrefWidth(300);
 
         ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
-        btnTim.setOnAction(e -> {
-            // Logic tìm kiếm sẽ được thêm vào đây sau
-        });
+        btnTim.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText()));
+        txtTimKiem.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText())); // Trigger search on Enter key
 
         khungGiua.getChildren().addAll(btnList, btnGrid, btnThemMoi, space, txtTimKiem, btnTim);
         return khungGiua;
@@ -148,6 +150,10 @@ public class GiaoDienKhuyenMai extends VBox {
         TableColumn<KhuyenMai, String> maKMCol = new TableColumn<>("Mã KM");
         maKMCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getMaKM()));
         maKMCol.setPrefWidth(80);
+
+        TableColumn<KhuyenMai, String> tenKMCol = new TableColumn<>("Tên KM");
+        tenKMCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTenKM()));
+        tenKMCol.setPrefWidth(200);
 
         TableColumn<KhuyenMai, String> moTaCol = new TableColumn<>("Mô tả");
         moTaCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMoTa()));
@@ -210,18 +216,16 @@ public class GiaoDienKhuyenMai extends VBox {
         });
         trangThaiCol.setPrefWidth(100);
 
-        bangKhuyenMai.getColumns().addAll(maKMCol, moTaCol, loaiKMCol, tyLeCol, soTienCol, ngayBDCol, ngayKTCol, trangThaiCol);
+        bangKhuyenMai.getColumns().addAll(maKMCol, tenKMCol, moTaCol, loaiKMCol, tyLeCol, soTienCol, ngayBDCol, ngayKTCol, trangThaiCol);
         bangKhuyenMai.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        // Xóa listener không cần thiết
-        // bangKhuyenMai.getSelectionModel().selectedItemProperty().addListener(...);
 
         bangKhuyenMai.setRowFactory(tv -> {
             TableRow<KhuyenMai> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getClickCount() == 2) {
                     KhuyenMai clickedRow = row.getItem();
-                    if (boDieuKhien.capNhatKhuyenMai(clickedRow)) {
+                    Stage owner = (Stage) getScene().getWindow();
+                    if (boDieuKhien.capNhatKhuyenMai(owner, clickedRow)) {
                         lamMoiGiaoDien();
                     }
                 }
@@ -236,36 +240,61 @@ public class GiaoDienKhuyenMai extends VBox {
     }
 
     public void lamMoiGiaoDien() {
-        this.danhSachKhuyenMai = boDieuKhien.layDanhSachKhuyenMai();
-        bangKhuyenMai.setItems(FXCollections.observableArrayList(danhSachKhuyenMai));
+        this.danhSachKhuyenMaiGoc = boDieuKhien.layDanhSachKhuyenMai();
+        this.danhSachKhuyenMaiHienThi = FXCollections.observableArrayList(danhSachKhuyenMaiGoc);
+        capNhatHienThi();
+    }
+
+    private void locVaCapNhatKhuyenMai(String tuKhoa) {
+        if (tuKhoa == null || tuKhoa.trim().isEmpty()) {
+            danhSachKhuyenMaiHienThi = FXCollections.observableArrayList(danhSachKhuyenMaiGoc);
+        } else {
+            String lowerCaseTuKhoa = tuKhoa.trim().toLowerCase();
+            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream()
+                    .filter(km -> km.getMaKM().toLowerCase().contains(lowerCaseTuKhoa) ||
+                                     (km.getTenKM() != null && km.getTenKM().toLowerCase().contains(lowerCaseTuKhoa)))
+                    .collect(Collectors.toList());
+        }
+        capNhatHienThi();
+    }
+
+    private void capNhatHienThi() {
+        bangKhuyenMai.setItems(FXCollections.observableArrayList(danhSachKhuyenMaiHienThi));
         bangKhuyenMai.refresh();
         if (gridView != null) {
             gridView.refresh(this);
         }
     }
 
-    // Phương thức này không còn cần thiết nữa
-    // public void hienThiChiTietKhuyenMai(KhuyenMai khuyenMai) { ... }
-
     private ContextMenu taoMenuNguCanh(TableRow<KhuyenMai> row) {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem editItem = new MenuItem("Sửa");
         editItem.setOnAction(e -> {
             KhuyenMai selectedItem = row.getItem();
-            if (selectedItem != null && boDieuKhien.capNhatKhuyenMai(selectedItem)) {
-                lamMoiGiaoDien();
+            if (selectedItem != null) {
+                Stage owner = (Stage) getScene().getWindow();
+                if (boDieuKhien.capNhatKhuyenMai(owner, selectedItem)) {
+                    lamMoiGiaoDien();
+                }
             }
         });
 
         MenuItem deleteItem = new MenuItem("Xóa");
         deleteItem.setOnAction(e -> {
             KhuyenMai selectedItem = row.getItem();
-            if (selectedItem != null && boDieuKhien.xoaKhuyenMai(selectedItem)) {
-                lamMoiGiaoDien();
+            if (selectedItem != null) {
+                Stage owner = (Stage) getScene().getWindow();
+                if (boDieuKhien.xoaKhuyenMai(owner, selectedItem)) {
+                    lamMoiGiaoDien();
+                }
             }
         });
 
         contextMenu.getItems().addAll(editItem, deleteItem);
         return contextMenu;
+    }
+
+    public List<KhuyenMai> getDanhSachKhuyenMaiHienThi() {
+        return danhSachKhuyenMaiHienThi;
     }
 }

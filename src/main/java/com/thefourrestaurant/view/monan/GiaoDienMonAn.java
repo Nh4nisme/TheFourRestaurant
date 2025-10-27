@@ -10,19 +10,20 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class GiaoDienMonAn extends VBox {
 
@@ -30,7 +31,8 @@ public class GiaoDienMonAn extends VBox {
     private final String tenLoaiMon;
     private final MonAnController controller;
 
-    private List<MonAn> danhSachMonAn;
+    private List<MonAn> danhSachMonAnGoc; // Danh sách món ăn gốc, không bị lọc
+    private List<MonAn> danhSachMonAnHienThi; // Danh sách món ăn đang hiển thị (đã lọc/sắp xếp)
 
     private final VBox dsMonAnContainer = new VBox(20);
     private final GridPane gridViewPane = new GridPane();
@@ -129,6 +131,8 @@ public class GiaoDienMonAn extends VBox {
         txtTimKiem.setPrefWidth(300);
 
         ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
+        btnTim.setOnAction(event -> locVaCapNhatMonAn(txtTimKiem.getText()));
+        txtTimKiem.setOnAction(event -> locVaCapNhatMonAn(txtTimKiem.getText())); // Trigger search on Enter key
 
         khungGiua.getChildren().addAll(btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnApDung, space, txtTimKiem, btnTim);
         return khungGiua;
@@ -157,10 +161,10 @@ public class GiaoDienMonAn extends VBox {
         luoiThem.setPadding(new Insets(0, 0, 0, 15));
         luoiThem.add(hopThemMoi, 0, 0);
 
-        // Removed the hidden button and directly call the controller method
-        hopThemMoi.setPickOnBounds(true); // Ensure the VBox receives clicks
+        hopThemMoi.setPickOnBounds(true);
         hopThemMoi.setOnMouseClicked(event -> {
-            if (controller.themMoiMonAn(this.maLoaiMon)) {
+            Stage owner = (Stage) getScene().getWindow();
+            if (controller.themMoiMonAn(owner, this.maLoaiMon)) {
                 refreshViews();
             }
         });
@@ -193,7 +197,25 @@ public class GiaoDienMonAn extends VBox {
     }
 
     private void refreshViews() {
-        this.danhSachMonAn = controller.layMonAnTheoLoai(maLoaiMon);
+        this.danhSachMonAnGoc = controller.layMonAnTheoLoai(maLoaiMon);
+        this.danhSachMonAnHienThi = FXCollections.observableArrayList(danhSachMonAnGoc);
+        updateViews();
+    }
+
+    private void locVaCapNhatMonAn(String tuKhoa) {
+        if (tuKhoa == null || tuKhoa.trim().isEmpty()) {
+            danhSachMonAnHienThi = FXCollections.observableArrayList(danhSachMonAnGoc);
+        } else {
+            String lowerCaseTuKhoa = tuKhoa.trim().toLowerCase();
+            danhSachMonAnHienThi = danhSachMonAnGoc.stream()
+                    .filter(monAn -> monAn.getTenMon().toLowerCase().contains(lowerCaseTuKhoa) ||
+                                     monAn.getMaMonAn().toLowerCase().contains(lowerCaseTuKhoa))
+                    .collect(Collectors.toList());
+        }
+        updateViews();
+    }
+
+    private void updateViews() {
         updateGridView();
         updateListView();
     }
@@ -202,17 +224,18 @@ public class GiaoDienMonAn extends VBox {
         gridViewPane.getChildren().clear();
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
-        for (int i = 0; i < danhSachMonAn.size(); i++) {
-            MonAn item = danhSachMonAn.get(i);
+        for (int i = 0; i < danhSachMonAnHienThi.size(); i++) {
+            MonAn item = danhSachMonAnHienThi.get(i);
             String formattedPrice = currencyFormatter.format(item.getDonGia());
             MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh());
 
-            hopMonAn.setPickOnBounds(true); // Ensure the MonAnBox receives clicks
+            hopMonAn.setPickOnBounds(true);
 
             ContextMenu contextMenu = createContextMenu(item);
             hopMonAn.setOnMouseClicked(event -> {
                 if (event.getButton() == MouseButton.PRIMARY) {
-                    if (controller.tuyChinhMonAn(item)) {
+                    Stage owner = (Stage) getScene().getWindow();
+                    if (controller.tuyChinhMonAn(owner, item)) {
                         refreshViews();
                     }
                 } else if (event.getButton() == MouseButton.SECONDARY) {
@@ -227,21 +250,23 @@ public class GiaoDienMonAn extends VBox {
     }
 
     private void updateListView() {
-        listViewPane.setItems(FXCollections.observableArrayList(danhSachMonAn));
+        listViewPane.setItems(FXCollections.observableArrayList(danhSachMonAnHienThi));
     }
 
     private ContextMenu createContextMenu(MonAn monAn) {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem editItem = new MenuItem("Sửa");
         editItem.setOnAction(e -> {
-            if (controller.tuyChinhMonAn(monAn)) {
+            Stage owner = (Stage) getScene().getWindow();
+            if (controller.tuyChinhMonAn(owner, monAn)) {
                 refreshViews();
             }
         });
 
         MenuItem deleteItem = new MenuItem("Xóa");
         deleteItem.setOnAction(e -> {
-            if (controller.xoaMonAn(monAn)) {
+            Stage owner = (Stage) getScene().getWindow();
+            if (controller.xoaMonAn(owner, monAn)) {
                 refreshViews();
             }
         });
