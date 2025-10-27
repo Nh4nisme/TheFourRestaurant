@@ -6,7 +6,7 @@ import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.GiaoDienGoiMon;
-import com.thefourrestaurant.view.ThanhToan;
+import com.thefourrestaurant.view.hoadon.GiaoDienLapHoaDon;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -380,10 +380,6 @@ public class GiaoDienDatBan extends BorderPane {
         if (banDuocChon == null) return;
 
         System.out.println("💰 Tính tiền cho bàn: " + banDuocChon.getTenBan());
-
-        Stage stageThanhToan = new Stage();
-        ThanhToan thanhToan = new ThanhToan();
-        thanhToan.show(stageThanhToan);
     }
 
     private void tangTruoc() {

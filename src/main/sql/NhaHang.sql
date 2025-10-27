@@ -158,43 +158,22 @@ CREATE TABLE MonAn (
 GO
 
 -- ================================
--- Bảng LoaiCombo
+-- Bảng ThucDon
 -- ================================
-CREATE TABLE LoaiCombo (
-    maLoaiCombo CHAR(8) PRIMARY KEY CHECK(maLoaiCombo LIKE 'LCB%' AND LEN(maLoaiCombo) = 8),
-    tenLoaiCombo NVARCHAR(30) NOT NULL UNIQUE CHECK(tenLoaiCombo IN (N'Sáng', N'Trưa', N'Chiều')),
-    moTa NVARCHAR(200) NULL
+CREATE TABLE ThucDon (
+    maTD CHAR(8) PRIMARY KEY CHECK(maTD LIKE 'TD%' AND LEN(maTD) = 8),
+    tenTD NVARCHAR(10) NOT NULL UNIQUE CHECK(tenTD IN (N'Sáng', N'Trưa', N'Chiều', N'Tối'))
 );
-GO
 
 -- ================================
--- Bảng Combo
+-- Bảng ChiTietThucDon
 -- ================================
-CREATE TABLE Combo (
-    maCombo CHAR(8) PRIMARY KEY CHECK(maCombo LIKE 'CB%' AND LEN(maCombo) = 8),
-    tenCombo NVARCHAR(100) NOT NULL,
-    giaCombo DECIMAL(12,2) CHECK(giaCombo >= 0),
-    maLoaiCombo CHAR(8) NOT NULL,
-    moTa NVARCHAR(200) NULL,
-    trangThai NVARCHAR(10) DEFAULT N'Con' CHECK(trangThai IN (N'Con', N'Het')),
-    ngayBatDau DATETIME NULL,
-    ngayKetThuc DATETIME NULL,
-    isDeleted BIT DEFAULT 0,
-    CONSTRAINT FK_Combo_LoaiCombo FOREIGN KEY (maLoaiCombo) REFERENCES LoaiCombo(maLoaiCombo),
-    CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau))
-);
-GO
-
--- ================================
--- Bảng ChiTietCombo
--- ================================
-CREATE TABLE ChiTietCombo (
-    maCombo CHAR(8) NOT NULL,
+CREATE TABLE ChiTietThucDon (
     maMonAn CHAR(8) NOT NULL,
-    soLuong INT NOT NULL CHECK(soLuong > 0),
-    PRIMARY KEY(maCombo, maMonAn),
-    CONSTRAINT FK_ChiTietCombo_Combo FOREIGN KEY (maCombo) REFERENCES Combo(maCombo),
-    CONSTRAINT FK_ChiTietCombo_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)
+    maTD CHAR(8) NOT NULL,
+    PRIMARY KEY(maMonAn, maTD),
+    CONSTRAINT FK_MonAn_ThucDon_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn),
+    CONSTRAINT FK_MonAn_ThucDon_ThucDon FOREIGN KEY (maTD) REFERENCES ThucDon(maTD)
 );
 GO
 
@@ -208,10 +187,13 @@ CREATE TABLE PhieuDatBan (
     soNguoi INT CHECK(soNguoi > 0),
     maKH CHAR(8) NOT NULL,
     maNV CHAR(8) NOT NULL,
-    trangThai NVARCHAR(50) DEFAULT N'Đang phục vụ' CHECK (trangThai IN (N'Đang phục vụ', N'Đặt trước', N'Đã thanh toán', N'Đã hủy')),
+    maBan CHAR(8) NOT NULL,
+    trangThai NVARCHAR(50) DEFAULT N'Đang phục vụ' 
+        CHECK (trangThai IN (N'Đang phục vụ', N'Đặt trước', N'Đã thanh toán', N'Đã hủy')),
     isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_PDB_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
-    CONSTRAINT FK_PDB_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
+    CONSTRAINT FK_PDB_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
+    CONSTRAINT FK_PDB_Ban FOREIGN KEY (maBan) REFERENCES Ban(maBan)
 );
 GO
 
@@ -219,15 +201,13 @@ GO
 -- Bảng ChiTietPDB
 -- ================================
 CREATE TABLE ChiTietPDB (
-        maCT CHAR(8) PRIMARY KEY CHECK(maCT LIKE 'CTP%' AND LEN(maCT) = 8),
-        maPDB CHAR(8) NOT NULL,
-        maBan CHAR(8) NOT NULL,
-        maMonAn CHAR(8) NULL,
-        soLuong INT CHECK(soLuong > 0),
-        donGia DECIMAL(12,2) CHECK(donGia >= 0),
-        ghiChu NVARCHAR(255) NULL,
+    maCT CHAR(8) PRIMARY KEY CHECK(maCT LIKE 'CTP%' AND LEN(maCT) = 8),
+    maPDB CHAR(8) NOT NULL,
+    maMonAn CHAR(8) NULL,
+    soLuong INT CHECK(soLuong > 0),
+    donGia DECIMAL(12,2) CHECK(donGia >= 0),
+    ghiChu NVARCHAR(255) NULL,
     CONSTRAINT FK_ChiTietPDB_PDB FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB),
-    CONSTRAINT FK_ChiTietPDB_Ban FOREIGN KEY (maBan) REFERENCES Ban(maBan),
     CONSTRAINT FK_ChiTietPDB_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)
 );
 GO
@@ -322,18 +302,6 @@ CREATE TABLE KhungGio_KM (
     PRIMARY KEY(maTG, maKM),
     CONSTRAINT FK_KGKM_KhungGio FOREIGN KEY (maTG) REFERENCES KhungGio(maTG),
     CONSTRAINT FK_KGKM_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
-);
-GO
-
--- ================================
--- Bảng liên kết KhungGio <-> Combo
--- ================================
-CREATE TABLE KhungGio_Combo (
-    maTG CHAR(8) NOT NULL,
-    maCombo CHAR(8) NOT NULL,
-    PRIMARY KEY(maTG, maCombo),
-    CONSTRAINT FK_KGCombo_KhungGio FOREIGN KEY (maTG) REFERENCES KhungGio(maTG),
-    CONSTRAINT FK_KGCombo_Combo FOREIGN KEY (maCombo) REFERENCES Combo(maCombo)
 );
 GO
 
@@ -539,43 +507,44 @@ INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh) VALUE
 ('MA000006', N'Lẩu thái hải sản', 250000, 'Con', 'LM000004', N'/com/thefourrestaurant/images/MonAn/lau_thai_hai_san.png');
 GO
 
--- Loại combo
-INSERT INTO LoaiCombo (maLoaiCombo, tenLoaiCombo, moTa) VALUES
-('LCB00001', N'Sáng', N'Combo bữa sáng'),
-('LCB00002', N'Trưa', N'Combo bữa trưa'),
-('LCB00003', N'Chiều', N'Combo bữa chiều');
+-- Loại ThucDon
+INSERT INTO ThucDon(maTD, tenTD) VALUES 
+('TD000001', N'Sáng'),
+('TD000002', N'Trưa'),
+('TD000003', N'Chiều'),
+('TD000004', N'Tối');
 GO
 
--- Combo
-INSERT INTO Combo (maCombo, tenCombo, giaCombo, maLoaiCombo, moTa, trangThai, ngayBatDau, ngayKetThuc) VALUES
-('CB000001', N'Combo sáng năng lượng', 70000, 'LCB00001', N'Cơm + Nước cam', N'Con', '2025-10-01', '2025-10-31'),
-('CB000002', N'Combo trưa tiện lợi', 85000, 'LCB00002', N'Cơm gà + Sinh tố', N'Con', '2025-10-10', '2025-10-31'),
-('CB000003', N'Combo chiều thư giãn', 90000, 'LCB00003', N'Lẩu thái + Bánh flan', N'Con', '2025-11-01', '2025-11-30');
-GO
+-- ChiTietThucDon
+-- Món MA000001 xuất hiện trong Sáng và Trưa
+INSERT INTO ChiTietThucDon(maMonAn, maTD) VALUES 
+('MA000001', 'TD000001'), -- Sáng
+('MA000001', 'TD000002'); -- Trưa
 
--- Chi tiết combo
-INSERT INTO ChiTietCombo (maCombo, maMonAn, soLuong) VALUES
-('CB000001', 'MA000001', 1),
-('CB000001', 'MA000003', 1),
-('CB000002', 'MA000002', 1),
-('CB000002', 'MA000004', 1),
-('CB000003', 'MA000006', 1),
-('CB000003', 'MA000005', 1);
+-- Món MA000002 chỉ xuất hiện trong Chiều
+INSERT INTO ChiTietThucDon(maMonAn, maTD) VALUES 
+('MA000002', 'TD000003');
+
+-- Món MA000003 xuất hiện trong Trưa và Tối
+INSERT INTO ChiTietThucDon(maMonAn, maTD) VALUES 
+('MA000003', 'TD000002'), -- Trưa
+('MA000003', 'TD000004'); -- Tối
+
 GO
 
 -- Phiếu đặt bàn
-INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, ngayTao, trangThai) VALUES
-('PD000001', '2025-11-20', 4, 'KH000001', 'NV000001', '2025-10-23', N'Đặt trước'),
-('PD000002', '2025-11-24', 2, 'KH000002', 'NV000002', '2025-10-23', N'Đang phục vụ'),
-('PD000003', '2025-11-26', 3, 'KH000001', 'NV000002', '2025-10-22', N'Đã thanh toán'),
-('PD000004', '2025-11-25', 5, 'KH000002', 'NV000001', '2025-10-23', N'Đã hủy');
+INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, maBan, ngayTao, trangThai) VALUES
+('PD000001', '2025-11-20', 4, 'KH000001', 'NV000001', 'BA000001', '2025-10-23', N'Đặt trước'),
+('PD000002', '2025-11-24', 2, 'KH000002', 'NV000002', 'BA000002', '2025-10-23', N'Đang phục vụ'),
+('PD000003', '2025-11-26', 3, 'KH000001', 'NV000002', 'BA000003', '2025-10-22', N'Đã thanh toán'),
+('PD000004', '2025-11-25', 5, 'KH000002', 'NV000001', 'BA000001', '2025-10-23', N'Đã hủy');
 GO
 
 -- Chi tiết phiếu đặt bàn
-INSERT INTO ChiTietPDB (maCT, maPDB, maBan, maMonAn, soLuong, donGia, ghiChu) VALUES
-('CTP00001', 'PD000001', 'BA000001', 'MA000001', 2, 55000, N'Không hành'),
-('CTP00002', 'PD000002', 'BA000001', 'MA000003', 2, 25000, N'Ít cay'),
-('CTP00003', 'PD000002', 'BA000002', 'MA000002', 2, 60000, NULL);
+INSERT INTO ChiTietPDB (maCT, maPDB, maMonAn, soLuong, donGia, ghiChu) VALUES
+('CTP00001', 'PD000001', 'MA000001', 2, 55000, N'Không hành'),
+('CTP00002', 'PD000002', 'MA000003', 2, 25000, N'Ít cay'),
+('CTP00003', 'PD000002', 'MA000002', 2, 60000, NULL);
 GO
 
 -- Loại thuế
@@ -623,12 +592,6 @@ INSERT INTO KhungGio_KM (maTG, maKM) VALUES
 ('TG000001', 'KM000001'),  -- KM000001 áp dụng khung 08:00-22:00
 ('TG000002', 'KM000002'),  -- KM000002 áp dụng khung 09:00-21:00
 ('TG000003', 'KM000003');  -- KM000003 áp dụng khung 10:00-14:00
-GO
-
-INSERT INTO KhungGio_Combo (maTG, maCombo) VALUES
-('TG000001', 'CB000001'),  -- Combo sáng áp dụng khung 08:00-22:00
-('TG000002', 'CB000002'),  -- Combo trưa áp dụng khung 09:00-21:00
-('TG000003', 'CB000003');  -- Combo chiều áp dụng khung 10:00-14:00
 GO
 
 -- Phương thức thanh toán

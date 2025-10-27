@@ -105,6 +105,7 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
                 kh -> kh.getMaKH().toLowerCase().contains(lowerKey)
                         || kh.getHoTen().toLowerCase().contains(lowerKey)
                         || kh.getSoDT().contains(lowerKey)
+                        || kh.getLoaiKH().getTenLoaiKH().contains(lowerKey)
         );
         table.setItems(ketQua);
     }

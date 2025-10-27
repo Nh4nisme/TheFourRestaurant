@@ -1,11 +1,15 @@
 package com.thefourrestaurant.view.taikhoan;
 
+import com.thefourrestaurant.controller.HoaDonController;
 import com.thefourrestaurant.controller.TaiKhoanController;
+import com.thefourrestaurant.model.HoaDon;
 import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.model.VaiTro;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
@@ -17,6 +21,8 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
     private final TaiKhoanController controller;
     private final GiaoDienChiTietTaiKhoan gdChiTietTK;
     private TableView<TaiKhoan> table;
+    private ObservableList<TaiKhoan> danhSachGoc;
+    private ObservableList<TaiKhoan> danhSachHienThi;
 
     public GiaoDienTaiKhoan() {
         super("Tài khoản", new GiaoDienChiTietTaiKhoan());
@@ -25,6 +31,7 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
         khoiTaoGiaoDien();
         napDanhSachVaiTro();
         khoiTaoSuKien();
+        lamMoiDuLieu();
     }
 
     @Override
@@ -103,12 +110,26 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
 
     @Override
     protected void thucHienTimKiem(String tuKhoa) {
+        if (danhSachGoc == null || danhSachGoc.isEmpty()) return;
+        if (tuKhoa.isEmpty()) {
+            table.setItems(danhSachGoc);
+            return;
+        }
 
+        String lowerKey = tuKhoa.toLowerCase();
+        ObservableList<TaiKhoan> ketQua = danhSachGoc.filtered(
+                tk -> tk.getMaTK().toLowerCase().contains(lowerKey)
+                        || tk.getTenDN().toLowerCase().contains(lowerKey)
+                        || tk.getVaiTro().getTenVaiTro().toLowerCase().contains(lowerKey)
+        );
+        table.setItems(ketQua);
     }
 
     @Override
     protected void lamMoiDuLieu() {
-
+        danhSachGoc = FXCollections.observableArrayList(new TaiKhoanController().layDanhSachTaiKhoan());
+        danhSachHienThi = FXCollections.observableArrayList(danhSachGoc);
+        table.setItems(danhSachHienThi);
     }
 
     private void khoiTaoSuKien() {

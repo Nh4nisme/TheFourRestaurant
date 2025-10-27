@@ -5,10 +5,8 @@ import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.ChiTietPDB;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.view.GiaoDienGoiMon;
-import com.thefourrestaurant.view.ThanhToan;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import com.thefourrestaurant.view.components.ButtonSample2.Variant;
-import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -23,7 +21,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 public class GiaoDienChiTietBan extends BorderPane {
 	
