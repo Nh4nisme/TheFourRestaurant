@@ -16,6 +16,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 
@@ -28,9 +29,11 @@ public class QuanLiBan extends VBox {
     
     private Ban banDangChon;
     private StackPane mainContent;
+    private String context;
 
-    public QuanLiBan(StackPane mainContent) {
+    public QuanLiBan(StackPane mainContent, String context) {
     	this.mainContent = mainContent;
+    	this.context = context;
         // === Cấu hình chính cho layout ===
         this.setPrefSize(1200, 700);
         this.setSpacing(0);
@@ -211,11 +214,35 @@ public class QuanLiBan extends VBox {
             else if (e.getClickCount() == 2) {
                 delay.stop();
                 
-                mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban));
+                if ("QUAN_LY_BAN".equals(context)) {
+                    moPopupTuyChinhBan(ban);
+                } 
+                else if ("DAT_BAN".equals(context)) {
+                    mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban));
+                }
+                
             }
         });
 
         pane.getChildren().add(khungBan);
+    }
+    
+    private void moPopupTuyChinhBan(Ban ban) {
+        // Tạo đối tượng giao diện tùy chỉnh
+        GiaoDienTuyChinhBan giaoDien = new GiaoDienTuyChinhBan(ban);
+        
+        // Tạo cửa sổ popup
+        Stage popup = new Stage();
+        popup.setTitle(ban != null ? "Chỉnh sửa bàn" : "Thêm bàn mới");
+        popup.setScene(new javafx.scene.Scene(giaoDien, 500, 270));
+        popup.initOwner(this.getScene().getWindow()); // Gắn với cửa sổ cha
+        popup.setResizable(false);
+        
+        // Đặt vị trí popup giữa màn hình
+        popup.centerOnScreen();
+        
+        // Hiển thị popup
+        popup.showAndWait();
     }
 
     public Pane getKhuVucBan() {

@@ -2,6 +2,7 @@ package com.thefourrestaurant.view.ban;
 
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.DAO.TangDAO;
+import com.thefourrestaurant.controller.PhieuDatBanController;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
@@ -19,6 +20,7 @@ import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.scene.Scene;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GiaoDienDatBan extends BorderPane {
@@ -30,9 +32,11 @@ public class GiaoDienDatBan extends BorderPane {
     private StackPane mainContent;
     private QuanLiBan quanLiBan;
     private ComboBox<Tang> cboSoTang;
+    private final List<Ban> dsBanDangChon = new ArrayList<>();
     
-    TangDAO tangDAO = new TangDAO();
+    private TangDAO tangDAO = new TangDAO();
 	private PhieuDatBanDAO phieuDAO;
+    private PhieuDatBanController  phieuDatBanController = new PhieuDatBanController();
 
 	public GiaoDienDatBan(StackPane mainContent) {
 	    this.mainContent = mainContent;
@@ -206,7 +210,7 @@ public class GiaoDienDatBan extends BorderPane {
 
         VBox thanhDieuHuong = taoThanhDieuHuong();
 
-        quanLiBan = new QuanLiBan(mainContent);
+        QuanLiBan quanLiBan = new QuanLiBan(mainContent, "DAT_BAN");
         quanLiBan.hienThiBanTheoTang("TG000001");
 
         Pane khuVucBan = quanLiBan.getKhuVucBan();
@@ -383,7 +387,14 @@ public class GiaoDienDatBan extends BorderPane {
         Ban banDuocChon = layBanDangChonHoacThongBao();
         if (banDuocChon == null) return;
 
+        // Lấy phiếu đặt bàn tương ứng
+        PhieuDatBan pdb = phieuDatBanController.layPhieuTheoBan(banDuocChon.getMaBan());
+
         System.out.println("💰 Tính tiền cho bàn: " + banDuocChon.getTenBan());
+        Stage stageThanhToan = new Stage();
+        GiaoDienLapHoaDon thanhToan = new GiaoDienLapHoaDon(stageThanhToan);
+
+        thanhToan.hienThiThongTin(pdb);
     }
 
     private void tangTruoc() {

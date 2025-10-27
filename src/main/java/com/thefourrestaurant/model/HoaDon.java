@@ -1,6 +1,7 @@
 package com.thefourrestaurant.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,8 @@ public class HoaDon {
             BigDecimal tyLeThue = BigDecimal.valueOf(thue.getTyLe()).divide(BigDecimal.valueOf(100));
             tong = tong.add(tong.multiply(tyLeThue));
         }
+
+        tong = tong.setScale(0, RoundingMode.HALF_UP);
 
         return tong.max(BigDecimal.ZERO);
     }

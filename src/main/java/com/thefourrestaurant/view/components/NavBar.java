@@ -134,18 +134,18 @@ public class NavBar extends HBox {
             }
         }
 
-//        boolean currentIsManager = false;
-//        if (Session.getCurrentUser() != null) {
-//            String r = Session.getCurrentUser().getVaiTro().getTenVaiTro();
-//            currentIsManager = r != null && r.equalsIgnoreCase("QuanLy");
-//        }
-//
-//        List<String> managerOnly = List.of("Thực đơn", "Món ăn", "Tài khoản");
-////        if (managerOnly.contains(s) && !currentIsManager) {
-////            Alert a = new Alert(Alert.AlertType.WARNING, "Quyền truy cập bị từ chối. Chức năng này yêu cầu quyền Quản Lý.", ButtonType.OK);
-////            a.showAndWait();
-////            return;
-////        }
+        boolean currentIsManager = false;
+        if (Session.getCurrentUser() != null) {
+            String r = Session.getCurrentUser().getVaiTro().getTenVaiTro();
+            currentIsManager = r != null && r.equalsIgnoreCase("QuanLy");
+        }
+
+        List<String> managerOnly = List.of("Thực đơn", "Món ăn", "Tài khoản");
+        if (managerOnly.contains(s) && !currentIsManager) {
+            Alert a = new Alert(Alert.AlertType.WARNING, "Quyền truy cập bị từ chối. Chức năng này yêu cầu quyền Quản Lý.", ButtonType.OK);
+            a.showAndWait();
+            return;
+        }
 
         Node newContent = switch (s) {
             case "Đặt bàn" -> new GiaoDienDatBan((StackPane) mainContent);
@@ -154,10 +154,9 @@ public class NavBar extends HBox {
         };
 
         if (newContent != null) {
-            if (newContent instanceof Region region) {
-                region.prefWidthProperty().bind(mainContent.widthProperty());
-                region.prefHeightProperty().bind(mainContent.heightProperty());
-            }
+            Region region = (Region) newContent;
+            region.prefWidthProperty().bind(mainContent.widthProperty());
+            region.prefHeightProperty().bind(mainContent.heightProperty());
             mainContent.getChildren().setAll(newContent);
         }
     }
