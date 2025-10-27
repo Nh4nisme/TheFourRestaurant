@@ -2,7 +2,6 @@ package com.thefourrestaurant.view.thongke;
 
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.model.Ban;
-import com.thefourrestaurant.model.ChiTietPDB;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
 import javafx.scene.Node;
@@ -47,18 +46,17 @@ public class ThongKeBan {
                 return new Label("Loại thống kê không hợp lệ");
         }
 
-//        // Thống kê số lần bàn được đặt ở mỗi tầng
-//        Map<String, Long> luotSuDungTheoTang = tatCaPhieu.stream()
-//                .filter(boLoc) // Lọc phiếu theo ngày/tháng/năm
-//                .flatMap(pdb -> pdb.getChiTietPDB().stream()) // Lấy tất cả các chi tiết đặt bàn
-//                .map(ChiTietPDB::getBan) // Lấy ra đối tượng Bàn từ chi tiết
-//                .filter(Objects::nonNull)
-//                .map(Ban::getTang) // Lấy ra đối tượng Tầng từ Bàn
-//                .filter(Objects::nonNull)
-//                .collect(Collectors.groupingBy(
-//                        Tang::getTenTang, // Nhóm theo tên tầng
-//                        Collectors.counting() // Đếm số lần xuất hiện
-//                ));
+        // Thống kê số lần bàn được đặt ở mỗi tầng
+        Map<String, Long> luotSuDungTheoTang = tatCaPhieu.stream()
+                .filter(boLoc) // Lọc phiếu theo ngày/tháng/năm
+                .map(PhieuDatBan::getBan) // Lấy ra đối tượng Bàn từ PhieuDatBan
+                .filter(Objects::nonNull)
+                .map(Ban::getTang) // Lấy ra đối tượng Tầng từ Bàn
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(
+                        Tang::getTenTang, // Nhóm theo tên tầng
+                        Collectors.counting() // Đếm số lần xuất hiện
+                ));
 
 //        if (luotSuDungTheoTang.isEmpty()) {
 //            return new Label("Không có dữ liệu đặt bàn " + giaiDoanTieuDe);
@@ -82,6 +80,27 @@ public class ThongKeBan {
 //        }
 
         bieuDo.getData().add(series);
+        String[] colors = {
+                "#4CAF50", // xanh lá
+                "#2196F3", // xanh dương
+                "#FFC107", // vàng
+                "#E91E63", // hồng
+                "#9C27B0", // tím
+                "#FF5722", // cam
+                "#009688"  // teal
+        };
+
+        // Áp dụng màu cho từng cột
+        for (int i = 0; i < series.getData().size(); i++) {
+            XYChart.Data<Number, String> data = series.getData().get(i);
+            final int colorIndex = i % colors.length;
+
+            data.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                if (newNode != null) {
+                    newNode.setStyle("-fx-bar-fill: " + colors[colorIndex] + ";");
+                }
+            });
+        }
         return bieuDo;
     }
 }
