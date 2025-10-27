@@ -7,6 +7,7 @@ import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.GiaoDienGoiMon;
+import javafx.util.StringConverter;
 import com.thefourrestaurant.view.hoadon.GiaoDienLapHoaDon;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import javafx.geometry.Insets;
@@ -19,6 +20,7 @@ import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.scene.Scene;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GiaoDienDatBan extends BorderPane {
@@ -30,8 +32,9 @@ public class GiaoDienDatBan extends BorderPane {
     private StackPane mainContent;
     private QuanLiBan quanLiBan;
     private ComboBox<Tang> cboSoTang;
+    private final List<Ban> dsBanDangChon = new ArrayList<>();
     
-    TangDAO tangDAO = new TangDAO();
+    private TangDAO tangDAO = new TangDAO();
 	private PhieuDatBanDAO phieuDAO;
     private PhieuDatBanController  phieuDatBanController = new PhieuDatBanController();
 
@@ -207,7 +210,7 @@ public class GiaoDienDatBan extends BorderPane {
 
         VBox thanhDieuHuong = taoThanhDieuHuong();
 
-        quanLiBan = new QuanLiBan(mainContent);
+        QuanLiBan quanLiBan = new QuanLiBan(mainContent, "DAT_BAN");
         quanLiBan.hienThiBanTheoTang("TG000001");
 
         Pane khuVucBan = quanLiBan.getKhuVucBan();
@@ -249,6 +252,10 @@ public class GiaoDienDatBan extends BorderPane {
         for (Tang tang : dsTang) {
             cboSoTang.getItems().add(tang);
         }
+        
+        if (!dsTang.isEmpty()) {
+            cboSoTang.setValue(dsTang.get(0));
+        }
 
         cboSoTang.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -257,7 +264,6 @@ public class GiaoDienDatBan extends BorderPane {
                 setText(empty || item == null ? null : item.getTenTang());
             }
         });
-        cboSoTang.setPromptText("Chọn tầng");
 
         cboSoTang.setOnAction(e -> {
             Tang selectedTang = cboSoTang.getValue();
