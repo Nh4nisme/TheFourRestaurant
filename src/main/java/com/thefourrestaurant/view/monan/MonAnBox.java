@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 import java.net.URL;
@@ -32,13 +33,21 @@ public class MonAnBox extends BaseBox {
         this.setAlignment(Pos.CENTER);
         this.getStyleClass().add("mon-an-box");
 
-        // --- Panel trên: hiển thị ảnh bằng background ---
+        // --- Panel trên: hiển thị ảnh ---
         StackPane topPane = new StackPane();
         topPane.setPrefHeight(130);
         topPane.setMaxWidth(Double.MAX_VALUE);
         topPane.setAlignment(Pos.CENTER);
+        // Bo góc trên cho topPane
+        topPane.setStyle("-fx-background-radius: 15 15 0 0;");
 
-        // Cài đặt background ảnh (nếu có)
+        // --- ImageView để chứa ảnh ---
+        ImageView imageView = new ImageView();
+        imageView.setFitHeight(130);
+        imageView.setFitWidth(150);
+        imageView.setPreserveRatio(false);
+
+        // Cài đặt ảnh
         try {
             if (imagePath != null && !imagePath.isEmpty()) {
                 Image image = null;
@@ -52,13 +61,7 @@ public class MonAnBox extends BaseBox {
                 }
 
                 if (image != null && !image.isError()) {
-                    topPane.setBackground(new Background(
-                            new BackgroundImage(image,
-                                    BackgroundRepeat.NO_REPEAT,
-                                    BackgroundRepeat.NO_REPEAT,
-                                    BackgroundPosition.CENTER,
-                                    new BackgroundSize(100, 100, true, true, false, true))
-                    ));
+                    imageView.setImage(image);
                 } else {
                     setDefaultBackground(topPane);
                 }
@@ -70,35 +73,37 @@ public class MonAnBox extends BaseBox {
             e.printStackTrace();
         }
 
+        // Đặt ImageView vào trong topPane
+        topPane.getChildren().add(imageView);
+        // Clip ảnh theo bo góc của topPane
+        topPane.setClip(createTopCornersClip(topPane));
+
         // --- Panel dưới: hiển thị tên và giá ---
         VBox bottomPane = new VBox(3);
         bottomPane.setPrefHeight(70);
         bottomPane.setAlignment(Pos.CENTER);
         bottomPane.setPadding(new Insets(8, 5, 8, 5));
-        bottomPane.setBackground(new Background(
-                new BackgroundFill(Paint.valueOf("#f5f5f5"), new CornerRadii(0, 0, 5, 5, false), Insets.EMPTY)
-        ));
+        bottomPane.setStyle("-fx-background-color: #f5f5f5; -fx-background-radius: 0 0 15 15;");
 
         Label tenMon = new Label(ten);
         tenMon.getStyleClass().add("monan-ten");
 
-        Label lblGia = new Label(gia); // Removed " VND" as the price is pre-formatted
+        Label lblGia = new Label(gia);
         lblGia.getStyleClass().add("monan-gia");
 
         bottomPane.getChildren().addAll(tenMon, lblGia);
 
         // --- Hiệu ứng hover ---
         this.setOnMouseEntered(e -> {
-            topPane.setOpacity(0.85);
-            this.setStyle("-fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 6, 0, 0, 3);");
+            this.setStyle("-fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 4);");
         });
         this.setOnMouseExited(e -> {
-            topPane.setOpacity(1.0);
             this.setStyle("-fx-effect: none;");
         });
 
         // Gộp phần trên và dưới vào box chính
         this.getChildren().addAll(topPane, bottomPane);
+        this.setStyle("-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
     }
 
     // --- Tạo Box "Thêm món mới" ---
@@ -123,8 +128,16 @@ public class MonAnBox extends BaseBox {
 
     // --- Màu nền mặc định khi không có ảnh ---
     private void setDefaultBackground(StackPane topPane) {
-        topPane.setBackground(new Background(
-                new BackgroundFill(Paint.valueOf("#6A4C34"), new CornerRadii(5, 5, 0, 0, false), Insets.EMPTY)
-        ));
+        topPane.setStyle("-fx-background-color: #6A4C34; -fx-background-radius: 15 15 0 0;");
+    }
+
+    // --- Tạo clip để bo góc ---
+    private static javafx.scene.shape.Rectangle createTopCornersClip(Region region) {
+        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle();
+        clip.widthProperty().bind(region.widthProperty());
+        clip.heightProperty().bind(region.heightProperty());
+        clip.setArcWidth(30); // Bán kính bo góc ngang (15*2)
+        clip.setArcHeight(30); // Bán kính bo góc dọc (15*2)
+        return clip;
     }
 }
