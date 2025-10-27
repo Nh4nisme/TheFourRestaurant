@@ -24,6 +24,7 @@ import jfxtras.scene.control.LocalTimeTextField;
 import javafx.scene.control.TextField;
 import com.thefourrestaurant.DAO.NhanVienDAO;
 import com.thefourrestaurant.DAO.LoaiBanDAO;
+import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.util.Session;
 import com.thefourrestaurant.model.LoaiBan;
@@ -47,7 +48,7 @@ import java.util.regex.Pattern;
 public class GiaoDienDatBanTruoc extends VBox {
 
     private Label lblTrangThaiStatus;
-    private ComboBox<String> cbLoaiBan;
+    private Label lblLoaiBanValue;
     private TextField txtSoNguoi;
     private TextField txtGiaTien;
     private DatePicker dtpNgayNhanBan;
@@ -106,10 +107,20 @@ public class GiaoDienDatBanTruoc extends VBox {
 
         Label lblLoaiBan = createLabel("Loại bàn:");
         lblLoaiBan.setPrefWidth(100);
-        cbLoaiBan = createComboBox();
-        cbLoaiBan.setPrefWidth(230);
+        String tenLoaiBan = null;
+        try {
+            if (ban != null && ban.getMaBan() != null) {
+                tenLoaiBan = new LoaiBanDAO().layTenLoaiTheoBan(ban.getMaBan());
+                if (tenLoaiBan == null && ban.getLoaiBan() != null) {
+                    tenLoaiBan = ban.getLoaiBan().getTenLoaiBan();
+                }
+            }
+        } catch (Exception ignore) {}
+        lblLoaiBanValue = new Label(tenLoaiBan != null ? tenLoaiBan : "");
+        lblLoaiBanValue.setStyle("-fx-font-size:14px; -fx-text-fill: black;");
+        lblLoaiBanValue.setPrefWidth(230);
 
-    row1.getChildren().addAll(lblTrangThai, lblTrangThaiStatus, lblLoaiBan, cbLoaiBan);
+    row1.getChildren().addAll(lblTrangThai, lblTrangThaiStatus, lblLoaiBan, lblLoaiBanValue);
 
         // Row 2: Số người and Giá tiền
         HBox row2 = new HBox(20);
@@ -235,11 +246,18 @@ public class GiaoDienDatBanTruoc extends VBox {
     }
     
     private void loadLoaiBan() {
-        LoaiBanDAO dao = new LoaiBanDAO();
-        for (LoaiBan lb : dao.layTatCa()) {
-            cbLoaiBan.getItems().add(lb.getTenLoaiBan());
+        try {
+            String tenLoai = null;
+            if (ban != null && ban.getMaBan() != null) {
+                tenLoai = new LoaiBanDAO().layTenLoaiTheoBan(ban.getMaBan());
+                if (tenLoai == null && ban.getLoaiBan() != null) {
+                    tenLoai = ban.getLoaiBan().getTenLoaiBan();
+                }
+            }
+            lblLoaiBanValue.setText(tenLoai != null ? tenLoai : "");
+        } catch (Exception ignore) {
+            lblLoaiBanValue.setText("");
         }
-        if (!cbLoaiBan.getItems().isEmpty()) cbLoaiBan.getSelectionModel().selectFirst();
     }
     
     private void wireHandlers() {
@@ -360,7 +378,8 @@ public class GiaoDienDatBanTruoc extends VBox {
     }
     
     public Label getLblTrangThai() { return lblTrangThaiStatus; }
-    public ComboBox<String> getCbLoaiBan() { return cbLoaiBan; }
+    // Giữ nguyên chữ ký để tương thích ngược; hiện không còn ComboBox cho Loại bàn
+    public ComboBox<String> getCbLoaiBan() { return null; }
     public TextField getTxtSoNguoi() { return txtSoNguoi; }
     public TextField getTxtGiaTien() { return txtGiaTien; }
     public DatePicker getDtpNgayNhanBan() { return dtpNgayNhanBan; }
