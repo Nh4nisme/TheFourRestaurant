@@ -1,6 +1,7 @@
 package com.thefourrestaurant.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class ChiTietHoaDon {
     private HoaDon hoaDon;
@@ -49,6 +50,6 @@ public class ChiTietHoaDon {
 
     public BigDecimal getThanhTien() {
         if (donGia == null) return BigDecimal.ZERO;
-        return donGia.multiply(BigDecimal.valueOf(soLuong));
+        return donGia.multiply(BigDecimal.valueOf(soLuong)).setScale(0, RoundingMode.HALF_UP);
     }
 }

@@ -3,6 +3,7 @@ package com.thefourrestaurant.model;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 public class MonAn {
@@ -40,7 +41,7 @@ public class MonAn {
     public String getTenMon() { return tenMon; }
     public void setTenMon(String tenMon) { this.tenMon = tenMon; }
 
-    public BigDecimal getDonGia() { return donGia; }
+    public BigDecimal getDonGia() { return donGia.setScale(0, RoundingMode.HALF_UP); }
     public void setDonGia(BigDecimal donGia) { this.donGia = donGia; }
 
     public String getTrangThai() { return trangThai; }

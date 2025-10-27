@@ -2,6 +2,7 @@ package com.thefourrestaurant.view.ban;
 
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.DAO.TangDAO;
+import com.thefourrestaurant.controller.PhieuDatBanController;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
@@ -32,6 +33,7 @@ public class GiaoDienDatBan extends BorderPane {
     
     TangDAO tangDAO = new TangDAO();
 	private PhieuDatBanDAO phieuDAO;
+    private PhieuDatBanController  phieuDatBanController = new PhieuDatBanController();
 
 	public GiaoDienDatBan(StackPane mainContent) {
 	    this.mainContent = mainContent;
@@ -379,7 +381,14 @@ public class GiaoDienDatBan extends BorderPane {
         Ban banDuocChon = layBanDangChonHoacThongBao();
         if (banDuocChon == null) return;
 
+        // Lấy phiếu đặt bàn tương ứng
+        PhieuDatBan pdb = phieuDatBanController.layPhieuTheoBan(banDuocChon.getMaBan());
+
         System.out.println("💰 Tính tiền cho bàn: " + banDuocChon.getTenBan());
+        Stage stageThanhToan = new Stage();
+        GiaoDienLapHoaDon thanhToan = new GiaoDienLapHoaDon(stageThanhToan);
+
+        thanhToan.hienThiThongTin(pdb);
     }
 
     private void tangTruoc() {

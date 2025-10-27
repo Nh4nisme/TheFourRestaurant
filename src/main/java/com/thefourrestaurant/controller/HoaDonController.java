@@ -14,7 +14,7 @@ public class HoaDonController {
     private ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO();
 
     public ObservableList<HoaDon> layDanhSachHoaDon(){
-        return FXCollections.observableArrayList(hoaDonDAO.getAll());
+        return FXCollections.observableArrayList(hoaDonDAO.layDanhSachHoaDon());
     }
 
     public List<ChiTietHoaDon> layCTHDTheoMa(String maHD){

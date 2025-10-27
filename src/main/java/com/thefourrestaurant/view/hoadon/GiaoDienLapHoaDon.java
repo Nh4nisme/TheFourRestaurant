@@ -1,42 +1,31 @@
 package com.thefourrestaurant.view.hoadon;
 
-import com.thefourrestaurant.model.MonAn;
-import com.thefourrestaurant.view.components.ButtonSample;
+import com.thefourrestaurant.model.*;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-public class GiaoDienLapHoaDon {
+import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
-    private Stage stage;
+public class GiaoDienLapHoaDon extends VBox {
 
-    // ==== Thông tin khách hàng ====
-    private Label lblMaPDB, lblSDT, lblTenKH, lblGioNhan, lblGioTra;
+    private final Stage stage;
+    private final Label lblMaPDB = new Label();
+    private final Label lblTenKH = new Label();
+    private final Label lblSDT = new Label();
+    private final Label lblGioNhan = new Label();
+    private final Label lblGioTra = new Label();
+    private final Label lblTongTien = new Label("0 đ");
+    private final TableView<ChiTietHoaDon> bangMon = new TableView<>();
 
-    // ==== Bảng món ====
-    private TableView<MonAn> bangMon;
-
-    // ==== Thanh toán ====
-    private TextField txtMaGiamGia;
-    private Label lblChietKhau, lblVAT, lblTongTien, lblTienThua;
-    private TextField txtTienNhan;
-    private ComboBox<String> cboPTThanhToan;
-    private CheckBox chkXuatHoaDon;
-    private VBox khungQR;
-    private ImageView qrImage;
-    private ButtonSample btnKiemTra;
-
-    // ==== Nút chức năng ====
-    private ButtonSample btnQuayLai, btnXacNhan, btnXuatHoaDon;
+    private HoaDon hoaDonHienTai;
 
     public GiaoDienLapHoaDon(Stage stage) {
         this.stage = stage;
@@ -44,155 +33,128 @@ public class GiaoDienLapHoaDon {
     }
 
     private void khoiTaoGiaoDien() {
-        VBox khungChinh = new VBox(15);
-        khungChinh.setPadding(new Insets(0));
-        khungChinh.getStyleClass().add("root-pane");
+        setPadding(new Insets(15));
+        setSpacing(12);
 
-        // ===== Tiêu đề =====
-        Label lblTieuDe = new Label("THANH TOÁN HÓA ĐƠN");
-        lblTieuDe.setFont(Font.font("Segoe UI", FontWeight.BOLD, 28));
-        lblTieuDe.setMaxWidth(Double.MAX_VALUE);
-        lblTieuDe.setPadding(new Insets(15, 0, 10, 0));
-        lblTieuDe.setStyle("-fx-text-fill: #f8d231; -fx-alignment: center;");
+        Label tieuDe = new Label("LẬP HÓA ĐƠN THANH TOÁN");
+        tieuDe.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 
-        // ===== Nội dung chính =====
-        VBox khungNoiDung = new VBox(20);
-        khungNoiDung.setPadding(new Insets(25));
-        khungNoiDung.setStyle("-fx-background-color: white; -fx-background-radius: 15;");
-        khungNoiDung.setAlignment(Pos.TOP_CENTER);
+        GridPane thongTin = new GridPane();
+        thongTin.setHgap(10);
+        thongTin.setVgap(8);
 
-        // ===== Thông tin khách hàng =====
-        GridPane khungThongTin = new GridPane();
-        khungThongTin.setHgap(20);
-        khungThongTin.setVgap(10);
-        khungThongTin.setPadding(new Insets(10));
+        thongTin.addRow(0, new Label("Mã PĐB:"), lblMaPDB);
+        thongTin.addRow(1, new Label("Tên KH:"), lblTenKH);
+        thongTin.addRow(2, new Label("SĐT KH:"), lblSDT);
+        thongTin.addRow(3, new Label("Giờ nhận:"), lblGioNhan);
+        thongTin.addRow(4, new Label("Giờ trả:"), lblGioTra);
 
-        Label lMaPDB = new Label("Mã PĐB:");
-        Label lSDT = new Label("SĐT khách:");
-        Label lTenKH = new Label("Tên khách:");
-        Label lGioNhan = new Label("Giờ nhận:");
-        Label lGioTra = new Label("Giờ trả:");
+        khoiTaoBangMon();
 
-        lblMaPDB = new Label();
-        lblSDT = new Label();
-        lblTenKH = new Label();
-        lblGioNhan = new Label();
-        lblGioTra = new Label();
+        HBox tongTienBox = new HBox(10, new Label("Tổng tiền:"), lblTongTien);
+        tongTienBox.setPadding(new Insets(10));
+        lblTongTien.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: red;");
 
-        khungThongTin.addRow(0, lMaPDB, lblMaPDB, lSDT, lblSDT);
-        khungThongTin.addRow(1, lTenKH, lblTenKH, lGioNhan, lblGioNhan);
-        khungThongTin.addRow(2, lGioTra, lblGioTra);
+        Button btnXacNhan = new Button("💾 Lưu hóa đơn");
+        btnXacNhan.setOnAction(e -> luuHoaDon());
 
-        // ===== Bảng món =====
-        bangMon = new TableView<>();
-        bangMon.setPrefHeight(230);
+        VBox vbox = new VBox(10, tieuDe, thongTin, bangMon, tongTienBox, btnXacNhan);
+        getChildren().add(vbox);
 
-        TableColumn<MonAn, Integer> cotSTT = new TableColumn<>("STT");
-        TableColumn<MonAn, String> cotTenMon = new TableColumn<>("Tên món");
-        TableColumn<MonAn, String> cotDonGia = new TableColumn<>("Đơn giá");
-        TableColumn<MonAn, String> cotSoLuong = new TableColumn<>("Số lượng");
-        TableColumn<MonAn, String> cotThanhTien = new TableColumn<>("Thành tiền");
+        stage.setTitle("Lập hóa đơn");
+        stage.setScene(new Scene(this, 750, 600));
+        stage.show();
+    }
 
-        cotSTT.setCellValueFactory(new PropertyValueFactory<>("stt"));
-        cotTenMon.setCellValueFactory(new PropertyValueFactory<>("tenMon"));
-        cotDonGia.setCellValueFactory(new PropertyValueFactory<>("donGia"));
-        cotSoLuong.setCellValueFactory(new PropertyValueFactory<>("soLuong"));
-        cotThanhTien.setCellValueFactory(new PropertyValueFactory<>("thanhTien"));
+    private void khoiTaoBangMon() {
+        bangMon.setPrefHeight(250);
 
-        cotSTT.setPrefWidth(50);
+        TableColumn<ChiTietHoaDon, Integer> cotSTT = new TableColumn<>("STT");
+        TableColumn<ChiTietHoaDon, String> cotTenMon = new TableColumn<>("Tên món");
+        TableColumn<ChiTietHoaDon, BigDecimal> cotDonGia = new TableColumn<>("Đơn giá");
+        TableColumn<ChiTietHoaDon, Integer> cotSoLuong = new TableColumn<>("Số lượng");
+        TableColumn<ChiTietHoaDon, BigDecimal> cotThanhTien = new TableColumn<>("Thành tiền");
+
+        // ✅ Dùng lambda cho tất cả cột (không dùng PropertyValueFactory)
+        cotSTT.setCellValueFactory(param ->
+                new ReadOnlyObjectWrapper<>(bangMon.getItems().indexOf(param.getValue()) + 1)
+        );
+        cotTenMon.setCellValueFactory(param ->
+                new ReadOnlyObjectWrapper<>(param.getValue().getMonAn().getTenMon())
+        );
+        cotDonGia.setCellValueFactory(param ->
+                new ReadOnlyObjectWrapper<>(param.getValue().getDonGia())
+        );
+        cotSoLuong.setCellValueFactory(param ->
+                new ReadOnlyObjectWrapper<>(param.getValue().getSoLuong())
+        );
+        cotThanhTien.setCellValueFactory(param ->
+                new ReadOnlyObjectWrapper<>(param.getValue().getThanhTien())
+        );
+
+        cotSTT.setPrefWidth(60);
         cotTenMon.setPrefWidth(200);
         cotDonGia.setPrefWidth(120);
         cotSoLuong.setPrefWidth(100);
-        cotThanhTien.setPrefWidth(130);
+        cotThanhTien.setPrefWidth(140);
 
         bangMon.getColumns().addAll(cotSTT, cotTenMon, cotDonGia, cotSoLuong, cotThanhTien);
+    }
 
-        // ===== Thanh toán =====
-        GridPane khungThanhToan = new GridPane();
-        khungThanhToan.setHgap(20);
-        khungThanhToan.setVgap(12);
-        khungThanhToan.setPadding(new Insets(10));
+    /**
+     * Hiển thị thông tin từ phiếu đặt bàn lên giao diện lập hóa đơn
+     */
+    public void hienThiThongTin(PhieuDatBan pdb) {
+        lblMaPDB.setText(pdb.getMaPDB());
+        lblTenKH.setText(pdb.getKhachHang() != null ? pdb.getKhachHang().getHoTen() : "");
+        lblSDT.setText(pdb.getKhachHang() != null ? pdb.getKhachHang().getSoDT() : "");
 
-        Label lMaGiamGia = new Label("Mã khuyến mãi:");
-        Label lChietKhau = new Label("Chiết khấu (%):");
-        Label lVAT = new Label("Thuế VAT (%):");
-        Label lTongTien = new Label("Tổng tiền:");
-        Label lTienNhan = new Label("Tiền khách đưa:");
-        Label lTienThua = new Label("Tiền thừa:");
-        Label lPTThanhToan = new Label("Phương thức thanh toán:");
-        Label lXuatHD = new Label("Xuất hóa đơn:");
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        lblGioNhan.setText(pdb.getNgayDat() != null ? pdb.getNgayDat().format(fmt) : "");
+//        lblGioTra.setText(pdb.getNgayTra() != null ? pdb.getNgayTra().format(fmt) : "");
 
-        txtMaGiamGia = new TextField();
-        btnKiemTra = new ButtonSample("Kiểm tra", 30, 16, 3);
+        // 🧾 Tạo hóa đơn tạm
+        hoaDonHienTai = new HoaDon();
+        hoaDonHienTai.setPhieuDatBan(pdb);
 
-        lblChietKhau = new Label();
-        lblVAT = new Label();
-        lblTongTien = new Label();
-        txtTienNhan = new TextField();
-        lblTienThua = new Label();
-
-        HBox hangMaKM = new HBox(10, txtMaGiamGia, btnKiemTra);
-        hangMaKM.setAlignment(Pos.CENTER_LEFT);
-
-        cboPTThanhToan = new ComboBox<>(FXCollections.observableArrayList(
-                "Tiền mặt", "Chuyển khoản", "Thanh toán QR"));
-        cboPTThanhToan.setPrefWidth(200);
-        cboPTThanhToan.setPromptText("Chọn phương thức");
-
-        chkXuatHoaDon = new CheckBox("In / Xuất hóa đơn PDF");
-
-        khungThanhToan.addRow(0, lMaGiamGia, hangMaKM, lChietKhau, lblChietKhau);
-        khungThanhToan.addRow(1, lVAT, lblVAT, lTongTien, lblTongTien);
-        khungThanhToan.addRow(2, lTienNhan, txtTienNhan, lTienThua, lblTienThua);
-        khungThanhToan.addRow(3, lPTThanhToan, cboPTThanhToan, lXuatHD, chkXuatHoaDon);
-
-        // ===== QR =====
-        khungQR = new VBox(10);
-        khungQR.setAlignment(Pos.CENTER);
-        khungQR.setPadding(new Insets(10));
-        khungQR.setStyle("-fx-border-color: #ccc; -fx-border-radius: 10; -fx-background-radius: 10;");
-        Label lblQRTitle = new Label("Mã QR thanh toán");
-        lblQRTitle.setFont(Font.font("Segoe UI", FontWeight.SEMI_BOLD, 14));
-        qrImage = new ImageView();
-        qrImage.setFitWidth(200);
-        qrImage.setFitHeight(200);
-        qrImage.setPreserveRatio(true);
-        khungQR.getChildren().addAll(lblQRTitle, qrImage);
-        khungQR.setVisible(false);
-
-        cboPTThanhToan.setOnAction(e -> {
-            String pttt = cboPTThanhToan.getValue();
-            if ("Thanh toán QR".equals(pttt)) {
-                qrImage.setImage(new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/QRCode.png")));
-                khungQR.setVisible(true);
-            } else {
-                khungQR.setVisible(false);
+        List<ChiTietHoaDon> dsCTHD = new ArrayList<>();
+        if (pdb.getChiTietPDB() != null) {
+            for (ChiTietPDB ctpdb : pdb.getChiTietPDB()) {
+                ChiTietHoaDon cthd = new ChiTietHoaDon(
+                        hoaDonHienTai,
+                        ctpdb.getMonAn(),
+                        ctpdb.getSoLuong(),
+                        ctpdb.getMonAn().getDonGia()
+                );
+                dsCTHD.add(cthd);
             }
-        });
+        }
 
-        // ===== Nút chức năng =====
-        HBox khungNut = new HBox(20);
-        khungNut.setAlignment(Pos.CENTER);
-        khungNut.setPadding(new Insets(15, 0, 0, 0));
+        hoaDonHienTai.setChiTietHoaDon(dsCTHD);
 
-        btnQuayLai = new ButtonSample("Quay lại", 45, 18, 1);
-        btnXuatHoaDon = new ButtonSample("Xuất hóa đơn", 45, 18, 2);
-        btnXacNhan = new ButtonSample("Xác nhận thanh toán", 45, 18, 2);
+        BigDecimal tongTien = hoaDonHienTai.getTongTien();
+        lblTongTien.setText(String.format("%,.0f đ", tongTien));
 
-        khungNut.getChildren().addAll(btnQuayLai, btnXuatHoaDon, btnXacNhan);
+        bangMon.setItems(FXCollections.observableArrayList(dsCTHD));
+    }
 
-        // ===== Ghép tất cả =====
-        HBox hangCuoi = new HBox(40, khungThanhToan, khungQR);
-        hangCuoi.setAlignment(Pos.TOP_CENTER);
+    private void luuHoaDon() {
+        if (hoaDonHienTai == null) {
+            thongBao("Chưa có dữ liệu hóa đơn để lưu.", Alert.AlertType.WARNING);
+            return;
+        }
 
-        khungNoiDung.getChildren().addAll(khungThongTin, bangMon, hangCuoi, khungNut);
-        khungChinh.getChildren().addAll(lblTieuDe, khungNoiDung);
+        System.out.println("Đã lưu hóa đơn: " + hoaDonHienTai.getMaHD());
+        thongBao("Lưu hóa đơn thành công!", Alert.AlertType.INFORMATION);
+        stage.close();
+    }
 
-        Scene canh = new Scene(khungChinh, 1200, 850);
-        canh.getStylesheets().add(getClass().getResource("/com/thefourrestaurant/css/Application.css").toExternalForm());
-
-        stage.setTitle("Thanh Toán Hóa Đơn");
-        stage.setScene(canh);
-        stage.show();
+    private void thongBao(String noiDung, Alert.AlertType loai) {
+        Alert alert = new Alert(loai);
+        alert.setTitle("Thông báo");
+        alert.setHeaderText(null);
+        alert.setContentText(noiDung);
+        alert.initOwner(stage);
+        alert.showAndWait();
     }
 }
