@@ -210,7 +210,7 @@ public class GiaoDienDatBan extends BorderPane {
 
         VBox thanhDieuHuong = taoThanhDieuHuong();
 
-        QuanLiBan quanLiBan = new QuanLiBan(mainContent, "DAT_BAN");
+        quanLiBan = new QuanLiBan(mainContent, "DAT_BAN");
         quanLiBan.hienThiBanTheoTang("TG000001");
 
         Pane khuVucBan = quanLiBan.getKhuVucBan();
@@ -366,7 +366,17 @@ public class GiaoDienDatBan extends BorderPane {
     }
 
     private void huyBanDatTruoc() {
-        System.out.println("Hủy bàn đặt trước (F4)");
+        Ban banDuocChon = layBanDangChonHoacThongBao();
+        if (banDuocChon == null) return;
+
+        Stage stage = new Stage();
+        stage.initOwner(getScene().getWindow());
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle("Danh sách phiếu đặt trước - " + banDuocChon.getTenBan());
+
+        GiaoDienHuyBanDatTruoc giaoDien = new GiaoDienHuyBanDatTruoc(banDuocChon);
+        stage.setScene(new Scene(giaoDien, 700, 400));
+        stage.showAndWait();
     }
 
     private void datMon() {

@@ -358,7 +358,11 @@ public class GiaoDienDatBanTruoc extends VBox {
 
                 PhieuDatBan pdb = new PhieuDatBan();
                 pdb.setBan(this.ban);
-                pdb.setNgayDat(ngayNhan); 
+                LocalTime gioNhan = timeNhanBan.getLocalTime();
+                if (gioNhan == null) gioNhan = LocalTime.of(0, 0);
+                LocalDateTime ngayDat = LocalDateTime.of(ngayNhan, gioNhan);
+                pdb.setNgayDat(ngayDat);
+                pdb.setNgayTao(LocalDateTime.now());
                 pdb.setSoNguoi(soNguoi);
                 pdb.setKhachHang(kh);
                 NhanVien assigned = null;
