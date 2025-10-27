@@ -6,6 +6,7 @@ import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.GiaoDienGoiMon;
+import javafx.util.StringConverter;
 import com.thefourrestaurant.view.hoadon.GiaoDienLapHoaDon;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import javafx.geometry.Insets;
@@ -247,6 +248,10 @@ public class GiaoDienDatBan extends BorderPane {
         for (Tang tang : dsTang) {
             cboSoTang.getItems().add(tang);
         }
+        
+        if (!dsTang.isEmpty()) {
+            cboSoTang.setValue(dsTang.get(0));
+        }
 
         cboSoTang.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -255,7 +260,6 @@ public class GiaoDienDatBan extends BorderPane {
                 setText(empty || item == null ? null : item.getTenTang());
             }
         });
-        cboSoTang.setPromptText("Chọn tầng");
 
         cboSoTang.setOnAction(e -> {
             Tang selectedTang = cboSoTang.getValue();
