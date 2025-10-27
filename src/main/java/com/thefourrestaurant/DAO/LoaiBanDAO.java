@@ -58,4 +58,20 @@ public class LoaiBanDAO {
 
         return null;
     }
+
+    public String layTenLoaiTheoBan(String maBan) {
+        String sql = "SELECT lb.tenLoaiBan FROM Ban b JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan WHERE b.maBan = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maBan);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
