@@ -30,6 +30,7 @@ public class QuanLiBan extends VBox {
     private Ban banDangChon;
     private StackPane mainContent;
     private String context;
+    private boolean choPhepDiChuyen = false;
 
     public QuanLiBan(StackPane mainContent, String context) {
     	this.mainContent = mainContent;
@@ -51,10 +52,18 @@ public class QuanLiBan extends VBox {
         khungDuongDan.setMaxWidth(Double.MAX_VALUE);
 
         //Toolbar
-        ToolBar toolBar = new ToolBar(
-                new ButtonSample("Thêm bàn",45,16,3),
-                new ButtonSample("Lưu sơ đồ",45,16,3)
-        );
+        ButtonSample btnThemBan = new ButtonSample("Thêm bàn", 45, 16, 3);
+        btnThemBan.setOnAction(e -> moPopupTuyChinhBan(null));
+        ButtonSample btnLuuSoDo = new ButtonSample("Lưu sơ đồ", 45, 16, 3);
+        btnLuuSoDo.setOnAction(e -> {
+            this.choPhepDiChuyen = false;
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, 
+                    "Đã lưu sơ đồ! Chế độ di chuyển đã tắt.");
+            alert.initOwner(this.getScene().getWindow());
+            alert.showAndWait();
+        });
+
+        ToolBar toolBar = new ToolBar(btnThemBan, btnLuuSoDo);
         toolBar.setStyle("-fx-background-color: #1E424D");
         toolBar.setPadding(new Insets(10, 10, 10, 10));
 
@@ -181,11 +190,13 @@ public class QuanLiBan extends VBox {
         });
 
         khungBan.setOnMouseDragged(e -> {
+            if (!choPhepDiChuyen) return;
             khungBan.setLayoutX(e.getSceneX() - offset[0]);
             khungBan.setLayoutY(e.getSceneY() - offset[1]);
         });
 
         khungBan.setOnMouseReleased(e -> {
+        	if (!choPhepDiChuyen) return;
             int newX = (int) khungBan.getLayoutX();
             int newY = (int) khungBan.getLayoutY();
 
@@ -237,9 +248,17 @@ public class QuanLiBan extends VBox {
         popup.setScene(new javafx.scene.Scene(giaoDien, 500, 270));
         popup.initOwner(this.getScene().getWindow()); // Gắn với cửa sổ cha
         popup.setResizable(false);
-        
-        // Đặt vị trí popup giữa màn hình
         popup.centerOnScreen();
+        
+        giaoDien.getBtnDiChuyen().setOnAction(e -> {
+            this.choPhepDiChuyen = true;
+            popup.close(); // Đóng popup
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Chế độ di chuyển đã bật! Bạn có thể kéo bàn để thay đổi vị trí.");
+            alert.initOwner(this.getScene().getWindow());
+            alert.showAndWait();
+        });
+        
+
         
         // Hiển thị popup
         popup.showAndWait();

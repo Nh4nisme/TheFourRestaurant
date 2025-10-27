@@ -36,6 +36,7 @@ public class GiaoDienTuyChinhBan extends VBox {
     private Ban ban;
     private final LoaiBanDAO loaiBanDAO = new LoaiBanDAO();
     private File selectedImageFile;
+    private Runnable onDiChuyen;
 
     public GiaoDienTuyChinhBan(Ban ban) {
         this.ban = ban;
@@ -210,13 +211,11 @@ public class GiaoDienTuyChinhBan extends VBox {
 
         // Nút Di chuyển
         btnDiChuyen.setOnAction(e -> {
-            // TODO: Mở giao diện di chuyển bàn
-            Alert info = new Alert(Alert.AlertType.INFORMATION,
-                "Chức năng di chuyển bàn đang được phát triển");
-            info.setTitle("Thông báo");
-            info.setHeaderText(null);
-            info.initOwner(getScene().getWindow());
-            info.showAndWait();
+            if (onDiChuyen != null) {
+                onDiChuyen.run(); // gọi callback
+            }
+            Stage stage = (Stage) getScene().getWindow();
+            if (stage != null) stage.close();
         });
 
         // Nút OK
@@ -274,4 +273,7 @@ public class GiaoDienTuyChinhBan extends VBox {
     public Button getBtnOK() { return btnOK; }
     public Button getBtnHuy() { return btnHuy; }
     public File getSelectedImageFile() { return selectedImageFile; }
+    public void setOnDiChuyen(Runnable onDiChuyen) {
+        this.onDiChuyen = onDiChuyen;
+    }
 }
