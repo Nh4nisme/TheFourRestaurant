@@ -11,7 +11,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -156,15 +155,16 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
     }
 
     private void themChiTiet() {
-        List<MonAn> tatCaMonAn = boDieuKhien.layDanhSachMonAn(); // Corrected method call
+        List<MonAn> tatCaMonAn = boDieuKhien.layDanhSachMonAn();
         String maCTKMMoi = boDieuKhien.taoMaChiTietKhuyenMaiMoi();
 
         ChiTietKhuyenMaiDialog dialog = new ChiTietKhuyenMaiDialog(null, khuyenMaiCha, tatCaMonAn, maCTKMMoi);
+        dialog.initOwner(this);
         dialog.showAndWait();
 
         ChiTietKhuyenMai ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            if (boDieuKhien.themChiTietKhuyenMaiMoi(ketQua)) {
+            if (boDieuKhien.themChiTietKhuyenMaiMoi(this, ketQua)) {
                 lamMoiBang();
             }
         }
@@ -173,17 +173,20 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
     private void suaChiTiet() {
         ChiTietKhuyenMai selected = bangChiTiet.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            new Alert(Alert.AlertType.WARNING, "Vui lòng chọn một chi tiết khuyến mãi để sửa.").showAndWait();
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Vui lòng chọn một chi tiết khuyến mãi để sửa.");
+            alert.initOwner(this);
+            alert.showAndWait();
             return;
         }
 
-        List<MonAn> tatCaMonAn = boDieuKhien.layDanhSachMonAn(); // Corrected method call
+        List<MonAn> tatCaMonAn = boDieuKhien.layDanhSachMonAn();
         ChiTietKhuyenMaiDialog dialog = new ChiTietKhuyenMaiDialog(selected, khuyenMaiCha, tatCaMonAn, null);
+        dialog.initOwner(this);
         dialog.showAndWait();
 
         ChiTietKhuyenMai ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            if (boDieuKhien.capNhatChiTietKhuyenMai(ketQua)) {
+            if (boDieuKhien.capNhatChiTietKhuyenMai(this, ketQua)) {
                 lamMoiBang();
             }
         }
@@ -192,11 +195,13 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
     private void xoaChiTiet() {
         ChiTietKhuyenMai selected = bangChiTiet.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            new Alert(Alert.AlertType.WARNING, "Vui lòng chọn một chi tiết khuyến mãi để xóa.").showAndWait();
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Vui lòng chọn một chi tiết khuyến mãi để xóa.");
+            alert.initOwner(this);
+            alert.showAndWait();
             return;
         }
 
-        if (boDieuKhien.xoaChiTietKhuyenMai(selected)) {
+        if (boDieuKhien.xoaChiTietKhuyenMai(this, selected)) {
             lamMoiBang();
         }
     }

@@ -7,6 +7,7 @@ import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.monan.MonAnDialog;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,11 +37,11 @@ public class MonAnController {
         return loaiMonDAO.layTatCaLoaiMon();
     }
 
-    public boolean themMoiMonAn(String maLoaiMonDefault) {
+    public boolean themMoiMonAn(Stage owner, String maLoaiMonDefault) {
         List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
 
         if (allLoaiMon.isEmpty()) {
-            new Alert(Alert.AlertType.ERROR, "Không có loại món ăn nào trong CSDL. Vui lòng thêm loại món ăn trước.").showAndWait();
+            showAlert(owner, Alert.AlertType.ERROR, "Không có loại món ăn nào trong CSDL. Vui lòng thêm loại món ăn trước.");
             return false;
         }
 
@@ -50,38 +51,59 @@ public class MonAnController {
                 .orElse(null);
 
         MonAnDialog dialog = new MonAnDialog(null, allLoaiMon, defaultLoaiMon, this);
+        dialog.initOwner(owner);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();
         if (ketQua != null) {
             ketQua.setMaMonAn(monAnDAO.taoMaMonAnMoi());
-            return monAnDAO.themMonAn(ketQua);
+            if (monAnDAO.themMonAn(ketQua)) {
+                showAlert(owner, Alert.AlertType.INFORMATION, "Thêm món ăn thành công!");
+                return true;
+            } else {
+                showAlert(owner, Alert.AlertType.ERROR, "Thêm món ăn thất bại.");
+                return false;
+            }
         }
         return false;
     }
 
-    public boolean tuyChinhMonAn(MonAn monAn) {
+    public boolean tuyChinhMonAn(Stage owner, MonAn monAn) {
         List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
 
         MonAnDialog dialog = new MonAnDialog(monAn, allLoaiMon, monAn.getLoaiMon(), this);
+        dialog.initOwner(owner);
         dialog.showAndWait();
 
         MonAn ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            return monAnDAO.capNhatMonAn(ketQua);
+            if (monAnDAO.capNhatMonAn(ketQua)) {
+                showAlert(owner, Alert.AlertType.INFORMATION, "Cập nhật món ăn thành công!");
+                return true;
+            } else {
+                showAlert(owner, Alert.AlertType.ERROR, "Cập nhật món ăn thất bại.");
+                return false;
+            }
         }
         return false;
     }
 
-    public boolean xoaMonAn(MonAn monAn) {
+    public boolean xoaMonAn(Stage owner, MonAn monAn) {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Xác nhận xóa");
         confirmAlert.setHeaderText("Bạn có chắc chắn muốn xóa món: " + monAn.getTenMon() + "?");
         confirmAlert.setContentText("Hành động này không thể hoàn tác.");
+        confirmAlert.initOwner(owner);
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            return monAnDAO.xoaMonAn(monAn.getMaMonAn());
+            if (monAnDAO.xoaMonAn(monAn.getMaMonAn())) {
+                showAlert(owner, Alert.AlertType.INFORMATION, "Xóa món ăn thành công!");
+                return true;
+            } else {
+                showAlert(owner, Alert.AlertType.ERROR, "Xóa món ăn thất bại.");
+                return false;
+            }
         }
         return false;
     }
@@ -120,5 +142,11 @@ public class MonAnController {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void showAlert(Stage owner, Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message);
+        alert.initOwner(owner);
+        alert.showAndWait();
     }
 }

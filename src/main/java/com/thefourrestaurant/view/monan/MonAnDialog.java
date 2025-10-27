@@ -9,7 +9,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -36,11 +35,6 @@ public class MonAnDialog extends Stage {
     private final TextField truongGia = new TextField();
     private final ComboBox<LoaiMon> loaiMonComboBox = new ComboBox<>();
     private final CheckBox hopKiemHienThi = new CheckBox();
-
-    // UI Components for display only
-    private final TextField truongVAT = new TextField();
-    private final TextField truongMoTa = new TextField();
-    private final TextField truongSoLuong = new TextField();
 
     public MonAnDialog(MonAn monAn, List<LoaiMon> tatCaLoaiMon, LoaiMon loaiMonMacDinh, MonAnController controller) {
         this.monAnHienTai = monAn;
@@ -71,8 +65,7 @@ public class MonAnDialog extends Stage {
         hopTieuDe.setStyle("-fx-background-color: #1E424D;");
 
         GridPane luoiFormChinh = createMainForm(tatCaLoaiMon, loaiMonMacDinh, kieuFontStyle);
-        TitledPane khungNangCao = createAdvancedPane(kieuFontStyle);
-        VBox hopGiua = new VBox(20, luoiFormChinh, khungNangCao);
+        VBox hopGiua = new VBox(20, luoiFormChinh);
         hopGiua.setPadding(new Insets(20));
 
         HBox hopChanTrang = createFooter();
@@ -85,17 +78,13 @@ public class MonAnDialog extends Stage {
             dienDuLieuHienCo();
         }
 
-        khungNangCao.expandedProperty().addListener((obs, wasExpanded, isNowExpanded) -> {
-            this.setHeight(isNowExpanded ? 720 : 580);
-        });
-
-        Scene khungCanh = new Scene(layoutChinh, 500, 550);
+        Scene khungCanh = new Scene(layoutChinh, 500, 450);
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
             khungCanh.getStylesheets().add(urlCSS.toExternalForm());
         }
         this.setScene(khungCanh);
-        this.setHeight(580);
+        this.setResizable(false);
     }
 
     private GridPane createMainForm(List<LoaiMon> tatCaLoaiMon, LoaiMon loaiMonMacDinh, String kieuFontStyle) {
@@ -103,7 +92,6 @@ public class MonAnDialog extends Stage {
         luoiForm.setVgap(12);
         luoiForm.setHgap(15);
 
-        String kieuNhan = kieuFontStyle + "-fx-text-fill: #E19E11; -fx-font-size: 14px;";
         String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8;";
 
         truongTen.setStyle(kieuTruongNhap);
@@ -157,38 +145,6 @@ public class MonAnDialog extends Stage {
         return luoiForm;
     }
 
-    private TitledPane createAdvancedPane(String kieuFontStyle) {
-        TitledPane khungNangCao = new TitledPane("Tùy chỉnh nâng cao", new GridPane());
-        khungNangCao.setCollapsible(true);
-        khungNangCao.setExpanded(false);
-
-        GridPane luoiNangCao = (GridPane) khungNangCao.getContent();
-        luoiNangCao.setVgap(10);
-        luoiNangCao.setHgap(15);
-        luoiNangCao.setPadding(new Insets(20));
-
-        String kieuNhan = kieuFontStyle + "-fx-text-fill: #E19E11; -fx-font-size: 14px;";
-        String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8;";
-
-        truongVAT.setStyle(kieuTruongNhap);
-        truongVAT.getStyleClass().add("text-field");
-        truongMoTa.setStyle(kieuTruongNhap);
-        truongMoTa.getStyleClass().add("text-field");
-        truongSoLuong.setStyle(kieuTruongNhap);
-        truongSoLuong.getStyleClass().add("text-field");
-
-        luoiNangCao.add(new Label("VAT:"), 0, 0);
-        luoiNangCao.add(truongVAT, 1, 0);
-
-        luoiNangCao.add(new Label("Mô tả:"), 0, 1);
-        luoiNangCao.add(truongMoTa, 1, 1);
-
-        luoiNangCao.add(new Label("Số lượng:"), 0, 2);
-        luoiNangCao.add(truongSoLuong, 1, 2);
-
-        return khungNangCao;
-    }
-
     private HBox createFooter() {
         HBox hopChanTrang = new HBox(10);
         hopChanTrang.setPadding(new Insets(15));
@@ -211,7 +167,6 @@ public class MonAnDialog extends Stage {
         hopKiemHienThi.setSelected(monAnHienTai.getTrangThai().equalsIgnoreCase("Con"));
 
         loaiMonComboBox.setValue(monAnHienTai.getLoaiMon());
-        // Note: Image is not pre-loaded in this dialog, only a link is shown.
     }
 
     private void chonAnh() {
@@ -221,7 +176,6 @@ public class MonAnDialog extends Stage {
         File tep = boChonTep.showOpenDialog(this);
         if (tep != null) {
             tepAnhDaChon = tep;
-            // Optionally, show a confirmation label
         }
     }
 
