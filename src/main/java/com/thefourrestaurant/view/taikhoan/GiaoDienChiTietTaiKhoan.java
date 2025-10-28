@@ -54,11 +54,10 @@ public class GiaoDienChiTietTaiKhoan extends VBox {
         // ==== Nút chức năng ====
         btnLuu = new ButtonSample("Lưu", 40, 16, 3);
         btnClear = new ButtonSample("Xóa trắng", 40, 16, 3);
-        btnTaoMoi = new ButtonSample("Tạo mới", 40, 16, 3);
 
         HBox nutBox = new HBox(10);
         nutBox.setAlignment(Pos.CENTER_LEFT);
-        nutBox.getChildren().addAll(btnLuu, btnClear, btnTaoMoi);
+        nutBox.getChildren().addAll(btnLuu, btnClear);
 
         // ==== Thêm tất cả vào giao diện ====
         getChildren().addAll(lblTieuDe, txtMaTK, txtTenDangNhap, txtMatKhau, cboVaiTro, nutBox);
@@ -109,6 +108,5 @@ public class GiaoDienChiTietTaiKhoan extends VBox {
 
     public ButtonSample getBtnLuu() { return btnLuu; }
     public ButtonSample getBtnClear() { return btnClear; }
-    public ButtonSample getBtnTaoMoi() { return btnTaoMoi; }
 
 }

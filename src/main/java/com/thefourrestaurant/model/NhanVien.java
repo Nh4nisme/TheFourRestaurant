@@ -36,6 +36,9 @@ public class NhanVien {
         this(maNV, hoTen, ngaySinh, gioiTinh, soDienThoai, luong, maTK, false);
     }
 
+    public NhanVien(String maNV, String tenNV) {
+    }
+
     public String getMaNV() { return maNV; }
     public void setMaNV(String maNV) { this.maNV = maNV; }
 

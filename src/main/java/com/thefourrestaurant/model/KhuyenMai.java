@@ -27,6 +27,9 @@ public class KhuyenMai {
         this.moTa = moTa;
     }
 
+    public KhuyenMai(String maKM, String tenKM, BigDecimal kmTyLe, BigDecimal kmSoTien) {
+    }
+
     public String getMaKM() {
         return maKM;
     }

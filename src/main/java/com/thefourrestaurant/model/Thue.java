@@ -1,5 +1,7 @@
 package com.thefourrestaurant.model;
 
+import java.math.BigDecimal;
+
 public class Thue {
     private String maThue;
     private int tyLe;
@@ -13,6 +15,13 @@ public class Thue {
         setTyLe(tyLe);
         setGhiChu(ghiChu);
         setLoaiThue(loaiThue);
+    }
+
+    public Thue(String maThue, int tyLe) {
+    }
+
+    public Thue() {
+
     }
 
     public String getMaThue() {

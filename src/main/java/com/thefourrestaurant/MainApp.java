@@ -26,8 +26,6 @@ public class MainApp extends Application {
 //      giaoDienDangNhap.show(primaryStage);
       GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
       giaoDienChinh.show(primaryStage);
-//      GiaoDienLapHoaDon gd = new GiaoDienLapHoaDon(primaryStage);
-
 
         // Sau khi giao diện đã mở, chạy kết nối DB ở thread riêng
         Task<Connection> ketNoiTask = new Task<>() {

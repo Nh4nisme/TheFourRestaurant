@@ -33,6 +33,9 @@ public class KhachHang {
         this(maKH, hoTen, ngaySinh, gioiTinh, soDT, loaiKH, false);
     }
 
+    public KhachHang(String maKH, String tenKH, String soDT) {
+    }
+
     public String getMaKH() {
         return maKH;
     }

@@ -61,11 +61,11 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
         TableColumn<HoaDon, String> colPTTT = new TableColumn<>("Phương thức TT");
         colPTTT.setCellValueFactory(cd -> {
             PhuongThucThanhToan pttt = cd.getValue().getPhuongThucThanhToan();
-            return new SimpleStringProperty(
-                    (pttt != null && pttt.getLoaiPTTT() != null)
-                            ? pttt.getLoaiPTTT().getTenHienThi()
-                            : ""
-            );
+            String value = "null";
+            if (pttt != null && pttt.getLoaiPTTT() != null) {
+                value = pttt.getLoaiPTTT().toString();
+            }
+            return new SimpleStringProperty(value);
         });
 
         // ===== Cột Tổng tiền =====

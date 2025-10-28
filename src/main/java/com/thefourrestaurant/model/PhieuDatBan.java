@@ -36,6 +36,9 @@ public class PhieuDatBan {
         this.isDeleted = isDeleted;
     }
 
+    public PhieuDatBan(String maPDB, LocalDateTime localDateTime) {
+    }
+
     public String getMaPDB() { return maPDB; }
     public void setMaPDB(String maPDB) { this.maPDB = maPDB; }
 
