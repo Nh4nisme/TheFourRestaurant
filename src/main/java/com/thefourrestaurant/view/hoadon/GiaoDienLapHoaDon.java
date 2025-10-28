@@ -4,6 +4,7 @@ import com.thefourrestaurant.DAO.*;
 import com.thefourrestaurant.controller.HoaDonController;
 import com.thefourrestaurant.controller.PhuongThucThanhToanController;
 import com.thefourrestaurant.model.*;
+import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -67,6 +68,7 @@ public class GiaoDienLapHoaDon extends VBox {
     private void khoiTaoGiaoDien() {
         setPadding(new Insets(15));
         setSpacing(12);
+        getStylesheets().add(getClass().getResource("/com/thefourrestaurant/css/Application.css").toExternalForm());
 
         // ===== Header =====
         Label tieuDe = new Label("LẬP HÓA ĐƠN THANH TOÁN");
@@ -147,6 +149,7 @@ public class GiaoDienLapHoaDon extends VBox {
 
         cboPTTT.getSelectionModel().selectFirst();
 
+
         btnKiemTraKM.setStyle("-fx-background-color: #1E424D; -fx-text-fill: #DDB248; -fx-font-weight: bold; -fx-cursor: hand;");
         btnKiemTraKM.setOnAction(e -> {
             String input = txtKhuyenMai.getText().trim();
@@ -196,32 +199,46 @@ public class GiaoDienLapHoaDon extends VBox {
         thanhToanPane.add(chkXuatHoaDon, 2, 8);
 
         // ===== QR + footer =====
-        ImageView qrView = new ImageView(new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/Logo.png")));
-        qrView.setFitWidth(120);
-        qrView.setFitHeight(120);
+        ImageView qrView = new ImageView(new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/QR.png")));
+        qrView.setFitWidth(320);
+        qrView.setFitHeight(320);
         VBox qrBox = new VBox(5, new Label("QR Thanh toán"), qrView);
-        qrBox.setStyle("-fx-alignment: top-center;");
+        qrBox.setStyle("-fx-alignment: top-center; -fx-font-weight: bold");
+        qrBox.setVisible(false); // mặc định ẩn
+
+        cboPTTT.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && "Chuyển khoản".equalsIgnoreCase(newVal.getLoaiPTTT().getTenHienThi())) {
+                qrBox.setVisible(true); // hiện QR
+            } else {
+                qrBox.setVisible(false); // ẩn QR
+            }
+        });
 
         HBox contentBox = new HBox(30, thanhToanPane, qrBox);
 
         // Footer
-        Button btnQuayLai = new Button("Quay lại");
-        btnQuayLai.setStyle("-fx-background-color: #ccc; -fx-font-weight: bold; -fx-pref-width: 150; -fx-cursor: hand;");
+        ButtonSample btnQuayLai = new ButtonSample("Quay lại", 40,16,3);
+        btnQuayLai.setOnAction(e -> {
+            Stage stage = (Stage) btnQuayLai.getScene().getWindow();
+            stage.close();
+        });
 
-        Button btnXacNhan = new Button("Xác nhận thanh toán");
-        btnXacNhan.setStyle("-fx-background-color: #1E424D; -fx-text-fill: #DDB248; -fx-font-weight: bold; -fx-pref-width: 200; -fx-cursor: hand;");
+        ButtonSample btnXacNhan = new ButtonSample("Xác nhận thanh toán", 40, 16, 3);
         btnXacNhan.setOnAction(e -> {
             taoHoaDonMoi();
         });
 
-        HBox footer = new HBox(20, btnQuayLai, btnXacNhan);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox footer = new HBox(20, btnQuayLai, spacer, btnXacNhan);
         footer.setPadding(new Insets(10));
         footer.setStyle("-fx-alignment: center-right;");
 
         VBox vbox = new VBox(15, headerBox, thongTin, bangMon, contentBox, footer);
         getChildren().add(vbox);
 
-        stage.setScene(new Scene(this, 900, 740));
+        stage.setScene(new Scene(this, 950, 800));
         stage.setTitle("Lập hóa đơn");
         stage.show();
     }
