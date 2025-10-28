@@ -33,7 +33,7 @@ public class GiaoDienKhuyenMai extends VBox {
     private VBox khuyenMaiViewContainer;
     private KhuyenMaiGrid gridView;
     private Node listView;
-    private final Label lblItemCount = new Label(); // Label for item count
+    private final Label lblItemCount = new Label(); // Nhãn đếm số lượng mục
 
     public GiaoDienKhuyenMai() {
         this.boDieuKhien = new KhuyenMaiController();
@@ -47,7 +47,7 @@ public class GiaoDienKhuyenMai extends VBox {
         contentPane.add(taoKhungTren(), 0, 0);
         contentPane.add(taoKhungGiua(), 0, 1);
 
-        // Container chính cho danh sách/lưới khuyến mãi
+        // Vùng chứa chính cho danh sách/lưới khuyến mãi
         VBox khuyenMaiTableContainer = new VBox(10);
         khuyenMaiTableContainer.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
         khuyenMaiTableContainer.setPadding(new Insets(20));
@@ -60,12 +60,12 @@ public class GiaoDienKhuyenMai extends VBox {
         VBox.setVgrow(khuyenMaiViewContainer, Priority.ALWAYS);
         khuyenMaiTableContainer.getChildren().add(khuyenMaiViewContainer);
 
-        // Cài đặt và khởi tạo các view
+        // Cài đặt và khởi tạo các chế độ xem
         caiDatBangKhuyenMai();
         listView = bangKhuyenMai;
         gridView = new KhuyenMaiGrid(this);
 
-        // View mặc định là GridView
+        // Chế độ xem mặc định là GridView
         khuyenMaiViewContainer.getChildren().add(gridView);
 
         contentPane.add(taoThanhTrangThai(), 0, 3);
@@ -141,7 +141,7 @@ public class GiaoDienKhuyenMai extends VBox {
 
         ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
         btnTim.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText()));
-        txtTimKiem.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText())); // Trigger search on Enter key
+        txtTimKiem.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText())); // Kích hoạt tìm kiếm khi nhấn Enter
 
         khungGiua.getChildren().addAll(btnList, btnGrid, btnThemMoi, space, txtTimKiem, btnTim);
         return khungGiua;

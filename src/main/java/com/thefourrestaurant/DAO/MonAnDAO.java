@@ -3,7 +3,6 @@ package com.thefourrestaurant.DAO;
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
-import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -21,16 +20,17 @@ public class MonAnDAO {
         mon.setHinhAnh(rs.getString("hinhAnh"));
         LoaiMon loai = new LoaiMon(rs.getString("maLoaiMon"), rs.getString("tenLoaiMon"), null);
         mon.setLoaiMon(loai);
+        mon.setDeleted(rs.getBoolean("isDeleted")); // Đọc trường isDeleted
         return mon;
     }
 
     private String baseQuery() {
-        return "SELECT ma.*, lm.tenLoaiMon FROM MonAn ma LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon ";
+        return "SELECT ma.*, lm.tenLoaiMon FROM MonAn ma LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon WHERE ma.isDeleted = 0 ";
     }
 
     public List<MonAn> layTatCaMonAn() {
         List<MonAn> ds = new ArrayList<>();
-        String sql = baseQuery();
+        String sql = baseQuery(); // Đã bao gồm WHERE isDeleted = 0
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -41,7 +41,7 @@ public class MonAnDAO {
 
     public List<MonAn> layMonAnTheoLoai(String maLoaiMon) {
         List<MonAn> ds = new ArrayList<>();
-        String sql = baseQuery() + " WHERE ma.maLoaiMon = ?";
+        String sql = baseQuery() + " AND ma.maLoaiMon = ?"; // Đã bao gồm WHERE isDeleted = 0
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maLoaiMon);
@@ -58,7 +58,7 @@ public class MonAnDAO {
 
     public MonAn layMonAnTheoMa(String maMonAn) {
         MonAn monAn = null;
-        String sql = "SELECT * FROM MonAn WHERE maMonAn = ? AND isDeleted = 0";
+        String sql = baseQuery() + " AND ma.maMonAn = ?"; // Sử dụng baseQuery và thêm điều kiện mã món ăn
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -66,17 +66,7 @@ public class MonAnDAO {
             ps.setString(1, maMonAn);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    LoaiMon loaiMon = loaiMonDAO.layLoaiMonTheoMa(rs.getString("maLoaiMon"));
-
-                    monAn = new MonAn(
-                            rs.getString("maMonAn"),
-                            rs.getString("tenMon"),
-                            rs.getBigDecimal("donGia"),
-                            rs.getString("trangThai"),
-                            loaiMon,
-                            rs.getString("hinhAnh"),
-                            rs.getBoolean("isDeleted")
-                    );
+                    monAn = mapResultSetToMonAn(rs);
                 }
             }
 
@@ -88,7 +78,7 @@ public class MonAnDAO {
     }
 
     public boolean themMonAn(MonAn mon) {
-        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, mon.getMaMonAn());
@@ -97,12 +87,13 @@ public class MonAnDAO {
             ps.setString(4, mon.getTrangThai());
             ps.setString(5, mon.getLoaiMon().getMaLoaiMon());
             ps.setString(6, mon.getHinhAnh());
+            ps.setBoolean(7, false); // Mặc định là chưa xóa
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
     public boolean capNhatMonAn(MonAn mon) {
-        String sql = "UPDATE MonAn SET tenMon=?, donGia=?, trangThai=?, maLoaiMon=?, hinhAnh=? WHERE maMonAn=?";
+        String sql = "UPDATE MonAn SET tenMon=?, donGia=?, trangThai=?, maLoaiMon=?, hinhAnh=? WHERE maMonAn=? AND isDeleted = 0"; // Chỉ cập nhật món ăn chưa xóa
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, mon.getTenMon());
@@ -116,7 +107,7 @@ public class MonAnDAO {
     }
 
     public boolean xoaMonAn(String maMonAn) {
-        String sql = "DELETE FROM MonAn WHERE maMonAn = ?";
+        String sql = "UPDATE MonAn SET isDeleted = 1 WHERE maMonAn = ?"; // Xóa mềm
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, maMonAn);
@@ -125,17 +116,23 @@ public class MonAnDAO {
     }
 
     public String taoMaMonAnMoi() {
-        String sql = "SELECT COUNT(*) FROM MonAn";
-        int count = 0;
+        String sql = "SELECT MAX(maMonAn) FROM MonAn";
+        String maxMaMonAn = null;
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                count = rs.getInt(1);
+                maxMaMonAn = rs.getString(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return "MA" + String.format("%03d", count + 1);
+
+        if (maxMaMonAn == null) {
+            return "MA000001";
+        } else {
+            int number = Integer.parseInt(maxMaMonAn.substring(2)); // bỏ "MA"
+            return "MA" + String.format("%06d", number + 1);
+        }
     }
 }

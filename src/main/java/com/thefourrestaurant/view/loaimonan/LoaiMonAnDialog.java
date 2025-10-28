@@ -41,7 +41,7 @@ public class LoaiMonAnDialog extends Stage {
 
         BorderPane layoutChinh = new BorderPane();
 
-        // --- Header ---
+        // --- Phần đầu ---
         Label nhanTieuDe = new Label(isEditMode ? "Tùy chỉnh loại món ăn" : "Thêm loại món ăn mới");
         nhanTieuDe.setStyle("-fx-text-fill: #D4A017; -fx-font-size: 18px; -fx-font-weight: bold;");
         HBox phanDau = new HBox(nhanTieuDe);
@@ -49,27 +49,27 @@ public class LoaiMonAnDialog extends Stage {
         phanDau.setPadding(new Insets(15));
         phanDau.setStyle("-fx-background-color: #1E424D;");
 
-        // --- Content ---
+        // --- Nội dung ---
         VBox hopAnh = taoPhanAnh();
         GridPane luoiForm = taoForm();
 
         VBox noiDungGiua = new VBox(20, hopAnh, luoiForm);
         noiDungGiua.setPadding(new Insets(20));
 
-        // --- Footer ---
+        // --- Phần chân trang ---
         HBox phanCuoi = taoFooter();
 
-        // --- Layout ---
+        // --- Bố cục ---
         layoutChinh.setTop(phanDau);
         layoutChinh.setCenter(noiDungGiua);
         layoutChinh.setBottom(phanCuoi);
 
-        // --- Fill data for edit mode ---
+        // --- Điền dữ liệu cho chế độ chỉnh sửa ---
         if (isEditMode) {
             dienDuLieuHienCo();
         }
 
-        // --- Scene ---
+        // --- Khung cảnh ---
         Scene khungCanh = new Scene(layoutChinh, 450, 420);
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
@@ -144,14 +144,14 @@ public class LoaiMonAnDialog extends Stage {
         if (imagePath != null && !imagePath.isEmpty()) {
             try {
                 Image anh;
-                if (imagePath.startsWith("/")) { // It's a resource path
+                if (imagePath.startsWith("/")) { // Đây là đường dẫn tài nguyên
                     URL imageUrl = getClass().getResource(imagePath);
                     if (imageUrl != null) {
                         anh = new Image(imageUrl.toExternalForm());
                     } else {
-                        return; // Keep default image if resource not found
+                        return; // Giữ ảnh mặc định nếu không tìm thấy tài nguyên
                     }
-                } else { // It's likely a full URL (e.g., file:/...)
+                } else { // Có thể là một URL đầy đủ (ví dụ: file:/...)
                     anh = new Image(imagePath);
                 }
 
@@ -205,9 +205,9 @@ public class LoaiMonAnDialog extends Stage {
                 return;
             }
         } else if (!isEditMode) {
-            ketQua.setHinhAnh(null); // No new image for new item
+            ketQua.setHinhAnh(null); // Không có ảnh mới cho mục mới
         }
-        // if editing and no new image is chosen, the old image path is kept by default
+        // nếu đang chỉnh sửa và không chọn ảnh mới, đường dẫn ảnh cũ được giữ mặc định
 
         this.close();
     }

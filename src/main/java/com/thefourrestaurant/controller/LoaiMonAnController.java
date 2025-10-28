@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -88,17 +89,7 @@ public class LoaiMonAnController {
 
     public String saoChepHinhAnhVaoProject(String sourceImagePath) {
         try {
-            // 1. Xác định thư mục đích trong src/main/resources
-            String projectDir = System.getProperty("user.dir");
-            String relativeDestPath = "src/main/resources/com/thefourrestaurant/images/LoaiMonAn/";
-            Path destDir = Paths.get(projectDir, relativeDestPath);
-
-            // Tạo thư mục nếu nó không tồn tại
-            if (Files.notExists(destDir)) {
-                Files.createDirectories(destDir);
-            }
-
-            // 2. Tạo tên tệp mới để tránh trùng lặp
+            // 1. Tạo tên tệp mới để tránh trùng lặp
             File sourceFile = new File(sourceImagePath);
             String originalFileName = sourceFile.getName();
             String fileExtension = "";
@@ -108,17 +99,29 @@ public class LoaiMonAnController {
             }
             String newFileName = UUID.randomUUID().toString() + fileExtension;
 
-            // 3. Thực hiện sao chép
-            Path sourcePath = sourceFile.toPath();
-            Path destPath = destDir.resolve(newFileName);
-            Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING);
+            // 2. Xác định đường dẫn tương đối trong classpath
+            String classpathRelativePath = "/com/thefourrestaurant/images/LoaiMonAn/" + newFileName;
 
-            // 4. Trả về đường dẫn tương đối (classpath resource path) để lưu vào DB
-            return "/com/thefourrestaurant/images/LoaiMonAn/" + newFileName;
+            // 3. Sao chép vào thư mục `src/main/resources`
+            String projectDir = System.getProperty("user.dir");
+            Path srcDestPath = Paths.get(projectDir, "src/main/resources", classpathRelativePath);
+            Files.createDirectories(srcDestPath.getParent());
+            Files.copy(sourceFile.toPath(), srcDestPath, StandardCopyOption.REPLACE_EXISTING);
 
-        } catch (IOException e) {
+            // 4. Sao chép vào thư mục `target/classes` để ứng dụng đang chạy có thể thấy ngay
+            URL targetRootUrl = getClass().getResource("/");
+            if (targetRootUrl != null) {
+                Path targetDestPath = Paths.get(targetRootUrl.toURI()).resolve(classpathRelativePath.substring(1));
+                Files.createDirectories(targetDestPath.getParent());
+                Files.copy(sourceFile.toPath(), targetDestPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            // 5. Trả về đường dẫn tương đối (classpath resource path) để lưu vào DB
+            return classpathRelativePath;
+
+        } catch (Exception e) {
             e.printStackTrace();
-            return null; // Trả về null nếu có lỗi
+            return null;
         }
     }
 

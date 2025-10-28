@@ -38,7 +38,7 @@ public class GiaoDienMonAn extends VBox {
     private final GridPane gridViewPane = new GridPane();
     private final TableView<MonAn> listViewPane = new TableView<>();
     private final int soCotMoiHang = 8;
-    private final Label lblItemCount = new Label(); // Label for item count
+    private final Label lblItemCount = new Label(); // Nhãn đếm số lượng mục
 
     public GiaoDienMonAn(String maLoaiMon, String tenLoaiMon) {
         this.maLoaiMon = maLoaiMon;
@@ -135,7 +135,7 @@ public class GiaoDienMonAn extends VBox {
 
         ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
         btnTim.setOnAction(event -> locVaCapNhatMonAn(txtTimKiem.getText()));
-        txtTimKiem.setOnAction(event -> locVaCapNhatMonAn(txtTimKiem.getText())); // Trigger search on Enter key
+        txtTimKiem.setOnAction(event -> locVaCapNhatMonAn(txtTimKiem.getText())); // Kích hoạt tìm kiếm khi nhấn Enter
 
         khungGiua.getChildren().addAll(btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnApDung, space, txtTimKiem, btnTim);
         return khungGiua;

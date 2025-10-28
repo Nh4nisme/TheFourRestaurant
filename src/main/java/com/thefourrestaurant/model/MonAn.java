@@ -1,7 +1,5 @@
 package com.thefourrestaurant.model;
 
-import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
@@ -30,10 +28,6 @@ public class MonAn {
     public MonAn(String maMonAn) {
         this.maMonAn = maMonAn;
     }
-
-    public MonAn(String maMonAn, String tenMon, BigDecimal donGia, String trangThai, LoaiMonAn loaiMon, String hinhAnh, boolean isDeleted) {
-    }
-
 
     public String getMaMonAn() { return maMonAn; }
     public void setMaMonAn(String maMonAn) { this.maMonAn = maMonAn; }

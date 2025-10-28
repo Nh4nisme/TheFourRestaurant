@@ -30,7 +30,7 @@ public class MonAnDialog extends Stage {
     private final MonAn monAnHienTai;
     private final MonAnController controller;
 
-    // UI Components
+    // Các thành phần UI
     private final TextField truongTen = new TextField();
     private final TextField truongGia = new TextField();
     private final ComboBox<LoaiMon> loaiMonComboBox = new ComboBox<>();
@@ -214,11 +214,12 @@ public class MonAnDialog extends Stage {
                 ketQua.setHinhAnh(newImagePath);
             } else {
                 showAlert(Alert.AlertType.ERROR, "Lỗi khi sao chép hình ảnh!");
-                return; // Stop saving if image copy fails
+                return; // Dừng lưu nếu sao chép ảnh thất bại
             }
         } else if (!isEditMode) {
             ketQua.setHinhAnh(null);
         }
+        // nếu đang chỉnh sửa và không chọn ảnh mới, đường dẫn ảnh cũ được giữ mặc định
 
         this.close();
     }
