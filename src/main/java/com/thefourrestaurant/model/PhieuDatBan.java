@@ -1,5 +1,6 @@
 package com.thefourrestaurant.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ public class PhieuDatBan {
     private NhanVien nhanVien;
     private Ban ban;
     private String trangThai;
+    private BigDecimal tienCoc;
     private boolean isDeleted;
     private List<ChiTietPDB> chiTietPDB = new ArrayList<>();
 
@@ -24,7 +26,7 @@ public class PhieuDatBan {
     }
 
     public PhieuDatBan(String maPDB, LocalDateTime ngayDat, LocalDateTime ngayTao, int soNguoi,
-                       KhachHang khachHang, NhanVien nhanVien, Ban ban, String trangThai, boolean isDeleted) {
+                       KhachHang khachHang, NhanVien nhanVien, Ban ban, String trangThai, BigDecimal tienCoc,boolean isDeleted) {
         this.maPDB = maPDB;
         this.ngayDat = ngayDat;
         this.ngayTao = ngayTao;
@@ -33,6 +35,7 @@ public class PhieuDatBan {
         this.nhanVien = nhanVien;
         this.ban = ban;
         this.trangThai = trangThai;
+        this.tienCoc = tienCoc;
         this.isDeleted = isDeleted;
     }
 
@@ -62,6 +65,9 @@ public class PhieuDatBan {
 
     public String getTrangThai() { return trangThai; }
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+
+    public BigDecimal getTienCoc() { return tienCoc; }
+    public void setTienCoc(BigDecimal tienCoc) { this.tienCoc = tienCoc; }
 
     public boolean isDeleted() { return isDeleted; }
     public void setDeleted(boolean deleted) { isDeleted = deleted; }

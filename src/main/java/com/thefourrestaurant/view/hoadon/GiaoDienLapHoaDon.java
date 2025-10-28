@@ -4,6 +4,7 @@ import com.thefourrestaurant.DAO.*;
 import com.thefourrestaurant.controller.HoaDonController;
 import com.thefourrestaurant.controller.PhuongThucThanhToanController;
 import com.thefourrestaurant.model.*;
+import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -40,6 +41,7 @@ public class GiaoDienLapHoaDon extends VBox {
     private final Label lblChietKhau = new Label("0%");
     private final Label lblThanhToan = new Label("0 đ");
     private final Label lblTienThua = new Label("0 đ");
+    private final Label lblTienCoc = new Label("0 đ");
 
     private final TextField txtKhuyenMai = new TextField();
     private final TextField txtTienKhachDua = new TextField();
@@ -66,6 +68,7 @@ public class GiaoDienLapHoaDon extends VBox {
     private void khoiTaoGiaoDien() {
         setPadding(new Insets(15));
         setSpacing(12);
+        getStylesheets().add(getClass().getResource("/com/thefourrestaurant/css/Application.css").toExternalForm());
 
         // ===== Header =====
         Label tieuDe = new Label("LẬP HÓA ĐƠN THANH TOÁN");
@@ -146,6 +149,7 @@ public class GiaoDienLapHoaDon extends VBox {
 
         cboPTTT.getSelectionModel().selectFirst();
 
+
         btnKiemTraKM.setStyle("-fx-background-color: #1E424D; -fx-text-fill: #DDB248; -fx-font-weight: bold; -fx-cursor: hand;");
         btnKiemTraKM.setOnAction(e -> {
             String input = txtKhuyenMai.getText().trim();
@@ -187,39 +191,54 @@ public class GiaoDienLapHoaDon extends VBox {
         thanhToanPane.addRow(1, new Label("Chiết khấu:"), lblChietKhau);
         thanhToanPane.addRow(2, new Label("VAT:"), lblVAT);
         thanhToanPane.addRow(3, new Label("Tổng tiền:"), lblTongTien);
-        thanhToanPane.addRow(4, new Label("Phương thức TT:"), cboPTTT);
-        thanhToanPane.addRow(5, new Label("Tiền khách đưa:"), txtTienKhachDua);
-        thanhToanPane.addRow(6, new Label("Tiền thừa:"), lblTienThua);
-        thanhToanPane.addRow(7, new Label("Thành tiền:"), lblThanhToan);
-        thanhToanPane.add(chkXuatHoaDon, 2, 7);
+        thanhToanPane.addRow(4, new Label("Tiền đặt cọc trước:"),lblTienCoc);
+        thanhToanPane.addRow(5, new Label("Phương thức TT:"), cboPTTT);
+        thanhToanPane.addRow(6, new Label("Tiền khách đưa:"), txtTienKhachDua);
+        thanhToanPane.addRow(7, new Label("Tiền thừa:"), lblTienThua);
+        thanhToanPane.addRow(8, new Label("Tiền phải thanh toán:"), lblThanhToan);
+        thanhToanPane.add(chkXuatHoaDon, 2, 8);
 
         // ===== QR + footer =====
-        ImageView qrView = new ImageView(new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/Logo.png")));
-        qrView.setFitWidth(120);
-        qrView.setFitHeight(120);
+        ImageView qrView = new ImageView(new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/QR.png")));
+        qrView.setFitWidth(320);
+        qrView.setFitHeight(320);
         VBox qrBox = new VBox(5, new Label("QR Thanh toán"), qrView);
-        qrBox.setStyle("-fx-alignment: top-center;");
+        qrBox.setStyle("-fx-alignment: top-center; -fx-font-weight: bold");
+        qrBox.setVisible(false); // mặc định ẩn
+
+        cboPTTT.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && "Chuyển khoản".equalsIgnoreCase(newVal.getLoaiPTTT().getTenHienThi())) {
+                qrBox.setVisible(true); // hiện QR
+            } else {
+                qrBox.setVisible(false); // ẩn QR
+            }
+        });
 
         HBox contentBox = new HBox(30, thanhToanPane, qrBox);
 
         // Footer
-        Button btnQuayLai = new Button("Quay lại");
-        btnQuayLai.setStyle("-fx-background-color: #ccc; -fx-font-weight: bold; -fx-pref-width: 150; -fx-cursor: hand;");
+        ButtonSample btnQuayLai = new ButtonSample("Quay lại", 40,16,3);
+        btnQuayLai.setOnAction(e -> {
+            Stage stage = (Stage) btnQuayLai.getScene().getWindow();
+            stage.close();
+        });
 
-        Button btnXacNhan = new Button("Xác nhận thanh toán");
-        btnXacNhan.setStyle("-fx-background-color: #1E424D; -fx-text-fill: #DDB248; -fx-font-weight: bold; -fx-pref-width: 200; -fx-cursor: hand;");
+        ButtonSample btnXacNhan = new ButtonSample("Xác nhận thanh toán", 40, 16, 3);
         btnXacNhan.setOnAction(e -> {
             taoHoaDonMoi();
         });
 
-        HBox footer = new HBox(20, btnQuayLai, btnXacNhan);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox footer = new HBox(20, btnQuayLai, spacer, btnXacNhan);
         footer.setPadding(new Insets(10));
         footer.setStyle("-fx-alignment: center-right;");
 
         VBox vbox = new VBox(15, headerBox, thongTin, bangMon, contentBox, footer);
         getChildren().add(vbox);
 
-        stage.setScene(new Scene(this, 900, 740));
+        stage.setScene(new Scene(this, 950, 800));
         stage.setTitle("Lập hóa đơn");
         stage.show();
     }
@@ -274,6 +293,11 @@ public class GiaoDienLapHoaDon extends VBox {
         lblTenKH.setText(pdb.getKhachHang().getHoTen());       // tên khách
         lblSDT.setText(pdb.getKhachHang().getSoDT());           // số điện thoại
         lblGioNhan.setText(pdb.getNgayDat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        if (pdb.getTienCoc() != null) {
+            lblTienCoc.setText(formatTien(pdb.getTienCoc()) + " đ");
+        } else {
+            lblTienCoc.setText("0 đ");
+        }
 
         // Tạo mã hóa đơn tự động
         String maHD = hoaDonController.taoMaHD();
@@ -397,7 +421,7 @@ public class GiaoDienLapHoaDon extends VBox {
             String inputKM = txtKhuyenMai.getText().trim();
 
             // 2. Tổng tiền món ăn
-            BigDecimal tongTien = layTongTien(); // 250,000 ví dụ
+            BigDecimal tongTien = layTongTien(); // ví dụ 250,000
             BigDecimal thanhToan = tongTien; // ban đầu chưa trừ khuyến mãi, chưa VAT
 
             // 3. Kiểm tra và áp dụng khuyến mãi
@@ -432,7 +456,24 @@ public class GiaoDienLapHoaDon extends VBox {
                     .setScale(0, RoundingMode.HALF_UP);
             thanhToan = thanhToan.add(vat);
 
-            // 5. Lấy tiền khách đưa
+            // 5. Lấy tiền cọc từ PDB nếu có
+            BigDecimal tienCoc = BigDecimal.ZERO;
+            PhieuDatBan pdb = null;
+            if (maPDB != null && !maPDB.isEmpty()) {
+                PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
+                pdb = pdbDAO.layPhieuTheoMa(maPDB);
+                if (pdb != null && pdb.getTienCoc() != null) {
+                    tienCoc = pdb.getTienCoc();
+                }
+            }
+
+            // 6. Trừ tiền cọc ra khỏi tổng thanh toán
+            thanhToan = thanhToan.subtract(tienCoc);
+            if (thanhToan.compareTo(BigDecimal.ZERO) < 0) {
+                thanhToan = BigDecimal.ZERO; // tránh âm
+            }
+
+            // 7. Lấy tiền khách đưa
             BigDecimal tienKhachDua = BigDecimal.ZERO;
             if (!txtTienKhachDua.getText().isBlank()) {
                 try {
@@ -443,7 +484,7 @@ public class GiaoDienLapHoaDon extends VBox {
                 }
             }
 
-            // 6. Tính tiền thừa
+            // 8. Tính tiền thừa
             BigDecimal tienThua = tienKhachDua.subtract(thanhToan).setScale(0, RoundingMode.HALF_UP);
             if (tienThua.compareTo(BigDecimal.ZERO) < 0) {
                 thongBao("Tiền khách đưa không đủ để thanh toán!\nTiền cần: "
@@ -452,24 +493,24 @@ public class GiaoDienLapHoaDon extends VBox {
                 return;
             }
 
-            // 7. Lấy mã khách hàng từ tên
-            KhachHang kh = khachHangDAO.layKhachHangTheoTen(lblTenKH.getText());
+            // 9. Lấy mã khách hàng từ tên
+            KhachHang kh = khachHangDAO.layKhachHangTheoTen(tenKH);
             String maKH = kh != null ? kh.getMaKH() : null;
 
-            // 8. Lấy phương thức thanh toán
+            // 10. Lấy phương thức thanh toán
             PhuongThucThanhToan pttt = cboPTTT.getValue();
             if (pttt == null) {
                 thongBao("Vui lòng chọn phương thức thanh toán", Alert.AlertType.WARNING);
                 return;
             }
 
-            // 9. Tạo hóa đơn
+            // 11. Tạo hóa đơn
             HoaDon hd = new HoaDon();
             hd.setMaHD(maHD);
             hd.setNgayLap(LocalDateTime.now());
             hd.setNhanVien(new NhanVien("NV000001")); // giả sử NV hiện tại
             hd.setKhachHang(maKH != null ? new KhachHang(maKH) : null);
-            hd.setPhieuDatBan(maPDB != null && !maPDB.isEmpty() ? new PhieuDatBan(maPDB) : null);
+            hd.setPhieuDatBan(pdb);
             hd.setKhuyenMai(km);
             hd.setThue(new Thue("TH000001"));
             hd.setTienKhachDua(tienKhachDua);
@@ -477,14 +518,14 @@ public class GiaoDienLapHoaDon extends VBox {
             hd.setPhuongThucThanhToan(pttt);
             hd.setDeleted(false);
 
-            // 10. Lưu hóa đơn vào DB
+            // 12. Lưu hóa đơn vào DB
             HoaDonDAO hoaDonDAO = new HoaDonDAO();
             if (!hoaDonDAO.themHoaDon(hd)) {
                 thongBao("Tạo hóa đơn thất bại", Alert.AlertType.ERROR);
                 return;
             }
 
-            // 11. Tạo chi tiết hóa đơn
+            // 13. Tạo chi tiết hóa đơn
             chiTietHoaDonDAO = new ChiTietHoaDonDAO();
             for (ChiTietPDB ct : bangMon.getItems()) {
                 BigDecimal donGia = ct.getMonAn().getDonGia();
@@ -492,16 +533,16 @@ public class GiaoDienLapHoaDon extends VBox {
                 chiTietHoaDonDAO.themChiTietHD(maHD, ct.getMonAn().getMaMonAn(), soLuong, donGia);
             }
 
-            // 12. Cập nhật trạng thái PhieuDatBan
-            if (maPDB != null && !maPDB.isEmpty()) {
+            // 14. Cập nhật trạng thái PhieuDatBan
+            if (pdb != null) {
                 PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
                 pdbDAO.capNhatTrangThai(maPDB, "Đã thanh toán");
             }
 
-            // 13. Thông báo thành công
-            thongBao("Tạo hóa đơn thành công!\nTổng tiền phải trả: " + formatTien(thanhToan) + " đ", Alert.AlertType.INFORMATION);
+            // 15. Thông báo thành công
+            thongBao("Tạo hóa đơn thành công!\nTổng tiền phải trả sau trừ cọc: " + formatTien(thanhToan) + " đ", Alert.AlertType.INFORMATION);
 
-            // 14. Xuất hóa đơn nếu chọn
+            // 16. Xuất hóa đơn nếu chọn
             if (chkXuatHoaDon.isSelected()) {
                 // Gọi phương thức in hóa đơn
             }
@@ -511,6 +552,7 @@ public class GiaoDienLapHoaDon extends VBox {
             thongBao("Có lỗi xảy ra khi tạo hóa đơn: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
 
+        // 17. Đóng cửa sổ
         Stage stage = (Stage) lblMaHD.getScene().getWindow();
         stage.close();
     }
