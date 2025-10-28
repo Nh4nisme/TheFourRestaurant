@@ -171,16 +171,38 @@ public class QuanLiBan extends VBox {
         khungBan.setLayoutX(ban.getToaDoX());
         khungBan.setLayoutY(ban.getToaDoY());
 
-        String borderStyle = switch (ban.getTrangThai()) {
-            case "Trống" -> "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
-            case "Đặt trước" -> "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
-            case "Đang sử dụng" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
-            default -> "-fx-border-color: gray; -fx-border-width: 3; -fx-border-radius: 12;";
-        };
-        khungBan.setStyle(borderStyle);
+        String borderStyle = switch (ban.getTrangThai().trim()) {
+        case "Bảo trì" -> "-fx-border-color: green; -fx-border-width: 3; -fx-border-radius: 12;";
+        case "Đang sử dụng" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
+        case "Đặt trước" -> {
+            // Mặc định là màu xám (như bàn trống)
+            String style = "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
+            try {
+                PhieuDatBan pdb = pdbDAO.layPhieuDatTruocTheoBan(ban.getMaBan());
+                if (pdb != null && pdb.getNgayDat() != null) {
+                    java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                    java.time.Duration diff = java.time.Duration.between(now, pdb.getNgayDat());
+                    long hours = diff.toHours();
 
-        khungBan.setOnMouseEntered(e -> khungBan.setStyle(borderStyle + "-fx-effect: dropshadow(gaussian, gray, 10, 0, 0, 0);"));
-        khungBan.setOnMouseExited(e -> khungBan.setStyle(borderStyle));
+                    // 🔹 Nếu còn dưới 2 tiếng → đổi sang xanh dương
+                    if (hours >= 0 && hours < 2) {
+                        style = "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            yield style;
+        }
+        default -> "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
+    };
+
+    khungBan.setStyle(borderStyle);
+
+    // Hiệu ứng hover
+    final String hoverStyle = borderStyle + "-fx-effect: dropshadow(gaussian, gray, 10, 0, 0, 0);";
+    khungBan.setOnMouseEntered(e -> khungBan.setStyle(hoverStyle));
+    khungBan.setOnMouseExited(e -> khungBan.setStyle(borderStyle));
         
         final double[] offset = new double[2];
 
@@ -214,11 +236,23 @@ public class QuanLiBan extends VBox {
             PauseTransition delay = new PauseTransition(Duration.millis(200)); // Trì hoãn để phân biệt click đơn & đúp
 
             if (e.getClickCount() == 1) {
-                delay.setOnFinished(ev -> {
-                    setBanDangChon(ban);
-                    System.out.println("Bàn được chọn: " + ban.getTenBan());
+            	delay.setOnFinished(ev -> {
+            	    if (getBanDangChon() != null && getBanDangChon() != ban) {
+            	        for (javafx.scene.Node n : khuVucBan.getChildren()) {
+            	            if (n instanceof StackPane sp) {
+            	                sp.setBackground(null);
+            	            }
+            	        }
+            	    }
 
-                });
+            	    setBanDangChon(ban);
+
+            	    khungBan.setBackground(new Background(
+            	        new BackgroundFill(javafx.scene.paint.Color.rgb(255, 255, 150, 0.5), new CornerRadii(10), Insets.EMPTY)
+            	    ));
+
+            	    System.out.println("Bàn được chọn: " + ban.getTenBan());
+            	});
                 delay.playFromStart();
             } 
             
