@@ -578,7 +578,14 @@ public class GiaoDienLapHoaDon extends VBox {
 
             // 5. Tính tiền thừa
             BigDecimal tienThua = tienKhachDua.subtract(thanhToan);
-            if (tienThua.compareTo(BigDecimal.ZERO) < 0) tienThua = BigDecimal.ZERO;
+
+// Kiểm tra xem tiền khách đưa có đủ không
+            if (tienThua.compareTo(BigDecimal.ZERO) < 0) {
+                thongBao("Tiền khách đưa không đủ để thanh toán!\nTiền cần: "
+                                + thanhToan + " đ, khách đưa: " + tienKhachDua + " đ",
+                        Alert.AlertType.WARNING);
+                return; // Dừng tạo hóa đơn
+            }
 
             // 6. Tạo hóa đơn
             HoaDon hd = new HoaDon();

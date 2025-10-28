@@ -167,54 +167,44 @@ public class PhieuDatBanDAO {
 	    }
 	    return null;
 	}
-	
-	public List<PhieuDatBan> layDanhSachPhieuDatTruocTheoBan(String maBan) {
-	    List<PhieuDatBan> danhSach = new ArrayList<>();
-	    String sql = """
+
+    public List<PhieuDatBan> layDanhSachPhieuDatTruocTheoBan(String maBan) {
+        List<PhieuDatBan> danhSach = new ArrayList<>();
+        String sql = """
 	            SELECT * FROM PhieuDatBan
 	            WHERE maBan = ? AND trangThai = N'Đặt trước' AND isDeleted = 0
 	            """;
 
-	    try (Connection con = ConnectSQL.getConnection();
-	         PreparedStatement ps = con.prepareStatement(sql)) {
-	        
-	        ps.setString(1, maBan);
-	        ResultSet rs = ps.executeQuery();
+        try (Connection con = ConnectSQL.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-	        while (rs.next()) {
-	            PhieuDatBan pdb = new PhieuDatBan();
-	            pdb.setMaPDB(rs.getString("maPDB"));
-	            pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
-	            pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
-	            pdb.setSoNguoi(rs.getInt("soNguoi"));
-	            pdb.setKhachHang(new KhachHangDAO().layKhachHangTheoMa(rs.getString("maKH")));
-	            pdb.setNhanVien(new NhanVienDAO().layNhanVienTheoMa(rs.getString("maNV")));
-	            pdb.setBan(new BanDAO().layTheoMa(rs.getString("maBan")));
-	            pdb.setTrangThai(rs.getString("trangThai"));
-	            pdb.setDeleted(rs.getBoolean("isDeleted"));
-	            pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(pdb.getMaPDB()));
+            ps.setString(1, maBan);
+            ResultSet rs = ps.executeQuery();
 
-    public boolean capNhatTrangThai(String maPDB, String trangThaiMoi) {
-        String sql = "UPDATE PhieuDatBan SET trangThai = ? WHERE maPDB = ?";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, trangThaiMoi);
-            ps.setString(2, maPDB);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
+            while (rs.next()) {
+                PhieuDatBan pdb = new PhieuDatBan();
+                pdb.setMaPDB(rs.getString("maPDB"));
+                pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
+                pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
+                pdb.setSoNguoi(rs.getInt("soNguoi"));
+                pdb.setKhachHang(new KhachHangDAO().layKhachHangTheoMa(rs.getString("maKH")));
+                pdb.setNhanVien(new NhanVienDAO().layNhanVienTheoMa(rs.getString("maNV")));
+                pdb.setBan(new BanDAO().layTheoMa(rs.getString("maBan")));
+                pdb.setTrangThai(rs.getString("trangThai"));
+                pdb.setDeleted(rs.getBoolean("isDeleted"));
+                pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(pdb.getMaPDB()));
+
+                danhSach.add(pdb);
+            }
+
+        } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
+
+        return danhSach;
     }
-	            danhSach.add(pdb);
-	        }
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
 
-	    return danhSach;
-	}
 
 	public boolean huyPhieuDatBan(String maPDB) {
 	    String sql = """
@@ -232,4 +222,16 @@ public class PhieuDatBanDAO {
 	    return false;
 	}
 
+    public boolean capNhatTrangThai(String maPDB, String trangThaiMoi) {
+        String sql = "UPDATE PhieuDatBan SET trangThai = ? WHERE maPDB = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, trangThaiMoi);
+            ps.setString(2, maPDB);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
