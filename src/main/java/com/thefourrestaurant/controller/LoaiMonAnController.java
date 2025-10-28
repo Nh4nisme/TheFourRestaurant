@@ -5,10 +5,10 @@ import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAnDialog;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,38 +29,59 @@ public class LoaiMonAnController {
         return loaiMonDAO.layTatCaLoaiMon();
     }
 
-    public boolean themMoiLoaiMonAn() {
+    public boolean themMoiLoaiMonAn(Stage owner) {
         LoaiMonAnDialog dialog = new LoaiMonAnDialog(null, this);
+        dialog.initOwner(owner);
         dialog.showAndWait();
 
         LoaiMon ketQua = dialog.layKetQua();
         if (ketQua != null) {
             ketQua.setMaLoaiMon(loaiMonDAO.taoMaLoaiMonMoi());
-            return loaiMonDAO.themLoaiMon(ketQua);
+            if (loaiMonDAO.themLoaiMon(ketQua)) {
+                showAlert(owner, Alert.AlertType.INFORMATION, "Thêm loại món ăn thành công!");
+                return true;
+            } else {
+                showAlert(owner, Alert.AlertType.ERROR, "Thêm loại món ăn thất bại.");
+                return false;
+            }
         }
         return false;
     }
 
-    public boolean tuyChinhLoaiMonAn(LoaiMon loaiMon) {
+    public boolean tuyChinhLoaiMonAn(Stage owner, LoaiMon loaiMon) {
         LoaiMonAnDialog dialog = new LoaiMonAnDialog(loaiMon, this);
+        dialog.initOwner(owner);
         dialog.showAndWait();
 
         LoaiMon ketQua = dialog.layKetQua();
         if (ketQua != null) {
-            return loaiMonDAO.capNhatLoaiMon(ketQua);
+            if (loaiMonDAO.capNhatLoaiMon(ketQua)) {
+                showAlert(owner, Alert.AlertType.INFORMATION, "Cập nhật loại món ăn thành công!");
+                return true;
+            } else {
+                showAlert(owner, Alert.AlertType.ERROR, "Cập nhật loại món ăn thất bại.");
+                return false;
+            }
         }
         return false;
     }
 
-    public boolean xoaLoaiMonAn(LoaiMon loaiMon) {
+    public boolean xoaLoaiMonAn(Stage owner, LoaiMon loaiMon) {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Xác nhận xóa");
         confirmAlert.setHeaderText("Bạn có chắc chắn muốn xóa loại món ăn: " + loaiMon.getTenLoaiMon() + "?");
         confirmAlert.setContentText("Hành động này không thể hoàn tác.");
+        confirmAlert.initOwner(owner);
 
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            return loaiMonDAO.xoaLoaiMon(loaiMon.getMaLoaiMon());
+            if (loaiMonDAO.xoaLoaiMon(loaiMon.getMaLoaiMon())) {
+                showAlert(owner, Alert.AlertType.INFORMATION, "Xóa loại món ăn thành công!");
+                return true;
+            } else {
+                showAlert(owner, Alert.AlertType.ERROR, "Xóa loại món ăn thất bại.");
+                return false;
+            }
         }
         return false;
     }
@@ -99,5 +120,11 @@ public class LoaiMonAnController {
             e.printStackTrace();
             return null; // Trả về null nếu có lỗi
         }
+    }
+
+    private void showAlert(Stage owner, Alert.AlertType alertType, String message) {
+        Alert alert = new Alert(alertType, message);
+        alert.initOwner(owner);
+        alert.showAndWait();
     }
 }

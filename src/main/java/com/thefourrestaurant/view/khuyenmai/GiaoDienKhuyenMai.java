@@ -33,6 +33,7 @@ public class GiaoDienKhuyenMai extends VBox {
     private VBox khuyenMaiViewContainer;
     private KhuyenMaiGrid gridView;
     private Node listView;
+    private final Label lblItemCount = new Label(); // Label for item count
 
     public GiaoDienKhuyenMai() {
         this.boDieuKhien = new KhuyenMaiController();
@@ -66,6 +67,8 @@ public class GiaoDienKhuyenMai extends VBox {
 
         // View mặc định là GridView
         khuyenMaiViewContainer.getChildren().add(gridView);
+
+        contentPane.add(taoThanhTrangThai(), 0, 3);
 
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
@@ -142,6 +145,15 @@ public class GiaoDienKhuyenMai extends VBox {
 
         khungGiua.getChildren().addAll(btnList, btnGrid, btnThemMoi, space, txtTimKiem, btnTim);
         return khungGiua;
+    }
+
+    private HBox taoThanhTrangThai() {
+        HBox statusBar = new HBox();
+        statusBar.setPadding(new Insets(5, 20, 5, 20));
+        statusBar.setAlignment(Pos.CENTER_LEFT);
+        lblItemCount.setStyle("-fx-text-fill: #333333; -fx-font-size: 12px;");
+        statusBar.getChildren().add(lblItemCount);
+        return statusBar;
     }
 
     private void caiDatBangKhuyenMai() {
@@ -264,6 +276,8 @@ public class GiaoDienKhuyenMai extends VBox {
         if (gridView != null) {
             gridView.refresh(this);
         }
+        int count = danhSachKhuyenMaiHienThi.size();
+        lblItemCount.setText("Hiển thị " + count + " khuyến mãi");
     }
 
     private ContextMenu taoMenuNguCanh(TableRow<KhuyenMai> row) {

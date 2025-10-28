@@ -51,7 +51,7 @@ public class KhuyenMaiBox extends BaseBox {
         lblTenKM.setWrapText(true);
         lblTenKM.setTextAlignment(TextAlignment.CENTER);
         lblTenKM.setMaxWidth(190);
-        lblTenKM.setStyle("-fx-text-fill: #000000;");
+        lblTenKM.setStyle("-fx-text-fill: #CC3333;");
 
         // Giam gia
         String giamGiaStr = "";
@@ -67,7 +67,7 @@ public class KhuyenMaiBox extends BaseBox {
         lblGiamGia.setFont(Font.font("System", FontWeight.BOLD, 20)); // Reduced size
         lblGiamGia.setWrapText(true);
         lblGiamGia.setTextAlignment(TextAlignment.CENTER);
-        lblGiamGia.setStyle("-fx-text-fill: #d35400;"); // A nice orange color for discount
+        lblGiamGia.setStyle("-fx-text-fill: #FF6600;");
 
         // Thoi gian ap dung
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yy");
@@ -77,6 +77,7 @@ public class KhuyenMaiBox extends BaseBox {
         }
         Label lblThoiGian = new Label(thoiGianApDung);
         lblThoiGian.setFont(Font.font("System", FontWeight.NORMAL, 14));
+        lblThoiGian.setStyle("-fx-text-fill: #673E1F;");
 
         // Trang thai
         String status = "Chưa áp dụng";

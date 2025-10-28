@@ -38,6 +38,7 @@ public class GiaoDienMonAn extends VBox {
     private final GridPane gridViewPane = new GridPane();
     private final TableView<MonAn> listViewPane = new TableView<>();
     private final int soCotMoiHang = 8;
+    private final Label lblItemCount = new Label(); // Label for item count
 
     public GiaoDienMonAn(String maLoaiMon, String tenLoaiMon) {
         this.maLoaiMon = maLoaiMon;
@@ -72,6 +73,8 @@ public class GiaoDienMonAn extends VBox {
         setupListView();
 
         dsMonAnContainer.getChildren().add(createGridViewContent());
+
+        contentPane.add(createStatusBar(), 0, 3);
 
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
@@ -136,6 +139,15 @@ public class GiaoDienMonAn extends VBox {
 
         khungGiua.getChildren().addAll(btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnApDung, space, txtTimKiem, btnTim);
         return khungGiua;
+    }
+
+    private HBox createStatusBar() {
+        HBox statusBar = new HBox();
+        statusBar.setPadding(new Insets(5, 20, 5, 20));
+        statusBar.setAlignment(Pos.CENTER_LEFT);
+        lblItemCount.setStyle("-fx-text-fill: #333333; -fx-font-size: 12px;");
+        statusBar.getChildren().add(lblItemCount);
+        return statusBar;
     }
 
     private void setupGridView() {
@@ -218,6 +230,8 @@ public class GiaoDienMonAn extends VBox {
     private void updateViews() {
         updateGridView();
         updateListView();
+        int count = danhSachMonAnHienThi.size();
+        lblItemCount.setText("Hiển thị " + count + " món ăn");
     }
 
     private void updateGridView() {
