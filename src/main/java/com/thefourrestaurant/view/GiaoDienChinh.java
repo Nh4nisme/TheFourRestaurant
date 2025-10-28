@@ -6,8 +6,10 @@ import com.thefourrestaurant.controller.SideBarController;
 import com.thefourrestaurant.view.components.NavBar;
 import com.thefourrestaurant.view.components.sidebar.SideBar;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -35,6 +37,11 @@ public class GiaoDienChinh {
         mainContent.setBackground(new Background(bg));
         VBox.setVgrow(mainContent, Priority.ALWAYS);
 
+        Label tenCT = new Label("Hệ thống quản lý đặt bàn và gọi món TheFourRestaurant");
+        tenCT.setStyle("-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #DDB248");
+        mainContent.getChildren().add(tenCT);
+        mainContent.setAlignment(Pos.TOP_CENTER);
+        mainContent.setPadding(new Insets(50,0,0,0));
 
         // === LEFT: gồm SideBar + SideBar mở rộng ===
         SideBar sideBar = new SideBar();
