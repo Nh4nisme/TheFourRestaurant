@@ -11,6 +11,7 @@ import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.model.PhieuDatBan;
+import com.thefourrestaurant.view.ban.GiaoDienDatBan;
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.DropDownButton;
 import com.thefourrestaurant.view.monan.MonAnBox;
@@ -41,7 +42,7 @@ import javafx.collections.ObservableList;
 public class GiaoDienGoiMon extends BorderPane {
 
     private ButtonSample btnTim, btnLamMoi;
-    private VBox mainContainer;
+    private StackPane mainContent;
     private MonAnDAO monAnDAO = new MonAnDAO();
     private Ban ban;
     
@@ -55,6 +56,8 @@ public class GiaoDienGoiMon extends BorderPane {
         this.setStyle("-fx-background-color: white;");
         this.ban = ban;
         this.pdb = pdb;
+        this.mainContent = mainContent;
+        
         HBox thanhTren = taoThanhTren();
 
         VBox topContainer = new VBox(thanhTren);
@@ -323,6 +326,9 @@ public class GiaoDienGoiMon extends BorderPane {
 	        danhSachChiTiet.clear();
 	        bangPhieu.refresh();
 	        capNhatTongTien();
+	        
+	        mainContent.getChildren().clear();
+	        mainContent.getChildren().add(new GiaoDienDatBan(mainContent));
 	
 	    } catch (Exception ex) {
 	        ex.printStackTrace();

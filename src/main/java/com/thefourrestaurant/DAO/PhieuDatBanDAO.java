@@ -226,8 +226,6 @@ public class PhieuDatBanDAO {
         return danhSach;
     }
 
-
-
 	public boolean huyPhieuDatBan(String maPDB) {
 	    String sql = """
 	            UPDATE PhieuDatBan
@@ -277,5 +275,39 @@ public class PhieuDatBanDAO {
             e.printStackTrace();
             return false;
         }
+    }
+    
+ // 🔹 Lấy phiếu đặt trước gần nhất theo mã bàn
+    public PhieuDatBan layPhieuDatTruocTheoBan(String maBan) {
+        String sql = """
+            SELECT TOP 1 * FROM PhieuDatBan
+            WHERE maBan = ? AND trangThai = N'Đặt trước' AND isDeleted = 0
+            ORDER BY ngayDat DESC
+            """;
+        try (Connection con = ConnectSQL.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, maBan);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                PhieuDatBan pdb = new PhieuDatBan();
+                pdb.setMaPDB(rs.getString("maPDB"));
+                pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
+                pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
+                pdb.setSoNguoi(rs.getInt("soNguoi"));
+                pdb.setKhachHang(new KhachHangDAO().layKhachHangTheoMa(rs.getString("maKH")));
+                pdb.setNhanVien(new NhanVienDAO().layNhanVienTheoMa(rs.getString("maNV")));
+                pdb.setBan(new BanDAO().layTheoMa(rs.getString("maBan")));
+                pdb.setTrangThai(rs.getString("trangThai"));
+                pdb.setDeleted(rs.getBoolean("isDeleted"));
+                pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(pdb.getMaPDB()));
+                return pdb;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

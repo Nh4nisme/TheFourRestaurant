@@ -8,7 +8,6 @@ import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.util.ClockText;
 import com.thefourrestaurant.view.GiaoDienGoiMon;
-import javafx.util.StringConverter;
 import com.thefourrestaurant.view.hoadon.GiaoDienLapHoaDon;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import javafx.geometry.Insets;
@@ -21,8 +20,6 @@ import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.scene.Scene;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +32,6 @@ public class GiaoDienDatBan extends BorderPane {
     private StackPane mainContent;
     private QuanLiBan quanLiBan;
     private ComboBox<Tang> cboSoTang;
-    private final List<Ban> dsBanDangChon = new ArrayList<>();
     
     private TangDAO tangDAO = new TangDAO();
 	private PhieuDatBanDAO phieuDAO;

@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.ban;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thefourrestaurant.DAO.BanDAO;
@@ -31,6 +32,7 @@ public class QuanLiBan extends VBox {
     private StackPane mainContent;
     private String context;
     private boolean choPhepDiChuyen = false;
+    private final List<Ban> dsBanDangChon = new ArrayList<>();
 
     public QuanLiBan(StackPane mainContent, String context) {
     	this.mainContent = mainContent;
@@ -121,7 +123,7 @@ public class QuanLiBan extends VBox {
             case "TG000005" -> "/com/thefourrestaurant/images/Tang/BG_Tang5.png";
             case "TG000006" -> "/com/thefourrestaurant/images/Tang/BG_Tang6.png";
             case "TG000007" -> "/com/thefourrestaurant/images/Tang/BG_Tang7.png";
-            default -> "/com/thefourrestaurant/images/background/bg_default.jpg";
+            default -> "/com/thefourrestaurant/images/Tang/BG_Tang1.png";
         };
 
         try {
@@ -171,16 +173,38 @@ public class QuanLiBan extends VBox {
         khungBan.setLayoutX(ban.getToaDoX());
         khungBan.setLayoutY(ban.getToaDoY());
 
-        String borderStyle = switch (ban.getTrangThai()) {
-            case "Trống" -> "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
-            case "Đặt trước" -> "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
-            case "Đang sử dụng" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
-            default -> "-fx-border-color: gray; -fx-border-width: 3; -fx-border-radius: 12;";
-        };
-        khungBan.setStyle(borderStyle);
+        String borderStyle = switch (ban.getTrangThai().trim()) {
+        case "Bảo trì" -> "-fx-border-color: green; -fx-border-width: 3; -fx-border-radius: 12;";
+        case "Đang sử dụng" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
+        case "Đặt trước" -> {
+            // Mặc định là màu xám (như bàn trống)
+            String style = "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
+            try {
+                PhieuDatBan pdb = pdbDAO.layPhieuDatTruocTheoBan(ban.getMaBan());
+                if (pdb != null && pdb.getNgayDat() != null) {
+                    java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                    java.time.Duration diff = java.time.Duration.between(now, pdb.getNgayDat());
+                    long hours = diff.toHours();
 
-        khungBan.setOnMouseEntered(e -> khungBan.setStyle(borderStyle + "-fx-effect: dropshadow(gaussian, gray, 10, 0, 0, 0);"));
-        khungBan.setOnMouseExited(e -> khungBan.setStyle(borderStyle));
+                    // 🔹 Nếu còn dưới 2 tiếng → đổi sang xanh dương
+                    if (hours >= 0 && hours < 2) {
+                        style = "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            yield style;
+        }
+        default -> "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
+    };
+
+    khungBan.setStyle(borderStyle);
+
+    // Hiệu ứng hover
+    final String hoverStyle = borderStyle + "-fx-effect: dropshadow(gaussian, gray, 10, 0, 0, 0);";
+    khungBan.setOnMouseEntered(e -> khungBan.setStyle(hoverStyle));
+    khungBan.setOnMouseExited(e -> khungBan.setStyle(borderStyle));
         
         final double[] offset = new double[2];
 
@@ -211,27 +235,56 @@ public class QuanLiBan extends VBox {
 
 
         khungBan.setOnMouseClicked(e -> {
-            PauseTransition delay = new PauseTransition(Duration.millis(200)); // Trì hoãn để phân biệt click đơn & đúp
+            PauseTransition delay = new PauseTransition(Duration.millis(200));
 
             if (e.getClickCount() == 1) {
                 delay.setOnFinished(ev -> {
-                    setBanDangChon(ban);
-                    System.out.println("Bàn được chọn: " + ban.getTenBan());
 
+                    if (e.isShiftDown()) {
+                        if (dsBanDangChon.contains(ban)) {
+                            dsBanDangChon.remove(ban);
+                            khungBan.setBackground(null);
+                        } else {
+                            dsBanDangChon.add(ban);
+                            khungBan.setBackground(new Background(
+                                    new BackgroundFill(javafx.scene.paint.Color.rgb(255, 200, 100, 0.6), new CornerRadii(10), Insets.EMPTY)
+                            ));
+                        }
+
+                        System.out.println("Danh sách bàn đang chọn:");
+                        dsBanDangChon.forEach(b -> System.out.println(" - " + b.getTenBan()));
+                    }
+
+                    else {
+                        for (javafx.scene.Node n : khuVucBan.getChildren()) {
+                            if (n instanceof StackPane sp) {
+                                sp.setBackground(null);
+                            }
+                        }
+
+                        dsBanDangChon.clear();
+                        dsBanDangChon.add(ban);
+                        setBanDangChon(ban);
+
+                        khungBan.setBackground(new Background(
+                                new BackgroundFill(javafx.scene.paint.Color.rgb(255, 200, 100, 0.6), new CornerRadii(10), Insets.EMPTY)
+                        ));
+
+                        System.out.println("Bàn được chọn: " + ban.getTenBan());
+                    }
                 });
                 delay.playFromStart();
-            } 
-            
+            }
+
             else if (e.getClickCount() == 2) {
                 delay.stop();
-                
+
                 if ("QUAN_LY_BAN".equals(context)) {
                     moPopupTuyChinhBan(ban);
                 } 
                 else if ("DAT_BAN".equals(context)) {
                     mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban));
                 }
-                
             }
         });
 
@@ -239,10 +292,8 @@ public class QuanLiBan extends VBox {
     }
     
     private void moPopupTuyChinhBan(Ban ban) {
-        // Tạo đối tượng giao diện tùy chỉnh
         GiaoDienTuyChinhBan giaoDien = new GiaoDienTuyChinhBan(ban);
         
-        // Tạo cửa sổ popup
         Stage popup = new Stage();
         popup.setTitle(ban != null ? "Chỉnh sửa bàn" : "Thêm bàn mới");
         popup.setScene(new javafx.scene.Scene(giaoDien, 500, 270));
@@ -274,5 +325,9 @@ public class QuanLiBan extends VBox {
 
     public void setBanDangChon(Ban ban) {
         this.banDangChon = ban;
+    }
+    
+    public List<Ban> getDsBanDangChon() {
+        return dsBanDangChon;
     }
 }

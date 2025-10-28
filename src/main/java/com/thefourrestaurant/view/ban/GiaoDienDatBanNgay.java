@@ -3,6 +3,7 @@ import com.thefourrestaurant.view.components.ButtonSample2;
 import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import com.thefourrestaurant.DAO.KhachHangDAO;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
+import com.thefourrestaurant.DAO.PhieuDatBan_BanDAO;
 import com.thefourrestaurant.DAO.NhanVienDAO;
 import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.util.Session;
@@ -35,6 +36,8 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,6 +60,20 @@ public class GiaoDienDatBanNgay extends VBox {
     private Ban ban;
     private final StackPane parentPane;
     private QuanLiBan quanLiBan;
+    private List<Ban> dsBan = new ArrayList<>();
+    
+    public GiaoDienDatBanNgay(List<Ban> dsBan, StackPane parentPane, QuanLiBan quanLiBan) {
+        this(dsBan != null && !dsBan.isEmpty() ? dsBan.get(0) : null, parentPane, quanLiBan);
+        this.dsBan = dsBan != null ? dsBan : new ArrayList<>();
+
+        // Nếu chọn nhiều bàn -> hiển thị danh sách bàn
+        if (dsBan != null && dsBan.size() > 1) {
+            String danhSach = dsBan.stream().map(Ban::getTenBan).collect(java.util.stream.Collectors.joining(", "));
+            Label lblDsBan = new Label("Các bàn được chọn: " + danhSach);
+            lblDsBan.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333; -fx-font-weight: bold;");
+            ((VBox) ((VBox) getChildren().get(1)).getChildren().get(0)).getChildren().add(1, lblDsBan);
+        }
+    }
 
     public GiaoDienDatBanNgay(Ban ban, StackPane parentPane, QuanLiBan quanLiBan) {
         this.ban = ban;
@@ -321,11 +338,6 @@ public class GiaoDienDatBanNgay extends VBox {
                     return;
                 }
 
-                PhieuDatBan pdb = new PhieuDatBan();
-                pdb.setBan(this.ban);
-                pdb.setNgayDat(LocalDateTime.now());
-                pdb.setSoNguoi(soNguoi);
-                pdb.setKhachHang(kh);
                 NhanVien assigned = null;
                 TaiKhoan current = Session.getCurrentUser();
                 if (current != null) {
@@ -338,17 +350,42 @@ public class GiaoDienDatBanNgay extends VBox {
                     }
                 }
                 if (assigned == null) assigned = new NhanVien("NV000001");
+
+                PhieuDatBan pdb = new PhieuDatBan();
+                pdb.setNgayDat(LocalDateTime.now());
+                pdb.setSoNguoi(soNguoi);
+                pdb.setKhachHang(kh);
                 pdb.setNhanVien(assigned);
 
-                boolean ok = phieuDatBanDAO.themPhieu(pdb, "DAT_NGAY");
-                if (ok) {
-                	BanDAO banDAO = new BanDAO();
-                    banDAO.capNhatTrangThai(ban.getMaBan(), "Đang sử dụng");
-                    
-                    if (quanLiBan != null && ban.getTang() != null) {
-                        quanLiBan.hienThiBanTheoTang(ban.getTang().getMaTang());
+                boolean ok = false;
+                BanDAO banDAO = new BanDAO();
+                PhieuDatBan_BanDAO lienKetDAO = new PhieuDatBan_BanDAO();
+
+                if (dsBan != null && dsBan.size() > 1) {
+                    // Nhiều bàn: lấy bàn đầu làm tiêu biểu để lưu phiếu
+                    pdb.setBan(dsBan.get(0));
+                    ok = phieuDatBanDAO.themPhieu(pdb, "DAT_NGAY");
+                    if (ok) {
+                        lienKetDAO.themLienKet(pdb.getMaPDB(), dsBan);
+                        // Cập nhật trạng thái tất cả bàn
+                        for (Ban b : dsBan) {
+                            banDAO.capNhatTrangThai(b.getMaBan(), "Đang sử dụng");
+                        }
                     }
-                	
+                } else {
+                    // Bàn đơn
+                    pdb.setBan(this.ban);
+                    ok = phieuDatBanDAO.themPhieu(pdb, "DAT_NGAY");
+                    if (ok) {
+                        banDAO.capNhatTrangThai(this.ban.getMaBan(), "Đang sử dụng");
+                    }
+                }
+
+                if (ok) {
+                    if (quanLiBan != null && pdb.getBan() != null && pdb.getBan().getTang() != null) {
+                        quanLiBan.hienThiBanTheoTang(pdb.getBan().getTang().getMaTang());
+                    }
+
                     javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.CONFIRMATION,
                         "Đặt bàn thành công!\nBạn có muốn gọi món ngay không?",
@@ -362,14 +399,11 @@ public class GiaoDienDatBanNgay extends VBox {
                         Stage st = (Stage) getScene().getWindow();
                         if (buttonType == ButtonType.YES) {
                             if (parentPane != null) {
-                                parentPane.getChildren().setAll(new GiaoDienGoiMon(parentPane, ban, pdb));
+                                Ban banChinh = dsBan != null && !dsBan.isEmpty() ? dsBan.get(0) : this.ban;
+                                parentPane.getChildren().setAll(new GiaoDienGoiMon(parentPane, banChinh, pdb));
                             }
-                            if (st != null) st.close();
-                        } else {
-                            if (parentPane != null) {
-                            }
-                            if (st != null) st.close();
                         }
+                        if (st != null) st.close();
                     });
                 } else {
                     javafx.scene.control.Alert failAlert = new javafx.scene.control.Alert(
@@ -383,6 +417,7 @@ public class GiaoDienDatBanNgay extends VBox {
                 }
             } catch (Exception ex) {
                 lblTenKhachDat.setText("Có lỗi khi lưu");
+                ex.printStackTrace();
             }
         });
 
