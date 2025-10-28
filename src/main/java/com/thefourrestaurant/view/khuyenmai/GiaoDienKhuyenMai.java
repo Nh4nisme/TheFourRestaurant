@@ -124,14 +124,6 @@ public class GiaoDienKhuyenMai extends VBox {
             }
         });
 
-        ButtonSample btnThemMoi = new ButtonSample("Thêm khuyến mãi", "", 35, 14, 3);
-        btnThemMoi.setOnAction(e -> {
-            Stage owner = (Stage) getScene().getWindow();
-            if (boDieuKhien.themKhuyenMaiMoi(owner)) {
-                lamMoiGiaoDien();
-            }
-        });
-
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);
 
@@ -143,7 +135,7 @@ public class GiaoDienKhuyenMai extends VBox {
         btnTim.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText()));
         txtTimKiem.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText())); // Trigger search on Enter key
 
-        khungGiua.getChildren().addAll(btnList, btnGrid, btnThemMoi, space, txtTimKiem, btnTim);
+        khungGiua.getChildren().addAll(btnList, btnGrid, space, txtTimKiem, btnTim);
         return khungGiua;
     }
 
