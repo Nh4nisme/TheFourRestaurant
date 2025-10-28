@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.thefourrestaurant.DAO.ThucDonDAO;
+import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.NavBar;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -20,8 +23,8 @@ import javafx.scene.text.FontWeight;
 
 public class QuanLyThucDon extends VBox {
 
-    private final TableView<Object> tableThucDon;
-    private final TextField txtTenThucDon;
+    private final TableView<ThucDonDAO.ThucDonView> tableThucDon;
+    private final ComboBox<String> cbTenThucDon;
     private final ComboBox<String> cbLoaiMonAn;
     private final VBox boxChonThucAn;
     private final List<FoodItem> selectedFoods = new ArrayList<>();
@@ -58,13 +61,17 @@ public class QuanLyThucDon extends VBox {
         HBox thanhCongCu = new HBox(10);
         thanhCongCu.setAlignment(Pos.CENTER_LEFT);
         ButtonSample btnTaiLai = new ButtonSample("Tải lại", 35, 14, 3);
-        thanhCongCu.getChildren().add(btnTaiLai);
+    thanhCongCu.getChildren().add(btnTaiLai);
 
-        tableThucDon = new TableView<>();
+    tableThucDon = new TableView<>();
         tableThucDon.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        TableColumn<Object, String> tenCol = new TableColumn<>("Tên");
-        TableColumn<Object, String> loaiMonAnCol = new TableColumn<>("Các Loại Món Ăn");
-        tableThucDon.getColumns().addAll(tenCol, loaiMonAnCol);
+    TableColumn<ThucDonDAO.ThucDonView, String> tenCol = new TableColumn<>("Tên");
+    TableColumn<ThucDonDAO.ThucDonView, String> loaiMonAnCol = new TableColumn<>("Các Loại Món Ăn");
+    tenCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().tenTD));
+    loaiMonAnCol.setCellValueFactory(d -> new SimpleStringProperty(
+        d.getValue().loaiMon == null ? "" : d.getValue().loaiMon
+    ));
+    tableThucDon.getColumns().addAll(tenCol, loaiMonAnCol);
         VBox.setVgrow(tableThucDon, Priority.ALWAYS);
 
         leftPane.getChildren().addAll(lblDanhSach, thanhCongCu, tableThucDon);
@@ -79,20 +86,21 @@ public class QuanLyThucDon extends VBox {
         lblTaoMoi.setFont(Font.font("System", FontWeight.BOLD, 18));
         lblTaoMoi.setTextFill(Color.web("#1E424D"));
 
-        // Ô nhập tên thực đơn
-        Label lblTen = new Label("Tên thực đơn");
-        lblTen.setStyle("-fx-text-fill: #E19E11; -fx-font-size: 14px; -fx-font-weight: bold;");
-        txtTenThucDon = new TextField();
-        txtTenThucDon.setPromptText("Nhập tên thực đơn...");
-        txtTenThucDon.setStyle("-fx-background-color: #D9DEE2; -fx-background-radius: 10; -fx-font-size: 15px; -fx-padding: 8 12;");
+    Label lblTen = new Label("Tên thực đơn");
+    lblTen.setStyle("-fx-text-fill: #E19E11; -fx-font-size: 14px; -fx-font-weight: bold;");
+    cbTenThucDon = new ComboBox<>();
+    cbTenThucDon.getItems().addAll("Sáng", "Trưa", "Chiều", "Tối");
+    cbTenThucDon.setPromptText("Chọn thực đơn...");
+    cbTenThucDon.setStyle("-fx-background-color: #D9DEE2; -fx-background-radius: 10; -fx-font-size: 15px; -fx-padding: 8 12;");
 
-        VBox boxTen = new VBox(6, lblTen, txtTenThucDon);
+    VBox boxTen = new VBox(6, lblTen, cbTenThucDon);
 
         // Chọn loại món ăn
         Label lblLoai = new Label("Chọn loại món ăn");
         lblLoai.setStyle("-fx-text-fill: #E19E11; -fx-font-size: 14px; -fx-font-weight: bold;");
-        cbLoaiMonAn = new ComboBox<>();
-        cbLoaiMonAn.getItems().addAll("Coffee", "Cơm", "Nước giải khát", "Đồ ăn nhanh");
+    cbLoaiMonAn = new ComboBox<>();
+    // Load loại món ăn từ DB để đồng bộ với dữ liệu và hiển thị đúng trong bảng bên trái
+    loadLoaiMonAnFromDB();
         cbLoaiMonAn.setPromptText("Chọn loại món ăn...");
         cbLoaiMonAn.setStyle("-fx-background-color: #D9DEE2; -fx-background-radius: 10; -fx-font-size: 15px; -fx-padding: 8 12;");
         cbLoaiMonAn.setPrefWidth(400);
@@ -121,6 +129,31 @@ public class QuanLyThucDon extends VBox {
         ButtonSample btnLuu = new ButtonSample("Lưu Thực Đơn", 45, 16, 3);
         btnLuu.setStyle("-fx-font-weight: bold;");
 
+        // Lưu thực đơn xuống DB
+        btnLuu.setOnAction(e -> {
+            String ten = cbTenThucDon.getValue();
+            if (ten == null || ten.isBlank()) {
+                showAlert(Alert.AlertType.WARNING, "Vui lòng chọn tên thực đơn (Sáng/Trưa/Chiều/Tối).");
+                return;
+            }
+            if (selectedFoods.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Vui lòng chọn ít nhất một loại món ăn.");
+                return;
+            }
+            List<String> loai = selectedFoods.stream().map(f -> f.name).distinct().toList();
+
+            boolean ok = new ThucDonDAO().luuThucDonTheoLoaiMon(ten, loai);
+            if (ok) {
+                showAlert(Alert.AlertType.INFORMATION, "Đã lưu thực đơn.");
+                napBangThucDon();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Không thể lưu thực đơn. Kiểm tra kết nối CSDL và bảng dữ liệu.");
+            }
+        });
+
+        // Nút Tải lại
+        btnTaiLai.setOnAction(e -> napBangThucDon());
+
         rightPane.getChildren().addAll(lblTaoMoi, boxTen, lblLoai, cbLoaiMonAn, boxChonThucAn, btnLuu);
 
         // === Gộp 2 bên lại ===
@@ -135,6 +168,8 @@ public class QuanLyThucDon extends VBox {
         }
 
         getChildren().addAll(khungDuongDan, mainContent);
+        // Tải dữ liệu lúc mở màn hình
+        napBangThucDon();
     }
 
     // ==== HÀM CẬP NHẬT DANH SÁCH MÓN ĂN ====
@@ -217,6 +252,32 @@ public class QuanLyThucDon extends VBox {
             this.name = name;
             this.icon = icon;
             this.quantity = quantity;
+        }
+    }
+
+    private void napBangThucDon() {
+        ThucDonDAO dao = new ThucDonDAO();
+        var list = dao.layTatCaThucDonGomLoai();
+        tableThucDon.setItems(javafx.collections.FXCollections.observableArrayList(list));
+    }
+
+    private void showAlert(Alert.AlertType type, String message) {
+        Alert a = new Alert(type, message);
+        a.showAndWait();
+    }
+
+    // Đồng bộ danh sách loại món ăn với DB (bảng LoaiMonAn.tenLoaiMon)
+    private void loadLoaiMonAnFromDB() {
+        try {
+            var ds = new LoaiMonDAO().layTatCaLoaiMon();
+            cbLoaiMonAn.getItems().clear();
+            for (var lm : ds) {
+                if (lm != null && lm.getTenLoaiMon() != null && !lm.getTenLoaiMon().isBlank()) {
+                    cbLoaiMonAn.getItems().add(lm.getTenLoaiMon());
+                }
+            }
+        } catch (Exception ex) {
+            System.err.println("Không thể tải danh sách loại món ăn từ DB: " + ex.getMessage());
         }
     }
 }
