@@ -1,20 +1,16 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.monan;
 
 import java.util.List;
 
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
 import com.thefourrestaurant.DAO.MonAnDAO;
-import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.ChiTietPDB;
-import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.MonAn;
-import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.view.ban.GiaoDienDatBan;
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.DropDownButton;
-import com.thefourrestaurant.view.monan.MonAnBox;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.HPos;
@@ -160,23 +156,23 @@ public class GiaoDienGoiMon extends BorderPane {
 	    HBox phanTrang = new HBox(10);
 	    phanTrang.setAlignment(Pos.CENTER);
 	    phanTrang.setPadding(new Insets(10));
-	
-	    Button btnDau = new Button("⏮");
-	    Button btnTruoc = new Button("◀");
-	    Label lblTrang = new Label("1");
-	    lblTrang.setFont(Font.font(12));
-	    Button btnSau = new Button("▶");
-	    Button btnCuoi = new Button("⏭");
-	
+
+//	    Button btnDau = new Button("⏮");
+//	    Button btnTruoc = new Button("◀");
+//	    Label lblTrang = new Label("1");
+//	    lblTrang.setFont(Font.font(12));
+//	    Button btnSau = new Button("▶");
+//	    Button btnCuoi = new Button("⏭");
+
 	    String kieuBtn = "-fx-background-color: white; -fx-text-fill: #2C5F5F; "
 	            + "-fx-font-weight: bold; -fx-pref-width: 40px;";
-	    btnDau.setStyle(kieuBtn);
-	    btnTruoc.setStyle(kieuBtn);
-	    btnSau.setStyle(kieuBtn);
-	    btnCuoi.setStyle(kieuBtn);
-	
-	    phanTrang.getChildren().addAll(btnDau, btnTruoc, lblTrang, btnSau, btnCuoi);
-	
+//	    btnDau.setStyle(kieuBtn);
+//	    btnTruoc.setStyle(kieuBtn);
+//	    btnSau.setStyle(kieuBtn);
+//	    btnCuoi.setStyle(kieuBtn);
+//
+//	    phanTrang.getChildren().addAll(btnDau, btnTruoc, lblTrang, btnSau, btnCuoi);
+
 	    container.getChildren().addAll(grid, phanTrang);
 	    return container;
 	}

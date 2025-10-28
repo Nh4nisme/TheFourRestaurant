@@ -1,4 +1,4 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.khachhang;
 
 import com.thefourrestaurant.view.components.ButtonSample2;
 import com.thefourrestaurant.view.components.ButtonSample2.Variant;
@@ -6,7 +6,6 @@ import com.thefourrestaurant.DAO.KhachHangDAO;
 import com.thefourrestaurant.DAO.LoaiKhachHangDAO;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.LoaiKhachHang;
-import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -16,13 +15,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.DateCell;
 import javafx.scene.control.ComboBox;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.util.Duration;
 import javafx.stage.Stage;
 import java.util.function.UnaryOperator;
 import java.util.function.Consumer;

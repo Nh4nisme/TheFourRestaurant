@@ -9,13 +9,12 @@ import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.util.Session;
 import com.thefourrestaurant.DAO.LoaiBanDAO;
 import com.thefourrestaurant.DAO.BanDAO;
-import com.thefourrestaurant.model.LoaiBan;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.model.PhieuDatBan;
-import com.thefourrestaurant.view.GiaoDienGoiMon;
-import com.thefourrestaurant.view.GiaoDienThemKhachHang;
+import com.thefourrestaurant.view.monan.GiaoDienGoiMon;
+import com.thefourrestaurant.view.khachhang.GiaoDienThemKhachHang;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -39,7 +38,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class GiaoDienDatBanNgay extends VBox {

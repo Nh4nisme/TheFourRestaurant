@@ -129,6 +129,7 @@ public class NavBar extends HBox {
         if ("Trợ giúp".equals(s)) {
             Stage owner = (Stage) getScene().getWindow();
             helpController.openHelpFile(owner);
+            owner.setFullScreen(true);
             return; // Không cần thay đổi mainContent
         }
 
