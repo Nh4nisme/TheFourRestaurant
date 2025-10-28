@@ -96,6 +96,32 @@ public class KhachHangDAO {
         return null;
     }
 
+    public KhachHang layKhachHangTheoTen(String tenKH) {
+        String sql = "SELECT * FROM KhachHang WHERE hoTen = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, tenKH);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new KhachHang(
+                            rs.getString("maKH"),
+                            rs.getString("hoTen"),
+                            rs.getDate("ngaySinh"),
+                            rs.getString("gioiTinh"),
+                            rs.getString("soDT"),
+                            LoaiKhachHangDAO.layLoaiKhachHangTheoMa(rs.getString("maLoaiKH")),
+                            rs.getBoolean("isDeleted")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null; // không tìm thấy
+    }
+
     // Thêm khách hàng mới, tự sinh mã KH
     public boolean themKhachHang(KhachHang kh) {
         String sql = "INSERT INTO KhachHang (maKH, hoTen, ngaySinh, gioiTinh, soDT, maLoaiKH, isDeleted) VALUES (?, ?, ?, ?, ?, ?, 0)";

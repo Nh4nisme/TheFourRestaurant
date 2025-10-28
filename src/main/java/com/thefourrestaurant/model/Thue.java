@@ -6,7 +6,7 @@ public class Thue {
     private String ghiChu;
     private LoaiThue loaiThue;
 
-    public Thue(){}
+    public Thue(String maThue){setMaThue(maThue);}
 
     public Thue(String maThue, int tyLe, String ghiChu, LoaiThue loaiThue) {
         setMaThue(maThue);
