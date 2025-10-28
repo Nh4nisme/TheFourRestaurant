@@ -31,6 +31,11 @@ public class PhuongThucThanhToan {
         setMoTa(moTa);
     }
 
+    public PhuongThucThanhToan(String maPTTT, LoaiPTTT loaiPTTT) {
+        setMaPTTT(maPTTT);
+        setLoaiPTTT(loaiPTTT);
+    }
+
     public String getMaPTTT() {
         return maPTTT;
     }

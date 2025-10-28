@@ -86,7 +86,7 @@ public class GiaoDienChiTietHoaDon extends VBox {
         infoGrid.setPadding(new Insets(10, 0, 0, 0));
 
         String[] labels = {
-                "Mã giảm giá:", "Chiết khấu:", "Tiền nhận:", "Tiền thừa:",
+                "Mã giảm giá:", "Chiết khấu:", "Thành tiền:", "Tiền nhận:", "Tiền thừa:",
                 "Tiền đặt cọc trước:", "Thuế VAT:", "Tiền thanh toán:"
         };
 
@@ -107,7 +107,7 @@ public class GiaoDienChiTietHoaDon extends VBox {
         lblTenKH.setText(hd.getKhachHang() != null ? hd.getKhachHang().getHoTen() : "");
         lblGioNhan.setText(hd.getPhieuDatBan() != null && hd.getPhieuDatBan().getNgayDat() != null
                 ? hd.getPhieuDatBan().getNgayDat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                : "");
+                : "null");
         // Table chi tiết món
         table.getItems().setAll(hd.getChiTietHoaDon());
 
@@ -131,6 +131,7 @@ public class GiaoDienChiTietHoaDon extends VBox {
         thongTinPhu.get("Tiền nhận:").setText(String.format("%,.0f đ", hd.getTienKhachDua()));
         thongTinPhu.get("Tiền thừa:").setText(String.format("%,.0f đ", hd.getTienThua()));
         thongTinPhu.get("Tiền thanh toán:").setText(String.format("%,.0f đ", tongTien));
+        thongTinPhu.get("Thành tiền:").setText(String.format("%,.0f đ", hd.getTongTienGoc()));
     }
 
     // ===== Hàm tạo dòng nhãn + giá trị =====

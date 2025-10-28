@@ -42,6 +42,18 @@ public class HoaDon {
         this.chiTietHoaDon = chiTietHoaDon;
     }
 
+    public BigDecimal getTongTienGoc() {
+        // Tổng tiền trước KM + thuế
+        if (chiTietHoaDon == null || chiTietHoaDon.isEmpty()) return BigDecimal.ZERO;
+
+        BigDecimal tong = BigDecimal.ZERO;
+        for (ChiTietHoaDon c : chiTietHoaDon) {
+            tong = tong.add(c.getThanhTien()); // donGia * soLuong
+        }
+
+        return tong.setScale(0, RoundingMode.HALF_UP);
+    }
+
     public BigDecimal getTongTien() {
         if (chiTietHoaDon == null || chiTietHoaDon.isEmpty()) {
             return BigDecimal.ZERO;

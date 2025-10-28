@@ -16,6 +16,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -354,7 +355,7 @@ public class GiaoDienLapHoaDon extends VBox {
     }
 
     private void capNhatTienThua() {
-        String thanhToanStr = lblThanhToan.getText().replaceAll("[^\\d]", ""); // bỏ ký tự đ
+        String thanhToanStr = lblThanhToan.getText().replaceAll("[^\\d]", "");
         BigDecimal thanhToan = BigDecimal.ZERO;
         if (!thanhToanStr.isEmpty()) {
             thanhToan = new BigDecimal(thanhToanStr);
@@ -387,132 +388,6 @@ public class GiaoDienLapHoaDon extends VBox {
         alert.showAndWait();
     }
 
-//    private void taoHoaDonMoi() {
-//        try {
-//            // 1. Lấy dữ liệu từ giao diện
-//            String maHD = lblMaHD.getText();
-//            String maPDB = lblMaPDB.getText();
-//            String tenKH = lblTenKH.getText().trim();
-//            String maKM = null;
-//
-//            BigDecimal tongTien = layTongTien(); // tổng tiền từ TableView
-//            BigDecimal vat = tongTien.multiply(BigDecimal.valueOf(0.1)); // VAT 10%
-//            BigDecimal thanhToan = tongTien.add(vat);
-//
-//            BigDecimal tienKhachDua = BigDecimal.ZERO;
-//            if (!txtTienKhachDua.getText().isBlank()) {
-//                try {
-//                    tienKhachDua = new BigDecimal(txtTienKhachDua.getText().replaceAll(",", ""));
-//                } catch (NumberFormatException e) {
-//                    thongBao("Tiền khách đưa không hợp lệ", Alert.AlertType.ERROR);
-//                    return;
-//                }
-//            }
-//
-//            BigDecimal tienThua = tienKhachDua.subtract(thanhToan);
-//            if (tienThua.compareTo(BigDecimal.ZERO) < 0) tienThua = BigDecimal.ZERO;
-//
-//            System.out.println("Tien khach dua: " + tienKhachDua);
-//            System.out.println("Tong thanh toan: " + thanhToan);
-//            System.out.println("Tien thua tinh duoc: " + tienThua);
-//
-//            // 2. Lấy mã khách hàng từ tên
-//            KhachHang kh = khachHangDAO.layKhachHangTheoTen(lblTenKH.getText());
-//            String maKH;
-//            if (kh != null) {
-//                maKH = kh.getMaKH();
-//            } else {
-//                maKH = null; // hoặc thông báo khách hàng không tồn tại
-//            }
-//
-//            // 3. Kiểm tra mã khuyến mãi
-//            String inputKM = txtKhuyenMai.getText().trim();
-//            KhuyenMai km = null;
-//            if (!inputKM.isEmpty()) {
-//                KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
-//                km = kmDAO.timKhuyenMaiTheoMaHoacTen(inputKM);
-//                if (km != null) {
-//                    maKM = km.getMaKM();
-//                    // Áp dụng khuyến mãi nếu có
-//                    if (km.getTyLe() != null) {
-//                        BigDecimal chietKhau = tongTien.multiply(km.getTyLe().divide(BigDecimal.valueOf(100)));
-//                        thanhToan = thanhToan.subtract(chietKhau);
-//                    } else if (km.getSoTien() != null) {
-//                        thanhToan = thanhToan.subtract(km.getSoTien());
-//                    }
-//                    // Nếu là KM tặng món
-//                    if (km.getLoaiKhuyenMai() != null &&
-//                            "TangMon".equalsIgnoreCase(km.getLoaiKhuyenMai().getTenLoaiKM())) {
-//                        thongBao("Khuyến mãi: Tặng món!", Alert.AlertType.INFORMATION);
-//                    }
-//                } else {
-//                    thongBao("Mã khuyến mãi không hợp lệ", Alert.AlertType.WARNING);
-//                }
-//            }
-//
-//            // 4. Lấy mã phương thức thanh toán
-//            PhuongThucThanhToan pttt = cboPTTT.getValue();
-//            if (pttt == null) {
-//                thongBao("Vui lòng chọn phương thức thanh toán", Alert.AlertType.WARNING);
-//                return;
-//            }
-//
-//            // 5. Tạo hóa đơn
-//            HoaDon hd = new HoaDon();
-//            hd.setMaHD(maHD);
-//            hd.setNgayLap(LocalDateTime.now());
-//            hd.setNhanVien(new NhanVien("NV000001")); // giả sử NV mặc định
-//            hd.setKhachHang(new KhachHang(maKH));
-//            hd.setPhieuDatBan(new PhieuDatBan(maPDB));
-//            hd.setKhuyenMai(km);
-//            hd.setThue(new Thue("TH000001")); // mã thuế mặc định
-//            hd.setTienKhachDua(tienKhachDua);
-//            hd.setTienThua(tienThua);
-//            hd.setPhuongThucThanhToan(pttt);
-//            hd.setDeleted(false);
-//
-//            boolean hdCreated = hoaDonDAO.themHoaDon(hd);
-//            if (!hdCreated) {
-//                thongBao("Tạo hóa đơn thất bại", Alert.AlertType.ERROR);
-//                return;
-//            }
-//
-//            // 6. Cập nhật trạng thái Phiếu Đặt Bàn
-//            if (maPDB != null && !maPDB.isBlank()) {
-//                PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
-//                boolean updated = pdbDAO.capNhatTrangThai(maPDB, "Đã thanh toán"); // hoặc giá trị tương ứng trong DB
-//                if (!updated) {
-//                    System.out.println("Cập nhật trạng thái PDB thất bại cho: " + maPDB);
-//                }
-//            }
-//
-//            // 7. Tạo chi tiết hóa đơn
-//            for (ChiTietPDB ct : bangMon.getItems()) {
-//                chiTietHoaDonDAO.themChiTietHD(
-//                        maHD,
-//                        ct.getMonAn().getMaMonAn(),
-//                        ct.getSoLuong(),
-//                        ct.getMonAn().getDonGia()
-//                );
-//            }
-//
-//            thongBao("Tạo hóa đơn thành công!", Alert.AlertType.INFORMATION);
-//
-//            if (chkXuatHoaDon.isSelected()) {
-//                // gọi phương thức in hóa đơn nếu có
-//            }
-//
-//            // 7. Refresh hoặc reset giao diện nếu cần
-//            capNhatThanhToan();
-//            txtTienKhachDua.clear();
-//            txtKhuyenMai.clear();
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            thongBao("Có lỗi xảy ra khi tạo hóa đơn", Alert.AlertType.ERROR);
-//        }
-//    }
-
     private void taoHoaDonMoi() {
         try {
             // 1. Lấy dữ liệu từ giao diện
@@ -521,10 +396,43 @@ public class GiaoDienLapHoaDon extends VBox {
             String tenKH = lblTenKH.getText().trim();
             String inputKM = txtKhuyenMai.getText().trim();
 
-            BigDecimal tongTien = layTongTien(); // tổng tiền từ TableView
-            BigDecimal vat = tongTien.multiply(BigDecimal.valueOf(0.1)); // VAT 10%
-            BigDecimal thanhToan = tongTien.add(vat);
+            // 2. Tổng tiền món ăn
+            BigDecimal tongTien = layTongTien(); // 250,000 ví dụ
+            BigDecimal thanhToan = tongTien; // ban đầu chưa trừ khuyến mãi, chưa VAT
 
+            // 3. Kiểm tra và áp dụng khuyến mãi
+            KhuyenMai km = null;
+            String maKM = null;
+            if (!inputKM.isEmpty()) {
+                KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
+                km = kmDAO.timKhuyenMaiTheoMaHoacTen(inputKM);
+                if (km != null) {
+                    maKM = km.getMaKM();
+
+                    if (km.getTyLe() != null) { // giảm theo %
+                        BigDecimal chietKhau = thanhToan.multiply(km.getTyLe())
+                                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                        thanhToan = thanhToan.subtract(chietKhau);
+                    } else if (km.getSoTien() != null) { // giảm theo số tiền
+                        thanhToan = thanhToan.subtract(km.getSoTien());
+                    }
+
+                    if (km.getLoaiKhuyenMai() != null &&
+                            "TangMon".equalsIgnoreCase(km.getLoaiKhuyenMai().getTenLoaiKM())) {
+                        thongBao("Khuyến mãi: Tặng món!", Alert.AlertType.INFORMATION);
+                    }
+
+                } else {
+                    thongBao("Mã khuyến mãi không hợp lệ", Alert.AlertType.WARNING);
+                }
+            }
+
+            // 4. Cộng VAT 10% trên số tiền sau khuyến mãi
+            BigDecimal vat = thanhToan.multiply(BigDecimal.valueOf(0.1))
+                    .setScale(0, RoundingMode.HALF_UP);
+            thanhToan = thanhToan.add(vat);
+
+            // 5. Lấy tiền khách đưa
             BigDecimal tienKhachDua = BigDecimal.ZERO;
             if (!txtTienKhachDua.getText().isBlank()) {
                 try {
@@ -535,109 +443,74 @@ public class GiaoDienLapHoaDon extends VBox {
                 }
             }
 
-            // 2. Lấy mã khách hàng từ tên
+            // 6. Tính tiền thừa
+            BigDecimal tienThua = tienKhachDua.subtract(thanhToan).setScale(0, RoundingMode.HALF_UP);
+            if (tienThua.compareTo(BigDecimal.ZERO) < 0) {
+                thongBao("Tiền khách đưa không đủ để thanh toán!\nTiền cần: "
+                                + formatTien(thanhToan) + " đ, khách đưa: " + formatTien(tienKhachDua) + " đ",
+                        Alert.AlertType.WARNING);
+                return;
+            }
+
+            // 7. Lấy mã khách hàng từ tên
             KhachHang kh = khachHangDAO.layKhachHangTheoTen(lblTenKH.getText());
-            String maKH;
-            if (kh != null) {
-                maKH = kh.getMaKH();
-            } else {
-                maKH = null; // hoặc thông báo khách hàng không tồn tại
-            }
+            String maKH = kh != null ? kh.getMaKH() : null;
 
-            // 3. Kiểm tra mã khuyến mãi
-            KhuyenMai km = null;
-            String maKM = null;
-            if (!inputKM.isEmpty()) {
-                KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
-                km = kmDAO.timKhuyenMaiTheoMaHoacTen(inputKM);
-                if (km != null) {
-                    maKM = km.getMaKM();
-                    // Áp dụng khuyến mãi
-                    if (km.getTyLe() != null) {
-                        BigDecimal chietKhau = tongTien.multiply(km.getTyLe().divide(BigDecimal.valueOf(100)));
-                        thanhToan = thanhToan.subtract(chietKhau);
-                    } else if (km.getSoTien() != null) {
-                        thanhToan = thanhToan.subtract(km.getSoTien());
-                    }
-
-                    if (km.getLoaiKhuyenMai() != null &&
-                            "TangMon".equalsIgnoreCase(km.getLoaiKhuyenMai().getTenLoaiKM())) {
-                        thongBao("Khuyến mãi: Tặng món!", Alert.AlertType.INFORMATION);
-                    }
-                } else {
-                    thongBao("Mã khuyến mãi không hợp lệ", Alert.AlertType.WARNING);
-                }
-            }
-
-            // 4. Lấy mã phương thức thanh toán
+            // 8. Lấy phương thức thanh toán
             PhuongThucThanhToan pttt = cboPTTT.getValue();
             if (pttt == null) {
                 thongBao("Vui lòng chọn phương thức thanh toán", Alert.AlertType.WARNING);
                 return;
             }
 
-            // 5. Tính tiền thừa
-            BigDecimal tienThua = tienKhachDua.subtract(thanhToan);
-
-// Kiểm tra xem tiền khách đưa có đủ không
-            if (tienThua.compareTo(BigDecimal.ZERO) < 0) {
-                thongBao("Tiền khách đưa không đủ để thanh toán!\nTiền cần: "
-                                + thanhToan + " đ, khách đưa: " + tienKhachDua + " đ",
-                        Alert.AlertType.WARNING);
-                return; // Dừng tạo hóa đơn
-            }
-
-            // 6. Tạo hóa đơn
+            // 9. Tạo hóa đơn
             HoaDon hd = new HoaDon();
             hd.setMaHD(maHD);
             hd.setNgayLap(LocalDateTime.now());
             hd.setNhanVien(new NhanVien("NV000001")); // giả sử NV hiện tại
-            hd.setKhachHang(new KhachHang(maKH));
-            hd.setPhieuDatBan(new PhieuDatBan(maPDB));
-            hd.setKhuyenMai(maKM != null ? km : null);
-            hd.setThue(new Thue("TH000001")); // mặc định
+            hd.setKhachHang(maKH != null ? new KhachHang(maKH) : null);
+            hd.setPhieuDatBan(maPDB != null && !maPDB.isEmpty() ? new PhieuDatBan(maPDB) : null);
+            hd.setKhuyenMai(km);
+            hd.setThue(new Thue("TH000001"));
             hd.setTienKhachDua(tienKhachDua);
             hd.setTienThua(tienThua);
             hd.setPhuongThucThanhToan(pttt);
             hd.setDeleted(false);
 
-            // 7. Lưu hóa đơn vào DB
+            // 10. Lưu hóa đơn vào DB
             HoaDonDAO hoaDonDAO = new HoaDonDAO();
-            boolean hdCreated = hoaDonDAO.themHoaDon(hd);
-            if (!hdCreated) {
+            if (!hoaDonDAO.themHoaDon(hd)) {
                 thongBao("Tạo hóa đơn thất bại", Alert.AlertType.ERROR);
                 return;
             }
-            System.out.println("Tạo hóa đơn thành công: " + maHD);
 
-            // 8. Tạo chi tiết hóa đơn
+            // 11. Tạo chi tiết hóa đơn
             chiTietHoaDonDAO = new ChiTietHoaDonDAO();
             for (ChiTietPDB ct : bangMon.getItems()) {
                 BigDecimal donGia = ct.getMonAn().getDonGia();
                 int soLuong = ct.getSoLuong();
                 chiTietHoaDonDAO.themChiTietHD(maHD, ct.getMonAn().getMaMonAn(), soLuong, donGia);
-                System.out.println("Thêm chi tiết: " + ct.getMonAn().getMaMonAn() + " x " + soLuong);
             }
 
-            // 9. Cập nhật trạng thái PhieuDatBan
+            // 12. Cập nhật trạng thái PhieuDatBan
             if (maPDB != null && !maPDB.isEmpty()) {
                 PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
                 pdbDAO.capNhatTrangThai(maPDB, "Đã thanh toán");
-                System.out.println("Cập nhật PDB thành đã thanh toán: " + maPDB);
             }
 
-            // 10. Thông báo thành công
-            thongBao("Tạo hóa đơn thành công!", Alert.AlertType.INFORMATION);
+            // 13. Thông báo thành công
+            thongBao("Tạo hóa đơn thành công!\nTổng tiền phải trả: " + formatTien(thanhToan) + " đ", Alert.AlertType.INFORMATION);
 
-            // 11. Nếu chọn xuất hóa đơn
+            // 14. Xuất hóa đơn nếu chọn
             if (chkXuatHoaDon.isSelected()) {
-                // Gọi phương thức in hóa đơn nếu có
+                // Gọi phương thức in hóa đơn
             }
 
         } catch (Exception ex) {
             ex.printStackTrace();
             thongBao("Có lỗi xảy ra khi tạo hóa đơn: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
+
         Stage stage = (Stage) lblMaHD.getScene().getWindow();
         stage.close();
     }

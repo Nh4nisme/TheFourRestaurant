@@ -134,23 +134,23 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
 
     private void khoiTaoSuKien() {
         // ==== Tạo mới tài khoản ====
-        gdChiTietTK.getBtnTaoMoi().setOnAction(e -> {
-            String maTK = gdChiTietTK.getTxtMaTK().getText().trim();
-            String tenDN = gdChiTietTK.getTxtTenDangNhap().getText().trim();
-            String matKhau = gdChiTietTK.getTxtMatKhau().getText().trim();
-            VaiTro vt = gdChiTietTK.getCboVaiTro().getValue();
-
-            String result = controller.taoTaiKhoan(maTK, tenDN, matKhau, vt);
-            Stage  stage = (Stage) gdChiTietTK.getScene().getWindow();
-
-            if (result.equals("OK")) {
-                gdChiTietTK.Clear(); // chỉ xóa form khi tạo mới thành công
-                refreshBangChinh();
-                hienThongBao(stage,"Tạo tài khoản thành công!", Alert.AlertType.INFORMATION);
-            } else {
-                hienThongBao(stage,result, Alert.AlertType.WARNING);
-            }
-        });
+//        gdChiTietTK.getBtnTaoMoi().setOnAction(e -> {
+//            String maTK = gdChiTietTK.getTxtMaTK().getText().trim();
+//            String tenDN = gdChiTietTK.getTxtTenDangNhap().getText().trim();
+//            String matKhau = gdChiTietTK.getTxtMatKhau().getText().trim();
+//            VaiTro vt = gdChiTietTK.getCboVaiTro().getValue();
+//
+//            String result = controller.taoTaiKhoan(maTK, tenDN, matKhau, vt);
+//            Stage  stage = (Stage) gdChiTietTK.getScene().getWindow();
+//
+//            if (result.equals("OK")) {
+//                gdChiTietTK.Clear(); // chỉ xóa form khi tạo mới thành công
+//                refreshBangChinh();
+//                hienThongBao(stage,"Tạo tài khoản thành công!", Alert.AlertType.INFORMATION);
+//            } else {
+//                hienThongBao(stage,result, Alert.AlertType.WARNING);
+//            }
+//        });
 
         // ==== Cập nhật tài khoản ====
         gdChiTietTK.getBtnLuu().setOnAction(e -> {
