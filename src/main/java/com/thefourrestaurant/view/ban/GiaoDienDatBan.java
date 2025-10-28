@@ -8,7 +8,7 @@ import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.util.ClockText;
-import com.thefourrestaurant.view.GiaoDienGoiMon;
+import com.thefourrestaurant.view.monan.GiaoDienGoiMon;
 import com.thefourrestaurant.view.hoadon.GiaoDienLapHoaDon;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import javafx.geometry.Insets;
@@ -23,8 +23,6 @@ import javafx.scene.Scene;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class GiaoDienDatBan extends BorderPane {
 
