@@ -43,4 +43,23 @@ public class ChiTietHoaDonDAO {
 
         return ds;
     }
+
+    public boolean themChiTietHD(String maHD, String maMonAn, int soLuong, BigDecimal donGia) {
+        String sql = "INSERT INTO ChiTietHD (maHD, maMonAn, soLuong, donGia) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maHD);
+            ps.setString(2, maMonAn);
+            ps.setInt(3, soLuong);
+            ps.setBigDecimal(4, donGia);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

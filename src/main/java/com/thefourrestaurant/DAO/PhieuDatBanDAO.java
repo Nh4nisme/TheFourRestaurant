@@ -167,5 +167,16 @@ public class PhieuDatBanDAO {
 	    return null;
 	}
 
-
+    public boolean capNhatTrangThai(String maPDB, String trangThaiMoi) {
+        String sql = "UPDATE PhieuDatBan SET trangThai = ? WHERE maPDB = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, trangThaiMoi);
+            ps.setString(2, maPDB);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -21,6 +21,14 @@ public class HoaDonController {
         return chiTietHoaDonDAO.layCTHDTheoMa(maHD);
     }
 
+    public boolean themHoaDon(HoaDon hoaDon){
+        return hoaDonDAO.themHoaDon(hoaDon);
+    }
+
+    public String taoMaHD() {
+        return hoaDonDAO.taoMaHDMoi();
+    }
+
     public boolean xoaHoaDon(String maHD) {return hoaDonDAO.xoaHoaDon(maHD);}
 }
 

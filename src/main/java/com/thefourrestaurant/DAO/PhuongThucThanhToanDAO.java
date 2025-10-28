@@ -12,29 +12,31 @@ import java.util.List;
 
 public class PhuongThucThanhToanDAO {
 
-    public List<PhuongThucThanhToan> layDanhSachPhuongThucThanhToan(String maPTTT) throws SQLException {
+    public List<PhuongThucThanhToan> layDanhSachPhuongThucThanhToan(){
         List<PhuongThucThanhToan> list = new ArrayList<>();
-        String sql = "SELECT * FROM PhuongThucThanhToan WHERE maPTTT = ?";
+        String sql = "SELECT * FROM PhuongThucThanhToan";
 
         try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, maPTTT);
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    String tenPT = rs.getString("tenPTTT");
-                    String moTa = rs.getString("moTa");
+            while (rs.next()) {
+                String maPTTT = rs.getString("maPTTT");
+                String loaiStr = rs.getString("tenPTTT");
+                String moTa = rs.getString("moTa");
 
-                    PhuongThucThanhToan.LoaiPTTT loaiPTTT;
-                    if (tenPT.equalsIgnoreCase("Tiền mặt")) {
-                        loaiPTTT = PhuongThucThanhToan.LoaiPTTT.TIEN_MAT;
-                    } else {
-                        loaiPTTT = PhuongThucThanhToan.LoaiPTTT.CHUYEN_KHOAN;
-                    }
+                PhuongThucThanhToan.LoaiPTTT loaiPTTT;
 
-                    list.add(new PhuongThucThanhToan(maPTTT,loaiPTTT,moTa));
+                if (loaiStr.equalsIgnoreCase("Tiền mặt")) {
+                    loaiPTTT = PhuongThucThanhToan.LoaiPTTT.TIEN_MAT;
+                } else {
+                    loaiPTTT = PhuongThucThanhToan.LoaiPTTT.CHUYEN_KHOAN;
                 }
+
+                list.add(new PhuongThucThanhToan(maPTTT, loaiPTTT, moTa));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return list;
     }

@@ -58,29 +58,29 @@ public class HoaDonDAO {
         }
         return dsHoaDon;
     }
-    public String taoMaHoaDonMoi() {
-        String sql = "SELECT maHD FROM HoaDon ORDER BY maHD DESC LIMIT 1";
+    public String taoMaHDMoi() {
+        String newId = "HD000001";
+        String sql = "SELECT TOP 1 maHD FROM HoaDon ORDER BY maHD DESC";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
-                String maCu = rs.getString("maHD");
-                int so = Integer.parseInt(maCu.replaceAll("\\D+", "")) + 1;
-                return String.format("HD%03d", so);
+                String lastId = rs.getString("maHD");
+                int num = Integer.parseInt(lastId.substring(2)); // lấy số sau HD
+                num++;
+                newId = String.format("HD%06d", num);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return "HD001";
+        return newId;
     }
 
     public boolean themHoaDon(HoaDon hd) {
-        String sql = """
-                INSERT INTO HoaDon(maHD, ngayLap, maNV, maKH, maPDB, maKM, maThue,
-                                   tienKhachDua, tienThua, tongTien, phuongThucThanhToan, isDeleted)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
-                """;
+        String sql = "INSERT INTO HoaDon (maHD, ngayLap, maNV, maKH, maPDB, maKM, maThue, tienKhachDua, tienThua, maPTTT, isDeleted) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -93,15 +93,15 @@ public class HoaDonDAO {
             ps.setString(7, hd.getThue() != null ? hd.getThue().getMaThue() : null);
             ps.setBigDecimal(8, hd.getTienKhachDua());
             ps.setBigDecimal(9, hd.getTienThua());
-            ps.setBigDecimal(10, hd.getTongTien()); // dùng getTongTien() từ model
-            ps.setString(11, hd.getPhuongThucThanhToan().getMaPTTT());
+            ps.setString(10, hd.getPhuongThucThanhToan() != null ? hd.getPhuongThucThanhToan().getMaPTTT() : null);
+            ps.setBoolean(11, hd.isDeleted());
 
             return ps.executeUpdate() > 0;
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     public static boolean xoaHoaDon(String maHD) {
@@ -116,4 +116,5 @@ public class HoaDonDAO {
         }
         return false;
     }
+
 }

@@ -148,4 +148,26 @@ public class KhuyenMaiDAO {
             return false;
         }
     }
+
+    public KhuyenMai timKhuyenMaiTheoMaHoacTen(String input) {
+        String sql = layCauTruyVanCoBan() +
+                " WHERE (km.maKM = ? OR km.tenKM = ?) " +
+                " AND GETDATE() BETWEEN km.ngayBatDau AND km.ngayKetThuc";
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, input);
+            ps.setString(2, input);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return anhXaResultSetVaoKhuyenMai(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

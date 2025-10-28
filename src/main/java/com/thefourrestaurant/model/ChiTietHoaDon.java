@@ -9,6 +9,8 @@ public class ChiTietHoaDon {
     private int soLuong;
     private BigDecimal donGia;
 
+    public ChiTietHoaDon() {}
+
     public ChiTietHoaDon(HoaDon hoaDon, MonAn monAn, int soLuong,  BigDecimal donGia) {
         setHoaDon(hoaDon);
         setMonAn(monAn);
