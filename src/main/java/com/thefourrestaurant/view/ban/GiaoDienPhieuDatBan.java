@@ -145,7 +145,7 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
                 match = true;
 
             // So sánh theo ngày
-            LocalDate ngayDat = pdb.getNgayDat();
+            LocalDateTime ngayDat = pdb.getNgayDat();
             if (ngayDat != null) {
                 // Nếu người dùng nhập đúng ngày dd/MM/yyyy
                 if (ngayDat.equals(finalNgayTimKiem))

@@ -8,7 +8,7 @@ import java.util.List;
 public class PhieuDatBan {
     private String maPDB;
     private LocalDateTime ngayTao;
-    private LocalDate ngayDat;
+    private LocalDateTime ngayDat;
     private int soNguoi;
     private KhachHang khachHang;
     private NhanVien nhanVien;
@@ -23,7 +23,7 @@ public class PhieuDatBan {
         this.maPDB = maPDB;
     }
 
-    public PhieuDatBan(String maPDB, LocalDate ngayDat, LocalDateTime ngayTao, int soNguoi,
+    public PhieuDatBan(String maPDB, LocalDateTime ngayDat, LocalDateTime ngayTao, int soNguoi,
                        KhachHang khachHang, NhanVien nhanVien, Ban ban, String trangThai, boolean isDeleted) {
         this.maPDB = maPDB;
         this.ngayDat = ngayDat;
@@ -42,8 +42,8 @@ public class PhieuDatBan {
     public LocalDateTime getNgayTao() { return ngayTao; }
     public void setNgayTao(LocalDateTime ngayTao) { this.ngayTao = ngayTao; }
 
-    public LocalDate getNgayDat() { return ngayDat; }
-    public void setNgayDat(LocalDate ngayDat) { this.ngayDat = ngayDat; }
+    public LocalDateTime getNgayDat() { return ngayDat; }
+    public void setNgayDat(LocalDateTime ngayDat) { this.ngayDat = ngayDat; }
 
     public int getSoNguoi() { return soNguoi; }
     public void setSoNguoi(int soNguoi) { this.soNguoi = soNguoi; }
