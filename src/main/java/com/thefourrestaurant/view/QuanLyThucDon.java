@@ -24,7 +24,7 @@ import javafx.scene.text.FontWeight;
 public class QuanLyThucDon extends VBox {
 
     private final TableView<ThucDonDAO.ThucDonView> tableThucDon;
-    private final ComboBox<String> cbTenThucDon;
+    private final TextField txtTenThucDon;
     private final ComboBox<String> cbLoaiMonAn;
     private final VBox boxChonThucAn;
     private final List<FoodItem> selectedFoods = new ArrayList<>();
@@ -88,12 +88,11 @@ public class QuanLyThucDon extends VBox {
 
     Label lblTen = new Label("Tên thực đơn");
     lblTen.setStyle("-fx-text-fill: #E19E11; -fx-font-size: 14px; -fx-font-weight: bold;");
-    cbTenThucDon = new ComboBox<>();
-    cbTenThucDon.getItems().addAll("Sáng", "Trưa", "Chiều", "Tối");
-    cbTenThucDon.setPromptText("Chọn thực đơn...");
-    cbTenThucDon.setStyle("-fx-background-color: #D9DEE2; -fx-background-radius: 10; -fx-font-size: 15px; -fx-padding: 8 12;");
+    txtTenThucDon = new TextField();
+    txtTenThucDon.setPromptText("Nhập tên thực đơn...");
+    txtTenThucDon.setStyle("-fx-background-color: #D9DEE2; -fx-background-radius: 10; -fx-font-size: 15px; -fx-padding: 8 12;");
 
-    VBox boxTen = new VBox(6, lblTen, cbTenThucDon);
+    VBox boxTen = new VBox(6, lblTen, txtTenThucDon);
 
         // Chọn loại món ăn
         Label lblLoai = new Label("Chọn loại món ăn");
@@ -131,9 +130,9 @@ public class QuanLyThucDon extends VBox {
 
         // Lưu thực đơn xuống DB
         btnLuu.setOnAction(e -> {
-            String ten = cbTenThucDon.getValue();
-            if (ten == null || ten.isBlank()) {
-                showAlert(Alert.AlertType.WARNING, "Vui lòng chọn tên thực đơn (Sáng/Trưa/Chiều/Tối).");
+            String ten = txtTenThucDon.getText() != null ? txtTenThucDon.getText().trim() : "";
+            if (ten.isBlank()) {
+                showAlert(Alert.AlertType.WARNING, "Vui lòng nhập tên thực đơn.");
                 return;
             }
             if (selectedFoods.isEmpty()) {

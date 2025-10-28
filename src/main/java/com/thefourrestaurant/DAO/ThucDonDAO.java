@@ -8,16 +8,8 @@ import java.util.stream.Collectors;
 
 public class ThucDonDAO {
 
-    private static final Set<String> ALLOWED = Set.of("Sáng","Trưa","Chiều","Tối");
-
-    private String mapUiLoaiToDbLoai(String ui) {
-        if (ui == null) return null;
-        String s = ui.trim().toLowerCase();
-        if (s.equals("coffee") || s.equals("nước giải khát")) return "Đồ nước";
-        if (s.equals("đồ ăn nhanh")) return "Món đặc biệt";
-        if (s.equals("cơm")) return "Cơm";
-        return ui; 
-    }
+    // Tên thực đơn giờ có thể tùy ý (NVARCHAR(30) NOT NULL UNIQUE). Không còn giới hạn cố định.
+    // Giữ mọi tên loại món ăn đúng như chọn trên UI (đã lấy trực tiếp từ DB), chỉ trim để sạch khoảng trắng.
 
     public static String taoMaThucDonMoi(Connection cn) throws SQLException {
     try (PreparedStatement ps = cn.prepareStatement("SELECT TOP 1 maTD FROM dbo.ThucDon ORDER BY maTD DESC");
@@ -57,13 +49,15 @@ public class ThucDonDAO {
     public boolean luuThucDonTheoLoaiMon(String tenThucDon, List<String> loaiMonUi) {
         if (tenThucDon == null) return false;
         String ten = tenThucDon.trim();
-        if (!ALLOWED.contains(ten)) {
-            throw new IllegalArgumentException("Tên thực đơn phải là: Sáng, Trưa, Chiều, hoặc Tối.");
+        if (ten.isEmpty()) {
+            throw new IllegalArgumentException("Tên thực đơn không được để trống.");
         }
+        // Không giới hạn độ dài tại tầng ứng dụng; để DB kiểm soát theo schema hiện hành.
         List<String> loaiDb = loaiMonUi == null ? List.of() :
                 loaiMonUi.stream()
-                         .map(this::mapUiLoaiToDbLoai)
                          .filter(Objects::nonNull)
+                         .map(String::trim)
+                         .filter(s -> !s.isEmpty())
                          .distinct()
                          .collect(Collectors.toList());
 
