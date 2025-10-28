@@ -4,6 +4,8 @@ import com.thefourrestaurant.DAO.KhachHangDAO;
 import com.thefourrestaurant.controller.KhachHangController;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.LoaiKhachHang;
+import com.thefourrestaurant.model.TaiKhoan;
+import com.thefourrestaurant.util.ValidatorKhachHang;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -65,7 +67,35 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
             return new SimpleStringProperty("");
         });
 
-        table.getColumns().addAll(colMaKH, colHoTen, colNgaySinh, colGioiTinh, colSoDT, colLoaiKH);
+        TableColumn<KhachHang, Void> colHanhDong = new TableColumn<>("Hành động");
+        colHanhDong.setCellFactory(col -> new TableCell<>() {
+            private final Button btnXoa = new Button("🗑");
+
+            {
+                btnXoa.setOnAction(event -> {
+                    KhachHang kh = getTableView().getItems().get(getIndex());
+                    Stage stage = (Stage) btnXoa.getScene().getWindow();
+
+                    if (xacNhan(stage, "Bạn có chắc muốn xóa khách hàng: " + kh.getHoTen() + " ?")) {
+                        boolean ok = controller.xoaKhachHang(kh.getMaKH());
+                        if (ok) {
+                            getTableView().getItems().remove(kh);
+                            hienThongBao(stage,"Đã xóa khách hàng!");
+                        } else {
+                            hienThongBao(stage,"Không thể xóa khách hàng này!", Alert.AlertType.ERROR);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btnXoa);
+            }
+        });
+
+        table.getColumns().addAll(colMaKH, colHoTen, colNgaySinh, colGioiTinh, colSoDT, colLoaiKH, colHanhDong);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
 
@@ -123,9 +153,16 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
             var ngaySinh = gdChiTietKH.getDpNgaySinh().getValue();
             LoaiKhachHang loai = gdChiTietKH.getCboLoaiKH().getValue();
 
-            String result = controller.taoKhachHang(hoTen, ngaySinh, gioiTinh, soDT, loai);
-            Stage stage = (Stage) gdChiTietKH.getScene().getWindow();
+            // Sử dụng lớp ValidatorKhachHang
+            List<String> errors = ValidatorKhachHang.validate(maKH, hoTen, gioiTinh, soDT, ngaySinh, loai);
 
+            Stage stage = (Stage) gdChiTietKH.getScene().getWindow();
+            if (!errors.isEmpty()) {
+                hienThongBao(stage, String.join("\n", errors), Alert.AlertType.WARNING);
+                return;
+            }
+
+            String result = controller.taoKhachHang(hoTen, ngaySinh, gioiTinh, soDT, loai);
             if (result.equals("OK")) {
                 gdChiTietKH.Clear();
                 refreshBangChinh();
