@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
 
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.model.*;
@@ -75,9 +76,9 @@ public class PhieuDatBanDAO {
         return null;
     }
 
-    // 🔹 Thêm phiếu mới
+    // 🔹 Thêm phiếu mới (tự động lưu tiền cọc nếu là "Đặt trước")
     public boolean themPhieu(PhieuDatBan pdb, String context) {
-        String sql = "INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, maBan, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, maBan, trangThai, tienCoc) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -85,16 +86,34 @@ public class PhieuDatBanDAO {
             String maMoi = taoMaPhieuMoi();
             pdb.setMaPDB(maMoi);
 
+            String trangThaiMacDinh = "Đang phục vụ";
+            if ("DAT_TRUOC".equals(context)) {
+                trangThaiMacDinh = "Đặt trước";
+            }
+            String trangThaiThucTe = (pdb.getTrangThai() != null && !pdb.getTrangThai().isBlank())
+                    ? pdb.getTrangThai()
+                    : trangThaiMacDinh;
+
+            BigDecimal tienCoc = BigDecimal.ZERO;
+            try {
+                if ("Đặt trước".equals(trangThaiThucTe)) {
+                    Ban ban = banDAO.layTheoMa(pdb.getBan().getMaBan());
+                    if (ban != null && ban.getLoaiBan() != null && ban.getLoaiBan().getGiaTien() != null) {
+                        tienCoc = ban.getLoaiBan().getGiaTien();
+                    }
+                }
+            } catch (Exception ignore) {
+                // Giữ tienCoc = 0 nếu có lỗi khi tra cứu giá
+            }
+
             ps.setString(1, maMoi);
             ps.setTimestamp(2, Timestamp.valueOf(pdb.getNgayDat() != null ? pdb.getNgayDat() : LocalDateTime.now()));
             ps.setInt(3, pdb.getSoNguoi());
             ps.setString(4, pdb.getKhachHang().getMaKH());
             ps.setString(5, pdb.getNhanVien().getMaNV());
             ps.setString(6, pdb.getBan().getMaBan());
-            if (context.equals("DAT_NGAY"))
-                ps.setString(7, pdb.getTrangThai() != null ? pdb.getTrangThai() : "Đang phục vụ");
-            else if (context.equals("DAT_TRUOC"))
-                ps.setString(7, pdb.getTrangThai() != null ? pdb.getTrangThai() : "Đặt trước");
+            ps.setString(7, trangThaiThucTe);
+            ps.setBigDecimal(8, tienCoc);
             
             return ps.executeUpdate() > 0;
 
@@ -224,12 +243,34 @@ public class PhieuDatBanDAO {
 	}
 
     public boolean capNhatTrangThai(String maPDB, String trangThaiMoi) {
-        String sql = "UPDATE PhieuDatBan SET trangThai = ? WHERE maPDB = ?";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, trangThaiMoi);
-            ps.setString(2, maPDB);
-            return ps.executeUpdate() > 0;
+        // Nếu cập nhật sang "Đặt trước" thì tự động gán tiền cọc = giá loại bàn
+        String sqlDatTruoc = """
+                UPDATE PhieuDatBan
+                SET trangThai = ?,
+                    tienCoc = (SELECT lb.giaTien
+                               FROM PhieuDatBan pdb
+                               JOIN Ban b ON pdb.maBan = b.maBan
+                               JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
+                               WHERE pdb.maPDB = ?)
+                WHERE maPDB = ?
+                """;
+        String sqlKhac = "UPDATE PhieuDatBan SET trangThai = ? WHERE maPDB = ?";
+
+        try (Connection conn = ConnectSQL.getConnection()) {
+            if ("Đặt trước".equals(trangThaiMoi)) {
+                try (PreparedStatement ps = conn.prepareStatement(sqlDatTruoc)) {
+                    ps.setString(1, trangThaiMoi);
+                    ps.setString(2, maPDB);
+                    ps.setString(3, maPDB);
+                    return ps.executeUpdate() > 0;
+                }
+            } else {
+                try (PreparedStatement ps = conn.prepareStatement(sqlKhac)) {
+                    ps.setString(1, trangThaiMoi);
+                    ps.setString(2, maPDB);
+                    return ps.executeUpdate() > 0;
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

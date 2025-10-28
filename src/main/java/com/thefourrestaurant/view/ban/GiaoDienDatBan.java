@@ -32,7 +32,6 @@ public class GiaoDienDatBan extends BorderPane {
     private StackPane mainContent;
     private QuanLiBan quanLiBan;
     private ComboBox<Tang> cboSoTang;
-    private final List<Ban> dsBanDangChon = new ArrayList<>();
     
     private TangDAO tangDAO = new TangDAO();
 	private PhieuDatBanDAO phieuDAO;

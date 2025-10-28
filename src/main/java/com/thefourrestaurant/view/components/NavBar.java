@@ -17,6 +17,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -111,6 +112,13 @@ public class NavBar extends HBox {
     }
 
     private void showPanel(String s) {
+    	
+    	if ("Trang chủ".equals(s)) {
+            Stage currentStage = (Stage) mainContent.getScene().getWindow();
+            new GiaoDienChinh().show(currentStage); // mở lại GiaoDienChinh trên stage hiện tại
+            return;
+        }
+    	
         if (mainContent == null) return;
 
         if ("Đặt bàn".equals(s)) {
