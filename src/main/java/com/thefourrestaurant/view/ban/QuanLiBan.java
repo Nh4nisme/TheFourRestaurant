@@ -153,7 +153,7 @@ public class QuanLiBan extends VBox {
         }
     }
 
-    private void taoBan(Pane pane, Ban ban) {
+    void taoBan(Pane pane, Ban ban) {
         Image img;
         try {
             img = new Image(getClass().getResourceAsStream(ban.getAnhBan()));
@@ -330,4 +330,57 @@ public class QuanLiBan extends VBox {
     public List<Ban> getDsBanDangChon() {
         return dsBanDangChon;
     }
+    
+    public void clearAllBan() {
+        khuVucBan.getChildren().clear();
+    }
+    
+    public void hienThiBanTheoDieuKien(String maTang, String trangThai, String loaiBan, int soGhe) {
+        clearAllBan();
+
+        // Breadcrumb
+        String tangText = (maTang != null) ? maTang.replace("TG00000", "") : "?";
+        lblBreadcrumb.setText("Trang chủ / Quản lý bàn / Tầng " + tangText);
+
+        // Background
+        if (maTang != null) {
+            Platform.runLater(() -> {
+                if (khuVucBan.getWidth() > 0 && khuVucBan.getHeight() > 0) {
+                    setBackgroundTheoTang(maTang);
+                } else {
+                    khuVucBan.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> setBackgroundTheoTang(maTang));
+                }
+            });
+        }
+
+        List<Ban> dsBan = (maTang != null) ? banDAO.layTheoTang(maTang) : banDAO.layTatCaBan();
+
+        if (dsBan.isEmpty()) {
+            Label lblThongBao = new Label("⚠️ Không có bàn nào thỏa điều kiện.");
+            lblThongBao.setStyle("-fx-font-size: 18px; -fx-text-fill: #666;");
+            khuVucBan.getChildren().add(lblThongBao);
+            return;
+        }
+
+        for (Ban b : dsBan) {
+            boolean thoaDieuKien = true;
+
+            if (trangThai != null && !trangThai.equals("Tất cả") && !b.getTrangThai().equals(trangThai)) {
+                thoaDieuKien = false;
+            }
+
+            if (loaiBan != null && !loaiBan.equals("Tất cả") && !b.getLoaiBan().equals(loaiBan)) {
+                thoaDieuKien = false;
+            }
+
+            if (soGhe > 0 && b.getLoaiBan().getSoNguoi() != soGhe) {
+                thoaDieuKien = false;
+            }
+
+            if (thoaDieuKien) {
+                taoBan(khuVucBan, b);
+            }
+        }
+    }
+
 }
