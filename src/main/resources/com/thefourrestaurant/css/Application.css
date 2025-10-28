@@ -12,6 +12,7 @@
     -fx-border-width: 2;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
     -fx-background-insets: 0;
+
 }
 
 .button_sampleIndigo{
@@ -34,6 +35,13 @@
     -fx-border-width: 2;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
     -fx-background-insets: 0;
+}
+
+.button_sampleGamboge:hover,
+.button_sampleIndigo:hover,
+.button_sampleIndigoV2:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 /* --- DropDownButton.css (clean version) --- */
@@ -68,6 +76,13 @@
     -fx-border-width: 2;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);
     -fx-background-insets: 0;
+}
+
+.dropdown-buttonGamboge:hover,
+.dropdown-buttonIndigo:hover,
+.dropdown-buttonIndigoV2:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 /* --- Context Menu (dropdown list) --- */
