@@ -206,6 +206,34 @@ public class GiaoDienGoiMon extends BorderPane {
 	    TableColumn<ChiTietPDB, String> soLuongCol = new TableColumn<>("Số lượng");
 	    TableColumn<ChiTietPDB, String> thanhTienCol = new TableColumn<>("Thành tiền");
 	    TableColumn<ChiTietPDB, String> ghiChuCol = new TableColumn<>("Ghi chú");
+	    TableColumn<ChiTietPDB, Void> xoaCol = new TableColumn<>("Xóa");
+	    xoaCol.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
+	        private final Button btnXoa = new Button("❌");
+
+	        {
+	            btnXoa.setStyle(
+	                "-fx-background-color: transparent; " +
+	                "-fx-cursor: hand; -fx-font-size: 16px;"
+	            );
+
+	            btnXoa.setOnAction(e -> {
+	                ChiTietPDB chiTiet = getTableView().getItems().get(getIndex());
+	                danhSachChiTiet.remove(chiTiet);
+	                capNhatTongTien();
+	            });
+	        }
+
+	        @Override
+	        protected void updateItem(Void item, boolean empty) {
+	            super.updateItem(item, empty);
+	            if (empty) {
+	                setGraphic(null);
+	            } else {
+	                setGraphic(btnXoa);
+	                setAlignment(Pos.CENTER);
+	            }
+	        }
+	    });
 	    
 	    ghiChuCol.setCellValueFactory(c ->
         	new SimpleStringProperty(c.getValue().getGhiChu() != null ? c.getValue().getGhiChu() : "")
@@ -221,7 +249,7 @@ public class GiaoDienGoiMon extends BorderPane {
 	    ));
 	
 	    bangPhieu.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-	    bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, soLuongCol, thanhTienCol, ghiChuCol);
+	    bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, soLuongCol, thanhTienCol, ghiChuCol,xoaCol);
 	
 	    lblTongTien = new Label("Tổng tiền: 0 VND");
 	    lblTongTien.setFont(Font.font("System", FontWeight.BOLD, 16));
