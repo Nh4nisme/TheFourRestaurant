@@ -16,6 +16,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 
@@ -28,9 +29,12 @@ public class QuanLiBan extends VBox {
     
     private Ban banDangChon;
     private StackPane mainContent;
+    private String context;
+    private boolean choPhepDiChuyen = false;
 
-    public QuanLiBan(StackPane mainContent) {
+    public QuanLiBan(StackPane mainContent, String context) {
     	this.mainContent = mainContent;
+    	this.context = context;
         // === Cấu hình chính cho layout ===
         this.setPrefSize(1200, 700);
         this.setSpacing(0);
@@ -48,10 +52,18 @@ public class QuanLiBan extends VBox {
         khungDuongDan.setMaxWidth(Double.MAX_VALUE);
 
         //Toolbar
-        ToolBar toolBar = new ToolBar(
-                new ButtonSample("Thêm bàn",45,16,3),
-                new ButtonSample("Lưu sơ đồ",45,16,3)
-        );
+        ButtonSample btnThemBan = new ButtonSample("Thêm bàn", 45, 16, 3);
+        btnThemBan.setOnAction(e -> moPopupTuyChinhBan(null));
+        ButtonSample btnLuuSoDo = new ButtonSample("Lưu sơ đồ", 45, 16, 3);
+        btnLuuSoDo.setOnAction(e -> {
+            this.choPhepDiChuyen = false;
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, 
+                    "Đã lưu sơ đồ! Chế độ di chuyển đã tắt.");
+            alert.initOwner(this.getScene().getWindow());
+            alert.showAndWait();
+        });
+
+        ToolBar toolBar = new ToolBar(btnThemBan, btnLuuSoDo);
         toolBar.setStyle("-fx-background-color: #1E424D");
         toolBar.setPadding(new Insets(10, 10, 10, 10));
 
@@ -178,11 +190,13 @@ public class QuanLiBan extends VBox {
         });
 
         khungBan.setOnMouseDragged(e -> {
+            if (!choPhepDiChuyen) return;
             khungBan.setLayoutX(e.getSceneX() - offset[0]);
             khungBan.setLayoutY(e.getSceneY() - offset[1]);
         });
 
         khungBan.setOnMouseReleased(e -> {
+        	if (!choPhepDiChuyen) return;
             int newX = (int) khungBan.getLayoutX();
             int newY = (int) khungBan.getLayoutY();
 
@@ -211,11 +225,43 @@ public class QuanLiBan extends VBox {
             else if (e.getClickCount() == 2) {
                 delay.stop();
                 
-                mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban));
+                if ("QUAN_LY_BAN".equals(context)) {
+                    moPopupTuyChinhBan(ban);
+                } 
+                else if ("DAT_BAN".equals(context)) {
+                    mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban));
+                }
+                
             }
         });
 
         pane.getChildren().add(khungBan);
+    }
+    
+    private void moPopupTuyChinhBan(Ban ban) {
+        // Tạo đối tượng giao diện tùy chỉnh
+        GiaoDienTuyChinhBan giaoDien = new GiaoDienTuyChinhBan(ban);
+        
+        // Tạo cửa sổ popup
+        Stage popup = new Stage();
+        popup.setTitle(ban != null ? "Chỉnh sửa bàn" : "Thêm bàn mới");
+        popup.setScene(new javafx.scene.Scene(giaoDien, 500, 270));
+        popup.initOwner(this.getScene().getWindow()); // Gắn với cửa sổ cha
+        popup.setResizable(false);
+        popup.centerOnScreen();
+        
+        giaoDien.getBtnDiChuyen().setOnAction(e -> {
+            this.choPhepDiChuyen = true;
+            popup.close(); // Đóng popup
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Chế độ di chuyển đã bật! Bạn có thể kéo bàn để thay đổi vị trí.");
+            alert.initOwner(this.getScene().getWindow());
+            alert.showAndWait();
+        });
+        
+
+        
+        // Hiển thị popup
+        popup.showAndWait();
     }
 
     public Pane getKhuVucBan() {

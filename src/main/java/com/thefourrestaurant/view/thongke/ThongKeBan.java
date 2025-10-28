@@ -12,6 +12,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class ThongKeBan {
 
     public static Node taoBieuDo(String loai) {
         List<PhieuDatBan> tatCaPhieu = phieuDatBanDAO.layTatCaPhieu();
-        LocalDate homNay = LocalDate.now();
+        LocalDateTime homNay = LocalDateTime.now();
 
         Predicate<PhieuDatBan> boLoc;
         String giaiDoanTieuDe;

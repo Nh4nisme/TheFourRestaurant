@@ -163,7 +163,7 @@ public class SideBarDanhMuc extends BaseSideBar {
 
                 if (tangOpt.isPresent()) {
                     Tang tang = tangOpt.get();
-                    QuanLiBan qlBan = new QuanLiBan((StackPane) mainContent);
+                    QuanLiBan qlBan = new QuanLiBan((StackPane) mainContent, "QUAN_LY_BAN");
                     qlBan.hienThiBanTheoTang(tang.getMaTang());
                     yield qlBan;
                 }

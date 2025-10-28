@@ -37,6 +37,7 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class GiaoDienDatBanNgay extends VBox {
 
@@ -320,7 +321,7 @@ public class GiaoDienDatBanNgay extends VBox {
 
                 PhieuDatBan pdb = new PhieuDatBan();
                 pdb.setBan(this.ban);
-                pdb.setNgayDat(LocalDate.now());
+                pdb.setNgayDat(LocalDateTime.now());
                 pdb.setSoNguoi(soNguoi);
                 pdb.setKhachHang(kh);
                 NhanVien assigned = null;
