@@ -19,14 +19,14 @@ public class KhuyenMaiController {
     private final LoaiKhuyenMaiDAO loaiKhuyenMaiDAO;
     private final ChiTietKhuyenMaiDAO chiTietKhuyenMaiDAO;
     private final MonAnDAO monAnDAO;
-    private final KhungGio_KM_DAO khungGio_KM_DAO; // Sửa thành KhungGio_KM_DAO
+    private final KhungGio_KM_DAO khungGio_KM_DAO;
 
     public KhuyenMaiController() {
         this.khuyenMaiDAO = new KhuyenMaiDAO();
         this.loaiKhuyenMaiDAO = new LoaiKhuyenMaiDAO();
         this.chiTietKhuyenMaiDAO = new ChiTietKhuyenMaiDAO();
         this.monAnDAO = new MonAnDAO();
-        this.khungGio_KM_DAO = new KhungGio_KM_DAO(); // Khởi tạo DAO chính xác
+        this.khungGio_KM_DAO = new KhungGio_KM_DAO();
     }
 
     public List<KhuyenMai> layDanhSachKhuyenMai() {

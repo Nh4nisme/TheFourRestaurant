@@ -34,7 +34,7 @@ public class LoaiMonAn extends VBox {
         VBox.setVgrow(contentPane, Priority.ALWAYS);
         contentPane.setStyle("-fx-background-color: #F5F5F5;");
 
-        // Top Bar (Breadcrumb)
+        // Thanh trên (Đường dẫn)
         Label duongDan = new Label("Quản Lý > Loại Món Ăn");
         duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
         VBox khungTren = new VBox(duongDan);
@@ -47,7 +47,7 @@ public class LoaiMonAn extends VBox {
         GridPane.setHgrow(khungTren, Priority.ALWAYS);
         contentPane.add(khungTren, 0, 0);
 
-        // Main Content Area
+        // Khu vực nội dung chính
         VBox khungDuoi = new VBox();
         khungDuoi.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
         khungDuoi.setAlignment(Pos.CENTER);
@@ -64,7 +64,7 @@ public class LoaiMonAn extends VBox {
         khungDuoi.getChildren().add(dsLoaiMonAnContainer);
         VBox.setVgrow(dsLoaiMonAnContainer, Priority.ALWAYS);
 
-        // Grid for items
+        // Lưới cho các mục
         gridPane.setAlignment(Pos.CENTER);
         gridPane.setHgap(20);
         gridPane.setVgap(20);
@@ -75,14 +75,14 @@ public class LoaiMonAn extends VBox {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
 
-        // "Add New" Box
+        // Hộp "Thêm mới"
         VBox hopThemMoi = LoaiMonAnBox.createThemMoiBox();
         GridPane luoiThem = new GridPane();
         luoiThem.setAlignment(Pos.BASELINE_LEFT);
         luoiThem.setPadding(new Insets(0,0,0,15));
         luoiThem.add(hopThemMoi, 0, 0);
 
-        Button themMoiButton = new Button(); // Hidden button to trigger action
+        Button themMoiButton = new Button(); // Nút ẩn để kích hoạt hành động
         themMoiButton.setVisible(false);
         themMoiButton.setManaged(false);
         themMoiButton.setOnAction(event -> {
@@ -96,7 +96,7 @@ public class LoaiMonAn extends VBox {
         dsLoaiMonAnContainer.getChildren().addAll(luoiThem, scrollPane, themMoiButton);
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
-        // Load CSS
+        // Tải CSS
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
             this.getStylesheets().add(urlCSS.toExternalForm());
@@ -104,7 +104,7 @@ public class LoaiMonAn extends VBox {
 
         this.getChildren().add(contentPane);
 
-        // Initial data load
+        // Tải dữ liệu ban đầu
         refreshGrid();
     }
 
@@ -116,7 +116,7 @@ public class LoaiMonAn extends VBox {
             LoaiMon item = danhSachLoaiMonAn.get(i);
             VBox hopLoaiMonAn = LoaiMonAnBox.createLoaiMonAnBox(item.getTenLoaiMon(), item.getHinhAnh());
 
-            // --- Event Handlers for each box ---
+            // --- Trình xử lý sự kiện cho mỗi hộp ---
             ContextMenu contextMenu = createContextMenu(item);
             hopLoaiMonAn.setOnMouseClicked(event -> {
                 if (event.getButton() == MouseButton.PRIMARY) {

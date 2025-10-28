@@ -57,7 +57,7 @@ public class SideBarThongKe extends BaseSideBar {
     protected void khoiTaoDanhMuc() {
         themDanhMuc("Doanh thu", List.of("Doanh thu theo ngày", "Doanh thu theo tháng", "Doanh thu theo năm"));
         themDanhMuc("Món ăn phổ biến", List.of("Món được đặt nhiều nhất trong ngày", "Món được đặt nhiều nhất trong tháng", "Món được đặt nhiều nhất trong năm", "Món ít đặt nhất trong tháng"));
-        themDanhMuc("Bàn phổ biến", List.of("Bàn được đặt nhiều nhất trong ngày", "Bàn được đặt nhiều nhất trong tháng", "Bàn được đặt nhiều nhất trong năm", "Bàn ít đặt nhất trong tháng"));
+        themDanhMuc("Bàn phổ biến", List.of("Bàn được đặt nhiều nhất trong ngày", "Bàn được đặt nhiều nhất trong tháng", "Bàn được đặt nhiều nhất trong năm"));
     }
 
     private void themDanhMuc(String tenDanhMuc, List<String> danhSachCon) {
@@ -112,9 +112,10 @@ public class SideBarThongKe extends BaseSideBar {
             case "Doanh thu theo ngày": bieuDo = ThongKeDoanhThu.taoBieuDo("ngày"); break;
             case "Doanh thu theo tháng": bieuDo = ThongKeDoanhThu.taoBieuDo("tháng"); break;
             case "Doanh thu theo năm": bieuDo = ThongKeDoanhThu.taoBieuDo("năm"); break;
-            case "Món được đặt nhiều nhất trong ngày": bieuDo = ThongKeMonAn.taoBieuDo("ngày"); break;
-            case "Món được đặt nhiều nhất trong tháng": bieuDo = ThongKeMonAn.taoBieuDo("tháng"); break;
-            case "Món được đặt nhiều nhất trong năm": bieuDo = ThongKeMonAn.taoBieuDo("năm"); break;
+            case "Món được đặt nhiều nhất trong ngày": bieuDo = ThongKeMonAn.taoBieuDo("ngày", "phobiennhat"); break;
+            case "Món được đặt nhiều nhất trong tháng": bieuDo = ThongKeMonAn.taoBieuDo("tháng", "phobiennhat"); break;
+            case "Món được đặt nhiều nhất trong năm": bieuDo = ThongKeMonAn.taoBieuDo("năm", "phobiennhat"); break;
+            case "Món ít đặt nhất trong tháng": bieuDo = ThongKeMonAn.taoBieuDo("tháng", "itphobiennhat"); break;
             case "Bàn được đặt nhiều nhất trong ngày": bieuDo = ThongKeBan.taoBieuDo("ngày"); break;
             case "Bàn được đặt nhiều nhất trong tháng": bieuDo = ThongKeBan.taoBieuDo("tháng"); break;
             case "Bàn được đặt nhiều nhất trong năm": bieuDo = ThongKeBan.taoBieuDo("năm"); break;

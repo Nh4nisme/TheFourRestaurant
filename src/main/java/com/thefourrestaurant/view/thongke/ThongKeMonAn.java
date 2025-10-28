@@ -24,7 +24,7 @@ public class ThongKeMonAn {
 
     private static final HoaDonDAO hoaDonDAO = new HoaDonDAO();
 
-    public static Node taoBieuDo(String loai) {
+    public static Node taoBieuDo(String loai, String kieuSapXep) {
         List<HoaDon> tatCaHoaDon = hoaDonDAO.layDanhSachHoaDon();
         LocalDate homNay = LocalDate.now();
 
@@ -56,14 +56,25 @@ public class ThongKeMonAn {
                         Collectors.summingInt(ChiTietHoaDon::getSoLuong)
                 ));
 
+        Comparator<Map.Entry<MonAn, Integer>> comparator;
+        String title;
+
+        if ("itphobiennhat".equals(kieuSapXep)) {
+            comparator = Map.Entry.comparingByValue();
+            title = "Top 5 món bán chậm ";
+        } else { // Mặc định là "phobiennhat"
+            comparator = Map.Entry.comparingByValue(Comparator.reverseOrder());
+            title = "Top 5 món bán chạy ";
+        }
+
         List<PieChart.Data> top5MonAn = soLuongMonAn.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .sorted(comparator)
                 .limit(5)
                 .map(entry -> new PieChart.Data(entry.getKey().getTenMon(), entry.getValue()))
                 .collect(Collectors.toList());
 
         PieChart bieuDo = new PieChart(FXCollections.observableArrayList(top5MonAn));
-        bieuDo.setTitle("Top 5 món bán chạy " + giaiDoanTieuDe);
+        bieuDo.setTitle(title + giaiDoanTieuDe);
 
         if (top5MonAn.isEmpty()) {
             return new Label("Không có dữ liệu món ăn " + giaiDoanTieuDe);

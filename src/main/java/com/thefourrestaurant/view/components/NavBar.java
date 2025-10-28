@@ -3,6 +3,7 @@ package com.thefourrestaurant.view.components;
 import java.util.List;
 import java.util.Objects;
 
+import com.thefourrestaurant.controller.HelpController;
 import com.thefourrestaurant.view.*;
 import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.util.Session;
@@ -21,6 +22,7 @@ import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Stage;
 
 public class NavBar extends HBox {
 
@@ -28,6 +30,7 @@ public class NavBar extends HBox {
     private final Pane mainContent; // Pane trung tâm dưới navBar
     private final Pane sideBar;
     private final Pane sideBarExtended;
+    private final HelpController helpController = new HelpController(); // Khởi tạo HelpController
 
     public NavBar(Pane mainContent, Pane sideBar, Pane sideBarExtended) {
         this.mainContent = mainContent;
@@ -104,6 +107,7 @@ public class NavBar extends HBox {
         // Event handler load nội dung vào mainContent
         btnXuLi.setOnItemSelected(this::showPanel);
         btnTimKiem.setOnItemSelected(this::showPanel);
+        btnHeThong.setOnItemSelected(this::showPanel); // Thêm xử lý cho nút Hệ thống
 
         if (current != null) {
             String roleRaw = current.getVaiTro().getTenVaiTro();
@@ -121,6 +125,15 @@ public class NavBar extends HBox {
     	
         if (mainContent == null) return;
 
+        // Xử lý các mục của nút Hệ thống
+        if ("Trợ giúp".equals(s)) {
+            Stage owner = (Stage) getScene().getWindow();
+            helpController.openHelpFile(owner);
+            return; // Không cần thay đổi mainContent
+        }
+
+
+        // Ẩn/hiện sidebar dựa trên lựa chọn
         if ("Đặt bàn".equals(s)) {
             // Ẩn sidebar, không chiếm layout
             if (sideBar != null) {
@@ -152,6 +165,7 @@ public class NavBar extends HBox {
         List<String> managerOnly = List.of("Thực đơn", "Món ăn", "Tài khoản");
         if (managerOnly.contains(s) && !currentIsManager) {
             Alert a = new Alert(Alert.AlertType.WARNING, "Quyền truy cập bị từ chối. Chức năng này yêu cầu quyền Quản Lý.", ButtonType.OK);
+            a.initOwner((Stage) getScene().getWindow()); // Đặt owner cho Alert
             a.showAndWait();
             return;
         }
@@ -159,6 +173,7 @@ public class NavBar extends HBox {
         Node newContent = switch (s) {
             case "Đặt bàn" -> new GiaoDienDatBan((StackPane) mainContent);
             case "Phiếu đặt bàn" -> new GiaoDienPhieuDatBan();
+            // Thêm các case khác cho các mục menu nếu cần
             default -> null;
         };
 
