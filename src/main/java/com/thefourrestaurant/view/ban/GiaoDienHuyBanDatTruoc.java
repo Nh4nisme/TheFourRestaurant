@@ -20,8 +20,11 @@ public class GiaoDienHuyBanDatTruoc extends BorderPane {
 
     private TableView<PhieuDatBan> table;
     private PhieuDatBanDAO phieuDAO = new PhieuDatBanDAO();
+    private QuanLiBan quanLiBan;
 
-    public GiaoDienHuyBanDatTruoc(Ban ban) {
+    public GiaoDienHuyBanDatTruoc(Ban ban, QuanLiBan quanLiBan) {
+        this.quanLiBan = quanLiBan;
+        
         setPadding(new Insets(20));
         Label lblTitle = new Label("Danh sách phiếu đặt trước của " + ban.getTenBan());
         lblTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
@@ -33,7 +36,7 @@ public class GiaoDienHuyBanDatTruoc extends BorderPane {
         table.setItems(FXCollections.observableArrayList(danhSach));
 
         Button btnHuy = new Button("Hủy phiếu đã chọn");
-        btnHuy.setOnAction(e -> huyPhieu());
+        btnHuy.setOnAction(e -> huyPhieu(ban));
 
         Button btnDong = new Button("Đóng");
         btnDong.setOnAction(e -> ((Stage) getScene().getWindow()).close());
@@ -62,27 +65,33 @@ public class GiaoDienHuyBanDatTruoc extends BorderPane {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
-    private void huyPhieu() {
-        PhieuDatBan phieu = table.getSelectionModel().getSelectedItem();
-        if (phieu == null) {
-            new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu cần hủy!").showAndWait();
-            return;
-        }
+    private void huyPhieu(Ban ban) {
+	    PhieuDatBan phieu = table.getSelectionModel().getSelectedItem();
+	    if (phieu == null) {
+	        new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu cần hủy!").showAndWait();
+	        return;
+	    }
+	
+	    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+	            "Bạn có chắc muốn hủy phiếu " + phieu.getMaPDB() + " không?",
+	            ButtonType.YES, ButtonType.NO);
+	    confirm.setTitle("Xác nhận hủy");
+	    confirm.showAndWait();
+	
+	    if (confirm.getResult() == ButtonType.YES) {
+	        boolean thanhCong = phieuDAO.huyPhieuDatBan(phieu.getMaPDB());
+	        if (thanhCong) {
+	            table.getItems().remove(phieu);
+	            new Alert(Alert.AlertType.INFORMATION, "Đã hủy thành công phiếu " + phieu.getMaPDB()).showAndWait();
+	
+	            // 🔹 Cập nhật lại giao diện bàn
+	            if (quanLiBan != null && ban.getTang() != null) {
+	                quanLiBan.hienThiBanTheoTang(ban.getTang().getMaTang());
+	            }
+	        } else {
+	            new Alert(Alert.AlertType.ERROR, "Không thể hủy phiếu!").showAndWait();
+	        }
+	    }
+	}
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Bạn có chắc muốn hủy phiếu " + phieu.getMaPDB() + " không?",
-                ButtonType.YES, ButtonType.NO);
-        confirm.setTitle("Xác nhận hủy");
-        confirm.showAndWait();
-
-        if (confirm.getResult() == ButtonType.YES) {
-            boolean thanhCong = phieuDAO.huyPhieuDatBan(phieu.getMaPDB());
-            if (thanhCong) {
-                table.getItems().remove(phieu);
-                new Alert(Alert.AlertType.INFORMATION, "Đã hủy thành công phiếu " + phieu.getMaPDB()).showAndWait();
-            } else {
-                new Alert(Alert.AlertType.ERROR, "Không thể hủy phiếu!").showAndWait();
-            }
-        }
-    }
 }

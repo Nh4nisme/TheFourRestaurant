@@ -346,7 +346,7 @@ public class GiaoDienDatBan extends BorderPane {
         st.initOwner(getScene() != null ? getScene().getWindow() : null);
         st.initModality(Modality.APPLICATION_MODAL);
         st.setTitle("Đặt bàn ngay - " + banDuocChon.getTenBan());
-        st.setScene(new Scene(new GiaoDienDatBanNgay(banDuocChon, mainContent)));
+        st.setScene(new Scene(new GiaoDienDatBanNgay(banDuocChon, mainContent, quanLiBan)));
         st.showAndWait();
     }
 
@@ -360,7 +360,7 @@ public class GiaoDienDatBan extends BorderPane {
         st.initOwner(getScene() != null ? getScene().getWindow() : null);
         st.initModality(Modality.APPLICATION_MODAL);
         st.setTitle("Đặt bàn trước - " + banDuocChon.getTenBan());
-        st.setScene(new Scene(new GiaoDienDatBanTruoc(banDuocChon, mainContent)));
+        st.setScene(new Scene(new GiaoDienDatBanTruoc(banDuocChon, mainContent, quanLiBan)));
         st.showAndWait();
     }
 
@@ -377,7 +377,7 @@ public class GiaoDienDatBan extends BorderPane {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Danh sách phiếu đặt trước - " + banDuocChon.getTenBan());
 
-        GiaoDienHuyBanDatTruoc giaoDien = new GiaoDienHuyBanDatTruoc(banDuocChon);
+        GiaoDienHuyBanDatTruoc giaoDien = new GiaoDienHuyBanDatTruoc(banDuocChon, quanLiBan);
         stage.setScene(new Scene(giaoDien, 700, 400));
         stage.showAndWait();
     }

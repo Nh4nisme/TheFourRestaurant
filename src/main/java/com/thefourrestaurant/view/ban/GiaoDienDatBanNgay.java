@@ -56,10 +56,12 @@ public class GiaoDienDatBanNgay extends VBox {
     private KhachHang selectedKhachHang;
     private Ban ban;
     private final StackPane parentPane;
+    private QuanLiBan quanLiBan;
 
-    public GiaoDienDatBanNgay(Ban ban, StackPane parentPane) {
+    public GiaoDienDatBanNgay(Ban ban, StackPane parentPane, QuanLiBan quanLiBan) {
         this.ban = ban;
         this.parentPane = parentPane;
+        this.quanLiBan = quanLiBan;
         
         setStyle("-fx-background-color: #F5F5F5;");
         setSpacing(0);
@@ -338,8 +340,15 @@ public class GiaoDienDatBanNgay extends VBox {
                 if (assigned == null) assigned = new NhanVien("NV000001");
                 pdb.setNhanVien(assigned);
 
-                boolean ok = phieuDatBanDAO.themPhieu(pdb);
+                boolean ok = phieuDatBanDAO.themPhieu(pdb, "DAT_NGAY");
                 if (ok) {
+                	BanDAO banDAO = new BanDAO();
+                    banDAO.capNhatTrangThai(ban.getMaBan(), "Đang sử dụng");
+                    
+                    if (quanLiBan != null && ban.getTang() != null) {
+                        quanLiBan.hienThiBanTheoTang(ban.getTang().getMaTang());
+                    }
+                	
                     javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
                         javafx.scene.control.Alert.AlertType.CONFIRMATION,
                         "Đặt bàn thành công!\nBạn có muốn gọi món ngay không?",
