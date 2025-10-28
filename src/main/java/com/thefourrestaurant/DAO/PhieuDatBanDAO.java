@@ -76,7 +76,7 @@ public class PhieuDatBanDAO {
     }
 
     // 🔹 Thêm phiếu mới
-    public boolean themPhieu(PhieuDatBan pdb) {
+    public boolean themPhieu(PhieuDatBan pdb, String context) {
         String sql = "INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, maBan, trangThai) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConnectSQL.getConnection();
@@ -91,8 +91,11 @@ public class PhieuDatBanDAO {
             ps.setString(4, pdb.getKhachHang().getMaKH());
             ps.setString(5, pdb.getNhanVien().getMaNV());
             ps.setString(6, pdb.getBan().getMaBan());
-            ps.setString(7, pdb.getTrangThai() != null ? pdb.getTrangThai() : "Đang phục vụ");
-
+            if (context.equals("DAT_NGAY"))
+                ps.setString(7, pdb.getTrangThai() != null ? pdb.getTrangThai() : "Đang phục vụ");
+            else if (context.equals("DAT_TRUOC"))
+                ps.setString(7, pdb.getTrangThai() != null ? pdb.getTrangThai() : "Đặt trước");
+            
             return ps.executeUpdate() > 0;
 
         } catch (Exception e) {
