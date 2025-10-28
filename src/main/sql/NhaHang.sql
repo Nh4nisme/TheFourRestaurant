@@ -162,7 +162,7 @@ GO
 -- ================================
 CREATE TABLE ThucDon (
     maTD CHAR(8) PRIMARY KEY CHECK(maTD LIKE 'TD%' AND LEN(maTD) = 8),
-    tenTD NVARCHAR(10) NOT NULL UNIQUE CHECK(tenTD IN (N'Sáng', N'Trưa', N'Chiều', N'Tối'))
+    tenTD NVARCHAR(100) NOT NULL UNIQUE
 );
 
 -- ================================
@@ -175,6 +175,20 @@ CREATE TABLE ChiTietThucDon (
     CONSTRAINT FK_MonAn_ThucDon_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn),
     CONSTRAINT FK_MonAn_ThucDon_ThucDon FOREIGN KEY (maTD) REFERENCES ThucDon(maTD)
 );
+GO
+
+-- ================================
+-- Migrate existing DB: widen ThucDon.tenTD to NVARCHAR(100)
+-- Run-safe: only applies if table exists and current length < 100
+-- ================================
+IF OBJECT_ID('dbo.ThucDon','U') IS NOT NULL AND COL_LENGTH('dbo.ThucDon', 'tenTD') IS NOT NULL
+BEGIN
+    -- NVARCHAR(100) = 200 bytes
+    IF COL_LENGTH('dbo.ThucDon', 'tenTD') < 200
+    BEGIN
+        ALTER TABLE dbo.ThucDon ALTER COLUMN tenTD NVARCHAR(100) NOT NULL;
+    END
+END
 GO
 
 -- ================================
@@ -613,6 +627,3 @@ INSERT INTO ChiTietHD (maHD, maMonAn, soLuong, donGia) VALUES
 ('HD000002','MA000002',2,60000),
 ('HD000002','MA000004',1,30000);
 GO
-
-
-
