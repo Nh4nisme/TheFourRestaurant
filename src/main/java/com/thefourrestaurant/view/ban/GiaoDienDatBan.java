@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.ban;
 
+import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.controller.PhieuDatBanController;
@@ -22,6 +23,8 @@ import javafx.scene.Scene;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class GiaoDienDatBan extends BorderPane {
 
@@ -31,11 +34,20 @@ public class GiaoDienDatBan extends BorderPane {
     
     private StackPane mainContent;
     private QuanLiBan quanLiBan;
-    private ComboBox<Tang> cboSoTang;
     
     private TangDAO tangDAO = new TangDAO();
-	private PhieuDatBanDAO phieuDAO;
+	private PhieuDatBanDAO phieuDAO = new PhieuDatBanDAO();
+	private BanDAO banDAO = new BanDAO();
+	private PhieuDatBan phieuDatTruoc;
     private PhieuDatBanController  phieuDatBanController = new PhieuDatBanController();
+    
+    private ComboBox<Tang> cboSoTang;
+    private ComboBox<String> cboBanDatTruoc = new ComboBox<>();
+    private ComboBox<String> cboLoaiBan = new ComboBox<>();
+    private ComboBox<String> cboSoGhe = new ComboBox<>();
+    
+    private TextField txtMaBan = new TextField();
+	
 
 	public GiaoDienDatBan(StackPane mainContent) {
 	    this.mainContent = mainContent;
@@ -236,11 +248,19 @@ public class GiaoDienDatBan extends BorderPane {
         hang1.setPadding(new Insets(0,0,0,20));
         hang1.setAlignment(Pos.CENTER_LEFT);
 
-        ComboBox<String> cboBanDatTruoc = new ComboBox<>();
         cboBanDatTruoc.setPrefHeight(45);
-        cboBanDatTruoc.getItems().add("Bàn đặt trước");
-        cboBanDatTruoc.setValue("Bàn đặt trước");
+        List<String> trangThaiList = banDAO.layDanhSachTrangThaiTuCSDL();
+
+        List<String> trangThaiFullList = new ArrayList<>();
+        trangThaiFullList.add("Tất cả");
+        trangThaiFullList.addAll(trangThaiList);
+
+        cboBanDatTruoc.getItems().addAll(trangThaiFullList);
+        cboBanDatTruoc.setValue("Tất cả");
         styleComboBox(cboBanDatTruoc, 150);
+
+        cboBanDatTruoc.setOnAction(e -> locBanTheoTatCaTieuChi());
+
 
         Label lblSoTang = taoLabel("Số tầng:", 16, true);
         lblSoTang.setPrefWidth(70);
@@ -264,20 +284,26 @@ public class GiaoDienDatBan extends BorderPane {
             }
         });
 
-        cboSoTang.setOnAction(e -> {
-            Tang selectedTang = cboSoTang.getValue();
-            if (selectedTang != null) {
-                quanLiBan.hienThiBanTheoTang(selectedTang.getMaTang());
-            }
-        });
+        cboSoTang.setOnAction(e -> locBanTheoTatCaTieuChi());
         
         Label lblMaBan = taoLabel("Mã bàn:", 16, true);
         lblMaBan.setPrefWidth(70);
 
-        TextField txtMaBan = new TextField();
         txtMaBan.setPrefWidth(300);
 
         ButtonSample2 btnTim = new ButtonSample2("Tìm", ButtonSample2.Variant.YELLOW, 120, 45);
+        btnTim.setOnAction(e -> {
+            String maBan = txtMaBan.getText().trim();
+            if (maBan.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Thông báo");
+                alert.setHeaderText(null);
+                alert.setContentText("Vui lòng nhập mã bàn cần tìm!");
+                alert.showAndWait();
+                return;
+            }
+            timBanTheoMaBan();
+        });
 
         hang1.getChildren().addAll(cboBanDatTruoc, taoSpacerH(60), lblSoTang, cboSoTang, taoSpacerH(60), lblMaBan, txtMaBan, taoSpacerH(60), btnTim);
         return hang1;
@@ -292,18 +318,33 @@ public class GiaoDienDatBan extends BorderPane {
         Label lblLoaiBan = taoLabel("Loại bàn:", 16, true);
         lblLoaiBan.setPrefWidth(70);
 
-        ComboBox<String> cboLoaiBan = new ComboBox<>();
         cboLoaiBan.getItems().addAll("Tất cả", "Bàn tròn", "Bàn vuông");
         cboLoaiBan.setPromptText("Chọn");
         cboLoaiBan.setPrefWidth(200);
+        
+        cboLoaiBan.setOnAction(e -> locBanTheoTatCaTieuChi());
 
         Label lblSoGhe = taoLabel("Số ghế:", 16, true);
         lblSoGhe.setPrefWidth(70);
 
-        ComboBox<String> cboSoGhe = new ComboBox<>();
-        cboSoGhe.getItems().addAll("Tất cả", "Có ghi chú", "Không ghi chú");
-        cboSoGhe.setPromptText("Chọn");
-        cboSoGhe.setPrefWidth(100);
+        cboSoGhe.setPrefHeight(45);
+
+        // Danh sách số ghế từ tất cả bàn
+        List<String> dsSoGhe = new ArrayList<>();
+        dsSoGhe.add("Tất cả"); // mặc định hiển thị tất cả
+
+        for (Ban ban : banDAO.layTatCaBan()) {
+            String soGheStr = ban.getLoaiBan().getSoNguoi() + " ghế";
+            if (!dsSoGhe.contains(soGheStr)) {
+                dsSoGhe.add(soGheStr);
+            }
+        }
+
+        cboSoGhe.getItems().addAll(dsSoGhe);
+        cboSoGhe.setValue("Tất cả");
+        styleComboBox(cboSoGhe, 100);
+
+        cboSoGhe.setOnAction(e -> locBanTheoTatCaTieuChi());
 
         ButtonSample2 btnLamMoi = new ButtonSample2("Làm mới", ButtonSample2.Variant.YELLOW, 120, 45);
 
@@ -361,8 +402,44 @@ public class GiaoDienDatBan extends BorderPane {
     }
 
     private void nhanBan() {
-        System.out.println("Nhận bàn (F3)");
+        Ban banDuocChon = layBanDangChonHoacThongBao();
+        if (banDuocChon == null) return;
+
+        phieuDatTruoc = phieuDAO.layPhieuDatTruocTheoBan(banDuocChon.getMaBan());
+
+        if (phieuDatTruoc == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Thông báo");
+            alert.setHeaderText(null);
+            alert.setContentText("Bàn này không có phiếu đặt trước nào!");
+            alert.showAndWait();
+            return;
+        }
+
+        boolean capNhatBan = banDAO.capNhatTrangThai(banDuocChon.getMaBan(), "Đang sử dụng");
+
+        // Cập nhật trạng thái phiếu đặt bàn
+        boolean capNhatPhieu = phieuDAO.capNhatTrangThai(phieuDatTruoc.getMaPDB(), "Đang phục vụ");
+
+        if (capNhatBan && capNhatPhieu) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Thành công");
+            alert.setHeaderText(null);
+            alert.setContentText("Bàn " + banDuocChon.getTenBan() + " đã được nhận và chuyển sang trạng thái 'Đang sử dụng'.");
+            alert.showAndWait();
+
+            if (cboSoTang.getValue() != null) {
+                quanLiBan.hienThiBanTheoTang(cboSoTang.getValue().getMaTang());
+            }
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Lỗi");
+            alert.setHeaderText(null);
+            alert.setContentText("Không thể nhận bàn. Vui lòng thử lại.");
+            alert.showAndWait();
+        }
     }
+
 
     private void huyBanDatTruoc() {
         Ban banDuocChon = layBanDangChonHoacThongBao();
@@ -382,7 +459,6 @@ public class GiaoDienDatBan extends BorderPane {
         Ban banDuocChon = layBanDangChonHoacThongBao();
         if (banDuocChon == null) return;
         
-        phieuDAO = new PhieuDatBanDAO();
         System.out.println(banDuocChon.getMaBan());
         PhieuDatBan pdbHienCo = phieuDAO.layPhieuDangHoatDongTheoBan(banDuocChon.getMaBan());
 
@@ -396,10 +472,9 @@ public class GiaoDienDatBan extends BorderPane {
         Ban banDuocChon = layBanDangChonHoacThongBao();
         if (banDuocChon == null) return;
 
-        // Lấy phiếu đặt bàn tương ứng
         PhieuDatBan pdb = phieuDatBanController.layPhieuTheoBan(banDuocChon.getMaBan());
 
-        System.out.println("💰 Tính tiền cho bàn: " + banDuocChon.getTenBan());
+        System.out.println("Tính tiền cho bàn: " + banDuocChon.getTenBan());
         Stage stageThanhToan = new Stage();
         GiaoDienLapHoaDon thanhToan = new GiaoDienLapHoaDon(stageThanhToan);
 
@@ -413,7 +488,6 @@ public class GiaoDienDatBan extends BorderPane {
             Tang tangMoi = cboSoTang.getSelectionModel().getSelectedItem();
             if (tangMoi != null) {
                 quanLiBan.hienThiBanTheoTang(tangMoi.getMaTang());
-                System.out.println("🔼 Chuyển đến " + tangMoi.getTenTang());
             }
         } else {
             System.out.println("Đang ở tầng thấp nhất!");
@@ -447,6 +521,66 @@ public class GiaoDienDatBan extends BorderPane {
             return null;
         }
         return banDuocChon;
+    }
+    
+    private void locBanTheoTatCaTieuChi() {
+        Tang tang = cboSoTang.getValue();
+        String maTang = (tang != null) ? tang.getMaTang() : null;
+
+        String trangThai = cboBanDatTruoc.getValue();
+        if ("Tất cả".equals(trangThai)) trangThai = null;
+
+        String loaiBan = cboLoaiBan.getValue();
+        if ("Tất cả".equals(loaiBan)) loaiBan = null;
+
+        int soGhe = 0;
+        String soGheStr = cboSoGhe.getValue();
+        if (soGheStr != null && !soGheStr.equals("Tất cả")) {
+            try {
+                soGhe = Integer.parseInt(soGheStr.replace(" ghế", ""));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        quanLiBan.hienThiBanTheoDieuKien(maTang, trangThai, loaiBan, soGhe);
+    }
+
+    private void timBanTheoMaBan() {
+        String maBan = txtMaBan.getText().trim();
+        if (maBan.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Thông báo");
+            alert.setHeaderText(null);
+            alert.setContentText("Vui lòng nhập mã bàn cần tìm!");
+            alert.showAndWait();
+            return;
+        }
+
+        Ban ban = banDAO.layTheoMa(maBan);
+        if (ban == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Thông báo");
+            alert.setHeaderText(null);
+            alert.setContentText("Không tìm thấy bàn có mã: " + maBan);
+            alert.showAndWait();
+            return;
+        }
+
+        // Chuyển sang tầng chứa bàn
+        Tang tangHienTai = null;
+        for (Tang t : cboSoTang.getItems()) {
+            if (t.getMaTang().equals(ban.getTang().getMaTang())) {
+                tangHienTai = t;
+                break;
+            }
+        }
+
+        if (tangHienTai != null) {
+            cboSoTang.setValue(tangHienTai);
+        }
+
+        // Hiển thị chỉ bàn này
+        quanLiBan.clearAllBan();
+        quanLiBan.taoBan(quanLiBan.getKhuVucBan(), ban);
     }
 
 }

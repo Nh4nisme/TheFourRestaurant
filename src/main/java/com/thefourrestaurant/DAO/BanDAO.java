@@ -136,4 +136,23 @@ public class BanDAO {
         }
         return dsBan;
     }
+    
+    public List<String> layDanhSachTrangThaiTuCSDL() {
+        List<String> dsTrangThai = new ArrayList<>();
+        String sql = "SELECT DISTINCT trangThai FROM Ban";
+
+        try (Connection conn = ConnectSQL.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                dsTrangThai.add(rs.getString("trangThai"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return dsTrangThai;
+    }
 }
