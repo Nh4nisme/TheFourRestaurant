@@ -13,6 +13,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.List;
@@ -85,7 +86,8 @@ public class LoaiMonAn extends VBox {
         themMoiButton.setVisible(false);
         themMoiButton.setManaged(false);
         themMoiButton.setOnAction(event -> {
-            if (controller.themMoiLoaiMonAn()) {
+            Stage owner = (Stage) getScene().getWindow();
+            if (controller.themMoiLoaiMonAn(owner)) {
                 refreshGrid();
             }
         });
@@ -118,7 +120,8 @@ public class LoaiMonAn extends VBox {
             ContextMenu contextMenu = createContextMenu(item);
             hopLoaiMonAn.setOnMouseClicked(event -> {
                 if (event.getButton() == MouseButton.PRIMARY) {
-                    if (controller.tuyChinhLoaiMonAn(item)) {
+                    Stage owner = (Stage) getScene().getWindow();
+                    if (controller.tuyChinhLoaiMonAn(owner, item)) {
                         refreshGrid();
                     }
                 } else if (event.getButton() == MouseButton.SECONDARY) {
@@ -136,14 +139,16 @@ public class LoaiMonAn extends VBox {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem editItem = new MenuItem("Sửa");
         editItem.setOnAction(e -> {
-            if (controller.tuyChinhLoaiMonAn(loaiMon)) {
+            Stage owner = (Stage) contextMenu.getOwnerNode().getScene().getWindow();
+            if (controller.tuyChinhLoaiMonAn(owner, loaiMon)) {
                 refreshGrid();
             }
         });
 
         MenuItem deleteItem = new MenuItem("Xóa");
         deleteItem.setOnAction(e -> {
-            if (controller.xoaLoaiMonAn(loaiMon)) {
+            Stage owner = (Stage) contextMenu.getOwnerNode().getScene().getWindow();
+            if (controller.xoaLoaiMonAn(owner, loaiMon)) {
                 refreshGrid();
             }
         });

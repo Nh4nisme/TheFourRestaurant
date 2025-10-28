@@ -32,7 +32,7 @@ public class ThongKeBan {
 
         switch (loai) {
             case "ngày":
-                boLoc = pdb -> pdb.getNgayDat() != null && pdb.getNgayDat().isEqual(homNay);
+                boLoc = pdb -> pdb.getNgayDat() != null && pdb.getNgayDat().toLocalDate().isEqual(homNay.toLocalDate());
                 giaiDoanTieuDe = "trong ngày";
                 break;
             case "tháng":
@@ -59,9 +59,9 @@ public class ThongKeBan {
                         Collectors.counting() // Đếm số lần xuất hiện
                 ));
 
-//        if (luotSuDungTheoTang.isEmpty()) {
-//            return new Label("Không có dữ liệu đặt bàn " + giaiDoanTieuDe);
-//        }
+        if (luotSuDungTheoTang.isEmpty()) {
+            return new Label("Không có dữ liệu đặt bàn " + giaiDoanTieuDe);
+        }
 
         // Tạo biểu đồ thanh ngang
         CategoryAxis yAxis = new CategoryAxis(); // Trục Y là tên tầng
@@ -75,10 +75,10 @@ public class ThongKeBan {
 
         XYChart.Series<Number, String> series = new XYChart.Series<>();
 
-//        // Thêm dữ liệu vào biểu đồ
-//        for (Map.Entry<String, Long> entry : luotSuDungTheoTang.entrySet()) {
-//            series.getData().add(new XYChart.Data<>(entry.getValue(), entry.getKey()));
-//        }
+        // Thêm dữ liệu vào biểu đồ
+        for (Map.Entry<String, Long> entry : luotSuDungTheoTang.entrySet()) {
+            series.getData().add(new XYChart.Data<>(entry.getValue(), entry.getKey()));
+        }
 
         bieuDo.getData().add(series);
         String[] colors = {
