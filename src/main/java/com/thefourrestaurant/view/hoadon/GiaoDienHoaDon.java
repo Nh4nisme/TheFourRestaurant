@@ -80,9 +80,7 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
         TableColumn<HoaDon, Void> colHanhDong = new TableColumn<>("Hành động");
         colHanhDong.setCellFactory(col -> new TableCell<>() {
             private final Button btnXoa = new Button("🗑");
-
             {
-                btnXoa.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 14;");
                 btnXoa.setOnAction(event -> {
                     HoaDon hd = getTableView().getItems().get(getIndex());
                     Stage stage = (Stage) btnXoa.getScene().getWindow();
