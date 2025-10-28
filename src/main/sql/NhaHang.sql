@@ -170,11 +170,11 @@ GO
 -- Bảng ChiTietThucDon
 -- ================================
 CREATE TABLE ChiTietThucDon (
-    maLoaiMon CHAR(8) NOT NULL,
+    maMonAn CHAR(8) NOT NULL,
     maTD CHAR(8) NOT NULL,
-    PRIMARY KEY (maLoaiMon, maTD),
-    CONSTRAINT FK_ChiTietThucDon_LoaiMonAn FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon),
-    CONSTRAINT FK_ChiTietThucDon_ThucDon FOREIGN KEY (maTD) REFERENCES ThucDon(maTD)
+    PRIMARY KEY(maMonAn, maTD),
+    CONSTRAINT FK_MonAn_ThucDon_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn),
+    CONSTRAINT FK_MonAn_ThucDon_ThucDon FOREIGN KEY (maTD) REFERENCES ThucDon(maTD)
 );
 GO
 
@@ -541,18 +541,20 @@ INSERT INTO ThucDon(maTD, tenTD) VALUES
 ('TD000004', N'Tối');
 GO
 
-INSERT INTO ChiTietThucDon(maLoaiMon, maTD) VALUES 
-('LM000001', 'TD000001'), -- Sáng
-('LM000001', 'TD000002'); -- Trưa
+-- ChiTietThucDon (liên kết món ăn cụ thể với thực đơn)
+-- Món MA000001 xuất hiện trong Sáng và Trưa
+INSERT INTO ChiTietThucDon(maMonAn, maTD) VALUES 
+('MA000001', 'TD000001'), -- Sáng
+('MA000001', 'TD000002'); -- Trưa
 
--- Loại món LM000002 (Món chính) chỉ xuất hiện trong Chiều
-INSERT INTO ChiTietThucDon(maLoaiMon, maTD) VALUES 
-('LM000002', 'TD000003'); -- Chiều
+-- Món MA000002 chỉ xuất hiện trong Chiều
+INSERT INTO ChiTietThucDon(maMonAn, maTD) VALUES 
+('MA000002', 'TD000003'); -- Chiều
 
--- Loại món LM000003 (Tráng miệng) xuất hiện trong Trưa và Tối
-INSERT INTO ChiTietThucDon(maLoaiMon, maTD) VALUES 
-('LM000003', 'TD000002'), -- Trưa
-('LM000003', 'TD000004'); -- Tối
+-- Món MA000003 xuất hiện trong Trưa và Tối
+INSERT INTO ChiTietThucDon(maMonAn, maTD) VALUES 
+('MA000003', 'TD000002'), -- Trưa
+('MA000003', 'TD000004'); -- Tối
 GO
 
 -- Phiếu đặt bàn
