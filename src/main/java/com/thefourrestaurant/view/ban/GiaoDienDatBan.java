@@ -6,6 +6,7 @@ import com.thefourrestaurant.controller.PhieuDatBanController;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
+import com.thefourrestaurant.util.ClockText;
 import com.thefourrestaurant.view.GiaoDienGoiMon;
 import javafx.util.StringConverter;
 import com.thefourrestaurant.view.hoadon.GiaoDienLapHoaDon;
@@ -20,6 +21,8 @@ import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.scene.Scene;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,10 +103,10 @@ public class GiaoDienDatBan extends BorderPane {
         header.setStyle("-fx-background-color: " + COLOR_BACKGROUND_SIDE + ";");
 
         Label lblDanhSachBan = taoLabel("Danh sách bàn", 20, true);
-        Label lblNgay = taoLabel("Thứ hai - 03/06/2025", 16, false);
-        Label lblGio = taoLabel("12:36:36", 16, false);
+        ClockText boDemGio = new ClockText();
+        boDemGio.setStyle("-fx-fill: #DDB248; -fx-font-size: 15px; -fx-font-weight: bold;");
 
-        header.getChildren().addAll(lblDanhSachBan, lblNgay, lblGio);
+        header.getChildren().addAll(lblDanhSachBan,boDemGio);
         return header;
     }
 
