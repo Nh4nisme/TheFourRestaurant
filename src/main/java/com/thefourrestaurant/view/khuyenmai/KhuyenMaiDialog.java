@@ -24,6 +24,12 @@ import java.util.List;
 
 public class KhuyenMaiDialog extends Stage {
 
+    // Regex for validation
+    private static final String TEN_KM_REGEX = "^[a-zA-Z0-9]{1,100}$"; // Tên KM là một dãy ký tự không dấu liền nhau, tối đa 100 ký tự
+    private static final String MO_TA_REGEX = "^.{1,255}$"; // Mô tả không rỗng, tối đa 255 ký tự
+    private static final String TY_LE_REGEX = "^(\\d{1,2}|100)$"; // Tỷ lệ từ 0-100
+    private static final String SO_TIEN_REGEX = "^[1-9]\\d*$"; // Số tiền phải lớn hơn 0
+
     private KhuyenMai ketQua = null;
     private final boolean laCheDoChinhSua;
     private final KhuyenMai khuyenMaiHienTai;
@@ -110,8 +116,10 @@ public class KhuyenMaiDialog extends Stage {
         hopChonLoaiKhuyenMai.getStyleClass().add("combo-box");
         truongTyLe.setStyle(kieuTruongNhap);
         truongTyLe.getStyleClass().add("text-field");
+        truongTyLe.setDisable(true);
         truongSoTien.setStyle(kieuTruongNhap);
         truongSoTien.getStyleClass().add("text-field");
+        truongSoTien.setDisable(true);
         boChonNgayBatDau.setStyle(kieuTruongNhap);
         boChonNgayBatDau.getStyleClass().add("date-picker");
         boChonNgayKetThuc.setStyle(kieuTruongNhap);
@@ -138,6 +146,42 @@ public class KhuyenMaiDialog extends Stage {
                 return null;
             }
         });
+
+        hopChonLoaiKhuyenMai.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
+            if (newValue == null) {
+                truongTyLe.setDisable(true);
+                truongSoTien.setDisable(true);
+                truongTyLe.clear();
+                truongSoTien.clear();
+                return;
+            }
+            String tenLoaiKM = newValue.getTenLoaiKM();
+            switch (tenLoaiKM) {
+                case "Giảm giá theo tỷ lệ":
+                    truongTyLe.setDisable(false);
+                    truongSoTien.setDisable(true);
+                    truongSoTien.clear();
+                    break;
+                case "Giảm giá theo số tiền":
+                    truongTyLe.setDisable(true);
+                    truongTyLe.clear();
+                    truongSoTien.setDisable(false);
+                    break;
+                case "Tặng món":
+                    truongTyLe.setDisable(true);
+                    truongSoTien.setDisable(true);
+                    truongTyLe.clear();
+                    truongSoTien.clear();
+                    break;
+                default:
+                    truongTyLe.setDisable(false);
+                    truongSoTien.setDisable(false);
+                    truongTyLe.clear();
+                    truongSoTien.clear();
+                    break;
+            }
+        });
+
         luoiForm.add(hopChonLoaiKhuyenMai, 1, 3);
 
         luoiForm.add(new Label("Tỷ lệ (%):"), 0, 4);
@@ -210,9 +254,17 @@ public class KhuyenMaiDialog extends Stage {
     }
 
     private void luuThayDoi() {
-        // 1. Kiểm tra các trường cơ bản
-        if (truongTenKM.getText().trim().isEmpty() || truongMoTa.getText().trim().isEmpty() || hopChonLoaiKhuyenMai.getValue() == null) {
-            showAlert(Alert.AlertType.WARNING, "Vui lòng nhập Tên, Mô tả và chọn Loại khuyến mãi!");
+        // 1. Kiểm tra các trường cơ bản bằng Regex
+        if (!truongTenKM.getText().trim().matches(TEN_KM_REGEX)) {
+            showAlert(Alert.AlertType.WARNING, "Quy tắc Tên Khuyến Mãi: Phải là một dãy ký tự không dấu, không chứa khoảng trắng, và có độ dài từ 1 đến 100 ký tự.");
+            return;
+        }
+        if (!truongMoTa.getText().trim().matches(MO_TA_REGEX)) {
+            showAlert(Alert.AlertType.WARNING, "Quy tắc Mô Tả: Không được để trống và phải có độ dài từ 1 đến 255 ký tự.");
+            return;
+        }
+        if (hopChonLoaiKhuyenMai.getValue() == null) {
+            showAlert(Alert.AlertType.WARNING, "Vui lòng chọn Loại khuyến mãi!");
             return;
         }
 
@@ -222,49 +274,36 @@ public class KhuyenMaiDialog extends Stage {
         BigDecimal soTien = null;
 
         // 2. Kiểm tra logic dựa trên Loại Khuyến Mãi
-        if ("Giảm giá theo tỷ lệ".equals(tenLoaiKM)) {
-            if (!truongSoTien.getText().trim().isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "Với 'Giảm giá theo tỷ lệ', ô 'Số tiền' phải để trống.");
-                return;
-            }
-            if (truongTyLe.getText().trim().isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "Với 'Giảm giá theo tỷ lệ', bạn phải nhập 'Tỷ lệ'.");
-                return;
-            }
-            try {
-                tyLe = new BigDecimal(truongTyLe.getText().trim());
-                if (tyLe.compareTo(BigDecimal.ZERO) <= 0 || tyLe.compareTo(new BigDecimal(100)) > 0) {
-                    showAlert(Alert.AlertType.WARNING, "Tỷ lệ phải là số lớn hơn 0 và nhỏ hơn hoặc bằng 100!");
+        switch (tenLoaiKM) {
+            case "Giảm giá theo tỷ lệ":
+                if (truongTyLe.getText().trim().isEmpty() || !truongTyLe.getText().trim().matches(TY_LE_REGEX)) {
+                    showAlert(Alert.AlertType.WARNING, "Quy tắc Tỷ Lệ: Phải là một số hợp lệ từ 0 đến 100.");
                     return;
                 }
-            } catch (NumberFormatException e) {
-                showAlert(Alert.AlertType.WARNING, "Tỷ lệ phải là một con số hợp lệ!");
-                return;
-            }
-        } else if ("Giảm giá theo giá trị".equals(tenLoaiKM)) {
-            if (!truongTyLe.getText().trim().isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "Với 'Giảm giá theo giá trị', ô 'Tỷ lệ' phải để trống.");
-                return;
-            }
-            if (truongSoTien.getText().trim().isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "Với 'Giảm giá theo giá trị', bạn phải nhập 'Số tiền'.");
-                return;
-            }
-            try {
-                soTien = new BigDecimal(truongSoTien.getText().trim());
-                if (soTien.compareTo(BigDecimal.ZERO) <= 0) {
-                    showAlert(Alert.AlertType.WARNING, "Số tiền phải là số lớn hơn 0!");
+                try {
+                    tyLe = new BigDecimal(truongTyLe.getText().trim());
+                } catch (NumberFormatException e) {
+                    showAlert(Alert.AlertType.WARNING, "Quy tắc Tỷ Lệ: Phải là một số hợp lệ từ 0 đến 100.");
                     return;
                 }
-            } catch (NumberFormatException e) {
-                showAlert(Alert.AlertType.WARNING, "Số tiền phải là một con số hợp lệ!");
-                return;
-            }
-        } else if ("Tặng món ăn".equals(tenLoaiKM)) {
-            if (!truongTyLe.getText().trim().isEmpty() || !truongSoTien.getText().trim().isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "Với 'Tặng món ăn', ô 'Tỷ lệ' và 'Số tiền' phải để trống.");
-                return;
-            }
+                break;
+
+            case "Giảm giá theo giá trị":
+                if (truongSoTien.getText().trim().isEmpty() || !truongSoTien.getText().trim().matches(SO_TIEN_REGEX)) {
+                    showAlert(Alert.AlertType.WARNING, "Quy tắc Số Tiền: Phải là một số hợp lệ và lớn hơn 0.");
+                    return;
+                }
+                try {
+                    soTien = new BigDecimal(truongSoTien.getText().trim());
+                } catch (NumberFormatException e) {
+                    showAlert(Alert.AlertType.WARNING, "Quy tắc Số Tiền: Phải là một số hợp lệ và lớn hơn 0.");
+                    return;
+                }
+                break;
+
+            case "Tặng món ăn":
+                // Không cần kiểm tra gì thêm vì các ô đã bị vô hiệu hóa
+                break;
         }
 
         // 3. Kiểm tra ngày tháng
