@@ -96,7 +96,7 @@ public class GiaoDienTuyChinhBan extends VBox {
         lblHinhAnh.setPrefWidth(80);
         
         VBox imageBox = new VBox(5);
-        linkAttachImage = new Hyperlink("attach an image");
+        linkAttachImage = new Hyperlink(ban.getAnhBan());
         linkAttachImage.setStyle("-fx-text-fill: #0066CC; -fx-font-size: 13px; -fx-underline: true;");
         linkAttachImage.setPadding(new Insets(0));
         

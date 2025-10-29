@@ -108,7 +108,15 @@ public class BanDAO {
     // 🔹 Lấy danh sách bàn theo tầng
     public List<Ban> layTheoTang(String maTang) {
         List<Ban> dsBan = new ArrayList<>();
-        String sql = "SELECT maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan FROM Ban WHERE maTang = ?";
+        String sql = """
+            SELECT b.maBan, b.tenBan, b.trangThai, b.toaDoX, b.toaDoY, b.anhBan,
+                   t.maTang, t.tenTang,
+                   lb.maLoaiBan, lb.tenLoaiBan, lb.giaTien
+            FROM Ban b
+            JOIN Tang t ON b.maTang = t.maTang
+            JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
+            WHERE b.maTang = ?
+            """;
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -117,19 +125,29 @@ public class BanDAO {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Tang tang = tangDAO.layTangTheoMa(rs.getString("maTang"));
-                LoaiBan loaiBan = loaiBanDAO.layTheoMa(rs.getString("maLoaiBan"));
+                Tang tang = new Tang(
+                    rs.getString("maTang"),
+                    rs.getString("tenTang")
+                );
 
-                dsBan.add(new Ban(
-                        rs.getString("maBan"),
-                        rs.getString("tenBan"),
-                        rs.getString("trangThai"),
-                        rs.getInt("toaDoX"),
-                        rs.getInt("toaDoY"),
-                        tang,
-                        loaiBan,
-                        rs.getString("anhBan")
-                ));
+                LoaiBan loaiBan = new LoaiBan(
+                    rs.getString("maLoaiBan"),
+                    rs.getString("tenLoaiBan"),
+                    rs.getBigDecimal("giaTien")
+                );
+
+                Ban ban = new Ban(
+                    rs.getString("maBan"),
+                    rs.getString("tenBan"),
+                    rs.getString("trangThai"),
+                    rs.getInt("toaDoX"),
+                    rs.getInt("toaDoY"),
+                    tang,
+                    loaiBan,
+                    rs.getString("anhBan")
+                );
+
+                dsBan.add(ban);
             }
         } catch (Exception e) {
             e.printStackTrace();

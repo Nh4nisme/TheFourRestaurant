@@ -111,7 +111,7 @@ public class QuanLiBan extends VBox {
         for (Ban b : dsBan) {
             taoBan(khuVucBan, b);
         }
-    }
+    };
 
     // 🔹 Đặt background theo tầng
     private void setBackgroundTheoTang(String maTang) {

@@ -27,13 +27,16 @@ public class KhachHang {
         setLoaiKH(loaiKH);
         setDeleted(isDeleted);
     }
+    
+    public KhachHang(String maKH, String hoTen, String soDT) {
+    	setMaKH(maKH);
+        setHoTen(hoTen);
+        setSoDT(soDT);
+    }
 
     public KhachHang(String maKH, String hoTen, Date ngaySinh, String gioiTinh,
                      String soDT, LoaiKhachHang loaiKH) {
         this(maKH, hoTen, ngaySinh, gioiTinh, soDT, loaiKH, false);
-    }
-
-    public KhachHang(String maKH, String tenKH, String soDT) {
     }
 
     public String getMaKH() {
