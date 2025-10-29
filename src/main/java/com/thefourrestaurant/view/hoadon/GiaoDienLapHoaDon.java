@@ -88,9 +88,9 @@ public class GiaoDienLapHoaDon extends VBox {
         Label lbl2 = new Label("Mã PĐB:");
         Label lbl3 = new Label("Tên KH:");
         Label lbl4 = new Label("SĐT KH:");
-        Label lbl5 = new Label("Giờ nhận:");
+        Label lbl5 = new Label("Ngày nhận:");
 
-        for (Label lbl : new Label[]{lblMaHD, lblMaPDB, lblTenKH, lblSDT, lblGioNhan, lblGioTra}) {
+        for (Label lbl : new Label[]{lblMaHD, lblMaPDB, lblTenKH, lblSDT, lblGioNhan}) {
             lbl.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D; -fx-font-size: 13px;");
         }
 
@@ -293,8 +293,10 @@ public class GiaoDienLapHoaDon extends VBox {
         lblTenKH.setText(pdb.getKhachHang().getHoTen());       // tên khách
         lblSDT.setText(pdb.getKhachHang().getSoDT());           // số điện thoại
         lblGioNhan.setText(pdb.getNgayDat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-        if (pdb.getTienCoc() != null) {
-            lblTienCoc.setText(formatTien(pdb.getTienCoc()) + " đ");
+        BigDecimal tienCoc = pdb.getTienCoc();
+        System.out.println("tienCoc: " + tienCoc);
+        if (tienCoc != null) {
+            lblTienCoc.setText(formatTien(tienCoc) + " đ");
         } else {
             lblTienCoc.setText("0 đ");
         }
@@ -328,38 +330,64 @@ public class GiaoDienLapHoaDon extends VBox {
             lblTongTien.setText("0 đ");
             lblVAT.setText("10%");
             lblThanhToan.setText("0 đ");
+            lblTienThua.setText("0 đ");
+            lblTienCoc.setText("0 đ");
             return;
         }
 
+        // 1. Tính tổng tiền món
         BigDecimal tongTien = BigDecimal.ZERO;
-
         for (ChiTietPDB ct : chiTietList) {
             BigDecimal donGia = ct.getMonAn().getDonGia();
             int soLuong = ct.getSoLuong();
-            BigDecimal thanhTien = donGia.multiply(BigDecimal.valueOf(soLuong));
-            tongTien = tongTien.add(thanhTien);
+            tongTien = tongTien.add(donGia.multiply(BigDecimal.valueOf(soLuong)));
         }
 
-        // Trừ khuyến mãi nếu có
-        BigDecimal giam = BigDecimal.ZERO;
+        // 2. Lấy tiền cọc nếu có
+        BigDecimal tienCoc = BigDecimal.ZERO;
+        PhieuDatBan pdb = null;
+        if (!lblMaPDB.getText().isBlank()) {
+            PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
+            pdb = pdbDAO.layPhieuTheoMa(lblMaPDB.getText());
+            if (pdb != null && pdb.getTienCoc() != null) {
+                tienCoc = pdb.getTienCoc();
+            }
+        }
+        lblTienCoc.setText(formatTien(tienCoc) + " đ");
+
+        // 3. Hiển thị tổng tiền món trước khi KM và VAT
+        lblTongTien.setText(formatTien(tongTien) + " đ");
+
+        // 4. Nếu có KM hợp lệ, áp dụng khuyến mãi
+        BigDecimal thanhToan = tongTien;
         if (kmHienTai != null) {
             if (kmHienTai.getTyLe() != null) {
-                giam = tongTien.multiply(kmHienTai.getTyLe().divide(BigDecimal.valueOf(100)));
+                BigDecimal giam = tongTien.multiply(kmHienTai.getTyLe()).divide(BigDecimal.valueOf(100));
+                thanhToan = thanhToan.subtract(giam);
             } else if (kmHienTai.getSoTien() != null) {
-                giam = kmHienTai.getSoTien();
+                thanhToan = thanhToan.subtract(kmHienTai.getSoTien());
             }
-            tongTien = tongTien.subtract(giam);
         }
 
-        // VAT 10%
-        BigDecimal vat = tongTien.multiply(BigDecimal.valueOf(0.1));
-        BigDecimal thanhToan = tongTien.add(vat);
-
-        // Hiển thị
-        lblTongTien.setText(formatTien(tongTien) + " đ");
+        // 5. Cộng VAT 10% khi đã áp dụng KM hoặc không
+        if (kmHienTai != null) {
+            BigDecimal vat = thanhToan.multiply(BigDecimal.valueOf(0.1));
+            thanhToan = thanhToan.add(vat);
+        }
         lblVAT.setText("10%");
+
+        // 6. Trừ tiền cọc
+        thanhToan = thanhToan.subtract(tienCoc);
+        if (thanhToan.compareTo(BigDecimal.ZERO) < 0) {
+            thanhToan = BigDecimal.ZERO;
+        }
+
         lblThanhToan.setText(formatTien(thanhToan) + " đ");
+
+        // 7. Cập nhật tiền thừa nếu khách nhập tiền
+        capNhatTienThua();
     }
+
 
     /**
      * Hàm format tiền để đẹp hơn
@@ -537,6 +565,15 @@ public class GiaoDienLapHoaDon extends VBox {
             if (pdb != null) {
                 PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
                 pdbDAO.capNhatTrangThai(maPDB, "Đã thanh toán");
+
+                BanDAO banDAO = new BanDAO();
+                if(pdb.getBan() != null) {
+                    String maBan = pdb.getBan().getMaBan();
+                    Boolean ok = banDAO.capNhatTrangThai(maBan,"Trống");
+                    if(!ok) {
+                        thongBao("Cập nhật trạng thái bàn thất bại!", Alert.AlertType.WARNING);
+                    }
+                }
             }
 
             // 15. Thông báo thành công

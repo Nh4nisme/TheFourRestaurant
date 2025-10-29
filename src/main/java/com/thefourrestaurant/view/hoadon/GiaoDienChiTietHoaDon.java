@@ -39,8 +39,7 @@ public class GiaoDienChiTietHoaDon extends VBox {
         getChildren().addAll(
                 TieuDe,
                 taoDongThongTin("SĐT khách hàng:", lblSDT),
-                taoDongThongTin("Tên khách hàng:", lblTenKH),
-                taoDongThongTin("Giờ nhận bàn:", lblGioNhan)
+                taoDongThongTin("Tên khách hàng:", lblTenKH)
         );
 
         // ==== Table chi tiết món ====
@@ -130,6 +129,7 @@ public class GiaoDienChiTietHoaDon extends VBox {
         thongTinPhu.get("Thuế VAT:").setText(hd.getThue() != null ? hd.getThue().getTyLe() + "%" : "0%");
         thongTinPhu.get("Tiền nhận:").setText(String.format("%,.0f đ", hd.getTienKhachDua()));
         thongTinPhu.get("Tiền thừa:").setText(String.format("%,.0f đ", hd.getTienThua()));
+        thongTinPhu.get("Tiền đặt cọc trước:").setText(String.format("%,.0f đ", hd.getPhieuDatBan().getTienCoc()));
         thongTinPhu.get("Tiền thanh toán:").setText(String.format("%,.0f đ", tongTien));
         thongTinPhu.get("Thành tiền:").setText(String.format("%,.0f đ", hd.getTongTienGoc()));
     }

@@ -3,6 +3,7 @@ package com.thefourrestaurant.DAO;
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.model.*;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -50,6 +51,7 @@ public class HoaDonDAO {
                         -- Phiếu đặt bàn
                         pdb.maPDB,
                         pdb.trangThai AS trangThaiPDB,
+                        pdb.tienCoc,
                 
                         -- Khuyến mãi
                         km.maKM,
@@ -164,6 +166,16 @@ public class HoaDonDAO {
                         kh.setHoTen(rs.getString("tenKhachHang"));
                         kh.setSoDT(rs.getString("soDienThoaiKH"));
                         hd.setKhachHang(kh);
+                    }
+
+                    // ========== PHIẾU ĐẶT BÀN ==========
+                    if (rs.getString("maPDB") != null) {
+                        PhieuDatBan pdb = new PhieuDatBan();
+                        pdb.setMaPDB(rs.getString("maPDB"));
+                        pdb.setTrangThai(rs.getString("trangThaiPDB"));
+                        BigDecimal tienCoc = rs.getBigDecimal("tienCoc") != null ? rs.getBigDecimal("tienCoc") : BigDecimal.ZERO;
+                        pdb.setTienCoc(tienCoc);
+                        hd.setPhieuDatBan(pdb);
                     }
 
                     // ========== KHUYẾN MÃI ==========

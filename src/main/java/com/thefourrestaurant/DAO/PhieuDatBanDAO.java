@@ -34,6 +34,7 @@ public class PhieuDatBanDAO {
                 pdb.setNhanVien(nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")));
                 pdb.setBan(banDAO.layTheoMa(rs.getString("maBan")));
                 pdb.setTrangThai(rs.getString("trangThai"));
+                pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
                 pdb.setDeleted(rs.getBoolean("isDeleted"));
                 pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(rs.getString("maPDB")));
 
@@ -65,6 +66,7 @@ public class PhieuDatBanDAO {
                 pdb.setNhanVien(nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")));
                 pdb.setBan(banDAO.layTheoMa(rs.getString("maBan")));
                 pdb.setTrangThai(rs.getString("trangThai"));
+                pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
                 pdb.setDeleted(rs.getBoolean("isDeleted"));
 
                 return pdb;
@@ -176,6 +178,7 @@ public class PhieuDatBanDAO {
 	            pdb.setNhanVien(new NhanVienDAO().layNhanVienTheoMa(rs.getString("maNV")));
 	            pdb.setBan(new BanDAO().layTheoMa(rs.getString("maBan")));
 	            pdb.setTrangThai(rs.getString("trangThai"));
+                pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
 	            pdb.setDeleted(rs.getBoolean("isDeleted"));
 	
 	            ChiTietPDBDAO chiTietPDBDAO = new ChiTietPDBDAO();
@@ -213,6 +216,7 @@ public class PhieuDatBanDAO {
                 pdb.setNhanVien(new NhanVienDAO().layNhanVienTheoMa(rs.getString("maNV")));
                 pdb.setBan(new BanDAO().layTheoMa(rs.getString("maBan")));
                 pdb.setTrangThai(rs.getString("trangThai"));
+                pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
                 pdb.setDeleted(rs.getBoolean("isDeleted"));
                 pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(pdb.getMaPDB()));
 
@@ -300,6 +304,7 @@ public class PhieuDatBanDAO {
                 pdb.setNhanVien(new NhanVienDAO().layNhanVienTheoMa(rs.getString("maNV")));
                 pdb.setBan(new BanDAO().layTheoMa(rs.getString("maBan")));
                 pdb.setTrangThai(rs.getString("trangThai"));
+                pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
                 pdb.setDeleted(rs.getBoolean("isDeleted"));
                 pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(pdb.getMaPDB()));
                 return pdb;
