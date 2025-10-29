@@ -182,6 +182,7 @@ public class GiaoDienGoiMon extends BorderPane {
 	    panel.setPadding(new Insets(10));
 	    panel.setStyle("-fx-background-color: #E8E8E8; -fx-background-radius: 8;");
 	    panel.setPrefWidth(650);
+	    VBox.setVgrow(panel, Priority.ALWAYS);
 	
 	    Label lblTieuDe = new Label("PHIẾU GỌI MÓN");
 	    lblTieuDe.setFont(Font.font("System", FontWeight.BOLD, 28));
@@ -256,7 +257,7 @@ public class GiaoDienGoiMon extends BorderPane {
 	    HBox tongTienBox = new HBox(lblTongTien);
 	    tongTienBox.setAlignment(Pos.CENTER_RIGHT);
 	
-	    ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", 40, 35, 3);
+	    ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", 40, 20, 3);
 	    VBox boxDuoi = new VBox(10, tongTienBox, btnGuiBep);
 	    boxDuoi.setAlignment(Pos.CENTER_RIGHT);
 	
