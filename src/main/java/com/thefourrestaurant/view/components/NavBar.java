@@ -119,6 +119,7 @@ public class NavBar extends HBox {
     	if ("Trang chủ".equals(s)) {
             Stage currentStage = (Stage) mainContent.getScene().getWindow();
             new GiaoDienChinh().show(currentStage); // mở lại GiaoDienChinh trên stage hiện tại
+            currentStage.setFullScreen(true);
             return;
         }
     	
@@ -130,6 +131,11 @@ public class NavBar extends HBox {
             helpController.openHelpFile(owner);
             owner.setFullScreen(true);
             return; // Không cần thay đổi mainContent
+        }
+
+        if("Thoát".equals(s)) {
+            Stage currentStage = (Stage) mainContent.getScene().getWindow();
+            currentStage.close();
         }
 
 

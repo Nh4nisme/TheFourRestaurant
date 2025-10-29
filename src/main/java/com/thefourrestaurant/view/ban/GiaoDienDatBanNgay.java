@@ -16,16 +16,11 @@ import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.view.monan.GiaoDienGoiMon;
 import com.thefourrestaurant.view.khachhang.GiaoDienThemKhachHang;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -136,7 +131,7 @@ public class GiaoDienDatBanNgay extends VBox {
 
         Label lblSoNguoi = createLabel("Số người:");
         lblSoNguoi.setPrefWidth(120);
-        txtSoNguoi = createNumericTextField(Pattern.compile("\\d{0,3}"));
+        txtSoNguoi = createNumericTextField(Pattern.compile("[0-9]{0,2}"));
         txtSoNguoi.setPromptText("Chỉ nhập số");
         txtSoNguoi.setPrefWidth(230);
 

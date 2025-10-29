@@ -29,6 +29,7 @@ public class SideBarController {
         sideBar.getButton("CaiDat").setOnAction(e -> {
             Stage stage = (Stage) sideBar.getScene().getWindow();
             new GiaoDienChinh().show(stage); // Reload lại giao diện
+            stage.setFullScreen(true);
         });
     }
 
