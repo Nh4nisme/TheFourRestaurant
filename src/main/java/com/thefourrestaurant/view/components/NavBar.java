@@ -68,8 +68,7 @@ public class NavBar extends HBox {
         } else {
             accountLabel = "Tài khoản: --"; // fallback khi chưa có session
         }
-
-        // ButtonSample btnTKDN = new ButtonSample("null", "/com/thefourrestaurant/images/icon/accountIcon.png",45, 16, 1);
+        
         ButtonSample btnTKDN = new ButtonSample(accountLabel, "/com/thefourrestaurant/images/icon/accountIcon.png", 45, 16, 1);
 
         btnXuLi = new DropDownButton(

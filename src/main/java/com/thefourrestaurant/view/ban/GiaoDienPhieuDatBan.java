@@ -66,7 +66,6 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
             private final Button btnXoa = new Button("🗑");
 
             {
-                btnXoa.setStyle("-fx-background-color: red; -fx-cursor: hand; -fx-font-size: 14;");
                 btnXoa.setOnAction(event -> {
                     PhieuDatBan pdb = getTableView().getItems().get(getIndex());
                     Stage stage = (Stage) btnXoa.getScene().getWindow();
