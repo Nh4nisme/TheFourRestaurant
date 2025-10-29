@@ -183,6 +183,7 @@ public class GiaoDienMonAn extends VBox {
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
         VBox hopThemMoi = MonAnBox.createThemMoiBox();
+        hopThemMoi.setMinHeight(200);
         GridPane luoiThem = new GridPane();
         luoiThem.setAlignment(Pos.BASELINE_LEFT);
         luoiThem.setPadding(new Insets(0, 0, 0, 7.5));
