@@ -37,12 +37,6 @@ public class GiaoDienChinh {
         mainContent.setBackground(new Background(bg));
         VBox.setVgrow(mainContent, Priority.ALWAYS);
 
-        Label tenCT = new Label("Hệ thống quản lý đặt bàn và gọi món TheFourRestaurant");
-        tenCT.setStyle("-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: #DDB248");
-        mainContent.getChildren().add(tenCT);
-        mainContent.setAlignment(Pos.TOP_CENTER);
-        mainContent.setPadding(new Insets(50,0,0,0));
-
         // === LEFT: gồm SideBar + SideBar mở rộng ===
         SideBar sideBar = new SideBar();
 
