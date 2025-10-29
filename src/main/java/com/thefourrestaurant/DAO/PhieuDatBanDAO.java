@@ -1,7 +1,6 @@
 package com.thefourrestaurant.DAO;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -159,7 +158,8 @@ public class PhieuDatBanDAO {
     
  // Trong PhieuDatBanDAO
 	public PhieuDatBan layPhieuDangHoatDongTheoBan(String maBan) {
-	    String sql = "SELECT * FROM PhieuDatBan WHERE maBan = ? AND trangThai = N'Đang phục vụ' AND isDeleted = 0";
+	    String sql = "SELECT * FROM PhieuDatBan WHERE maBan = ? AND trangThai = N'Đang phục vụ' AND isDeleted = 0"
+	    		+ "";
 	    try (Connection conn = ConnectSQL.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
 	

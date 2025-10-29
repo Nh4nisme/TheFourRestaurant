@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.monan;
 
+import javafx.scene.control.ScrollPane;
 import java.util.List;
 
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
@@ -53,6 +54,8 @@ public class GiaoDienGoiMon extends BorderPane {
         this.ban = ban;
         this.pdb = pdb;
         this.mainContent = mainContent;
+        
+        getStylesheets().add(getClass().getResource("/com/thefourrestaurant/css/Application.css").toExternalForm());
         
         HBox thanhTren = taoThanhTren();
 
@@ -114,68 +117,64 @@ public class GiaoDienGoiMon extends BorderPane {
     }
 
     private VBox taoLuoiMonAn() {
-	    VBox container = new VBox(10);
-	    container.setAlignment(Pos.CENTER);
-	    container.setPadding(new Insets(10));
-	
-	    GridPane grid = new GridPane();
-	    grid.setHgap(15);
-	    grid.setVgap(15);
-	    grid.setAlignment(Pos.CENTER);
-	
-	    for (int i = 0; i < 4; i++) {
-	        ColumnConstraints cc = new ColumnConstraints();
-	        cc.setPercentWidth(25);
-	        cc.setHalignment(HPos.CENTER);
-	        grid.getColumnConstraints().add(cc);
-	    }
-	
-	    // 🔹 Lấy danh sách món ăn từ DB
-	    List<MonAn> danhSachMon = monAnDAO.layTatCaMonAn();
-	
-	    int col = 0;
-	    int row = 0;
-	    for (MonAn mon : danhSachMon) {
-	        VBox monBox = new MonAnBox(
-	            mon.getTenMon(),
-	            String.format("%,.0f", mon.getDonGia().doubleValue()),
-	            mon.getHinhAnh() != null ? mon.getHinhAnh() : "🍽️"
-	        );
-	
-	        monBox.setOnMouseClicked(e -> themMonVaoPhieu(mon));
-	        
-	        grid.add(monBox, col, row);
-	
-	        col++;
-	        if (col == 4) { // 4 cột
-	            col = 0;
-	            row++;
-	        }
-	    }
-	
-	    HBox phanTrang = new HBox(10);
-	    phanTrang.setAlignment(Pos.CENTER);
-	    phanTrang.setPadding(new Insets(10));
+        VBox container = new VBox(10);
+        container.setAlignment(Pos.CENTER);
+        container.setPadding(new Insets(10));
 
-//	    Button btnDau = new Button("⏮");
-//	    Button btnTruoc = new Button("◀");
-//	    Label lblTrang = new Label("1");
-//	    lblTrang.setFont(Font.font(12));
-//	    Button btnSau = new Button("▶");
-//	    Button btnCuoi = new Button("⏭");
+        // GridPane chứa các món ăn
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setAlignment(Pos.TOP_CENTER);
 
-	    String kieuBtn = "-fx-background-color: white; -fx-text-fill: #2C5F5F; "
-	            + "-fx-font-weight: bold; -fx-pref-width: 40px;";
-//	    btnDau.setStyle(kieuBtn);
-//	    btnTruoc.setStyle(kieuBtn);
-//	    btnSau.setStyle(kieuBtn);
-//	    btnCuoi.setStyle(kieuBtn);
-//
-//	    phanTrang.getChildren().addAll(btnDau, btnTruoc, lblTrang, btnSau, btnCuoi);
+        for (int i = 0; i < 4; i++) {
+            ColumnConstraints cc = new ColumnConstraints();
+            cc.setPercentWidth(25);
+            cc.setHalignment(HPos.CENTER);
+            grid.getColumnConstraints().add(cc);
+        }
 
-	    container.getChildren().addAll(grid, phanTrang);
-	    return container;
-	}
+        // Lấy danh sách món ăn từ DB
+        List<MonAn> danhSachMon = monAnDAO.layTatCaMonAn();
+
+        int col = 0;
+        int row = 0;
+        for (MonAn mon : danhSachMon) {
+            VBox monBox = new MonAnBox(
+                mon.getTenMon(),
+                String.format("%,.0f", mon.getDonGia().doubleValue()),
+                mon.getHinhAnh() != null ? mon.getHinhAnh() : "🍽️"
+            );
+
+            monBox.setOnMouseClicked(e -> themMonVaoPhieu(mon));
+
+            grid.add(monBox, col, row);
+
+            col++;
+            if (col == 4) {
+                col = 0;
+                row++;
+            }
+        }
+
+        // ScrollPane bọc GridPane
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(grid);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setPrefHeight(500); // bạn có thể chỉnh chiều cao scrollPane
+
+        // Thanh phân trang (nếu muốn sử dụng)
+        HBox phanTrang = new HBox(10);
+        phanTrang.setAlignment(Pos.CENTER);
+        phanTrang.setPadding(new Insets(10));
+
+        container.getChildren().addAll(scrollPane, phanTrang);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS); // ScrollPane mở rộng theo VBox
+
+        return container;
+    }
 
     @SuppressWarnings({ "unchecked", "deprecation" })
 	private VBox taoKhungPhieuGoiMon() {
@@ -257,7 +256,7 @@ public class GiaoDienGoiMon extends BorderPane {
 	    HBox tongTienBox = new HBox(lblTongTien);
 	    tongTienBox.setAlignment(Pos.CENTER_RIGHT);
 	
-	    ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", 45, 35, 14);
+	    ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", 40, 35, 3);
 	    VBox boxDuoi = new VBox(10, tongTienBox, btnGuiBep);
 	    boxDuoi.setAlignment(Pos.CENTER_RIGHT);
 	
