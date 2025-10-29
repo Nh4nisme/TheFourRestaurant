@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.NumberFormat;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -123,8 +124,22 @@ public class GiaoDienMonAn extends VBox {
         lblSapXep.setFont(Font.font("System", FontWeight.BOLD, 14));
 
         DropDownButton btnTheoChuCai = new DropDownButton("Theo bảng chữ cái  ▼", List.of("A → Z", "Z → A"), null, 35, 16, 3);
+        btnTheoChuCai.setOnItemSelected(selected -> {
+            if ("A → Z".equals(selected)) {
+                sapXepTheoTen(true);
+            } else if ("Z → A".equals(selected)) {
+                sapXepTheoTen(false);
+            }
+        });
+
         DropDownButton btnTheoGia = new DropDownButton("Theo giá  ▼", List.of("Tăng dần", "Giảm dần"), null, 35, 16, 3);
-        ButtonSample btnApDung = new ButtonSample("Áp dụng", "", 35, 13, 3);
+        btnTheoGia.setOnItemSelected(selected -> {
+            if ("Tăng dần".equals(selected)) {
+                sapXepTheoGia(true);
+            } else if ("Giảm dần".equals(selected)) {
+                sapXepTheoGia(false);
+            }
+        });
 
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);
@@ -137,7 +152,7 @@ public class GiaoDienMonAn extends VBox {
         btnTim.setOnAction(event -> locVaCapNhatMonAn(txtTimKiem.getText()));
         txtTimKiem.setOnAction(event -> locVaCapNhatMonAn(txtTimKiem.getText())); // Kích hoạt tìm kiếm khi nhấn Enter
 
-        khungGiua.getChildren().addAll(btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnApDung, space, txtTimKiem, btnTim);
+        khungGiua.getChildren().addAll(btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, space, txtTimKiem, btnTim);
         return khungGiua;
     }
 
@@ -170,7 +185,7 @@ public class GiaoDienMonAn extends VBox {
         VBox hopThemMoi = MonAnBox.createThemMoiBox();
         GridPane luoiThem = new GridPane();
         luoiThem.setAlignment(Pos.BASELINE_LEFT);
-        luoiThem.setPadding(new Insets(0, 0, 0, 15));
+        luoiThem.setPadding(new Insets(0, 0, 0, 7.5));
         luoiThem.add(hopThemMoi, 0, 0);
 
         hopThemMoi.setPickOnBounds(true);
@@ -226,6 +241,25 @@ public class GiaoDienMonAn extends VBox {
         }
         updateViews();
     }
+
+    private void sapXepTheoTen(boolean ascending) {
+        if (ascending) {
+            danhSachMonAnHienThi.sort(Comparator.comparing(MonAn::getTenMon));
+        } else {
+            danhSachMonAnHienThi.sort(Comparator.comparing(MonAn::getTenMon).reversed());
+        }
+        updateViews();
+    }
+
+    private void sapXepTheoGia(boolean ascending) {
+        if (ascending) {
+            danhSachMonAnHienThi.sort(Comparator.comparing(MonAn::getDonGia));
+        } else {
+            danhSachMonAnHienThi.sort(Comparator.comparing(MonAn::getDonGia).reversed());
+        }
+        updateViews();
+    }
+
 
     private void updateViews() {
         updateGridView();
