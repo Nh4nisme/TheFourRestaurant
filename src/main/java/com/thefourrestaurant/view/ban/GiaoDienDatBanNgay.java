@@ -423,7 +423,6 @@ public class GiaoDienDatBanNgay extends VBox {
     public Label getLblTrangThai() { return lblTrangThaiStatus; }
     public ComboBox<String> getCbLoaiBan() { return null; }
     public TextField getTxtSoNguoi() { return txtSoNguoi; }
-    // Deprecated: Giá tiền hiển thị tự động, không còn TextField.
     public TextField getTxtGiaTien() { return null; }
     public TextField getTxtSDTKhachDat() { return txtSDTKhachDat; }
     public Label getLblTenKhachDat() { return lblTenKhachDat; }
