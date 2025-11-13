@@ -22,7 +22,9 @@ public class LoaiBanDAO {
                 LoaiBan lb = new LoaiBan(
                         rs.getString("maLoaiBan"),
                         rs.getString("tenLoaiBan"),
-                        rs.getBigDecimal("giaTien")
+                        rs.getBigDecimal("giaTien"),
+                        rs.getInt("soChoNgoi"),
+                        rs.getString("moTa")
                 );
                 dsLoaiBan.add(lb);
             }
@@ -34,9 +36,9 @@ public class LoaiBanDAO {
         return dsLoaiBan;
     }
 
-    // Lấy loại bàn theo mã
+    // 🔹 Lấy loại bàn theo mã
     public LoaiBan layTheoMa(String maLoaiBan) {
-    	String sql = "SELECT maLoaiBan, tenLoaiBan, giaTien FROM LoaiBan WHERE maLoaiBan = ?";
+        String sql = "SELECT * FROM LoaiBan WHERE maLoaiBan = ?";
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -48,7 +50,9 @@ public class LoaiBanDAO {
                 return new LoaiBan(
                         rs.getString("maLoaiBan"),
                         rs.getString("tenLoaiBan"),
-                        rs.getBigDecimal("giaTien")
+                        rs.getBigDecimal("giaTien"),
+                        rs.getInt("soChoNgoi"),
+                        rs.getString("moTa")
                 );
             }
 
@@ -59,16 +63,21 @@ public class LoaiBanDAO {
         return null;
     }
 
+    // 🔹 Lấy tên loại bàn theo mã bàn
     public String layTenLoaiTheoBan(String maBan) {
-        String sql = "SELECT lb.tenLoaiBan FROM Ban b JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan WHERE b.maBan = ?";
+        String sql = "SELECT lb.tenLoaiBan " +
+                     "FROM Ban b JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan " +
+                     "WHERE b.maBan = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, maBan);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getString(1);
                 }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

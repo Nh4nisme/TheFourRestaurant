@@ -104,10 +104,12 @@ public class GiaoDienChiTietBan extends BorderPane {
 
 	    // Dữ liệu bàn
 	    String[] thongTinBan = new String[]{
-	        ban.getTrangThai(), 
-	        ban.getLoaiBan().getTenLoaiBan(), 
-	        String.valueOf(ban.getLoaiBan().getSoNguoi())
-	    };
+	    	    ban.getTrangThai(),
+	    	    ban.getLoaiBan().getTenLoaiBan(),
+	    	    String.valueOf(ban.getLoaiBan().getSoChoNgoi()),
+	    	    ban.getLoaiBan().getMoTa() != null ? ban.getLoaiBan().getMoTa() : "",
+	    	    ban.getLoaiBan().getGiaTien().toPlainString()
+	    	};
 
 	    VBox theTtb = buildInfoCardWithData(
 	        new String[]{"Trạng Thái:", "Loại bàn:", "Số người:"}, thongTinBan

@@ -5,78 +5,83 @@ import java.util.ArrayList;
 import java.util.List;
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.model.Ban;
+import com.thefourrestaurant.model.Tang;
+import com.thefourrestaurant.model.LoaiBan;
 
 public class PhieuDatBan_BanDAO {
 
-    // 🔹 Thêm liên kết giữa phiếu và danh sách bàn
-    public boolean themLienKet(String maPDB, List<Ban> danhSachBan) {
+    // 🔹 Lấy danh sách bàn theo mã phiếu với thông tin đầy đủ
+    public List<Ban> layDanhSachBanTheoPhieu(String maPDB) {
+        List<Ban> list = new ArrayList<>();
+        String sql = """
+            SELECT b.maBan, b.tenBan, b.trangThai, b.toaDoX, b.toaDoY,
+                   t.maTang, t.tenTang,
+                   lb.maLoaiBan, lb.tenLoaiBan, lb.giaTien, lb.soChoNgoi, lb.moTa
+            FROM PhieuDatBan_Ban pdbb
+            JOIN Ban b ON pdbb.maBan = b.maBan
+            JOIN Tang t ON b.maTang = t.maTang
+            JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
+            WHERE pdbb.maPDB = ?
+        """;
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maPDB);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Ban b = new Ban();
+                b.setMaBan(rs.getString("maBan"));
+                b.setTenBan(rs.getString("tenBan"));
+                b.setTrangThai(rs.getString("trangThai"));
+                b.setToaDoX(rs.getInt("toaDoX"));
+                b.setToaDoY(rs.getInt("toaDoY"));
+
+                // Tang
+                Tang tang = new Tang();
+                tang.setMaTang(rs.getString("maTang"));
+                tang.setTenTang(rs.getString("tenTang"));
+                b.setTang(tang);
+
+                // LoaiBan
+                LoaiBan lb = new LoaiBan();
+                lb.setMaLoaiBan(rs.getString("maLoaiBan"));
+                lb.setTenLoaiBan(rs.getString("tenLoaiBan"));
+                lb.setGiaTien(rs.getBigDecimal("giaTien"));
+                lb.setSoChoNgoi(rs.getInt("soChoNgoi"));
+                lb.setMoTa(rs.getString("moTa"));
+                b.setLoaiBan(lb);
+
+                list.add(b);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    // 🔹 Thêm liên kết giữa Phiếu và Bàn
+    public boolean themLienKet(String maDatBan, List<Ban> danhSachBan) {
         String sql = "INSERT INTO PhieuDatBan_Ban (maPDB, maBan) VALUES (?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             for (Ban b : danhSachBan) {
-                ps.setString(1, maPDB);
+                ps.setString(1, maDatBan);
                 ps.setString(2, b.getMaBan());
                 ps.addBatch();
             }
-            ps.executeBatch();
+            int[] ketQua = ps.executeBatch();
+            for (int n : ketQua) if (n <= 0) return false;
             return true;
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    // 🔹 Xóa tất cả bàn của một phiếu (khi hủy phiếu hoặc cập nhật lại)
-    public boolean xoaLienKetTheoPhieu(String maPDB) {
-        String sql = "DELETE FROM PhieuDatBan_Ban WHERE maPDB = ?";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maPDB);
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    // 🔹 Lấy danh sách bàn theo mã phiếu
-    public List<Ban> layDanhSachBanTheoPhieu(String maPDB) {
-        List<Ban> danhSach = new ArrayList<>();
-        String sql = """
-            SELECT b.* FROM PhieuDatBan_Ban pb
-            JOIN Ban b ON pb.maBan = b.maBan
-            WHERE pb.maPDB = ?
-        """;
-
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maPDB);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Ban b = new BanDAO().layTheoMa(rs.getString("maBan"));
-                danhSach.add(b);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return danhSach;
-    }
-
-    // 🔹 Lấy danh sách phiếu theo mã bàn
-    public List<String> layDanhSachPhieuTheoBan(String maBan) {
-        List<String> dsPhieu = new ArrayList<>();
-        String sql = "SELECT maPDB FROM PhieuDatBan_Ban WHERE maBan = ?";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, maBan);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                dsPhieu.add(rs.getString("maPDB"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return dsPhieu;
-    }
 }

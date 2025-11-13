@@ -6,19 +6,27 @@ public class LoaiBan {
     private String maLoaiBan;
     private String tenLoaiBan;
     private BigDecimal giaTien;
+    private int soChoNgoi;
+    private String moTa;
 
+    // Constructor mặc định
     public LoaiBan() {}
 
+    // Constructor chỉ với mã loại bàn
     public LoaiBan(String maLoaiBan) {
-        setMaLoaiBan(maLoaiBan);
+        this.maLoaiBan = maLoaiBan;
     }
 
-    public LoaiBan(String maLoaiBan, String tenLoaiBan,  BigDecimal giaTien) {
-        setMaLoaiBan(maLoaiBan);
-        setTenLoaiBan(tenLoaiBan);
-        setGiaTien(giaTien);
+    // Constructor đầy đủ
+    public LoaiBan(String maLoaiBan, String tenLoaiBan, BigDecimal giaTien, int soChoNgoi, String moTa) {
+        this.maLoaiBan = maLoaiBan;
+        this.tenLoaiBan = tenLoaiBan;
+        this.giaTien = giaTien;
+        this.soChoNgoi = soChoNgoi;
+        this.moTa = moTa;
     }
 
+    // Getter và Setter
     public String getMaLoaiBan() {
         return maLoaiBan;
     }
@@ -43,19 +51,24 @@ public class LoaiBan {
         this.giaTien = giaTien;
     }
 
-    public int getSoNguoi() {
-        if (tenLoaiBan != null) {
-            try {
-                return Integer.parseInt(tenLoaiBan.replaceAll("\\D", ""));
-            } catch (NumberFormatException e) {
-                return 1;
-            }
-        }
-        return 1;
+    public int getSoChoNgoi() {
+        return soChoNgoi;
+    }
+
+    public void setSoChoNgoi(int soChoNgoi) {
+        this.soChoNgoi = soChoNgoi;
+    }
+
+    public String getMoTa() {
+        return moTa;
+    }
+
+    public void setMoTa(String moTa) {
+        this.moTa = moTa;
     }
 
     @Override
     public String toString() {
-        return tenLoaiBan;
+        return tenLoaiBan + " (" + soChoNgoi + " chỗ)";
     }
 }

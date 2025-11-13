@@ -17,26 +17,45 @@ public class BanDAO {
     // 🔹 Lấy tất cả bàn
     public List<Ban> layTatCaBan() {
         List<Ban> dsBan = new ArrayList<>();
-        String sql = "SELECT maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan FROM Ban";
+        String sql = """
+            SELECT b.maBan, b.tenBan, b.trangThai, b.toaDoX, b.toaDoY, b.anhBan,
+                   t.maTang, t.tenTang,
+                   lb.maLoaiBan, lb.tenLoaiBan, lb.giaTien, lb.soChoNgoi, lb.moTa
+            FROM Ban b
+            JOIN Tang t ON b.maTang = t.maTang
+            JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
+        """;
 
         try (Connection conn = ConnectSQL.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
             while (rs.next()) {
-                Tang tang = tangDAO.layTangTheoMa(rs.getString("maTang"));
-                LoaiBan loaiBan = loaiBanDAO.layTheoMa(rs.getString("maLoaiBan"));
+                Tang tang = new Tang(
+                    rs.getString("maTang"),
+                    rs.getString("tenTang")
+                );
 
-                dsBan.add(new Ban(
-                        rs.getString("maBan"),
-                        rs.getString("tenBan"),
-                        rs.getString("trangThai"),
-                        rs.getInt("toaDoX"),
-                        rs.getInt("toaDoY"),
-                        tang,
-                        loaiBan,
-                        rs.getString("anhBan")
-                ));
+                LoaiBan loaiBan = new LoaiBan(
+                    rs.getString("maLoaiBan"),
+                    rs.getString("tenLoaiBan"),
+                    rs.getBigDecimal("giaTien"),
+                    rs.getInt("soChoNgoi"),
+                    rs.getString("moTa")
+                );
+
+                Ban ban = new Ban(
+                    rs.getString("maBan"),
+                    rs.getString("tenBan"),
+                    rs.getString("trangThai"),
+                    rs.getInt("toaDoX"),
+                    rs.getInt("toaDoY"),
+                    tang,
+                    loaiBan,
+                    rs.getString("anhBan")
+                );
+
+                dsBan.add(ban);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,7 +65,16 @@ public class BanDAO {
 
     // 🔹 Lấy bàn theo mã
     public Ban layTheoMa(String maBan) {
-        String sql = "SELECT maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan FROM Ban WHERE maBan = ?";
+        String sql = """
+            SELECT b.maBan, b.tenBan, b.trangThai, b.toaDoX, b.toaDoY, b.anhBan,
+                   t.maTang, t.tenTang,
+                   lb.maLoaiBan, lb.tenLoaiBan, lb.giaTien, lb.soChoNgoi, lb.moTa
+            FROM Ban b
+            JOIN Tang t ON b.maTang = t.maTang
+            JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
+            WHERE b.maBan = ?
+        """;
+
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -54,20 +82,27 @@ public class BanDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                Tang tang = tangDAO.layTangTheoMa(rs.getString("maTang"));
-                LoaiBan loaiBan = loaiBanDAO.layTheoMa(rs.getString("maLoaiBan"));
+                Tang tang = new Tang(rs.getString("maTang"), rs.getString("tenTang"));
+                LoaiBan loaiBan = new LoaiBan(
+                    rs.getString("maLoaiBan"),
+                    rs.getString("tenLoaiBan"),
+                    rs.getBigDecimal("giaTien"),
+                    rs.getInt("soChoNgoi"),
+                    rs.getString("moTa")
+                );
 
                 return new Ban(
-                        rs.getString("maBan"),
-                        rs.getString("tenBan"),
-                        rs.getString("trangThai"),
-                        rs.getInt("toaDoX"),
-                        rs.getInt("toaDoY"),
-                        tang,
-                        loaiBan,
-                        rs.getString("anhBan")
+                    rs.getString("maBan"),
+                    rs.getString("tenBan"),
+                    rs.getString("trangThai"),
+                    rs.getInt("toaDoX"),
+                    rs.getInt("toaDoY"),
+                    tang,
+                    loaiBan,
+                    rs.getString("anhBan")
                 );
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -107,53 +142,55 @@ public class BanDAO {
 
     // 🔹 Lấy danh sách bàn theo tầng
     public List<Ban> layTheoTang(String maTang) {
-        List<Ban> dsBan = new ArrayList<>();
-        String sql = """
-            SELECT b.maBan, b.tenBan, b.trangThai, b.toaDoX, b.toaDoY, b.anhBan,
-                   t.maTang, t.tenTang,
-                   lb.maLoaiBan, lb.tenLoaiBan, lb.giaTien
-            FROM Ban b
-            JOIN Tang t ON b.maTang = t.maTang
-            JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
-            WHERE b.maTang = ?
-            """;
+    List<Ban> dsBan = new ArrayList<>();
+    String sql = """
+        SELECT b.maBan, b.tenBan, b.trangThai, b.toaDoX, b.toaDoY, b.anhBan,
+               t.maTang, t.tenTang,
+               lb.maLoaiBan, lb.tenLoaiBan, lb.giaTien, lb.soChoNgoi, lb.moTa
+        FROM Ban b
+        JOIN Tang t ON b.maTang = t.maTang
+        JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
+        WHERE b.maTang = ?
+        """;
 
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    try (Connection conn = ConnectSQL.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, maTang);
-            ResultSet rs = ps.executeQuery();
+        ps.setString(1, maTang);
+        ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                Tang tang = new Tang(
-                    rs.getString("maTang"),
-                    rs.getString("tenTang")
-                );
+        while (rs.next()) {
+            Tang tang = new Tang(
+                rs.getString("maTang"),
+                rs.getString("tenTang")
+            );
 
-                LoaiBan loaiBan = new LoaiBan(
-                    rs.getString("maLoaiBan"),
-                    rs.getString("tenLoaiBan"),
-                    rs.getBigDecimal("giaTien")
-                );
+            LoaiBan loaiBan = new LoaiBan(
+                rs.getString("maLoaiBan"),
+                rs.getString("tenLoaiBan"),
+                rs.getBigDecimal("giaTien"),
+                rs.getInt("soChoNgoi"),
+                rs.getString("moTa")
+            );
 
-                Ban ban = new Ban(
-                    rs.getString("maBan"),
-                    rs.getString("tenBan"),
-                    rs.getString("trangThai"),
-                    rs.getInt("toaDoX"),
-                    rs.getInt("toaDoY"),
-                    tang,
-                    loaiBan,
-                    rs.getString("anhBan")
-                );
+            Ban ban = new Ban(
+                rs.getString("maBan"),
+                rs.getString("tenBan"),
+                rs.getString("trangThai"),
+                rs.getInt("toaDoX"),
+                rs.getInt("toaDoY"),
+                tang,
+                loaiBan,
+                rs.getString("anhBan")
+            );
 
-                dsBan.add(ban);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            dsBan.add(ban);
         }
-        return dsBan;
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+    return dsBan;
+}
     
     public List<String> layDanhSachTrangThaiTuCSDL() {
         List<String> dsTrangThai = new ArrayList<>();
