@@ -373,7 +373,7 @@ public class QuanLiBan extends VBox {
                 thoaDieuKien = false;
             }
 
-            if (soGhe > 0 && b.getLoaiBan().getSoNguoi() != soGhe) {
+            if (soGhe > 0 && b.getLoaiBan().getSoChoNgoi() != soGhe) {
                 thoaDieuKien = false;
             }
 

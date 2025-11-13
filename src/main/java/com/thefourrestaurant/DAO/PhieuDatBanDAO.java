@@ -3,7 +3,9 @@ package com.thefourrestaurant.DAO;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.math.BigDecimal;
 
 import com.thefourrestaurant.connect.ConnectSQL;
@@ -17,63 +19,102 @@ public class PhieuDatBanDAO {
     // 🔹 Lấy tất cả phiếu chưa xóa
     public List<PhieuDatBan> layTatCaPhieu() {
         List<PhieuDatBan> danhSach = new ArrayList<>();
-        String sql = "SELECT * FROM PhieuDatBan WHERE isDeleted = 0";
+        String sql = """
+            SELECT pdb.*, pdbb.maBan
+            FROM PhieuDatBan pdb
+            LEFT JOIN PhieuDatBan_Ban pdbb ON pdb.maPDB = pdbb.maPDB
+            WHERE pdb.isDeleted = 0
+        """;
 
         try (Connection conn = ConnectSQL.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
-            while (rs.next()) {
-                PhieuDatBan pdb = new PhieuDatBan();
-                pdb.setMaPDB(rs.getString("maPDB"));
-                pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
-                pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
-                pdb.setSoNguoi(rs.getInt("soNguoi"));
-                pdb.setKhachHang(khachHangDAO.layKhachHangTheoMa(rs.getString("maKH")));
-                pdb.setNhanVien(nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")));
-                pdb.setBan(banDAO.layTheoMa(rs.getString("maBan")));
-                pdb.setTrangThai(rs.getString("trangThai"));
-                pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
-                pdb.setDeleted(rs.getBoolean("isDeleted"));
-                pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(rs.getString("maPDB")));
+            // Map để gom nhiều bàn cho cùng 1 phiếu
+            Map<String, PhieuDatBan> mapPhieu = new HashMap<>();
 
-                danhSach.add(pdb);
+            while (rs.next()) {
+                String maPDB = rs.getString("maPDB");
+                PhieuDatBan pdb;
+                if (mapPhieu.containsKey(maPDB)) {
+                    pdb = mapPhieu.get(maPDB);
+                } else {
+                    pdb = new PhieuDatBan();
+                    pdb.setMaPDB(maPDB);
+                    pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
+                    pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
+                    pdb.setSoNguoi(rs.getInt("soNguoi"));
+                    pdb.setKhachHang(khachHangDAO.layKhachHangTheoMa(rs.getString("maKH")));
+                    pdb.setNhanVien(nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")));
+                    pdb.setTrangThai(rs.getString("trangThai"));
+                    pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
+                    pdb.setDeleted(rs.getBoolean("isDeleted"));
+                    pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(maPDB));
+                    pdb.setDanhSachBan(new ArrayList<>());
+                    mapPhieu.put(maPDB, pdb);
+                }
+
+                String maBan = rs.getString("maBan");
+                if (maBan != null) {
+                    Ban ban = banDAO.layTheoMa(maBan);
+                    if (ban != null) pdb.getDanhSachBan().add(ban);
+                }
             }
+
+            danhSach.addAll(mapPhieu.values());
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return danhSach;
     }
 
     // 🔹 Lấy phiếu theo mã
     public PhieuDatBan layPhieuTheoMa(String maPDB) {
-        String sql = "SELECT * FROM PhieuDatBan WHERE maPDB = ?";
+        String sql = """
+            SELECT pdb.*, pdbb.maBan
+            FROM PhieuDatBan pdb
+            LEFT JOIN PhieuDatBan_Ban pdbb ON pdb.maPDB = pdbb.maPDB
+            WHERE pdb.maPDB = ?
+        """;
+
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maPDB);
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                PhieuDatBan pdb = new PhieuDatBan();
-                pdb.setMaPDB(rs.getString("maPDB"));
-                pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
-                pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
-                pdb.setSoNguoi(rs.getInt("soNguoi"));
-                pdb.setKhachHang(khachHangDAO.layKhachHangTheoMa(rs.getString("maKH")));
-                pdb.setNhanVien(nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")));
-                pdb.setBan(banDAO.layTheoMa(rs.getString("maBan")));
-                pdb.setTrangThai(rs.getString("trangThai"));
-                pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
-                pdb.setDeleted(rs.getBoolean("isDeleted"));
+            PhieuDatBan pdb = null;
+            while (rs.next()) {
+                if (pdb == null) {
+                    pdb = new PhieuDatBan();
+                    pdb.setMaPDB(rs.getString("maPDB"));
+                    pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
+                    pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
+                    pdb.setSoNguoi(rs.getInt("soNguoi"));
+                    pdb.setKhachHang(khachHangDAO.layKhachHangTheoMa(rs.getString("maKH")));
+                    pdb.setNhanVien(nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")));
+                    pdb.setTrangThai(rs.getString("trangThai"));
+                    pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
+                    pdb.setDeleted(rs.getBoolean("isDeleted"));
+                    pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(maPDB));
+                    pdb.setDanhSachBan(new ArrayList<>());
+                }
 
-                return pdb;
+                String maBan = rs.getString("maBan");
+                if (maBan != null) {
+                    Ban ban = banDAO.layTheoMa(maBan);
+                    if (ban != null) pdb.getDanhSachBan().add(ban);
+                }
             }
+
+            return pdb;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
@@ -284,10 +325,12 @@ public class PhieuDatBanDAO {
  // 🔹 Lấy phiếu đặt trước gần nhất theo mã bàn
     public PhieuDatBan layPhieuDatTruocTheoBan(String maBan) {
         String sql = """
-            SELECT TOP 1 * FROM PhieuDatBan
-            WHERE maBan = ? AND trangThai = N'Đặt trước' AND isDeleted = 0
-            ORDER BY ngayDat DESC
-            """;
+            SELECT pdb.*
+            FROM PhieuDatBan pdb
+            JOIN PhieuDatBan_Ban pdbb ON pdb.maPDB = pdbb.maPDB
+            WHERE pdbb.maBan = ? AND pdb.trangThai = N'Đặt trước' AND pdb.isDeleted = 0
+            ORDER BY pdb.ngayDat DESC
+        """;
         try (Connection con = ConnectSQL.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -302,10 +345,6 @@ public class PhieuDatBanDAO {
                 pdb.setSoNguoi(rs.getInt("soNguoi"));
                 pdb.setKhachHang(new KhachHangDAO().layKhachHangTheoMa(rs.getString("maKH")));
                 pdb.setNhanVien(new NhanVienDAO().layNhanVienTheoMa(rs.getString("maNV")));
-                pdb.setBan(new BanDAO().layTheoMa(rs.getString("maBan")));
-                pdb.setTrangThai(rs.getString("trangThai"));
-                pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
-                pdb.setDeleted(rs.getBoolean("isDeleted"));
                 pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(pdb.getMaPDB()));
                 return pdb;
             }

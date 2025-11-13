@@ -18,6 +18,7 @@ public class PhieuDatBan {
     private BigDecimal tienCoc;
     private boolean isDeleted;
     private List<ChiTietPDB> chiTietPDB = new ArrayList<>();
+    private List<Ban> danhSachBan = new ArrayList<>();
 
     public PhieuDatBan() {}
 
@@ -26,18 +27,19 @@ public class PhieuDatBan {
     }
 
     public PhieuDatBan(String maPDB, LocalDateTime ngayDat, LocalDateTime ngayTao, int soNguoi,
-                       KhachHang khachHang, NhanVien nhanVien, Ban ban, String trangThai, BigDecimal tienCoc,boolean isDeleted) {
-        this.maPDB = maPDB;
-        this.ngayDat = ngayDat;
-        this.ngayTao = ngayTao;
-        this.soNguoi = soNguoi;
-        this.khachHang = khachHang;
-        this.nhanVien = nhanVien;
-        this.ban = ban;
-        this.trangThai = trangThai;
-        this.tienCoc = tienCoc;
-        this.isDeleted = isDeleted;
-    }
+            KhachHang khachHang, NhanVien nhanVien, List<Ban> danhSachBan,
+            String trangThai, BigDecimal tienCoc, boolean isDeleted) {
+		this.maPDB = maPDB;
+		this.ngayDat = ngayDat;
+		this.ngayTao = ngayTao;
+		this.soNguoi = soNguoi;
+		this.khachHang = khachHang;
+		this.nhanVien = nhanVien;
+		this.danhSachBan = danhSachBan;
+		this.trangThai = trangThai;
+		this.tienCoc = tienCoc;
+		this.isDeleted = isDeleted;
+	}
 
     public PhieuDatBan(String maPDB, LocalDateTime localDateTime) {
     }
@@ -78,6 +80,14 @@ public class PhieuDatBan {
 
     public void setChiTietPDB(List<ChiTietPDB> chiTietPDB) {
         this.chiTietPDB = chiTietPDB;
+    }
+    
+    public List<Ban> getDanhSachBan() {
+        return danhSachBan;
+    }
+
+    public void setDanhSachBan(List<Ban> danhSachBan) {
+        this.danhSachBan = danhSachBan;
     }
 
     @Override

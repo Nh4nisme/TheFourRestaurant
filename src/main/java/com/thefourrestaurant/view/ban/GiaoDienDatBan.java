@@ -332,7 +332,7 @@ public class GiaoDienDatBan extends BorderPane {
         dsSoGhe.add("Tất cả"); // mặc định hiển thị tất cả
 
         for (Ban ban : banDAO.layTatCaBan()) {
-            String soGheStr = ban.getLoaiBan().getSoNguoi() + " ghế";
+            String soGheStr = ban.getLoaiBan().getSoChoNgoi() + " ghế";
             if (!dsSoGhe.contains(soGheStr)) {
                 dsSoGhe.add(soGheStr);
             }
