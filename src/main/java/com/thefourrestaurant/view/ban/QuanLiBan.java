@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.ban;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,6 @@ public class QuanLiBan extends VBox {
     private final Pane khuVucBan = new Pane(); // nơi hiển thị bàn
     private final Label lblBreadcrumb = new Label();
     
-    private Ban banDangChon;
     private StackPane mainContent;
     private String context;
     private boolean choPhepDiChuyen = false;
@@ -172,6 +172,24 @@ public class QuanLiBan extends VBox {
         StackPane khungBan = new StackPane(imgBan, lblTenBan);
         khungBan.setLayoutX(ban.getToaDoX());
         khungBan.setLayoutY(ban.getToaDoY());
+        
+        if ("DAT_BAN".equals(context)) {
+            PhieuDatBan pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
+            if (pdb != null && pdb.getTrangThai().equals("Đang phục vụ")) {
+                LocalDateTime gioKetThuc = pdb.getNgayDat().plusMinutes(90); // 1h30 ăn
+                LocalDateTime now = LocalDateTime.now();
+                long phutConLai = java.time.Duration.between(now, gioKetThuc).toMinutes();
+
+                if (phutConLai > 0 && phutConLai <= 15) {
+                    Label lblCountdown = new Label();
+                    lblCountdown.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: red;");
+                    StackPane.setAlignment(lblCountdown, Pos.TOP_CENTER);
+                    khungBan.getChildren().add(lblCountdown);
+                    lblCountdown.setVisible(true);
+                    startCountdown(lblCountdown, gioKetThuc);
+                }
+            }
+        }
 
         String borderStyle = switch (ban.getTrangThai().trim()) {
         case "Bảo trì" -> "-fx-border-color: green; -fx-border-width: 3; -fx-border-radius: 12;";
@@ -239,39 +257,22 @@ public class QuanLiBan extends VBox {
 
             if (e.getClickCount() == 1) {
                 delay.setOnFinished(ev -> {
-
-                    if (e.isShiftDown()) {
-                        if (dsBanDangChon.contains(ban)) {
-                            dsBanDangChon.remove(ban);
-                            khungBan.setBackground(null);
-                        } else {
-                            dsBanDangChon.add(ban);
-                            khungBan.setBackground(new Background(
-                                    new BackgroundFill(javafx.scene.paint.Color.rgb(255, 200, 100, 0.6), new CornerRadii(10), Insets.EMPTY)
-                            ));
-                        }
-
-                        System.out.println("Danh sách bàn đang chọn:");
-                        dsBanDangChon.forEach(b -> System.out.println(" - " + b.getTenBan()));
-                    }
-
-                    else {
-                        for (javafx.scene.Node n : khuVucBan.getChildren()) {
-                            if (n instanceof StackPane sp) {
-                                sp.setBackground(null);
-                            }
-                        }
-
-                        dsBanDangChon.clear();
+                    if (dsBanDangChon.contains(ban)) {
+                        // Nếu đã chọn → bỏ chọn
+                        dsBanDangChon.remove(ban);
+                        khungBan.setBackground(null);
+                        System.out.println("Bỏ chọn bàn: " + ban.getTenBan());
+                    } else {
+                        // Nếu chưa chọn → chọn thêm
                         dsBanDangChon.add(ban);
-                        setBanDangChon(ban);
-
                         khungBan.setBackground(new Background(
                                 new BackgroundFill(javafx.scene.paint.Color.rgb(255, 200, 100, 0.6), new CornerRadii(10), Insets.EMPTY)
                         ));
-
-                        System.out.println("Bàn được chọn: " + ban.getTenBan());
+                        System.out.println("Chọn bàn: " + ban.getTenBan());
                     }
+
+                    System.out.println("Danh sách bàn đang chọn:");
+                    dsBanDangChon.forEach(b -> System.out.println(" - " + b.getTenBan()));
                 });
                 delay.playFromStart();
             }
@@ -282,8 +283,31 @@ public class QuanLiBan extends VBox {
                 if ("QUAN_LY_BAN".equals(context)) {
                     moPopupTuyChinhBan(ban);
                 } 
-                else if ("DAT_BAN".equals(context)) {
-                    mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban));
+                else if (e.getClickCount() == 2) {
+                    delay.stop();
+
+                    if ("DAT_BAN".equals(context)) {
+                        PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
+                        PhieuDatBan pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
+
+                        if (pdb == null) {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Thông báo");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
+
+                            if (this.getScene() != null && this.getScene().getWindow() != null) {
+                                alert.initOwner(this.getScene().getWindow());
+                            }
+
+                            alert.show();
+                            return;
+                        }
+
+                        // Chỉ khi có phiếu thì mới chuyển giao diện
+                        mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban, pdb));
+
+                    }
                 }
             }
         });
@@ -319,14 +343,6 @@ public class QuanLiBan extends VBox {
         return khuVucBan;
     }
     
-    public Ban getBanDangChon() {
-        return banDangChon;
-    }
-
-    public void setBanDangChon(Ban ban) {
-        this.banDangChon = ban;
-    }
-    
     public List<Ban> getDsBanDangChon() {
         return dsBanDangChon;
     }
@@ -356,7 +372,7 @@ public class QuanLiBan extends VBox {
         List<Ban> dsBan = (maTang != null) ? banDAO.layTheoTang(maTang) : banDAO.layTatCaBan();
 
         if (dsBan.isEmpty()) {
-            Label lblThongBao = new Label("⚠️ Không có bàn nào thỏa điều kiện.");
+            Label lblThongBao = new Label("Không có bàn nào thỏa điều kiện.");
             lblThongBao.setStyle("-fx-font-size: 18px; -fx-text-fill: #666;");
             khuVucBan.getChildren().add(lblThongBao);
             return;
@@ -382,5 +398,22 @@ public class QuanLiBan extends VBox {
             }
         }
     }
+    
+    private void startCountdown(Label lblCountdown, LocalDateTime gioKetThuc) {
+        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
+            new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> {
+                long phutConLai = java.time.Duration.between(LocalDateTime.now(), gioKetThuc).toMinutes();
+                long giayConLai = java.time.Duration.between(LocalDateTime.now(), gioKetThuc).getSeconds() % 60;
+                if (phutConLai >= 0) {
+                    lblCountdown.setText(String.format("%02d:%02d", phutConLai, giayConLai));
+                } else {
+                    lblCountdown.setText("00:00");
+                }
+            })
+        );
+        timeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        timeline.play();
+    }
+
 
 }

@@ -63,24 +63,69 @@ public class PhieuDatBan_BanDAO {
         return list;
     }
 
-    // 🔹 Thêm liên kết giữa Phiếu và Bàn
-    public boolean themLienKet(String maDatBan, List<Ban> danhSachBan) {
-        String sql = "INSERT INTO PhieuDatBan_Ban (maPDB, maBan) VALUES (?, ?)";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    public boolean themBanVaoPhieu(String maPDB, List<Ban> danhSachBan) {
 
-            for (Ban b : danhSachBan) {
-                ps.setString(1, maDatBan);
-                ps.setString(2, b.getMaBan());
-                ps.addBatch();
+        String sqlCheckPDB = "SELECT 1 FROM PhieuDatBan WHERE maPDB = ?";
+        String sqlCheckBan = "SELECT 1 FROM Ban WHERE maBan = ?";
+        String sqlCheckBanDaDat =
+                "SELECT 1 FROM PhieuDatBan_Ban WHERE maBan = ? AND maPDB <> ?";
+        String sqlInsert =
+                "INSERT INTO PhieuDatBan_Ban (maPDB, maBan) VALUES (?, ?)";
+
+        try (Connection conn = ConnectSQL.getConnection()) {
+
+            conn.setAutoCommit(false); // mở transaction
+
+            // 1. Kiểm tra phiếu có tồn tại
+            try (PreparedStatement ps = conn.prepareStatement(sqlCheckPDB)) {
+                ps.setString(1, maPDB);
+                if (!ps.executeQuery().next()) {
+                    System.err.println("Phiếu đặt bàn không tồn tại: " + maPDB);
+                    conn.rollback();
+                    return false;
+                }
             }
-            int[] ketQua = ps.executeBatch();
-            for (int n : ketQua) if (n <= 0) return false;
+
+            // 2. Lặp từng bàn trong List<Ban>
+            for (Ban ban : danhSachBan) {
+                String maBan = ban.getMaBan();
+
+                // 2.1 Bàn có tồn tại?
+                try (PreparedStatement ps = conn.prepareStatement(sqlCheckBan)) {
+                    ps.setString(1, maBan);
+                    if (!ps.executeQuery().next()) {
+                        System.err.println("Bàn không tồn tại: " + maBan);
+                        conn.rollback();
+                        return false;
+                    }
+                }
+
+                // 2.2 Bàn đã được đặt bởi phiếu khác chưa?
+                try (PreparedStatement ps = conn.prepareStatement(sqlCheckBanDaDat)) {
+                    ps.setString(1, maBan);
+                    ps.setString(2, maPDB);
+                    if (ps.executeQuery().next()) {
+                        System.err.println("Bàn " + maBan + " đã được đặt bởi phiếu khác!");
+                        conn.rollback();
+                        return false;
+                    }
+                }
+
+                // 2.3 Thêm vào bảng liên kết
+                try (PreparedStatement ps = conn.prepareStatement(sqlInsert)) {
+                    ps.setString(1, maPDB);
+                    ps.setString(2, maBan);
+                    ps.executeUpdate();
+                }
+            }
+
+            conn.commit();
             return true;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
 

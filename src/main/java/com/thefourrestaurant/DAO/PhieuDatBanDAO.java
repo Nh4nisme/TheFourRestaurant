@@ -120,7 +120,7 @@ public class PhieuDatBanDAO {
 
     // 🔹 Thêm phiếu mới (tự động lưu tiền cọc nếu là "Đặt trước")
     public boolean themPhieu(PhieuDatBan pdb, String context) {
-        String sql = "INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, maBan, trangThai, tienCoc) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, trangThai, tienCoc) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -153,11 +153,19 @@ public class PhieuDatBanDAO {
             ps.setInt(3, pdb.getSoNguoi());
             ps.setString(4, pdb.getKhachHang().getMaKH());
             ps.setString(5, pdb.getNhanVien().getMaNV());
-            ps.setString(6, pdb.getBan().getMaBan());
-            ps.setString(7, trangThaiThucTe);
-            ps.setBigDecimal(8, tienCoc);
+            ps.setString(6, trangThaiThucTe);
+            ps.setBigDecimal(7, tienCoc);
             
-            return ps.executeUpdate() > 0;
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                // Gọi thêm để lưu bàn vào bảng liên kết
+                if (pdb.getBan() != null) {
+                    PhieuDatBan_BanDAO pdbbDAO = new PhieuDatBan_BanDAO();
+                    List<Ban> danhSachBan = new ArrayList<>();
+                    pdbbDAO.themBanVaoPhieu(maMoi, danhSachBan);
+                }
+                return true;
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,39 +208,46 @@ public class PhieuDatBanDAO {
     }
     
  // Trong PhieuDatBanDAO
-	public PhieuDatBan layPhieuDangHoatDongTheoBan(String maBan) {
-	    String sql = "SELECT * FROM PhieuDatBan WHERE maBan = ? AND trangThai = N'Đang phục vụ' AND isDeleted = 0"
-	    		+ "";
-	    try (Connection conn = ConnectSQL.getConnection();
-	         PreparedStatement ps = conn.prepareStatement(sql)) {
-	
-	        ps.setString(1, maBan);
-	        ResultSet rs = ps.executeQuery();
-	
-	        if (rs.next()) {
-	            PhieuDatBan pdb = new PhieuDatBan();
-	            pdb.setMaPDB(rs.getString("maPDB"));
-	            pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
-	            pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
-	            pdb.setSoNguoi(rs.getInt("soNguoi"));
-	            pdb.setKhachHang(new KhachHangDAO().layKhachHangTheoMa(rs.getString("maKH")));
-	            pdb.setNhanVien(new NhanVienDAO().layNhanVienTheoMa(rs.getString("maNV")));
-	            pdb.setBan(new BanDAO().layTheoMa(rs.getString("maBan")));
-	            pdb.setTrangThai(rs.getString("trangThai"));
+    public PhieuDatBan layPhieuDangHoatDongTheoBan(String maBan) {
+        String sql = """
+            SELECT pdb.*
+            FROM PhieuDatBan pdb
+            JOIN PhieuDatBan_Ban pdbb ON pdb.maPDB = pdbb.maPDB
+            WHERE pdbb.maBan = ? AND pdb.trangThai = N'Đang phục vụ' AND pdb.isDeleted = 0
+        """;
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maBan);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                PhieuDatBan pdb = new PhieuDatBan();
+                pdb.setMaPDB(rs.getString("maPDB"));
+                pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
+                pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
+                pdb.setSoNguoi(rs.getInt("soNguoi"));
+                pdb.setKhachHang(khachHangDAO.layKhachHangTheoMa(rs.getString("maKH")));
+                pdb.setNhanVien(nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")));
+                pdb.setTrangThai(rs.getString("trangThai"));
                 pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
-	            pdb.setDeleted(rs.getBoolean("isDeleted"));
-	
-	            ChiTietPDBDAO chiTietPDBDAO = new ChiTietPDBDAO();
-	            pdb.setChiTietPDB(chiTietPDBDAO.layTheoPhieu(pdb.getMaPDB()));
-	
-	            return pdb;
-	        }
-	
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    return null;
-	}
+                pdb.setDeleted(rs.getBoolean("isDeleted"));
+                pdb.setChiTietPDB(new ChiTietPDBDAO().layTheoPhieu(pdb.getMaPDB()));
+
+                // Lấy danh sách bàn (trong trường hợp 1 phiếu có nhiều bàn)
+                pdb.setDanhSachBan(new ArrayList<>());
+                Ban ban = banDAO.layTheoMa(maBan);
+                if (ban != null) pdb.getDanhSachBan().add(ban);
+
+                return pdb;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public List<PhieuDatBan> layDanhSachPhieuDatTruocTheoBan(String maBan) {
         List<PhieuDatBan> danhSach = new ArrayList<>();
@@ -354,4 +369,37 @@ public class PhieuDatBanDAO {
         }
         return null;
     }
+    
+    public boolean kiemTraTrungGioDatTruoc(String maBan, LocalDateTime gioBatDauMoi) {
+        LocalDateTime gioKetThucMoi = gioBatDauMoi.plusMinutes(90); // 1h30p
+
+        String sql = """
+            SELECT ngayDat 
+            FROM PhieuDatBan pdb
+            JOIN PhieuDatBan_Ban pdbb ON pdb.maPDB = pdbb.maPDB
+            WHERE pdbb.maBan = ?
+              AND pdb.trangThai = N'Đặt trước'
+              AND pdb.isDeleted = 0
+        """;
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maBan);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                LocalDateTime gioBatDauCu = rs.getTimestamp("ngayDat").toLocalDateTime();
+                LocalDateTime gioKetThucCu = gioBatDauCu.plusMinutes(90);
+
+                // Kiểm tra giao nhau
+                if (gioBatDauMoi.isBefore(gioKetThucCu) && gioKetThucMoi.isAfter(gioBatDauCu)) {
+                    return true; // trùng giờ
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false; // không trùng
+    }
+
 }
