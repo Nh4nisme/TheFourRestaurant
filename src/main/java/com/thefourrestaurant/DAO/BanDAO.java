@@ -2,6 +2,7 @@ package com.thefourrestaurant.DAO;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.thefourrestaurant.connect.ConnectSQL;
@@ -122,6 +123,30 @@ public class BanDAO {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    public int capNhatTrangThaiDanhSach(List<Ban> dsMaBan, String trangThai) {
+        if (dsMaBan == null || dsMaBan.isEmpty()) return 0;
+
+        String sql = "UPDATE Ban SET trangThai = ? WHERE maBan = ?";
+        int[] result;
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            for (Ban ban : dsMaBan) {
+                ps.setString(1, trangThai);
+                ps.setString(2, ban.getMaBan());
+                ps.addBatch();
+            }
+
+            result = ps.executeBatch();
+            return Arrays.stream(result).sum();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     // 🔹 Cập nhật tọa độ bàn

@@ -9,7 +9,6 @@ import com.thefourrestaurant.view.components.ButtonSample2;
 import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -27,26 +26,17 @@ public class GiaoDienChiTietBan extends BorderPane {
 	private StackPane mainContent;
 	private Ban ban;
 	private PhieuDatBan pdb;
-	private final PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
 	
-	public GiaoDienChiTietBan(StackPane mainContent, Ban ban) {
+	public GiaoDienChiTietBan(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
         this.mainContent = mainContent;
         this.ban = ban;
-        pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
+        this.pdb = pdb;
 
         setStyle("-fx-background-color: #F5F5F5;");
         setTop(buildHeader());
         setCenter(buildCenter());
         setBottom(buildFooter());
 
-        pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
-        if (pdb == null) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Thông báo");
-            alert.setHeaderText(null);
-            alert.setContentText("Bàn này hiện chưa có phiếu hoạt động.");
-            alert.showAndWait();
-        }
     }
 
 	private HBox buildHeader() {

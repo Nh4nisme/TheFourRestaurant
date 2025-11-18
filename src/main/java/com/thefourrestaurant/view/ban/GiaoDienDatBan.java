@@ -373,57 +373,76 @@ public class GiaoDienDatBan extends BorderPane {
     }
     
     private void datBanNgay() {
-        Ban banDuocChon = layBanDangChonHoacThongBao();
-        if (banDuocChon == null) return;
+        List<Ban> dsChon = layDsBanDangChonHoacThongBao();
+        if (dsChon == null || dsChon.isEmpty()) return;
 
-        System.out.println("Đặt bàn ngay cho bàn: " + banDuocChon.getTenBan());
+        // Kiểm tra trạng thái bàn
+        for (Ban ban : dsChon) {
+            PhieuDatBan pdbDangSuDung = phieuDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
+            if (pdbDangSuDung != null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Bàn đang sử dụng");
+                alert.setHeaderText(null);
+                alert.setContentText("Bàn " + ban.getTenBan() + " đang phục vụ, không thể đặt ngay!");
+                alert.showAndWait();
+                return;
+            }
+        }
+
+        String tenBanStr = dsChon.stream()
+                                 .map(Ban::getTenBan)
+                                 .reduce((a, b) -> a + ", " + b)
+                                 .orElse("");
+
         Stage st = new Stage();
         st.initOwner(getScene() != null ? getScene().getWindow() : null);
         st.initModality(Modality.APPLICATION_MODAL);
-        st.setTitle("Đặt bàn ngay - " + banDuocChon.getTenBan());
-        st.setScene(new Scene(new GiaoDienDatBanNgay(banDuocChon, mainContent, quanLiBan)));
+        st.setTitle("Đặt bàn ngay - " + tenBanStr);
+        st.setScene(new Scene(new GiaoDienDatBanNgay(dsChon, mainContent, quanLiBan)));
         st.showAndWait();
     }
 
-
     private void datBanTruoc() {
-        Ban banDuocChon = layBanDangChonHoacThongBao();
-        if (banDuocChon == null) return;
+        List<Ban> dsChon = layDsBanDangChonHoacThongBao();
+        if (dsChon == null || dsChon.isEmpty()) return;
 
-        System.out.println("Đặt bàn trước cho bàn: " + banDuocChon.getTenBan());
+        String tenBanStr = dsChon.stream()
+                                 .map(Ban::getTenBan)
+                                 .reduce((a, b) -> a + ", " + b)
+                                 .orElse("");
+
         Stage st = new Stage();
         st.initOwner(getScene() != null ? getScene().getWindow() : null);
         st.initModality(Modality.APPLICATION_MODAL);
-        st.setTitle("Đặt bàn trước - " + banDuocChon.getTenBan());
-        st.setScene(new Scene(new GiaoDienDatBanTruoc(banDuocChon, mainContent, quanLiBan)));
+        st.setTitle("Đặt bàn trước - " + tenBanStr);
+        st.setScene(new Scene(new GiaoDienDatBanTruoc(dsChon, mainContent, quanLiBan)));
         st.showAndWait();
     }
 
     private void nhanBan() {
-        Ban banDuocChon = layBanDangChonHoacThongBao();
-        if (banDuocChon == null) return;
+        List<Ban> dsChon = layDsBanDangChonHoacThongBao();
+        if (dsChon == null || dsChon.isEmpty()) return;
 
-        phieuDatTruoc = phieuDAO.layPhieuDatTruocTheoBan(banDuocChon.getMaBan());
-
+        phieuDatTruoc = phieuDAO.layPhieuDatTruocTheoBan(dsChon.get(0).getMaBan());
         if (phieuDatTruoc == null) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Thông báo");
             alert.setHeaderText(null);
-            alert.setContentText("Bàn này không có phiếu đặt trước nào!");
+            alert.setContentText("Bàn " + dsChon.get(0).getTenBan() + " không có phiếu đặt trước nào!");
             alert.showAndWait();
             return;
         }
 
-        boolean capNhatBan = banDAO.capNhatTrangThai(banDuocChon.getMaBan(), "Đang sử dụng");
-
-        // Cập nhật trạng thái phiếu đặt bàn
         boolean capNhatPhieu = phieuDAO.capNhatTrangThai(phieuDatTruoc.getMaPDB(), "Đang phục vụ");
 
-        if (capNhatBan && capNhatPhieu) {
+        int soBanCapNhat = banDAO.capNhatTrangThaiDanhSach(dsChon, "Đang sử dụng");
+
+        if (soBanCapNhat == dsChon.size() && capNhatPhieu) { // kiểm tra tất cả bàn đã được cập nhật
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Thành công");
             alert.setHeaderText(null);
-            alert.setContentText("Bàn " + banDuocChon.getTenBan() + " đã được nhận và chuyển sang trạng thái 'Đang sử dụng'.");
+            String tenBanStr = dsChon.stream().map(Ban::getTenBan).reduce((a, b) -> a + ", " + b).orElse("");
+            alert.setContentText("Các bàn " + tenBanStr + " đã được nhận và chuyển sang trạng thái 'Đang sử dụng'.");
             alert.showAndWait();
 
             if (cboSoTang.getValue() != null) {
@@ -438,41 +457,42 @@ public class GiaoDienDatBan extends BorderPane {
         }
     }
 
-
     private void huyBanDatTruoc() {
-        Ban banDuocChon = layBanDangChonHoacThongBao();
-        if (banDuocChon == null) return;
+        List<Ban> dsChon = layDsBanDangChonHoacThongBao();
+        if (dsChon == null || dsChon.isEmpty()) return;
+
+        String tenBanStr = dsChon.stream()
+                                 .map(Ban::getTenBan)
+                                 .reduce((a, b) -> a + ", " + b)
+                                 .orElse("");
 
         Stage stage = new Stage();
         stage.initOwner(getScene().getWindow());
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("Danh sách phiếu đặt trước - " + banDuocChon.getTenBan());
+        stage.setTitle("Danh sách phiếu đặt trước - " + tenBanStr);
 
-        GiaoDienHuyBanDatTruoc giaoDien = new GiaoDienHuyBanDatTruoc(banDuocChon, quanLiBan);
+        GiaoDienHuyBanDatTruoc giaoDien = new GiaoDienHuyBanDatTruoc(dsChon.get(0), quanLiBan);
         stage.setScene(new Scene(giaoDien, 700, 400));
         stage.showAndWait();
     }
 
     private void datMon() {
-        Ban banDuocChon = layBanDangChonHoacThongBao();
-        if (banDuocChon == null) return;
+        List<Ban> dsChon = layDsBanDangChonHoacThongBao();
+        if (dsChon == null) return;
         
-        System.out.println(banDuocChon.getMaBan());
-        PhieuDatBan pdbHienCo = phieuDAO.layPhieuDangHoatDongTheoBan(banDuocChon.getMaBan());
+        PhieuDatBan pdbHienCo = phieuDAO.layPhieuDangHoatDongTheoBan(dsChon.get(0).getMaBan());
 
-        System.out.println("🍽️ Đặt món cho bàn: " + banDuocChon.getTenBan());
         System.out.println(pdbHienCo.toString());
         mainContent.getChildren().clear();
-        mainContent.getChildren().add(new GiaoDienGoiMon(mainContent, banDuocChon, pdbHienCo));
+        mainContent.getChildren().add(new GiaoDienGoiMon(mainContent, dsChon.get(0), pdbHienCo));
     }
 
     private void tinhTien() {
-        Ban banDuocChon = layBanDangChonHoacThongBao();
-        if (banDuocChon == null) return;
+        List<Ban> dsChon = layDsBanDangChonHoacThongBao();
+        if (dsChon == null) return;
 
-        PhieuDatBan pdb = phieuDatBanController.layPhieuTheoBan(banDuocChon.getMaBan());
+        PhieuDatBan pdb = phieuDatBanController.layPhieuTheoBan(dsChon.get(0).getMaBan());
 
-        System.out.println("Tính tiền cho bàn: " + banDuocChon.getTenBan());
         Stage stageThanhToan = new Stage();
         GiaoDienLapHoaDon thanhToan = new GiaoDienLapHoaDon(stageThanhToan);
 
@@ -508,17 +528,17 @@ public class GiaoDienDatBan extends BorderPane {
         }
     }
     
-    private Ban layBanDangChonHoacThongBao() {
-        Ban banDuocChon = quanLiBan.getBanDangChon();
-        if (banDuocChon == null) {
+    private List<Ban> layDsBanDangChonHoacThongBao() {
+        List<Ban> dsChon = quanLiBan.getDsBanDangChon();
+        if (dsChon.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Thông báo");
             alert.setHeaderText(null);
-            alert.setContentText("Vui lòng chọn bàn trước khi thao tác!");
+            alert.setContentText("Vui lòng chọn ít nhất 1 bàn trước khi thao tác!");
             alert.showAndWait();
             return null;
         }
-        return banDuocChon;
+        return dsChon;
     }
     
     private void locBanTheoTatCaTieuChi() {
