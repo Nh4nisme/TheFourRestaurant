@@ -22,6 +22,7 @@ import javafx.stage.Modality;
 import javafx.scene.Scene;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class GiaoDienDatBan extends BorderPane {
@@ -598,7 +599,8 @@ public class GiaoDienDatBan extends BorderPane {
 
         // Hiển thị chỉ bàn này
         quanLiBan.clearAllBan();
-        quanLiBan.taoBan(quanLiBan.getKhuVucBan(), ban);
+        quanLiBan.taoBan(quanLiBan.getKhuVucBan(), ban, new HashMap<>(), new HashMap<>());
+
     }
 
 }

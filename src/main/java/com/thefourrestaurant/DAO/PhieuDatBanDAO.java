@@ -401,5 +401,71 @@ public class PhieuDatBanDAO {
 
         return false; // không trùng
     }
+    
+    public Map<String, PhieuDatBan> layTatCaPhieuDangPhucVuTheoBan() {
+        Map<String, PhieuDatBan> map = new HashMap<>();
+
+        String sql = """
+            SELECT pdb.*, pdbb.maBan
+            FROM PhieuDatBan pdb
+            JOIN PhieuDatBan_Ban pdbb ON pdb.maPDB = pdbb.maPDB
+            WHERE pdb.trangThai = N'Đang phục vụ' AND pdb.isDeleted = 0
+        """;
+
+        try (Connection conn = ConnectSQL.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                String maBan = rs.getString("maBan");
+
+                PhieuDatBan pdb = new PhieuDatBan();
+                pdb.setMaPDB(rs.getString("maPDB"));
+                pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
+                pdb.setTrangThai("Đang phục vụ");
+
+                map.put(maBan, pdb);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return map;
+    }
+    
+    public Map<String, PhieuDatBan> layTatCaPhieuDatTruocTheoBan() {
+        Map<String, PhieuDatBan> map = new HashMap<>();
+
+        String sql = """
+            SELECT pdb.*, pdbb.maBan
+            FROM PhieuDatBan pdb
+            JOIN PhieuDatBan_Ban pdbb ON pdb.maPDB = pdbb.maPDB
+            WHERE pdb.trangThai = N'Đặt trước' AND pdb.isDeleted = 0
+        """;
+
+        try (Connection conn = ConnectSQL.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                String maBan = rs.getString("maBan");
+
+                PhieuDatBan pdb = new PhieuDatBan();
+                pdb.setMaPDB(rs.getString("maPDB"));
+                pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
+                pdb.setTrangThai("Đặt trước");
+
+                map.put(maBan, pdb);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return map;
+    }
+
+
 
 }
