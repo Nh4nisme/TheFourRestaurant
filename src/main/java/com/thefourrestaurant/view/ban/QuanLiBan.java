@@ -2,7 +2,9 @@ package com.thefourrestaurant.view.ban;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
@@ -21,6 +23,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
+import javafx.scene.paint.Color;
 
 public class QuanLiBan extends VBox {
 
@@ -33,6 +36,7 @@ public class QuanLiBan extends VBox {
     private String context;
     private boolean choPhepDiChuyen = false;
     private final List<Ban> dsBanDangChon = new ArrayList<>();
+    private static final Map<String, Image> cacheAnhBan = new HashMap<>();
 
     public QuanLiBan(StackPane mainContent, String context) {
     	this.mainContent = mainContent;
@@ -87,6 +91,9 @@ public class QuanLiBan extends VBox {
 
     // Hiển thị bàn theo tầng
     public void hienThiBanTheoTang(String maTang) {
+        Map<String, PhieuDatBan> mapDangPhucVu = pdbDAO.layTatCaPhieuDangPhucVuTheoBan();
+        Map<String, PhieuDatBan> mapDatTruoc = pdbDAO.layTatCaPhieuDatTruocTheoBan();
+
         khuVucBan.getChildren().clear();
 
         lblBreadcrumb.setText("Trang chủ / Quản lý bàn / Tầng " + maTang.replace("TG00000", ""));
@@ -102,16 +109,16 @@ public class QuanLiBan extends VBox {
         List<Ban> dsBan = banDAO.layTheoTang(maTang);
 
         if (dsBan.isEmpty()) {
-            Label lblThongBao = new Label("⚠️ Không có bàn nào trong tầng này.");
+            Label lblThongBao = new Label("Không có bàn nào trong tầng này.");
             lblThongBao.setStyle("-fx-font-size: 18px; -fx-text-fill: #666;");
             khuVucBan.getChildren().add(lblThongBao);
             return;
         }
 
         for (Ban b : dsBan) {
-            taoBan(khuVucBan, b);
+            taoBan(khuVucBan, b, mapDangPhucVu, mapDatTruoc);
         }
-    };
+    }
 
     // 🔹 Đặt background theo tầng
     private void setBackgroundTheoTang(String maTang) {
@@ -153,167 +160,134 @@ public class QuanLiBan extends VBox {
         }
     }
 
-    void taoBan(Pane pane, Ban ban) {
-        Image img;
-        try {
-            img = new Image(getClass().getResourceAsStream(ban.getAnhBan()));
-        } catch (Exception e) {
-            img = new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/Ban/Ban_8.png"));
-        }
+    void taoBan(Pane pane, Ban ban,
+            Map<String, PhieuDatBan> mapDangPhucVu,
+            Map<String, PhieuDatBan> mapDatTruoc) {
 
-        ImageView imgBan = new ImageView(img);
-        imgBan.setFitWidth(180);
-        imgBan.setFitHeight(150);
-        imgBan.setPreserveRatio(true);
+	    // ✅ Cache ảnh bàn
+	    Image img;
+	    try {
+	        img = cacheAnhBan.computeIfAbsent(
+	                ban.getAnhBan(),
+	                path -> new Image(getClass().getResourceAsStream(path))
+	        );
+	    } catch (Exception e) {
+	        img = new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/Ban/Ban_8.png"));
+	    }
+	
+	    ImageView imgBan = new ImageView(img);
+	    imgBan.setFitWidth(180);
+	    imgBan.setFitHeight(150);
+	    imgBan.setPreserveRatio(true);
+	
+	    Label lblTenBan = new Label(ban.getTenBan());
+	    lblTenBan.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
+	
+	    StackPane khungBan = new StackPane(imgBan, lblTenBan);
+	    khungBan.setLayoutX(ban.getToaDoX());
+	    khungBan.setLayoutY(ban.getToaDoY());
+	
+	    // ✅ Lấy phiếu đang phục vụ từ map (không truy vấn SQL)
+	    PhieuDatBan pdbDangPhucVu = mapDangPhucVu.get(ban.getMaBan());
+	
+	    if ("DAT_BAN".equals(context) && pdbDangPhucVu != null) {
+	        LocalDateTime gioKetThuc = pdbDangPhucVu.getNgayDat().plusMinutes(90);
+	        long phutConLai = java.time.Duration.between(LocalDateTime.now(), gioKetThuc).toMinutes();
+	
+	        if (phutConLai > 0 && phutConLai <= 15) {
+	            Label lblCountdown = new Label();
+	            lblCountdown.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: red;");
+	            StackPane.setAlignment(lblCountdown, Pos.TOP_CENTER);
+	            khungBan.getChildren().add(lblCountdown);
+	            lblCountdown.setVisible(true);
+	            startCountdown(lblCountdown, gioKetThuc);
+	        }
+	    }
+	
+	    // ✅ Border theo trạng thái
+	    String borderStyle = switch (ban.getTrangThai().trim()) {
+	        case "Bảo trì" -> "-fx-border-color: green; -fx-border-width: 3; -fx-border-radius: 12;";
+	        case "Đang sử dụng" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
+	        case "Đặt trước" -> {
+	            String style = "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
+	
+	            // ✅ Lấy phiếu đặt trước từ map (không truy vấn SQL)
+	            PhieuDatBan pdbDatTruoc = mapDatTruoc.get(ban.getMaBan());
+	            if (pdbDatTruoc != null && pdbDatTruoc.getNgayDat() != null) {
+	                long hours = java.time.Duration.between(LocalDateTime.now(), pdbDatTruoc.getNgayDat()).toHours();
+	                if (hours >= 0 && hours < 2) {
+	                    style = "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
+	                }
+	            }
+	
+	            yield style;
+	        }
+	        default -> "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
+	    };
+	
+	    khungBan.setStyle(borderStyle);
+	
+	    // ✅ Hover
+	    final String hoverStyle = borderStyle + "-fx-effect: dropshadow(gaussian, gray, 10, 0, 0, 0);";
+	    khungBan.setOnMouseEntered(e -> khungBan.setStyle(hoverStyle));
+	    khungBan.setOnMouseExited(e -> khungBan.setStyle(borderStyle));
+	
+	    // ✅ Kéo thả bàn
+	    final double[] offset = new double[2];
+	    khungBan.setOnMousePressed(e -> {
+	        offset[0] = e.getSceneX() - khungBan.getLayoutX();
+	        offset[1] = e.getSceneY() - khungBan.getLayoutY();
+	    });
+	
+	    khungBan.setOnMouseDragged(e -> {
+	        if (!choPhepDiChuyen) return;
+	        khungBan.setLayoutX(e.getSceneX() - offset[0]);
+	        khungBan.setLayoutY(e.getSceneY() - offset[1]);
+	    });
+	
+	    khungBan.setOnMouseReleased(e -> {
+	        if (!choPhepDiChuyen) return;
+	        banDAO.capNhatToaDo(ban.getMaBan(), (int) khungBan.getLayoutX(), (int) khungBan.getLayoutY());
+	    });
+	
+	    // ✅ Click chọn bàn / mở popup
+	    khungBan.setOnMouseClicked(e -> {
+	        PauseTransition delay = new PauseTransition(Duration.millis(200));
+	
+	        if (e.getClickCount() == 1) {
+	            delay.setOnFinished(ev -> {
+	                if (dsBanDangChon.contains(ban)) {
+	                    dsBanDangChon.remove(ban);
+	                    khungBan.setBackground(null);
+	                } else {
+	                    dsBanDangChon.add(ban);
+	                    khungBan.setBackground(new Background(
+	                            new BackgroundFill(Color.rgb(255, 200, 100, 0.6), new CornerRadii(10), Insets.EMPTY)
+	                    ));
+	                }
+	            });
+	            delay.playFromStart();
+	        }
+	
+	        else if (e.getClickCount() == 2) {
+	            delay.stop();
+	
+	            if ("QUAN_LY_BAN".equals(context)) {
+	                moPopupTuyChinhBan(ban);
+	            } else if ("DAT_BAN".equals(context)) {
+	                if (pdbDangPhucVu == null) {
+	                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
+	                    alert.show();
+	                    return;
+	                }
+	                mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban, pdbDangPhucVu));
+	            }
+	        }
+	    });
+	
+	    pane.getChildren().add(khungBan);
+	}
 
-        Label lblTenBan = new Label(ban.getTenBan());
-        lblTenBan.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;");
-
-        StackPane khungBan = new StackPane(imgBan, lblTenBan);
-        khungBan.setLayoutX(ban.getToaDoX());
-        khungBan.setLayoutY(ban.getToaDoY());
-        
-        if ("DAT_BAN".equals(context)) {
-            PhieuDatBan pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
-            if (pdb != null && pdb.getTrangThai().equals("Đang phục vụ")) {
-                LocalDateTime gioKetThuc = pdb.getNgayDat().plusMinutes(90); // 1h30 ăn
-                LocalDateTime now = LocalDateTime.now();
-                long phutConLai = java.time.Duration.between(now, gioKetThuc).toMinutes();
-
-                if (phutConLai > 0 && phutConLai <= 15) {
-                    Label lblCountdown = new Label();
-                    lblCountdown.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: red;");
-                    StackPane.setAlignment(lblCountdown, Pos.TOP_CENTER);
-                    khungBan.getChildren().add(lblCountdown);
-                    lblCountdown.setVisible(true);
-                    startCountdown(lblCountdown, gioKetThuc);
-                }
-            }
-        }
-
-        String borderStyle = switch (ban.getTrangThai().trim()) {
-        case "Bảo trì" -> "-fx-border-color: green; -fx-border-width: 3; -fx-border-radius: 12;";
-        case "Đang sử dụng" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
-        case "Đặt trước" -> {
-            // Mặc định là màu xám (như bàn trống)
-            String style = "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
-            try {
-                PhieuDatBan pdb = pdbDAO.layPhieuDatTruocTheoBan(ban.getMaBan());
-                if (pdb != null && pdb.getNgayDat() != null) {
-                    java.time.LocalDateTime now = java.time.LocalDateTime.now();
-                    java.time.Duration diff = java.time.Duration.between(now, pdb.getNgayDat());
-                    long hours = diff.toHours();
-
-                    // 🔹 Nếu còn dưới 2 tiếng → đổi sang xanh dương
-                    if (hours >= 0 && hours < 2) {
-                        style = "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            yield style;
-        }
-        default -> "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
-    };
-
-    khungBan.setStyle(borderStyle);
-
-    // Hiệu ứng hover
-    final String hoverStyle = borderStyle + "-fx-effect: dropshadow(gaussian, gray, 10, 0, 0, 0);";
-    khungBan.setOnMouseEntered(e -> khungBan.setStyle(hoverStyle));
-    khungBan.setOnMouseExited(e -> khungBan.setStyle(borderStyle));
-        
-        final double[] offset = new double[2];
-
-        khungBan.setOnMousePressed(e -> {
-            offset[0] = e.getSceneX() - khungBan.getLayoutX();
-            offset[1] = e.getSceneY() - khungBan.getLayoutY();
-        });
-
-        khungBan.setOnMouseDragged(e -> {
-            if (!choPhepDiChuyen) return;
-            khungBan.setLayoutX(e.getSceneX() - offset[0]);
-            khungBan.setLayoutY(e.getSceneY() - offset[1]);
-        });
-
-        khungBan.setOnMouseReleased(e -> {
-        	if (!choPhepDiChuyen) return;
-            int newX = (int) khungBan.getLayoutX();
-            int newY = (int) khungBan.getLayoutY();
-
-            boolean ok = banDAO.capNhatToaDo(ban.getMaBan(), newX, newY);
-            if (ok) {
-                System.out.println("Lưu vị trí bàn " + ban.getTenBan() + " thành công: (" + newX + ", " + newY + ")");
-            } else {
-                System.err.println("Không thể lưu vị trí bàn " + ban.getTenBan());
-            }
-        });
-        
-
-
-        khungBan.setOnMouseClicked(e -> {
-            PauseTransition delay = new PauseTransition(Duration.millis(200));
-
-            if (e.getClickCount() == 1) {
-                delay.setOnFinished(ev -> {
-                    if (dsBanDangChon.contains(ban)) {
-                        // Nếu đã chọn → bỏ chọn
-                        dsBanDangChon.remove(ban);
-                        khungBan.setBackground(null);
-                        System.out.println("Bỏ chọn bàn: " + ban.getTenBan());
-                    } else {
-                        // Nếu chưa chọn → chọn thêm
-                        dsBanDangChon.add(ban);
-                        khungBan.setBackground(new Background(
-                                new BackgroundFill(javafx.scene.paint.Color.rgb(255, 200, 100, 0.6), new CornerRadii(10), Insets.EMPTY)
-                        ));
-                        System.out.println("Chọn bàn: " + ban.getTenBan());
-                    }
-
-                    System.out.println("Danh sách bàn đang chọn:");
-                    dsBanDangChon.forEach(b -> System.out.println(" - " + b.getTenBan()));
-                });
-                delay.playFromStart();
-            }
-
-            else if (e.getClickCount() == 2) {
-                delay.stop();
-
-                if ("QUAN_LY_BAN".equals(context)) {
-                    moPopupTuyChinhBan(ban);
-                } 
-                else if (e.getClickCount() == 2) {
-                    delay.stop();
-
-                    if ("DAT_BAN".equals(context)) {
-                        PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
-                        PhieuDatBan pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
-
-                        if (pdb == null) {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("Thông báo");
-                            alert.setHeaderText(null);
-                            alert.setContentText("Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
-
-                            if (this.getScene() != null && this.getScene().getWindow() != null) {
-                                alert.initOwner(this.getScene().getWindow());
-                            }
-
-                            alert.show();
-                            return;
-                        }
-
-                        // Chỉ khi có phiếu thì mới chuyển giao diện
-                        mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban, pdb));
-
-                    }
-                }
-            }
-        });
-
-        pane.getChildren().add(khungBan);
-    }
     
     private void moPopupTuyChinhBan(Ban ban) {
         GiaoDienTuyChinhBan giaoDien = new GiaoDienTuyChinhBan(ban);
@@ -394,7 +368,7 @@ public class QuanLiBan extends VBox {
             }
 
             if (thoaDieuKien) {
-                taoBan(khuVucBan, b);
+                taoBan(khuVucBan, b, new HashMap<>(), new HashMap<>());
             }
         }
     }
