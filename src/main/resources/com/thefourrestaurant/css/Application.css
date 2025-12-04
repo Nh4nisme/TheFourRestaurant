@@ -265,3 +265,23 @@
 .doughnut-chart .chart-pie {
     -fx-pie-inner-radius: 50;
 }
+
+/* === ThongKeView Styles === */
+.thongke-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E424D;
+}
+
+.thongke-input {
+    -fx-pref-width: 170px; /* Giảm chiều rộng */
+    -fx-font-size: 14px;
+    -fx-border-color: #CCCCCC;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.thongke-input:focused {
+    -fx-border-color: #1E424D;
+    -fx-border-width: 2px;
+}

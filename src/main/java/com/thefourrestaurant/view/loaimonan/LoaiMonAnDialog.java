@@ -143,23 +143,25 @@ public class LoaiMonAnDialog extends Stage {
         String imagePath = loaiMonHienTai.getHinhAnh();
         if (imagePath != null && !imagePath.isEmpty()) {
             try {
-                Image anh;
+                Image anh = null;
                 if (imagePath.startsWith("/")) { // Đây là đường dẫn tài nguyên
-                    URL imageUrl = getClass().getResource(imagePath);
-                    if (imageUrl != null) {
-                        anh = new Image(imageUrl.toExternalForm());
-                    } else {
-                        return; // Giữ ảnh mặc định nếu không tìm thấy tài nguyên
+                    try (InputStream stream = getClass().getResourceAsStream(imagePath)) {
+                        if (stream != null) {
+                            anh = new Image(stream);
+                        } else {
+                            System.err.println("Không tìm thấy tài nguyên classpath: " + imagePath);
+                            return; // Giữ ảnh mặc định
+                        }
                     }
                 } else { // Có thể là một URL đầy đủ (ví dụ: file:/...)
                     anh = new Image(imagePath);
                 }
 
-                if (!anh.isError()) {
+                if (anh != null && !anh.isError()) {
                     khungHinhAnh.setImage(anh);
                 }
             } catch (Exception e) {
-                System.err.println("Could not load image: " + imagePath);
+                System.err.println("Không thể tải ảnh: " + imagePath);
                 e.printStackTrace();
             }
         }

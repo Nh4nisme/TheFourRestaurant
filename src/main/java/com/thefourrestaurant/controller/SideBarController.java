@@ -3,7 +3,8 @@ package com.thefourrestaurant.controller;
 import com.thefourrestaurant.view.GiaoDienChinh;
 import com.thefourrestaurant.view.components.sidebar.SideBar;
 import com.thefourrestaurant.view.components.sidebar.SideBarDanhMuc;
-import com.thefourrestaurant.view.components.sidebar.SideBarThongKe;
+import com.thefourrestaurant.view.thongke.ThongKeController;
+import com.thefourrestaurant.view.thongke.ThongKeView;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -25,12 +26,24 @@ public class SideBarController {
 
     private void khoiTaoSuKien() {
         sideBar.getButton("DanhMuc").setOnAction(e -> moHoacDongPanel("DanhMuc"));
-        sideBar.getButton("ThongKe").setOnAction(e -> moHoacDongPanel("ThongKe"));
+        sideBar.getButton("BaoCao").setOnAction(e -> hienThiViewThongKe());
         sideBar.getButton("CaiDat").setOnAction(e -> {
             Stage stage = (Stage) sideBar.getScene().getWindow();
             new GiaoDienChinh().show(stage); // Reload lại giao diện
             stage.setFullScreen(true);
         });
+    }
+
+    private void hienThiViewThongKe() {
+        dongSideBarMoRong(); // Đóng sidebar mở rộng nếu có
+        
+        // Tạo view và controller mới cho thống kê
+        ThongKeView thongKeView = new ThongKeView();
+        new ThongKeController(thongKeView); // Controller sẽ tự gắn sự kiện
+
+        // Hiển thị view trong mainContent
+        mainContent.getChildren().clear();
+        mainContent.getChildren().add(thongKeView);
     }
 
     private void moHoacDongPanel(String loaiPanel) {
@@ -42,7 +55,7 @@ public class SideBarController {
 
         Pane panelMoi = switch (loaiPanel) {
             case "DanhMuc" -> new SideBarDanhMuc(mainContent);
-            case "ThongKe" -> new SideBarThongKe(mainContent);
+            // Xóa trường hợp "ThongKe" cũ
             default -> null;
         };
 

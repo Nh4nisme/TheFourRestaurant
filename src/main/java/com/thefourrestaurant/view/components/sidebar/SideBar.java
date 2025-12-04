@@ -1,6 +1,6 @@
-    package com.thefourrestaurant.view.components.sidebar;
+package com.thefourrestaurant.view.components.sidebar;
 
-    import java.util.HashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -18,90 +18,89 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 
-    public class SideBar extends VBox {
+public class SideBar extends VBox {
 
-        public final VBox groupButton;
-        private final Map<String, Button> buttons = new HashMap<>();
+    public final VBox groupButton;
+    private final Map<String, Button> buttons = new HashMap<>();
 
-        public SideBar(){
-            Font montserrat = Font.loadFont(getClass().getResourceAsStream("com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"),16);
-            setPrefWidth(50);
-            setStyle("-fx-background-color: #1E424D");
-            setAlignment(Pos.TOP_CENTER);
-            setPadding(new Insets(-10,17,14,17));
-            setSpacing(50);
-
-
-            // Phan nay la Logo cua sideBar
-            ImageView logoImg = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/logoIcon.png"))));
-            logoImg.setFitWidth(100);
-            logoImg.setFitHeight(100);
-            logoImg.setPreserveRatio(true);
-
-            // Phan Menu Button
-            groupButton =  new VBox(10);
-            groupButton.setAlignment(Pos.CENTER);
-            groupButton.setPadding(new Insets(10,9,10,9));
-
-            // Array các nút: {tên biến, đường dẫn icon}
-            String[][] buttonData = {
-                    {"ThongKe", "/com/thefourrestaurant/images/icon/thongKeIcon.png"},
-                    {"DanhMuc", "/com/thefourrestaurant/images/icon/danhMucIcon.png"},
-                    {"CaiDat", "/com/thefourrestaurant/images/icon/caiDatIcon.png"}
-            };
-
-            for (String[] b : buttonData) {
-                Button btn = createIconButton(b[1], 45, 45);
-                buttons.put(b[0], btn);
-                groupButton.getChildren().add(btn);
-            }
-
-            Region spacer = new Region();
-            VBox.setVgrow(spacer, Priority.ALWAYS);
-
-            // Tao Vbox rong
-            VBox BoDemGio = new VBox();
-            BoDemGio.setAlignment(Pos.BOTTOM_CENTER);
-            BoDemGio.setPadding(new Insets(10,10,10,10));
-            BoDemGio.setPrefHeight(500);
-            ClockText boDemGioText = new ClockText();
-            boDemGioText.setFont(montserrat);
-            boDemGioText.setStyle("-fx-fill: #DDB248; -fx-font-size: 15px; -fx-font-weight: bold;");
-            BoDemGio.getChildren().add(boDemGioText);
+    public SideBar() {
+        Font montserrat = Font.loadFont(getClass().getResourceAsStream("com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 16);
+        setPrefWidth(50);
+        setStyle("-fx-background-color: #1E424D");
+        setAlignment(Pos.TOP_CENTER);
+        setPadding(new Insets(-10, 17, 14, 17));
+        setSpacing(50);
 
 
+        // Phan nay la Logo cua sideBar
+        ImageView logoImg = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/logoIcon.png"))));
+        logoImg.setFitWidth(100);
+        logoImg.setFitHeight(100);
+        logoImg.setPreserveRatio(true);
 
-            //Them vao VBox sidebar chinh
-            getChildren().addAll(logoImg,groupButton,spacer,BoDemGio);
+        // Phan Menu Button
+        groupButton = new VBox(10);
+        groupButton.setAlignment(Pos.CENTER);
+        groupButton.setPadding(new Insets(10, 9, 10, 9));
+
+        // Array các nút: {tên biến, đường dẫn icon}
+        String[][] buttonData = {
+                {"BaoCao", "/com/thefourrestaurant/images/icon/thongKeIcon.png"},
+                {"DanhMuc", "/com/thefourrestaurant/images/icon/danhMucIcon.png"},
+                {"CaiDat", "/com/thefourrestaurant/images/icon/caiDatIcon.png"}
+        };
+
+        for (String[] b : buttonData) {
+            Button btn = createIconButton(b[1], 45, 45);
+            buttons.put(b[0], btn);
+            groupButton.getChildren().add(btn);
         }
 
-        private Button createIconButton(String imagePath, double width, double height) {
-            ImageView icon = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath))));
-            icon.setFitWidth(width);
-            icon.setFitHeight(height);
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
 
-            Button button = new Button();
-            button.setGraphic(icon);
+        // Tao Vbox rong
+        VBox BoDemGio = new VBox();
+        BoDemGio.setAlignment(Pos.BOTTOM_CENTER);
+        BoDemGio.setPadding(new Insets(10, 10, 10, 10));
+        BoDemGio.setPrefHeight(500);
+        ClockText boDemGioText = new ClockText();
+        boDemGioText.setFont(montserrat);
+        boDemGioText.setStyle("-fx-fill: #DDB248; -fx-font-size: 15px; -fx-font-weight: bold;");
+        BoDemGio.getChildren().add(boDemGioText);
 
-            addHoverEffect(button);
-            return button;
-        }
 
-        private void addHoverEffect(Button btn) {
-            btn.setStyle("-fx-background-color: transparent;");
-            ScaleTransition scaleUp = new ScaleTransition(Duration.millis(150), btn);
-            scaleUp.setToX(1.08);
-            scaleUp.setToY(1.08);
-
-            ScaleTransition scaleDown = new ScaleTransition(Duration.millis(150), btn);
-            scaleDown.setToX(1);
-            scaleDown.setToY(1);
-
-            btn.setOnMouseEntered(e -> scaleUp.playFromStart());
-            btn.setOnMouseExited(e -> scaleDown.playFromStart());
-        }
-
-        public Button getButton(String name) {
-            return buttons.get(name);
-        }
+        //Them vao VBox sidebar chinh
+        getChildren().addAll(logoImg, groupButton, spacer, BoDemGio);
     }
+
+    private Button createIconButton(String imagePath, double width, double height) {
+        ImageView icon = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath))));
+        icon.setFitWidth(width);
+        icon.setFitHeight(height);
+
+        Button button = new Button();
+        button.setGraphic(icon);
+
+        addHoverEffect(button);
+        return button;
+    }
+
+    private void addHoverEffect(Button btn) {
+        btn.setStyle("-fx-background-color: transparent;");
+        ScaleTransition scaleUp = new ScaleTransition(Duration.millis(150), btn);
+        scaleUp.setToX(1.08);
+        scaleUp.setToY(1.08);
+
+        ScaleTransition scaleDown = new ScaleTransition(Duration.millis(150), btn);
+        scaleDown.setToX(1);
+        scaleDown.setToY(1);
+
+        btn.setOnMouseEntered(e -> scaleUp.playFromStart());
+        btn.setOnMouseExited(e -> scaleDown.playFromStart());
+    }
+
+    public Button getButton(String name) {
+        return buttons.get(name);
+    }
+}
