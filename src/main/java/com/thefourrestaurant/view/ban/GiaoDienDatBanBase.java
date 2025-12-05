@@ -277,14 +277,9 @@ public abstract class GiaoDienDatBanBase extends VBox {
             // 1. Lưu bàn vào bảng liên kết
             PhieuDatBan_BanDAO pdbbDAO = new PhieuDatBan_BanDAO();
             System.out.println("MA PDB trong xuLySauKhiLuu: " + pdb.getMaPDB());
-            if(dsBan != null && !dsBan.isEmpty()) {
-                pdbbDAO.themBanVaoPhieu(pdb.getMaPDB(), dsBan);
-
-                // 2. Cập nhật trạng thái bàn nếu là đặt ngay
-                if(datNgay) {
-                    banDAO.capNhatTrangThaiDanhSach(dsBan, "Đang sử dụng");
-                    quanLiBan.hienThiBanTheoTang(dsBan.get(0).getTang().getMaTang());
-                }
+            if (dsBan != null && !dsBan.isEmpty() && datNgay) {
+                banDAO.capNhatTrangThaiDanhSach(dsBan, "Đang sử dụng");
+                quanLiBan.hienThiBanTheoTang(dsBan.get(0).getTang().getMaTang());
             }
 
             // 3. Thông báo thành công

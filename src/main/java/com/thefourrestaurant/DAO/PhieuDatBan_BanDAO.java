@@ -67,8 +67,17 @@ public class PhieuDatBan_BanDAO {
 
         String sqlCheckPDB = "SELECT 1 FROM PhieuDatBan WHERE maPDB = ?";
         String sqlCheckBan = "SELECT 1 FROM Ban WHERE maBan = ?";
-        String sqlCheckBanDaDat =
-                "SELECT 1 FROM PhieuDatBan_Ban WHERE maBan = ? AND maPDB <> ?";
+        String sqlCheckBanDaDat = """
+        	    SELECT 1
+        	    FROM PhieuDatBan_Ban pdbb
+        	    JOIN PhieuDatBan pdb ON pdbb.maPDB = pdb.maPDB
+        	    WHERE pdbb.maBan = ?
+        	      AND pdbb.maPDB <> ?
+        	      AND LOWER(pdb.trangThai) NOT IN (
+        	            N'Đã thanh toán',
+        	            N'Đã huỷ'
+        	      )
+        	""";
         String sqlInsert =
                 "INSERT INTO PhieuDatBan_Ban (maPDB, maBan) VALUES (?, ?)";
 
