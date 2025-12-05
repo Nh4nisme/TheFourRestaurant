@@ -134,7 +134,7 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
 
             pdb.setNhanVien(assigned);
 
-            boolean ok = phieuDatBanDAO.themPhieu(pdb, "DAT_TRUOC");
+            boolean ok = phieuDatBanDAO.themPhieu(pdb, "DAT_TRUOC", dsBan);
 
             xuLySauKhiLuu(ok, pdb, dsBan, false);
 

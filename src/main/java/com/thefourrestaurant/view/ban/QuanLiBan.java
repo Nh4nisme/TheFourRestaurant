@@ -91,8 +91,8 @@ public class QuanLiBan extends VBox {
 
     // Hiển thị bàn theo tầng
     public void hienThiBanTheoTang(String maTang) {
-        Map<String, PhieuDatBan> mapDangPhucVu = pdbDAO.layTatCaPhieuDangPhucVuTheoBan();
-        Map<String, PhieuDatBan> mapDatTruoc = pdbDAO.layTatCaPhieuDatTruocTheoBan();
+        Map<String, PhieuDatBan> mapDangPhucVu = pdbDAO.layTatCaPhieuDangPhucVuTheoTang();
+        Map<String, PhieuDatBan> mapDatTruoc = pdbDAO.layTatCaPhieuDatTruocTheoTang();
 
         khuVucBan.getChildren().clear();
 

@@ -15,8 +15,6 @@ import java.time.LocalDateTime;
 
 class GiaoDienDatBanNgay extends GiaoDienDatBanBase {
 
-    private BanDAO banDAO = new BanDAO();
-
 	public GiaoDienDatBanNgay(List<Ban> dsBan, StackPane parentPane, QuanLiBan quanLiBan){
         super(dsBan, parentPane, quanLiBan);
     }
@@ -50,7 +48,7 @@ class GiaoDienDatBanNgay extends GiaoDienDatBanBase {
             pdb.setNhanVien(assigned);
 
             PhieuDatBanDAO dao = new PhieuDatBanDAO();
-            boolean ok = dao.themPhieu(pdb,"DAT_NGAY");
+            boolean ok = dao.themPhieu(pdb,"DAT_NGAY", dsBan);
 
             xuLySauKhiLuu(ok, pdb, quanLiBan.getDsBanDangChon(), true);
         } catch(Exception ex){ lblTenKhachDat.setText("Có lỗi khi lưu"); ex.printStackTrace();}
