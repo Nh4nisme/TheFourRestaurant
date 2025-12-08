@@ -3,6 +3,7 @@ package com.thefourrestaurant.view.thongke;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -18,6 +19,7 @@ public class ThongKeView extends BorderPane {
     private final ComboBox<String> comboBoxLoaiBieuDo;
     private final ButtonSample btnXemThongKe;
     private final VBox khuVucBieuDo;
+    private final CheckBox chkSoSanh;
 
     public ThongKeView() {
         this.setStyle("-fx-background-color: white;");
@@ -32,8 +34,7 @@ public class ThongKeView extends BorderPane {
         this.setTop(header);
 
         // --- Bảng điều khiển (Control Panel) ---
-        // Layout chính cho control panel
-        HBox controlPanelContainer = new HBox(30);
+        HBox controlPanelContainer = new HBox(20);
         controlPanelContainer.setPadding(new Insets(20));
         controlPanelContainer.setAlignment(Pos.CENTER_LEFT);
 
@@ -70,7 +71,6 @@ public class ThongKeView extends BorderPane {
         comboBoxLoaiBieuDo.getItems().addAll("Biểu đồ cột", "Biểu đồ đường", "Biểu đồ tròn");
         comboBoxLoaiBieuDo.setValue("Biểu đồ cột");
 
-        // Add to optionsGrid
         optionsGrid.add(lblTuNgay, 0, 0);
         optionsGrid.add(datePickerBatDau, 1, 0);
         optionsGrid.add(lblDenNgay, 2, 0);
@@ -80,17 +80,18 @@ public class ThongKeView extends BorderPane {
         optionsGrid.add(lblLoaiBieuDo, 2, 1);
         optionsGrid.add(comboBoxLoaiBieuDo, 3, 1);
 
-        // --- Panel Phải: Nút bấm ---
-        btnXemThongKe = new ButtonSample("Xem Thống Kê", 50, 20, 14);
+        // --- Panel Phải: Nút bấm và Checkbox ---
+        btnXemThongKe = new ButtonSample("Xem Thống Kê", 50, 25, 14);
         btnXemThongKe.getStyleClass().add("button_sampleGamboge");
         
-        // Đưa nút vào một HBox để căn giữa
-        HBox buttonContainer = new HBox(btnXemThongKe);
-        buttonContainer.setAlignment(Pos.CENTER);
+        chkSoSanh = new CheckBox("So sánh");
+        chkSoSanh.getStyleClass().add("thongke-label");
 
-        // Thêm panel trái và phải vào container chính
-        controlPanelContainer.getChildren().addAll(optionsGrid, buttonContainer);
-        HBox.setHgrow(optionsGrid, Priority.ALWAYS); // Cho panel trái mở rộng
+        VBox rightControls = new VBox(10, chkSoSanh, btnXemThongKe);
+        rightControls.setAlignment(Pos.CENTER_LEFT);
+
+        controlPanelContainer.getChildren().addAll(optionsGrid, rightControls);
+        HBox.setHgrow(optionsGrid, Priority.ALWAYS);
 
         // --- Khu vực hiển thị biểu đồ ---
         khuVucBieuDo = new VBox();
@@ -106,11 +107,12 @@ public class ThongKeView extends BorderPane {
         this.setCenter(centerLayout);
     }
 
-    // Getters cho các thành phần để Controller có thể truy cập
+    // Getters
     public DatePicker getDatePickerBatDau() { return datePickerBatDau; }
     public DatePicker getDatePickerKetThuc() { return datePickerKetThuc; }
     public ComboBox<String> getComboBoxLoaiThongKe() { return comboBoxLoaiThongKe; }
     public ComboBox<String> getComboBoxLoaiBieuDo() { return comboBoxLoaiBieuDo; }
     public ButtonSample getBtnXemThongKe() { return btnXemThongKe; }
     public VBox getKhuVucBieuDo() { return khuVucBieuDo; }
+    public CheckBox getChkSoSanh() { return chkSoSanh; }
 }
