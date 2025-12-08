@@ -3,6 +3,7 @@ package com.thefourrestaurant.view.thongke;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -10,9 +11,13 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 
 import java.time.LocalDate;
+import java.time.Month;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ThongKeView extends BorderPane {
 
+    // All controls
     private final DatePicker datePickerBatDau;
     private final DatePicker datePickerKetThuc;
     private final ComboBox<String> comboBoxLoaiThongKe;
@@ -20,11 +25,19 @@ public class ThongKeView extends BorderPane {
     private final ButtonSample btnXemThongKe;
     private final VBox khuVucBieuDo;
     private final CheckBox chkSoSanh;
+    private final ComboBox<String> comboBoxTheo;
+    private final ComboBox<String> comboBoxTuyChon;
+
+    // New controls for dynamic date selection
+    private final HBox dateSelectionBox;
+    private final ComboBox<Integer> cboThang;
+    private final ComboBox<Integer> cboNam;
+    private final ComboBox<String> cboQuy;
 
     public ThongKeView() {
         this.setStyle("-fx-background-color: white;");
 
-        // --- Phần đầu (Header) ---
+        // --- Header ---
         Label lblTitle = new Label("Báo Cáo & Thống Kê");
         lblTitle.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #D4A017;");
         HBox header = new HBox(lblTitle);
@@ -33,37 +46,42 @@ public class ThongKeView extends BorderPane {
         header.setStyle("-fx-background-color: #1E424D;");
         this.setTop(header);
 
-        // --- Bảng điều khiển (Control Panel) ---
+        // --- Control Panel ---
         HBox controlPanelContainer = new HBox(20);
         controlPanelContainer.setPadding(new Insets(20));
         controlPanelContainer.setAlignment(Pos.CENTER_LEFT);
 
-        // --- Panel Trái: Các tùy chọn ---
-        GridPane optionsGrid = new GridPane();
-        optionsGrid.setHgap(10);
-        optionsGrid.setVgap(15);
+        // --- Left Panel: Options ---
+        VBox optionsVBox = new VBox(15);
 
-        // Labels
-        Label lblTuNgay = new Label("Từ ngày:");
-        Label lblDenNgay = new Label("Đến ngày:");
-        Label lblLoaiThongKe = new Label("Thống kê theo:");
-        Label lblLoaiBieuDo = new Label("Loại biểu đồ:");
+        // --- Initialize all controls ---
+        // Main selectors
+        comboBoxTheo = new ComboBox<>();
+        comboBoxLoaiThongKe = new ComboBox<>();
+        comboBoxTuyChon = new ComboBox<>();
+        comboBoxLoaiBieuDo = new ComboBox<>();
         
-        lblTuNgay.getStyleClass().add("thongke-label");
-        lblDenNgay.getStyleClass().add("thongke-label");
-        lblLoaiThongKe.getStyleClass().add("thongke-label");
-        lblLoaiBieuDo.getStyleClass().add("thongke-label");
-
-        // Inputs
+        // Date/Time selectors
         datePickerBatDau = new DatePicker(LocalDate.now().withDayOfMonth(1));
         datePickerKetThuc = new DatePicker(LocalDate.now());
-        comboBoxLoaiThongKe = new ComboBox<>();
-        comboBoxLoaiBieuDo = new ComboBox<>();
+        cboThang = new ComboBox<>();
+        cboNam = new ComboBox<>();
+        cboQuy = new ComboBox<>();
 
+        // Style all inputs
+        comboBoxTheo.getStyleClass().add("thongke-input");
         datePickerBatDau.getStyleClass().add("thongke-input");
         datePickerKetThuc.getStyleClass().add("thongke-input");
         comboBoxLoaiThongKe.getStyleClass().add("thongke-input");
+        comboBoxTuyChon.getStyleClass().add("thongke-input");
         comboBoxLoaiBieuDo.getStyleClass().add("thongke-input");
+        cboThang.getStyleClass().add("thongke-input");
+        cboNam.getStyleClass().add("thongke-input");
+        cboQuy.getStyleClass().add("thongke-input");
+
+        // Populate ComboBoxes
+        comboBoxTheo.getItems().addAll("Ngày", "Tháng", "Quý", "Năm");
+        comboBoxTheo.setValue("Ngày");
         
         comboBoxLoaiThongKe.getItems().addAll("Doanh thu", "Món ăn", "Bàn");
         comboBoxLoaiThongKe.setValue("Doanh thu");
@@ -71,16 +89,47 @@ public class ThongKeView extends BorderPane {
         comboBoxLoaiBieuDo.getItems().addAll("Biểu đồ cột", "Biểu đồ đường", "Biểu đồ tròn");
         comboBoxLoaiBieuDo.setValue("Biểu đồ cột");
 
-        optionsGrid.add(lblTuNgay, 0, 0);
-        optionsGrid.add(datePickerBatDau, 1, 0);
-        optionsGrid.add(lblDenNgay, 2, 0);
-        optionsGrid.add(datePickerKetThuc, 3, 0);
-        optionsGrid.add(lblLoaiThongKe, 0, 1);
-        optionsGrid.add(comboBoxLoaiThongKe, 1, 1);
-        optionsGrid.add(lblLoaiBieuDo, 2, 1);
-        optionsGrid.add(comboBoxLoaiBieuDo, 3, 1);
+        cboThang.getItems().addAll(IntStream.rangeClosed(1, 12).boxed().collect(Collectors.toList()));
+        cboThang.setValue(LocalDate.now().getMonthValue());
 
-        // --- Panel Phải: Nút bấm và Checkbox ---
+        int currentYear = LocalDate.now().getYear();
+        cboNam.getItems().addAll(IntStream.rangeClosed(currentYear - 10, currentYear).boxed().sorted((a, b) -> b - a).toList());
+        cboNam.setValue(currentYear);
+
+        cboQuy.getItems().addAll("Quý 1", "Quý 2", "Quý 3", "Quý 4");
+        cboQuy.setValue("Quý 1");
+
+        // --- Row 1: Time selection ---
+        HBox timeSelectionRow = new HBox(10);
+        timeSelectionRow.setAlignment(Pos.CENTER_LEFT);
+        Label lblTheo = new Label("Theo:");
+        lblTheo.getStyleClass().add("thongke-label");
+        
+        dateSelectionBox = new HBox(10);
+        dateSelectionBox.setAlignment(Pos.CENTER_LEFT);
+        
+        timeSelectionRow.getChildren().addAll(lblTheo, comboBoxTheo, dateSelectionBox);
+        
+        // --- Row 2: Stat type selection ---
+        HBox statSelectionRow = new HBox(10);
+        statSelectionRow.setAlignment(Pos.CENTER_LEFT);
+        Label lblLoaiThongKe = new Label("Thống kê theo:");
+        Label lblTuyChon = new Label("Tùy chọn:");
+        Label lblLoaiBieuDo = new Label("Loại biểu đồ:");
+        
+        lblLoaiThongKe.getStyleClass().add("thongke-label");
+        lblTuyChon.getStyleClass().add("thongke-label");
+        lblLoaiBieuDo.getStyleClass().add("thongke-label");
+        
+        statSelectionRow.getChildren().addAll(lblLoaiThongKe, comboBoxLoaiThongKe, lblTuyChon, comboBoxTuyChon, lblLoaiBieuDo, comboBoxLoaiBieuDo);
+
+        optionsVBox.getChildren().addAll(timeSelectionRow, statSelectionRow);
+
+        // Listener to change controls
+        comboBoxTheo.valueProperty().addListener((obs, oldVal, newVal) -> updateDateSelectionControls(newVal));
+        updateDateSelectionControls(comboBoxTheo.getValue()); // Initial setup
+
+        // --- Right Panel: Buttons and Checkbox ---
         btnXemThongKe = new ButtonSample("Xem Thống Kê", 50, 25, 14);
         btnXemThongKe.getStyleClass().add("button_sampleGamboge");
         
@@ -90,10 +139,10 @@ public class ThongKeView extends BorderPane {
         VBox rightControls = new VBox(10, chkSoSanh, btnXemThongKe);
         rightControls.setAlignment(Pos.CENTER_LEFT);
 
-        controlPanelContainer.getChildren().addAll(optionsGrid, rightControls);
-        HBox.setHgrow(optionsGrid, Priority.ALWAYS);
+        controlPanelContainer.getChildren().addAll(optionsVBox, rightControls);
+        HBox.setHgrow(optionsVBox, Priority.ALWAYS);
 
-        // --- Khu vực hiển thị biểu đồ ---
+        // --- Chart Area ---
         khuVucBieuDo = new VBox();
         khuVucBieuDo.setAlignment(Pos.CENTER);
         khuVucBieuDo.setPadding(new Insets(20));
@@ -102,9 +151,46 @@ public class ThongKeView extends BorderPane {
         lblPlaceholder.setStyle("-fx-font-size: 16px; -fx-text-fill: #888;");
         khuVucBieuDo.getChildren().add(lblPlaceholder);
 
-        // --- Bố cục chính ---
+        // --- Main Layout ---
         VBox centerLayout = new VBox(20, controlPanelContainer, khuVucBieuDo);
         this.setCenter(centerLayout);
+    }
+
+    private void updateDateSelectionControls(String selection) {
+        dateSelectionBox.getChildren().clear();
+        if (selection == null) return;
+
+        switch (selection) {
+            case "Ngày":
+                dateSelectionBox.getChildren().addAll(
+                    new Label("Từ ngày:"), datePickerBatDau,
+                    new Label("Đến ngày:"), datePickerKetThuc
+                );
+                break;
+            case "Tháng":
+                dateSelectionBox.getChildren().addAll(
+                    new Label("Tháng:"), cboThang,
+                    new Label("Năm:"), cboNam
+                );
+                break;
+            case "Năm":
+                dateSelectionBox.getChildren().addAll(
+                    new Label("Năm:"), cboNam
+                );
+                break;
+            case "Quý":
+                dateSelectionBox.getChildren().addAll(
+                    new Label("Quý:"), cboQuy,
+                    new Label("Năm:"), cboNam
+                );
+                break;
+        }
+        // Apply style to new labels
+        for (Node node : dateSelectionBox.getChildren()) {
+            if (node instanceof Label) {
+                node.getStyleClass().add("thongke-label");
+            }
+        }
     }
 
     // Getters
@@ -115,4 +201,9 @@ public class ThongKeView extends BorderPane {
     public ButtonSample getBtnXemThongKe() { return btnXemThongKe; }
     public VBox getKhuVucBieuDo() { return khuVucBieuDo; }
     public CheckBox getChkSoSanh() { return chkSoSanh; }
+    public ComboBox<String> getComboBoxTheo() { return comboBoxTheo; }
+    public ComboBox<String> getComboBoxTuyChon() { return comboBoxTuyChon; }
+    public ComboBox<Integer> getCboThang() { return cboThang; }
+    public ComboBox<Integer> getCboNam() { return cboNam; }
+    public ComboBox<String> getCboQuy() { return cboQuy; }
 }

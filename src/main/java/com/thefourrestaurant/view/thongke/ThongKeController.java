@@ -11,7 +11,10 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.IsoFields;
 import java.util.Map;
 
 public class ThongKeController {
@@ -54,15 +57,41 @@ public class ThongKeController {
     }
 
     private void xuLyXemThongKe() {
-        LocalDate ngayBatDau = view.getDatePickerBatDau().getValue();
-        LocalDate ngayKetThuc = view.getDatePickerKetThuc().getValue();
+        String theo = view.getComboBoxTheo().getValue();
+        LocalDate ngayBatDau = null;
+        LocalDate ngayKetThuc = null;
+
+        switch (theo) {
+            case "Ngày":
+                ngayBatDau = view.getDatePickerBatDau().getValue();
+                ngayKetThuc = view.getDatePickerKetThuc().getValue();
+                if (ngayBatDau == null || ngayKetThuc == null || ngayBatDau.isAfter(ngayKetThuc)) {
+                    showAlert("Khoảng thời gian không hợp lệ.");
+                    return;
+                }
+                break;
+            case "Tháng":
+                int month = view.getCboThang().getValue();
+                int yearForMonth = view.getCboNam().getValue();
+                YearMonth yearMonth = YearMonth.of(yearForMonth, month);
+                ngayBatDau = yearMonth.atDay(1);
+                ngayKetThuc = yearMonth.atEndOfMonth();
+                break;
+            case "Năm":
+                int year = view.getCboNam().getValue();
+                ngayBatDau = LocalDate.of(year, 1, 1);
+                ngayKetThuc = LocalDate.of(year, 12, 31);
+                break;
+            case "Quý":
+                int quarter = Integer.parseInt(view.getCboQuy().getValue().substring(4));
+                int yearForQuarter = view.getCboNam().getValue();
+                ngayBatDau = LocalDate.of(yearForQuarter, (quarter - 1) * 3 + 1, 1);
+                ngayKetThuc = ngayBatDau.plusMonths(2).withDayOfMonth(ngayBatDau.plusMonths(2).lengthOfMonth());
+                break;
+        }
+
         String loaiThongKe = view.getComboBoxLoaiThongKe().getValue();
         String loaiBieuDo = view.getComboBoxLoaiBieuDo().getValue();
-
-        if (ngayBatDau == null || ngayKetThuc == null || ngayBatDau.isAfter(ngayKetThuc)) {
-            showAlert("Khoảng thời gian không hợp lệ.");
-            return;
-        }
 
         if (view.getChkSoSanh().isSelected()) {
             themMoiSeriesVaoBieuDo(ngayBatDau, ngayKetThuc, loaiThongKe, loaiBieuDo);
