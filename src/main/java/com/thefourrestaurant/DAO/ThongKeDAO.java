@@ -16,7 +16,6 @@ public class ThongKeDAO {
      */
     public Map<String, Double> getDoanhThuTheoNgay(LocalDate startDate, LocalDate endDate) {
         Map<String, Double> data = new LinkedHashMap<>();
-        // Sửa lại truy vấn để tính tổng tiền từ ChiTietHD
         String sql = "SELECT CONVERT(date, HD.ngayLap) as Ngay, SUM(CT.soLuong * CT.donGia) as DoanhThu " +
                      "FROM HoaDon HD " +
                      "JOIN ChiTietHD CT ON HD.maHD = CT.maHD " +
@@ -28,7 +27,6 @@ public class ThongKeDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setDate(1, java.sql.Date.valueOf(startDate));
-            // Sử dụng < endDate.plusDays(1) để bao gồm cả ngày kết thúc
             ps.setDate(2, java.sql.Date.valueOf(endDate.plusDays(1)));
             
             try (ResultSet rs = ps.executeQuery()) {
@@ -45,22 +43,31 @@ public class ThongKeDAO {
     /**
      * Lấy dữ liệu thống kê số lượng các món ăn đã bán.
      */
-    public Map<String, Integer> getThongKeMonAn(LocalDate startDate, LocalDate endDate) {
+    public Map<String, Integer> getThongKeMonAn(LocalDate startDate, LocalDate endDate, String tenLoaiMon) {
         Map<String, Integer> data = new LinkedHashMap<>();
-        // Sửa lại tên bảng ChiTietHoaDon -> ChiTietHD
-        String sql = "SELECT M.tenMon, SUM(CT.soLuong) as TongSoLuong " +
-                     "FROM ChiTietHD CT " +
-                     "JOIN MonAn M ON CT.maMonAn = M.maMonAn " +
-                     "JOIN HoaDon HD ON CT.maHD = HD.maHD " +
-                     "WHERE HD.ngayLap >= ? AND HD.ngayLap < ? " +
-                     "GROUP BY M.tenMon " +
-                     "ORDER BY TongSoLuong DESC";
+        StringBuilder sql = new StringBuilder(
+            "SELECT M.tenMon, SUM(CT.soLuong) as TongSoLuong " +
+            "FROM ChiTietHD CT " +
+            "JOIN MonAn M ON CT.maMonAn = M.maMonAn " +
+            "JOIN HoaDon HD ON CT.maHD = HD.maHD " +
+            "JOIN LoaiMonAn LM ON M.maLoaiMon = LM.maLoaiMon " +
+            "WHERE HD.ngayLap >= ? AND HD.ngayLap < ? "
+        );
+
+        if (tenLoaiMon != null && !tenLoaiMon.equals("Tất cả Món Ăn")) {
+            sql.append("AND LM.tenLoaiMon = ? ");
+        }
+
+        sql.append("GROUP BY M.tenMon ORDER BY TongSoLuong DESC");
 
         try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             ps.setDate(1, java.sql.Date.valueOf(startDate));
             ps.setDate(2, java.sql.Date.valueOf(endDate.plusDays(1)));
+            if (tenLoaiMon != null && !tenLoaiMon.equals("Tất cả Món Ăn")) {
+                ps.setString(3, tenLoaiMon);
+            }
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -78,7 +85,6 @@ public class ThongKeDAO {
      */
     public Map<String, Double> getThongKeBan(LocalDate startDate, LocalDate endDate) {
         Map<String, Double> data = new LinkedHashMap<>();
-        // Sửa lại truy vấn phức tạp để join qua nhiều bảng
         String sql = "SELECT B.tenBan, SUM(CTHD.soLuong * CTHD.donGia) as TongDoanhThu " +
                      "FROM HoaDon HD " +
                      "JOIN ChiTietHD CTHD ON HD.maHD = CTHD.maHD " +

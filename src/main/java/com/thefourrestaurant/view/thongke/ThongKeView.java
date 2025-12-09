@@ -1,5 +1,11 @@
 package com.thefourrestaurant.view.thongke;
 
+import com.thefourrestaurant.DAO.KhuyenMaiDAO;
+import com.thefourrestaurant.DAO.LoaiBanDAO;
+import com.thefourrestaurant.DAO.LoaiMonDAO;
+import com.thefourrestaurant.model.KhuyenMai;
+import com.thefourrestaurant.model.LoaiBan;
+import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,6 +18,7 @@ import javafx.scene.layout.*;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -60,7 +67,7 @@ public class ThongKeView extends BorderPane {
         comboBoxLoaiThongKe = new ComboBox<>();
         comboBoxTuyChon = new ComboBox<>();
         comboBoxLoaiBieuDo = new ComboBox<>();
-        
+
         // Date/Time selectors
         datePickerBatDau = new DatePicker(LocalDate.now().withDayOfMonth(1));
         datePickerKetThuc = new DatePicker(LocalDate.now());
@@ -82,10 +89,10 @@ public class ThongKeView extends BorderPane {
         // Populate ComboBoxes
         comboBoxTheo.getItems().addAll("Ngày", "Tháng", "Quý", "Năm");
         comboBoxTheo.setValue("Ngày");
-        
+
         comboBoxLoaiThongKe.getItems().addAll("Doanh thu", "Món ăn", "Bàn");
         comboBoxLoaiThongKe.setValue("Doanh thu");
-        
+
         comboBoxLoaiBieuDo.getItems().addAll("Biểu đồ cột", "Biểu đồ đường", "Biểu đồ tròn");
         comboBoxLoaiBieuDo.setValue("Biểu đồ cột");
 
@@ -104,23 +111,23 @@ public class ThongKeView extends BorderPane {
         timeSelectionRow.setAlignment(Pos.CENTER_LEFT);
         Label lblTheo = new Label("Theo:");
         lblTheo.getStyleClass().add("thongke-label");
-        
+
         dateSelectionBox = new HBox(10);
         dateSelectionBox.setAlignment(Pos.CENTER_LEFT);
-        
+
         timeSelectionRow.getChildren().addAll(lblTheo, comboBoxTheo, dateSelectionBox);
-        
+
         // --- Row 2: Stat type selection ---
         HBox statSelectionRow = new HBox(10);
         statSelectionRow.setAlignment(Pos.CENTER_LEFT);
         Label lblLoaiThongKe = new Label("Thống kê theo:");
         Label lblTuyChon = new Label("Tùy chọn:");
         Label lblLoaiBieuDo = new Label("Loại biểu đồ:");
-        
+
         lblLoaiThongKe.getStyleClass().add("thongke-label");
         lblTuyChon.getStyleClass().add("thongke-label");
         lblLoaiBieuDo.getStyleClass().add("thongke-label");
-        
+
         statSelectionRow.getChildren().addAll(lblLoaiThongKe, comboBoxLoaiThongKe, lblTuyChon, comboBoxTuyChon, lblLoaiBieuDo, comboBoxLoaiBieuDo);
 
         optionsVBox.getChildren().addAll(timeSelectionRow, statSelectionRow);
@@ -129,10 +136,13 @@ public class ThongKeView extends BorderPane {
         comboBoxTheo.valueProperty().addListener((obs, oldVal, newVal) -> updateDateSelectionControls(newVal));
         updateDateSelectionControls(comboBoxTheo.getValue()); // Initial setup
 
+        comboBoxLoaiThongKe.valueProperty().addListener((obs, oldVal, newVal) -> updateTuyChonComboBox(newVal));
+        updateTuyChonComboBox(comboBoxLoaiThongKe.getValue()); // Initial load for default selection
+
         // --- Right Panel: Buttons and Checkbox ---
         btnXemThongKe = new ButtonSample("Xem Thống Kê", 50, 25, 14);
         btnXemThongKe.getStyleClass().add("button_sampleGamboge");
-        
+
         chkSoSanh = new CheckBox("So sánh");
         chkSoSanh.getStyleClass().add("thongke-label");
 
@@ -146,7 +156,7 @@ public class ThongKeView extends BorderPane {
         khuVucBieuDo = new VBox();
         khuVucBieuDo.setAlignment(Pos.CENTER);
         khuVucBieuDo.setPadding(new Insets(20));
-        
+
         Label lblPlaceholder = new Label("Chọn các tùy chọn và nhấn 'Xem Thống Kê' để tạo báo cáo.");
         lblPlaceholder.setStyle("-fx-font-size: 16px; -fx-text-fill: #888;");
         khuVucBieuDo.getChildren().add(lblPlaceholder);
@@ -163,25 +173,25 @@ public class ThongKeView extends BorderPane {
         switch (selection) {
             case "Ngày":
                 dateSelectionBox.getChildren().addAll(
-                    new Label("Từ ngày:"), datePickerBatDau,
-                    new Label("Đến ngày:"), datePickerKetThuc
+                        new Label("Từ ngày:"), datePickerBatDau,
+                        new Label("Đến ngày:"), datePickerKetThuc
                 );
                 break;
             case "Tháng":
                 dateSelectionBox.getChildren().addAll(
-                    new Label("Tháng:"), cboThang,
-                    new Label("Năm:"), cboNam
+                        new Label("Tháng:"), cboThang,
+                        new Label("Năm:"), cboNam
                 );
                 break;
             case "Năm":
                 dateSelectionBox.getChildren().addAll(
-                    new Label("Năm:"), cboNam
+                        new Label("Năm:"), cboNam
                 );
                 break;
             case "Quý":
                 dateSelectionBox.getChildren().addAll(
-                    new Label("Quý:"), cboQuy,
-                    new Label("Năm:"), cboNam
+                        new Label("Quý:"), cboQuy,
+                        new Label("Năm:"), cboNam
                 );
                 break;
         }
@@ -190,6 +200,46 @@ public class ThongKeView extends BorderPane {
             if (node instanceof Label) {
                 node.getStyleClass().add("thongke-label");
             }
+        }
+    }
+
+    private void updateTuyChonComboBox(String loaiThongKe) {
+        if (loaiThongKe == null) {
+            comboBoxTuyChon.getItems().clear();
+            return;
+        }
+
+        switch (loaiThongKe) {
+            case "Món ăn":
+                LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
+                List<String> tenLoaiMon = loaiMonDAO.layTatCaLoaiMon().stream()
+                        .map(LoaiMon::getTenLoaiMon)
+                        .collect(Collectors.toList());
+                comboBoxTuyChon.getItems().setAll(tenLoaiMon);
+                comboBoxTuyChon.getItems().add(0, "Tất cả Món Ăn");
+                comboBoxTuyChon.setValue("Tất cả Món Ăn");
+                break;
+            case "Bàn":
+                LoaiBanDAO loaiBanDAO = new LoaiBanDAO();
+                List<String> tenLoaiBan = loaiBanDAO.layTatCa().stream()
+                        .map(LoaiBan::getTenLoaiBan)
+                        .collect(Collectors.toList());
+                comboBoxTuyChon.getItems().setAll(tenLoaiBan);
+                comboBoxTuyChon.getItems().add(0, "Tất cả Bàn");
+                comboBoxTuyChon.setValue("Tất cả Bàn");
+                break;
+            case "Doanh thu":
+                KhuyenMaiDAO khuyenMaiDAO = new KhuyenMaiDAO();
+                List<String> tenKhuyenMai = khuyenMaiDAO.layDanhSachKhuyenMai().stream()
+                        .map(KhuyenMai::getTenKM)
+                        .collect(Collectors.toList());
+                comboBoxTuyChon.getItems().setAll(tenKhuyenMai);
+                comboBoxTuyChon.getItems().add(0, "Tất cả Khuyến Mãi");
+                comboBoxTuyChon.setValue("Tất cả Khuyến Mãi");
+                break;
+            default:
+                comboBoxTuyChon.getItems().clear();
+                break;
         }
     }
 
