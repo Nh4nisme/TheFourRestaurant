@@ -4,9 +4,7 @@ import java.sql.Connection;
 
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.view.GiaoDienDangNhap;
-import com.thefourrestaurant.view.GiaoDienChinh;
 
-import com.thefourrestaurant.view.hoadon.GiaoDienLapHoaDon;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -16,20 +14,28 @@ import javafx.stage.Stage;
 
 public class MainApp extends Application {
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage){
         // Nạp font
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Regular.ttf"), 14);
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 14);
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"), 14);
 
-      //GiaoDienDangNhap giaoDienDangNhap = new GiaoDienDangNhap();
-      GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
-      giaoDienChinh.show(primaryStage);
+//      GiaoDienChinh giaoDienChinh = new GiaoDienChinh();
+//      giaoDienChinh.show(primaryStage);
+
+        GiaoDienDangNhap gd = new GiaoDienDangNhap();
+        gd.show(primaryStage);
 
         // Sau khi giao diện đã mở, chạy kết nối DB ở thread riêng
+        Task<Connection> ketNoiTask = getConnectionTask();
+
+        new Thread(ketNoiTask).start();
+    }
+
+    private Task<Connection> getConnectionTask() {
         Task<Connection> ketNoiTask = new Task<>() {
             @Override
-            protected Connection call() throws Exception {
+            protected Connection call(){
                 return ConnectSQL.getConnection();
             }
         };
@@ -43,11 +49,8 @@ public class MainApp extends Application {
             }
         });
 
-        ketNoiTask.setOnFailed(e -> {
-            hienThongBaoLoi("Không thể kết nối đến SQL Server.\nChi tiết: " + ketNoiTask.getException().getMessage());
-        });
-
-        new Thread(ketNoiTask).start();
+        ketNoiTask.setOnFailed(e -> hienThongBaoLoi("Không thể kết nối đến SQL Server.\nChi tiết: " + ketNoiTask.getException().getMessage()));
+        return ketNoiTask;
     }
 
     private void hienThongBaoLoi(String message) {

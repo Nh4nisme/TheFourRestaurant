@@ -11,9 +11,12 @@ import com.thefourrestaurant.view.ban.*;
 //import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
 import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
 import com.thefourrestaurant.view.khachhang.GiaoDienKhachHang;
+import com.thefourrestaurant.view.khuyenmai.GiaoDienKhuyenMai;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
+import com.thefourrestaurant.view.monan.GiaoDienMonAn;
 import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 
+import com.thefourrestaurant.view.thongke.ThongKeView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
@@ -26,7 +29,8 @@ import javafx.stage.Stage;
 
 public class NavBar extends HBox {
 
-    private final DropDownButton btnHeThong, btnTimKiem, btnXuLi;
+    private final DropDownButton btnHeThong, btnTimKiem, btnXuLi, btnDanhMuc;
+    private final ButtonSample btnThongKe;
     private final Pane mainContent; // Pane trung tâm dưới navBar
     private final Pane sideBar;
     private final Pane sideBarExtended;
@@ -68,8 +72,17 @@ public class NavBar extends HBox {
         } else {
             accountLabel = "Tài khoản: --"; // fallback khi chưa có session
         }
-        
+
         ButtonSample btnTKDN = new ButtonSample(accountLabel, "/com/thefourrestaurant/images/icon/accountIcon.png", 45, 16, 1);
+
+        btnDanhMuc = new DropDownButton(
+                "Danh mục",
+                List.of("Thực đơn","Món ăn","Loại Món ăn","Khuyến mãi","Hóa đơn","Khách hàng","Tài khoản","Tầng và bàn"),
+                "/com/thefourrestaurant/images/icon/danhMucIcon.png",
+                45,
+                16,
+                1
+        );
 
         btnXuLi = new DropDownButton(
                 "Xử lí",
@@ -81,7 +94,7 @@ public class NavBar extends HBox {
         );
 
         btnTimKiem = new DropDownButton(
-                "Tìm kiếm",
+                "Tra cứu",
                 List.of("Phiếu đặt bàn"),
                 "/com/thefourrestaurant/images/icon/timKiemIcon.png",
                 45,
@@ -98,12 +111,22 @@ public class NavBar extends HBox {
                 1
         );
 
+        btnThongKe = new ButtonSample(
+                "Thống kê",
+                "/com/thefourrestaurant/images/icon/thongKeIcon.png",
+                45,
+                16,
+                1
+        );
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        getChildren().addAll(btnHeThong, btnXuLi, btnTimKiem, spacer, btnTKDN);
+        getChildren().addAll(btnDanhMuc,btnHeThong, btnXuLi, btnTimKiem, btnThongKe, spacer, btnTKDN);
 
         // Event handler load nội dung vào mainContent
+        btnThongKe.setOnMouseClicked(e -> showPanel("Thống kê"));
+        btnDanhMuc.setOnItemSelected(this::showPanel);
         btnXuLi.setOnItemSelected(this::showPanel);
         btnTimKiem.setOnItemSelected(this::showPanel);
         btnHeThong.setOnItemSelected(this::showPanel); // Thêm xử lý cho nút Hệ thống
@@ -115,14 +138,14 @@ public class NavBar extends HBox {
     }
 
     private void showPanel(String s) {
-    	
-    	if ("Trang chủ".equals(s)) {
+
+        if ("Trang chủ".equals(s)) {
             Stage currentStage = (Stage) mainContent.getScene().getWindow();
             new GiaoDienChinh().show(currentStage); // mở lại GiaoDienChinh trên stage hiện tại
             currentStage.setFullScreen(true);
             return;
         }
-    	
+
         if (mainContent == null) return;
 
         // Xử lý các mục của nút Hệ thống
@@ -177,9 +200,17 @@ public class NavBar extends HBox {
         }
 
         Node newContent = switch (s) {
+            case "Thực đơn" -> new QuanLyThucDon();
+            case "Món ăn" -> new GiaoDienMonAn("","");
+            case "Loại món ăn" -> new LoaiMonAn();
+            case "Khuyến mãi" -> new GiaoDienKhuyenMai();
+            case "Hóa đơn" -> new GiaoDienHoaDon();
+            case "Khách hàng" -> new GiaoDienKhachHang();
+            case "Tài khoản" -> new GiaoDienTaiKhoan();
+            case "Tầng và bàn" -> new QuanLiBan((StackPane) mainContent, "QUAN_LY_BAN");
             case "Đặt bàn" -> new GiaoDienDatBan((StackPane) mainContent);
             case "Phiếu đặt bàn" -> new GiaoDienPhieuDatBan();
-            // Thêm các case khác cho các mục menu nếu cần
+            case "Thống kê" -> new ThongKeView();
             default -> null;
         };
 

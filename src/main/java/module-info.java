@@ -7,6 +7,5 @@ module com.thefourrestaurant {
     requires jfxtras.controls;
     requires javafx.base;
 
-    opens com.thefourrestaurant.view.components.chart to javafx.graphics;
     exports com.thefourrestaurant;
 }

@@ -2,14 +2,11 @@ package com.thefourrestaurant.view;
 
 import java.util.Objects;
 
-import com.thefourrestaurant.controller.SideBarController;
 import com.thefourrestaurant.view.components.NavBar;
 import com.thefourrestaurant.view.components.sidebar.SideBar;
 
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -61,9 +58,6 @@ public class GiaoDienChinh {
 
         //Thêm NavBar + mainContent vào VBox
         rightSection.getChildren().addAll(navBar, mainContent);
-
-        // === Controller quản lý sidebar (ẩn/hiện) ===
-        new SideBarController(sideBar, sideBarExtended, mainContent);
 
         // === Scene ===
         Scene scene = new Scene(root, 1366, 768);
