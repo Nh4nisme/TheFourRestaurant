@@ -135,6 +135,38 @@ public class ChiTietKhuyenMaiDialog extends Stage {
         luoiForm.add(new Label("Số lượng tặng:"), 0, 5);
         luoiForm.add(truongSoLuongTang, 1, 5);
 
+        // Logic to enable/disable fields based on parent promotion type
+        if (khuyenMaiCha != null && khuyenMaiCha.getLoaiKhuyenMai() != null) {
+            String tenLoaiKM = khuyenMaiCha.getLoaiKhuyenMai().getTenLoaiKM();
+            switch (tenLoaiKM) {
+                case "Giảm giá theo tỷ lệ":
+                    truongTyLeGiam.setDisable(false);
+                    truongSoTienGiam.setDisable(true);
+                    monTangComboBox.setDisable(true);
+                    truongSoLuongTang.setDisable(true);
+                    break;
+                case "Giảm giá theo số tiền":
+                    truongTyLeGiam.setDisable(true);
+                    truongSoTienGiam.setDisable(false);
+                    monTangComboBox.setDisable(true);
+                    truongSoLuongTang.setDisable(true);
+                    break;
+                case "Tặng món":
+                    truongTyLeGiam.setDisable(true);
+                    truongSoTienGiam.setDisable(true);
+                    monTangComboBox.setDisable(false);
+                    truongSoLuongTang.setDisable(false);
+                    break;
+                default:
+                    // Enable all for safety, though this case shouldn't happen with valid data
+                    truongTyLeGiam.setDisable(false);
+                    truongSoTienGiam.setDisable(false);
+                    monTangComboBox.setDisable(false);
+                    truongSoLuongTang.setDisable(false);
+                    break;
+            }
+        }
+
         return luoiForm;
     }
 
