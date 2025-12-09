@@ -77,7 +77,7 @@ public class NavBar extends HBox {
 
         btnDanhMuc = new DropDownButton(
                 "Danh mục",
-                List.of("Thực đơn","Món ăn","Loại Món ăn","Khuyến mãi","Hóa đơn","Khách hàng","Tài khoản","Tầng và bàn"),
+                List.of("Thực đơn","Món ăn","Loại món ăn","Khuyến mãi","Hóa đơn","Khách hàng","Tài khoản","Tầng và bàn"),
                 "/com/thefourrestaurant/images/icon/danhMucNavIcon.png",
                 45,
                 16,
@@ -201,7 +201,7 @@ public class NavBar extends HBox {
 
         Node newContent = switch (s) {
             case "Thực đơn" -> new QuanLyThucDon();
-            case "Món ăn" -> new LoaiMonAn((StackPane) mainContent, true);
+            case "Món ăn" -> new GiaoDienMonAn(null, "Tất cả Món ăn"); // Chế độ xem tất cả
             case "Loại món ăn" -> new LoaiMonAn();
             case "Khuyến mãi" -> new GiaoDienKhuyenMai();
             case "Hóa đơn" -> new GiaoDienHoaDon();

@@ -30,6 +30,10 @@ public class MonAnController {
         this.loaiMonDAO = new LoaiMonDAO();
     }
 
+    public List<MonAn> layTatCaMonAn() {
+        return monAnDAO.layTatCaMonAn();
+    }
+
     public List<MonAn> layMonAnTheoLoai(String maLoaiMon) {
         return monAnDAO.layMonAnTheoLoai(maLoaiMon);
     }

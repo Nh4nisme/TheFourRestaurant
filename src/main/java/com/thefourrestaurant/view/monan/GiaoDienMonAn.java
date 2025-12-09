@@ -1,6 +1,8 @@
 package com.thefourrestaurant.view.monan;
 
+import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.controller.MonAnController;
+import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.DropDownButton;
@@ -21,6 +23,7 @@ import javafx.stage.Stage;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -40,6 +43,8 @@ public class GiaoDienMonAn extends VBox {
     private final TableView<MonAn> listViewPane = new TableView<>();
     private final int soCotMoiHang = 8;
     private final Label lblItemCount = new Label(); // Nhãn đếm số lượng mục
+    private final ComboBox<String> cboLoaiMonFilter = new ComboBox<>();
+    private final TextField txtTimKiem = new TextField();
 
     public GiaoDienMonAn(String maLoaiMon, String tenLoaiMon) {
         this.maLoaiMon = maLoaiMon;
@@ -106,6 +111,17 @@ public class GiaoDienMonAn extends VBox {
         khungGiua.setAlignment(Pos.CENTER_LEFT);
         khungGiua.setStyle("-fx-background-color: #1E424D;");
 
+        // --- Filter cho các Loại Món Ăn ---
+        cboLoaiMonFilter.setPromptText("Lọc theo loại");
+        LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
+        List<String> tenLoaiMon = loaiMonDAO.layTatCaLoaiMon().stream()
+                .map(LoaiMon::getTenLoaiMon)
+                .collect(Collectors.toList());
+        cboLoaiMonFilter.getItems().add("Tất cả");
+        cboLoaiMonFilter.getItems().addAll(tenLoaiMon);
+        cboLoaiMonFilter.setValue("Tất cả");
+        cboLoaiMonFilter.setOnAction(e -> locVaCapNhatMonAn());
+
         ImageView iconList = new ImageView(getClass().getResource("/com/thefourrestaurant/images/icon/List.png").toExternalForm());
         ImageView iconGrid = new ImageView(getClass().getResource("/com/thefourrestaurant/images/icon/Grid.png").toExternalForm());
         iconList.setFitWidth(20); iconList.setFitHeight(20);
@@ -144,15 +160,14 @@ public class GiaoDienMonAn extends VBox {
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);
 
-        TextField txtTimKiem = new TextField();
         txtTimKiem.setPromptText("Tìm...");
         txtTimKiem.setPrefWidth(300);
 
         ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
-        btnTim.setOnAction(event -> locVaCapNhatMonAn(txtTimKiem.getText()));
-        txtTimKiem.setOnAction(event -> locVaCapNhatMonAn(txtTimKiem.getText())); // Kích hoạt tìm kiếm khi nhấn Enter
+        btnTim.setOnAction(event -> locVaCapNhatMonAn());
+        txtTimKiem.setOnAction(event -> locVaCapNhatMonAn());
 
-        khungGiua.getChildren().addAll(btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, space, txtTimKiem, btnTim);
+        khungGiua.getChildren().addAll(cboLoaiMonFilter, btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, space, txtTimKiem, btnTim);
         return khungGiua;
     }
 
@@ -225,22 +240,34 @@ public class GiaoDienMonAn extends VBox {
     }
 
     private void refreshViews() {
-        this.danhSachMonAnGoc = controller.layMonAnTheoLoai(maLoaiMon);
-        this.danhSachMonAnHienThi = FXCollections.observableArrayList(danhSachMonAnGoc);
-        updateViews();
+        this.danhSachMonAnGoc = controller.layTatCaMonAn();
+        locVaCapNhatMonAn();
     }
 
-    private void locVaCapNhatMonAn(String tuKhoa) {
-        if (tuKhoa == null || tuKhoa.trim().isEmpty()) {
-            danhSachMonAnHienThi = FXCollections.observableArrayList(danhSachMonAnGoc);
-        } else {
-            String lowerCaseTuKhoa = tuKhoa.trim().toLowerCase();
-            danhSachMonAnHienThi = danhSachMonAnGoc.stream()
-                    .filter(monAn -> monAn.getTenMon().toLowerCase().contains(lowerCaseTuKhoa) ||
-                                     monAn.getMaMonAn().toLowerCase().contains(lowerCaseTuKhoa))
+    private void locVaCapNhatMonAn() {
+        String tuKhoa = txtTimKiem.getText();
+        String loaiMonFilter = cboLoaiMonFilter.getValue();
+
+        List<MonAn> filteredList = new ArrayList<>(danhSachMonAnGoc);
+
+        // Filter by LoaiMon
+        if (loaiMonFilter != null && !loaiMonFilter.equals("Tất cả")) {
+            filteredList = filteredList.stream()
+                    .filter(monAn -> monAn.getLoaiMon() != null && monAn.getLoaiMon().getTenLoaiMon().equals(loaiMonFilter))
                     .collect(Collectors.toList());
         }
-        updateViews();
+
+        // Filter by search keyword
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
+            String lowerCaseTuKhoa = tuKhoa.trim().toLowerCase();
+            filteredList = filteredList.stream()
+                    .filter(monAn -> monAn.getTenMon().toLowerCase().contains(lowerCaseTuKhoa) ||
+                            monAn.getMaMonAn().toLowerCase().contains(lowerCaseTuKhoa))
+                    .collect(Collectors.toList());
+        }
+
+        danhSachMonAnHienThi = filteredList;
+        sapXepTheoTen(true); // Default sort
     }
 
     private void sapXepTheoTen(boolean ascending) {
