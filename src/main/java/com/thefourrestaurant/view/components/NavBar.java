@@ -78,7 +78,7 @@ public class NavBar extends HBox {
         btnDanhMuc = new DropDownButton(
                 "Danh mục",
                 List.of("Thực đơn","Món ăn","Loại Món ăn","Khuyến mãi","Hóa đơn","Khách hàng","Tài khoản","Tầng và bàn"),
-                "/com/thefourrestaurant/images/icon/danhMucIcon.png",
+                "/com/thefourrestaurant/images/icon/danhMucNavIcon.png",
                 45,
                 16,
                 1
