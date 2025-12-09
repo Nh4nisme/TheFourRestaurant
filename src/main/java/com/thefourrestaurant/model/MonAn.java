@@ -35,7 +35,14 @@ public class MonAn {
     public String getTenMon() { return tenMon; }
     public void setTenMon(String tenMon) { this.tenMon = tenMon; }
 
-    public BigDecimal getDonGia() { return donGia.setScale(0, RoundingMode.HALF_UP); }
+    public BigDecimal getDonGia() { 
+        return donGia != null ? donGia.setScale(0, RoundingMode.HALF_UP) : BigDecimal.ZERO; 
+    }
+    
+    public BigDecimal getRawDonGia() {
+        return donGia;
+    }
+    
     public void setDonGia(BigDecimal donGia) { this.donGia = donGia; }
 
     public String getTrangThai() { return trangThai; }

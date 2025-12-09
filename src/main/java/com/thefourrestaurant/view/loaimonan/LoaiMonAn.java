@@ -12,8 +12,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import com.thefourrestaurant.view.monan.GiaoDienMonAn;
 
 import java.net.URL;
 import java.util.List;
@@ -24,8 +27,16 @@ public class LoaiMonAn extends VBox {
     private List<LoaiMon> danhSachLoaiMonAn;
     private final GridPane gridPane = new GridPane();
     private final int soCotMoiHang = 8;
+    private StackPane mainContent;
+    private boolean navigateMode = false; // true = click to navigate to MonAn, false = click to edit
 
     public LoaiMonAn() {
+        this(null, false);
+    }
+
+    public LoaiMonAn(StackPane mainContent, boolean navigateMode) {
+        this.mainContent = mainContent;
+        this.navigateMode = navigateMode;
         this.controller = new LoaiMonAnController();
 
         this.setAlignment(Pos.TOP_CENTER);
@@ -35,7 +46,8 @@ public class LoaiMonAn extends VBox {
         contentPane.setStyle("-fx-background-color: #F5F5F5;");
 
         // Thanh trên (Đường dẫn)
-        Label duongDan = new Label("Quản Lý > Loại Món Ăn");
+        String breadcrumbText = navigateMode ? "Quản Lý > Món Ăn >" : "Quản Lý > Loại Món Ăn";
+        Label duongDan = new Label(breadcrumbText);
         duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
         VBox khungTren = new VBox(duongDan);
         khungTren.setStyle("-fx-background-color: #673E1F;");
@@ -120,9 +132,18 @@ public class LoaiMonAn extends VBox {
             ContextMenu contextMenu = createContextMenu(item);
             hopLoaiMonAn.setOnMouseClicked(event -> {
                 if (event.getButton() == MouseButton.PRIMARY) {
-                    Stage owner = (Stage) getScene().getWindow();
-                    if (controller.tuyChinhLoaiMonAn(owner, item)) {
-                        refreshGrid();
+                    if (navigateMode && mainContent != null) {
+                        // Navigate to GiaoDienMonAn with selected category
+                        GiaoDienMonAn giaoDienMonAn = new GiaoDienMonAn(item.getMaLoaiMon(), item.getTenLoaiMon());
+                        Region region = giaoDienMonAn;
+                        region.prefWidthProperty().bind(mainContent.widthProperty());
+                        region.prefHeightProperty().bind(mainContent.heightProperty());
+                        mainContent.getChildren().setAll(giaoDienMonAn);
+                    } else {
+                        Stage owner = (Stage) getScene().getWindow();
+                        if (controller.tuyChinhLoaiMonAn(owner, item)) {
+                            refreshGrid();
+                        }
                     }
                 } else if (event.getButton() == MouseButton.SECONDARY) {
                     contextMenu.show(hopLoaiMonAn, event.getScreenX(), event.getScreenY());

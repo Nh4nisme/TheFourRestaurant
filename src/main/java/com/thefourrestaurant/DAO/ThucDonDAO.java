@@ -73,20 +73,17 @@ public class ThucDonDAO {
                 }
 
                 if (!loaiDb.isEmpty()) {
-                    // Lấy tất cả món thuộc các loại đã chọn
+                    // Lấy mã loại món từ tên loại món
                     String inClause = loaiDb.stream().map(x -> "?").collect(Collectors.joining(","));
-                    String sqlMon = """
-                        SELECT maMonAn FROM dbo.MonAn ma
-                        JOIN dbo.LoaiMonAn l ON ma.maLoaiMon = l.maLoaiMon
-                        WHERE l.tenLoaiMon IN (""" + inClause + ") AND ma.isDeleted = 0";
+                    String sqlLoai = "SELECT maLoaiMon FROM dbo.LoaiMonAn WHERE tenLoaiMon IN (" + inClause + ")";
 
-                    try (PreparedStatement ps = cn.prepareStatement(sqlMon)) {
+                    try (PreparedStatement ps = cn.prepareStatement(sqlLoai)) {
                         int i = 1;
                         for (String lm : loaiDb) ps.setNString(i++, lm);
                         try (ResultSet rs = ps.executeQuery()) {
-                            // Insert từng món vào ChiTietThucDon
-                try (PreparedStatement ins = cn.prepareStatement(
-                    "INSERT INTO dbo.ChiTietThucDon(maMonAn, maTD) VALUES(?, ?)")) {
+                            // Insert từng loại món vào ChiTietThucDon
+                            try (PreparedStatement ins = cn.prepareStatement(
+                                "INSERT INTO dbo.ChiTietThucDon(maLoaiMon, maTD) VALUES(?, ?)")) {
                                 while (rs.next()) {
                                     ins.setString(1, rs.getString(1));
                                     ins.setString(2, maTD);
@@ -135,8 +132,7 @@ public class ThucDonDAO {
                    STUFF((
                     SELECT DISTINCT N', ' + l2.tenLoaiMon
                     FROM dbo.ChiTietThucDon c2
-                    JOIN dbo.MonAn ma2 ON c2.maMonAn = ma2.maMonAn
-                    JOIN dbo.LoaiMonAn l2 ON ma2.maLoaiMon = l2.maLoaiMon
+                    JOIN dbo.LoaiMonAn l2 ON c2.maLoaiMon = l2.maLoaiMon
                         WHERE c2.maTD = td.maTD
                         FOR XML PATH(''), TYPE
                    ).value('.', 'NVARCHAR(MAX)'), 1, 2, N'') AS loaiMon
@@ -168,8 +164,7 @@ public class ThucDonDAO {
             SELECT DISTINCT l.tenLoaiMon
             FROM dbo.ThucDon td
             JOIN dbo.ChiTietThucDon cttd ON td.maTD = cttd.maTD
-            JOIN dbo.MonAn ma ON cttd.maMonAn = ma.maMonAn
-            JOIN dbo.LoaiMonAn l ON ma.maLoaiMon = l.maLoaiMon
+            JOIN dbo.LoaiMonAn l ON cttd.maLoaiMon = l.maLoaiMon
             WHERE td.tenTD = ?
             ORDER BY l.tenLoaiMon
         """;

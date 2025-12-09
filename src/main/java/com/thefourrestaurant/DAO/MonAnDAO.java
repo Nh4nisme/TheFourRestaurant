@@ -83,7 +83,7 @@ public class MonAnDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, mon.getMaMonAn());
             ps.setString(2, mon.getTenMon());
-            ps.setBigDecimal(3, mon.getDonGia());
+            ps.setBigDecimal(3, mon.getRawDonGia());
             ps.setString(4, mon.getTrangThai());
             ps.setString(5, mon.getLoaiMon().getMaLoaiMon());
             ps.setString(6, mon.getHinhAnh());
@@ -97,7 +97,7 @@ public class MonAnDAO {
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, mon.getTenMon());
-            ps.setBigDecimal(2, mon.getDonGia());
+            ps.setBigDecimal(2, mon.getRawDonGia());
             ps.setString(3, mon.getTrangThai());
             ps.setString(4, mon.getLoaiMon().getMaLoaiMon());
             ps.setString(5, mon.getHinhAnh());
