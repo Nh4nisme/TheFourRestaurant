@@ -8,89 +8,85 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
 
 public class DropDownButton extends Button {
+
     private final ContextMenu contextMenu = new ContextMenu();
     private String selectedValue;
-    private Consumer<String> onItemSelected; // callback khi chọn item
+    private Consumer<String> onItemSelected;
 
-    public DropDownButton(String promptText, List<String> options, String iconPath, double height, double fontSize, int styleNumber) {
+    public DropDownButton(
+            String promptText,
+            List<String> options,
+            String iconPath,
+            double height,
+            double fontSize,
+            int styleNumber
+    ) {
         super(promptText);
 
-        // Font Montserrat
-        Font montserrat = Font.loadFont(
-                getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"),
+        khoiTaoFont(fontSize);
+        khoiTaoIcon(iconPath);
+        khoiTaoMenu(options);
+        khoiTaoLayout(height, styleNumber);
+        khoiTaoHanhVi();
+    }
+
+    // KHởi tạo
+
+    private void khoiTaoFont(double fontSize) {
+        Font font = Font.loadFont(
+                getClass().getResourceAsStream(
+                        "/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"),
                 fontSize
         );
-        if (montserrat != null) {
-            setFont(montserrat);
-        }
+        if (font != null) setFont(font);
+    }
 
-        // Icon nếu có
-        if (iconPath != null && !iconPath.isEmpty()) {
-            ImageView icon = new ImageView(new Image(
-                    Objects.requireNonNull(getClass().getResourceAsStream(iconPath))
-            ));
-            icon.setFitHeight(40);
-            icon.setFitWidth(40);
-            setGraphic(icon);
-        }
+    private void khoiTaoIcon(String iconPath) {
+        if (iconPath == null || iconPath.isEmpty()) return;
 
-        // Tạo menu items
+        ImageView icon = new ImageView(new Image(
+                Objects.requireNonNull(getClass().getResourceAsStream(iconPath))
+        ));
+        icon.setFitHeight(40);
+        icon.setFitWidth(40);
+        setGraphic(icon);
+    }
+
+    private void khoiTaoMenu(List<String> options) {
         for (String option : options) {
-            Label label = new Label(option);
-            label.setPadding(new Insets(8, 10, 8, 10));
-            label.setStyle("-fx-text-fill: #E5D595; -fx-font-weight: bold; -fx-font-size: 16px;");
+            Label label = taoLabelMenu(option);
 
-            CustomMenuItem item = new CustomMenuItem(label, true); // true = close on click
-            item.setOnAction(e -> {
-                selectedValue = option;
-                setText(option);
-
-                // Gọi callback nếu có
-                if (onItemSelected != null) {
-                    onItemSelected.accept(selectedValue);
-                }
-            });
+            CustomMenuItem item = new CustomMenuItem(label, true);
+            item.setOnAction(e -> chonGiaTri(option));
 
             contextMenu.getItems().add(item);
         }
+    }
 
-        // Hiển thị context menu khi click button
-        setOnAction(e -> {
-            if (!contextMenu.isShowing()) {
-                double buttonWidth = getWidth();
-                double fixedWidth = buttonWidth - 15; // trừ padding
+    private Label taoLabelMenu(String text) {
+        Label label = new Label(text);
+        label.setPadding(new Insets(8, 10, 8, 10));
+        label.setAlignment(Pos.CENTER_LEFT);
+        label.setStyle(
+                "-fx-text-fill: #E5D595;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-font-size: 16px;"
+        );
+        return label;
+    }
 
-                for (var menuItem : contextMenu.getItems()) {
-                    if (menuItem instanceof CustomMenuItem custom) {
-                        Node node = custom.getContent();
-                        if (node instanceof Label lbl) {
-                            lbl.setPrefWidth(fixedWidth);
-                            lbl.setMaxWidth(fixedWidth);
-                            lbl.setAlignment(Pos.CENTER_LEFT);
-                        }
-                    }
-                }
-
-                contextMenu.show(this, Side.BOTTOM, 0, 0);
-            } else {
-                contextMenu.hide();
-            }
-        });
-
-        // Kích thước button
+    private void khoiTaoLayout(double height, int styleNumber) {
         setPrefHeight(height);
         setMinHeight(height);
         setMaxHeight(height);
         setPadding(new Insets(5, 10, 5, 10));
+
         switch (styleNumber) {
             case 1 -> getStyleClass().add("dropdown-buttonGamboge");
             case 2 -> getStyleClass().add("dropdown-buttonIndigo");
@@ -98,12 +94,55 @@ public class DropDownButton extends Button {
         }
     }
 
-    // Setter callback
+    private void khoiTaoHanhVi() {
+        contextMenu.setOnShowing(e -> capNhatDoRongMenu());
+        setOnAction(e -> batTatMenu());
+    }
+
+    //Logic chính của button
+
+    private void batTatMenu() {
+        if (contextMenu.isShowing()) {
+            contextMenu.hide();
+        } else {
+            contextMenu.show(this, Side.BOTTOM, 0, 0);
+        }
+    }
+
+    private void capNhatDoRongMenu() {
+        double doRongNoiDung = layDoRongNoiDungButton();
+
+        for (MenuItem item : contextMenu.getItems()) {
+            if (item instanceof CustomMenuItem custom) {
+                Node node = custom.getContent();
+                if (node instanceof Label label) {
+                    label.setPrefWidth(doRongNoiDung);
+                    label.setMaxWidth(doRongNoiDung);
+                }
+            }
+        }
+    }
+
+    private double layDoRongNoiDungButton() {
+        Insets padding = getPadding();
+        return getWidth() - padding.getLeft();
+    }
+
+    private void chonGiaTri(String value) {
+        selectedValue = value;
+        setText(value);
+
+        if (onItemSelected != null) {
+            onItemSelected.accept(value);
+        }
+    }
+
+
+
     public void setOnItemSelected(Consumer<String> action) {
         this.onItemSelected = action;
     }
 
-    // Getter giá trị đang chọn
     public String getSelectedValue() {
         return selectedValue;
     }
