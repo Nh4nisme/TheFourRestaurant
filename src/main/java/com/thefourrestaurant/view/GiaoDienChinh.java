@@ -12,59 +12,101 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 public class GiaoDienChinh {
+
+    private static final double NAV_BAR_HEIGHT = 80;
+    private static final double DEFAULT_WIDTH = 1366;
+    private static final double DEFAULT_HEIGHT = 768;
+
+    private StackPane mainContent;
+    private SideBar sideBar;
+    private VBox sideBarExpanded;
+    private VBox rightSection;
+
     public void show(Stage stage) {
         BorderPane root = new BorderPane();
+        root.setCenter(taoLayoutChinh());
 
-        // === Background trung tâm ===
-        Image bgImg = new Image(Objects.requireNonNull(getClass().getResourceAsStream(
-                "/com/thefourrestaurant/images/GiaoDienChinhImg.png")));
-        BackgroundImage bg = new BackgroundImage(bgImg,
+        Scene scene = taoScene(root);
+        stage.setFullScreen(true);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+
+    private HBox taoLayoutChinh() {
+        HBox layout = new HBox(taoKhuVucTrai(), taoKhuVucPhai());
+        HBox.setHgrow(rightSection, Priority.ALWAYS);
+        return layout;
+    }
+
+    private HBox taoKhuVucTrai() {
+        sideBar = new SideBar();
+        sideBarExpanded = taoSideBarExpanded();
+
+        HBox leftSection = new HBox(sideBar, sideBarExpanded);
+        VBox.setVgrow(leftSection, Priority.ALWAYS);
+        return leftSection;
+    }
+
+    private VBox taoKhuVucPhai() {
+        rightSection = new VBox();
+        rightSection.setAlignment(Pos.TOP_CENTER);
+
+        mainContent = taoMainContent();
+        NavBar navBar = taoNavBar();
+
+        rightSection.getChildren().addAll(navBar, mainContent);
+        return rightSection;
+    }
+
+    // Các hàm hỗ trợ tạo layout
+
+    private StackPane taoMainContent() {
+        StackPane content = new StackPane();
+        content.setBackground(taoBackgroundChinh());
+        VBox.setVgrow(content, Priority.ALWAYS);
+        return content;
+    }
+
+    private NavBar taoNavBar() {
+        NavBar navBar = new NavBar(mainContent, sideBar, sideBarExpanded);
+        navBar.setPrefHeight(NAV_BAR_HEIGHT);
+        navBar.setMinHeight(NAV_BAR_HEIGHT);
+        return navBar;
+    }
+
+    private VBox taoSideBarExpanded() {
+        VBox expanded = new VBox();
+        expanded.setVisible(false);
+        expanded.setManaged(false);
+        VBox.setVgrow(expanded, Priority.ALWAYS);
+        return expanded;
+    }
+
+    // Các hàm tạo nền và css
+
+    private Background taoBackgroundChinh() {
+        Image bgImg = new Image(Objects.requireNonNull(
+                getClass().getResourceAsStream(
+                        "/com/thefourrestaurant/images/GiaoDienChinhImg.png")
+        ));
+
+        BackgroundImage bg = new BackgroundImage(
+                bgImg,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.CENTER,
                 new BackgroundSize(100, 100, true, true, true, true)
         );
 
-        // === RIGHT: gồm NavBar + mainContent ===
-        VBox rightSection = new VBox();
-        rightSection.setAlignment(Pos.TOP_CENTER);
+        return new Background(bg);
+    }
 
-        // Tạo StackPane mainContent (chứa nội dung chính)
-        StackPane mainContent = new StackPane();
-        mainContent.setBackground(new Background(bg));
-        VBox.setVgrow(mainContent, Priority.ALWAYS);
-
-        // === LEFT: gồm SideBar + SideBar mở rộng ===
-        SideBar sideBar = new SideBar();
-
-        VBox sideBarExtended = new VBox();
-        sideBarExtended.setVisible(false); // ban đầu ẩn
-        sideBarExtended.setManaged(false);
-        VBox.setVgrow(sideBarExtended, Priority.ALWAYS);
-
-        // === LEFT Container (gom 2 phần) ===
-        HBox leftSection = new HBox(sideBar, sideBarExtended);
-        VBox.setVgrow(leftSection, Priority.ALWAYS);
-
-        // === Tổng thể: LEFT + RIGHT ===
-        HBox mainLayout = new HBox(leftSection, rightSection);
-        HBox.setHgrow(rightSection, Priority.ALWAYS);
-        root.setCenter(mainLayout);
-
-        //Tạo NavBar, truyền đúng mainContent
-        NavBar navBar = new NavBar(mainContent, sideBar, sideBarExtended);
-        navBar.setPrefHeight(80);
-        navBar.setMinHeight(80);
-
-        //Thêm NavBar + mainContent vào VBox
-        rightSection.getChildren().addAll(navBar, mainContent);
-
-        // === Scene ===
-        Scene scene = new Scene(root, 1366, 768);
+    private Scene taoScene(BorderPane root) {
+        Scene scene = new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         scene.getStylesheets().add(Objects.requireNonNull(
-                getClass().getResource("/com/thefourrestaurant/css/Application.css")).toExternalForm());
-        stage.setFullScreen(true);
-        stage.setScene(scene);
-        stage.show();
+                getClass().getResource("/com/thefourrestaurant/css/Application.css")
+        ).toExternalForm());
+        return scene;
     }
 }
