@@ -15,6 +15,7 @@ import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.GiaoDienMonAn;
 import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 import com.thefourrestaurant.view.thongke.ThongKeView;
+import com.thefourrestaurant.view.nhanvien.GiaoDienNhanVien;
 
 import com.thefourrestaurant.view.tracuu.GiaoDienTraCuu;
 import javafx.geometry.Insets;
@@ -35,6 +36,7 @@ public class NavBar extends HBox {
         DM_HOA_DON,
         DM_KHACH_HANG,
         DM_TAI_KHOAN,
+        DM_NHAN_VIEN, // <--- Add this line
         DM_TANG_BAN,
 
         // Xử lý
@@ -144,6 +146,7 @@ public class NavBar extends HBox {
         map.put("Hóa đơn", MapDieuHuong.DM_HOA_DON);
         map.put("Khách hàng", MapDieuHuong.DM_KHACH_HANG);
         map.put("Tài khoản", MapDieuHuong.DM_TAI_KHOAN);
+        map.put("Nhân viên", MapDieuHuong.DM_NHAN_VIEN); // <--- Add this line
         map.put("Tầng và bàn", MapDieuHuong.DM_TANG_BAN);
         return map;
     }
@@ -218,6 +221,7 @@ public class NavBar extends HBox {
             case DM_HOA_DON -> new GiaoDienHoaDon();
             case DM_KHACH_HANG -> new GiaoDienKhachHang();
             case DM_TAI_KHOAN -> new GiaoDienTaiKhoan();
+            case DM_NHAN_VIEN -> new GiaoDienNhanVien(); // <--- Add this line
             case DM_TANG_BAN -> new QuanLiBan((StackPane) mainContent, "QUAN_LY_BAN");
 
             case XL_DAT_BAN -> new GiaoDienDatBan((StackPane) mainContent);

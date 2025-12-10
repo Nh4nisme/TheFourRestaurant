@@ -51,6 +51,7 @@ CREATE TABLE NhanVien (
     soDienThoai VARCHAR(15) UNIQUE,
     luong DECIMAL(12,2) CHECK(luong >= 0),
     maTK CHAR(8) NOT NULL UNIQUE,
+    hinhAnh NVARCHAR(255) NULL,
     isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_NhanVien_TaiKhoan FOREIGN KEY (maTK) REFERENCES TaiKhoan(maTK)
 );
