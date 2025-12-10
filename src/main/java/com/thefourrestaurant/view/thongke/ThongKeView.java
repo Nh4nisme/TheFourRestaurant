@@ -34,6 +34,7 @@ public class ThongKeView extends BorderPane {
     private final CheckBox chkSoSanh;
     private final ComboBox<String> comboBoxTheo;
     private final ComboBox<String> comboBoxTuyChon;
+    private final GridPane summaryGrid;
 
     // New controls for dynamic date selection
     private final HBox dateSelectionBox;
@@ -156,13 +157,21 @@ public class ThongKeView extends BorderPane {
         khuVucBieuDo = new VBox();
         khuVucBieuDo.setAlignment(Pos.CENTER);
         khuVucBieuDo.setPadding(new Insets(20));
+        khuVucBieuDo.setPrefHeight(600); // Set a fixed preferred height
         
         Label lblPlaceholder = new Label("Chọn các tùy chọn và nhấn 'Xem Thống Kê' để tạo báo cáo.");
         lblPlaceholder.setStyle("-fx-font-size: 16px; -fx-text-fill: #888;");
         khuVucBieuDo.getChildren().add(lblPlaceholder);
 
+        // --- Summary Grid ---
+        summaryGrid = new GridPane();
+        summaryGrid.setHgap(20);
+        summaryGrid.setVgap(10);
+        summaryGrid.setPadding(new Insets(10, 20, 20, 20));
+        summaryGrid.setVisible(false); // Initially hidden
+
         // --- Main Layout ---
-        VBox centerLayout = new VBox(20, controlPanelContainer, khuVucBieuDo);
+        VBox centerLayout = new VBox(20, controlPanelContainer, khuVucBieuDo, summaryGrid);
         this.setCenter(centerLayout);
 
         // --- Initialize Controller ---
@@ -259,4 +268,5 @@ public class ThongKeView extends BorderPane {
     public ComboBox<Integer> getCboThang() { return cboThang; }
     public ComboBox<Integer> getCboNam() { return cboNam; }
     public ComboBox<String> getCboQuy() { return cboQuy; }
+    public GridPane getSummaryGrid() { return summaryGrid; }
 }
