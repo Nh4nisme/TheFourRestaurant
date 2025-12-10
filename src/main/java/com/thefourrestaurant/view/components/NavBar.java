@@ -94,8 +94,8 @@ public class NavBar extends HBox {
         );
 
         btnTimKiem = new DropDownButton(
-                "Tra cứu",
-                List.of("Phiếu đặt bàn"),
+                "Tra cứu thông tin",
+                List.of("Phiếu đặt bàn","Món ăn", "Khuyến mãi","Khách hàng"),
                 "/com/thefourrestaurant/images/icon/timKiemIcon.png",
                 45,
                 16,
