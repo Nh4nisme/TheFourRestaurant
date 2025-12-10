@@ -194,7 +194,19 @@ public class GiaoDienChiTietNhanVien extends VBox {
         if (nv.getLuong() != null) txtLuong.setText(nv.getLuong().toPlainString());
         if (nv.getMaTK() != null) txtMaTK.setText(nv.getMaTK().getMaTK());
 
-        loadEmployeeImage(nv.getMaNV());
+        String dbPath = nv.getHinhAnh();
+        boolean loaded = false;
+        if (dbPath != null && !dbPath.trim().isEmpty()) {
+            try {
+                Image img = new Image(getClass().getResourceAsStream(dbPath));
+                if (img != null && !img.isError() && img.getWidth() > 0) {
+                    imageView.setImage(img);
+                    hintLabel.setVisible(false);
+                    loaded = true;
+                }
+            } catch (Exception e) { }
+        }
+        if (!loaded) loadEmployeeImage(nv.getMaNV());
     }
 
     private void loadEmployeeImage(String maNV) {

@@ -11,6 +11,7 @@ public class NhanVien {
     private String soDienThoai;
     private BigDecimal luong;
     private TaiKhoan maTK;
+    private String hinhAnh;
     private boolean isDeleted;
 
     public NhanVien() {}
@@ -28,6 +29,7 @@ public class NhanVien {
         this.soDienThoai = soDienThoai;
         this.luong = luong;
         this.maTK = maTK;
+        this.hinhAnh = null;
         this.isDeleted = isDeleted;
     }
 
@@ -41,6 +43,9 @@ public class NhanVien {
 
     public String getMaNV() { return maNV; }
     public void setMaNV(String maNV) { this.maNV = maNV; }
+
+    public String getHinhAnh() { return hinhAnh; }
+    public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }
 
     public String getHoTen() { return hoTen; }
     public void setHoTen(String hoTen) { this.hoTen = hoTen; }

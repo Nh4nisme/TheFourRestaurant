@@ -60,6 +60,39 @@ public class NhanVienController {
         }
     }
 
+    public String saoChepHinhAnhVaoProject(String sourceImagePath, String baseFileName) {
+        try {
+            File sourceFile = new File(sourceImagePath);
+            String originalFileName = sourceFile.getName();
+            String fileExtension = "";
+            int i = originalFileName.lastIndexOf('.');
+            if (i > 0) {
+                fileExtension = originalFileName.substring(i);
+            }
+            String newFileName = baseFileName + fileExtension;
+
+            String classpathRelativePath = "/com/thefourrestaurant/images/NhanVien/" + newFileName;
+
+            String projectDir = System.getProperty("user.dir");
+            Path srcDestPath = Paths.get(projectDir, "src/main/resources", classpathRelativePath);
+            Files.createDirectories(srcDestPath.getParent());
+            Files.copy(sourceFile.toPath(), srcDestPath, StandardCopyOption.REPLACE_EXISTING);
+
+            URL targetRootUrl = getClass().getResource("/");
+            if (targetRootUrl != null) {
+                Path targetDestPath = Paths.get(targetRootUrl.toURI()).resolve(classpathRelativePath.substring(1));
+                Files.createDirectories(targetDestPath.getParent());
+                Files.copy(sourceFile.toPath(), targetDestPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            return classpathRelativePath;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public void showAlert(Stage owner, Alert.AlertType type, String message) {
         Alert alert = new Alert(type, message);
         if (owner != null) alert.initOwner(owner);
@@ -69,7 +102,15 @@ public class NhanVienController {
     public boolean capNhatNhanVien(com.thefourrestaurant.model.NhanVien nv, java.io.File imageFile) {
         if (imageFile != null) {
             try {
-                saoChepHinhAnhVaoProject(imageFile.getAbsolutePath());
+                String savedPath;
+                if (nv != null && nv.getMaNV() != null) {
+                    savedPath = saoChepHinhAnhVaoProject(imageFile.getAbsolutePath(), nv.getMaNV());
+                } else {
+                    savedPath = saoChepHinhAnhVaoProject(imageFile.getAbsolutePath());
+                }
+                if (savedPath != null && nv != null) {
+                    nv.setHinhAnh(savedPath);
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
