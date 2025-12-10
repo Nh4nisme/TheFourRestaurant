@@ -62,4 +62,25 @@ public class NhanVienDAO {
         }
         return null;
     }
+
+    public boolean capNhatNhanVien(NhanVien nv) {
+        String sql = "UPDATE NhanVien SET hoTen = ?, ngaySinh = ?, gioiTinh = ?, soDienThoai = ?, luong = ?, maTK = ? WHERE maNV = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nv.getHoTen());
+            ps.setDate(2, nv.getNgaySinh());
+            ps.setString(3, nv.getGioiTinh());
+            ps.setString(4, nv.getSoDienThoai());
+            ps.setBigDecimal(5, nv.getLuong());
+            ps.setString(6, nv.getMaTK() != null ? nv.getMaTK().getMaTK() : null);
+            ps.setString(7, nv.getMaNV());
+
+            int updated = ps.executeUpdate();
+            return updated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

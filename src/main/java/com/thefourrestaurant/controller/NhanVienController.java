@@ -65,4 +65,15 @@ public class NhanVienController {
         if (owner != null) alert.initOwner(owner);
         alert.showAndWait();
     }
+
+    public boolean capNhatNhanVien(com.thefourrestaurant.model.NhanVien nv, java.io.File imageFile) {
+        if (imageFile != null) {
+            try {
+                saoChepHinhAnhVaoProject(imageFile.getAbsolutePath());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return dao.capNhatNhanVien(nv);
+    }
 }
