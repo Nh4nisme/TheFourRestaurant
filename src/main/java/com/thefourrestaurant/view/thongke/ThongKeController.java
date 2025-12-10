@@ -7,15 +7,19 @@ import javafx.scene.Node;
 import javafx.scene.chart.*;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.IsoFields;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ThongKeController {
 
@@ -108,11 +112,12 @@ public class ThongKeController {
         Map<String, ? extends Number> data = layDuLieu(ngayBatDau, ngayKetThuc, loaiThongKe, tuyChon);
         if (data == null || data.isEmpty()) {
             view.getKhuVucBieuDo().getChildren().add(new Label("Không có dữ liệu cho khoảng thời gian này."));
+            view.getSummaryGrid().setVisible(false);
             return;
         }
 
+        String title = taoTieuDeBieuDo(loaiThongKe, tuyChon, ngayBatDau, ngayKetThuc);
         String seriesName = taoTenSeries(loaiThongKe, tuyChon, ngayBatDau, ngayKetThuc);
-        String title = String.format("Thống kê %s: %s", loaiThongKe.toLowerCase(), seriesName);
 
         Chart chart = createChart(data, loaiBieuDo, title, loaiThongKe, seriesName);
         if (chart != null) {
@@ -120,8 +125,10 @@ public class ThongKeController {
             currentChartType = loaiBieuDo;
             currentStatsType = loaiThongKe;
             view.getKhuVucBieuDo().getChildren().add(chart);
+            updateSummary(ngayBatDau, ngayKetThuc, loaiThongKe, data);
         } else {
             view.getKhuVucBieuDo().getChildren().add(new Label("Loại biểu đồ không được hỗ trợ."));
+            view.getSummaryGrid().setVisible(false);
         }
     }
 
@@ -139,15 +146,17 @@ public class ThongKeController {
             return;
         }
 
+        XYChart<String, Number> xyChart = (XYChart<String, Number>) currentChart;
+        xyChart.setAnimated(false);
+
         Map<String, ? extends Number> data = layDuLieu(ngayBatDau, ngayKetThuc, loaiThongKe, tuyChon);
         if (data == null || data.isEmpty()) {
             showAlert("Không có dữ liệu để so sánh trong khoảng thời gian đã chọn.");
+            xyChart.setAnimated(true);
             return;
         }
 
-        XYChart<String, Number> xyChart = (XYChart<String, Number>) currentChart;
         XYChart.Series<String, Number> newSeries = new XYChart.Series<>();
-
         String seriesName = taoTenSeries(loaiThongKe, tuyChon, ngayBatDau, ngayKetThuc);
         newSeries.setName(seriesName);
 
@@ -156,18 +165,25 @@ public class ThongKeController {
         }
 
         xyChart.getData().add(newSeries);
-        currentChart.setTitle(String.format("So sánh %s", loaiThongKe.toLowerCase()));
 
+        if ("Món ăn".equals(loaiThongKe)) {
+            view.getKhuVucBieuDo().getChildren().clear();
+            view.getKhuVucBieuDo().getChildren().add(currentChart);
+        }
+        
+        currentChart.setTitle(String.format("So sánh %s", loaiThongKe.toLowerCase()));
         if (!xyChart.isLegendVisible()) {
             xyChart.setLegendVisible(true);
         }
+        
+        xyChart.setAnimated(true);
     }
 
     private Map<String, ? extends Number> layDuLieu(LocalDate startDate, LocalDate endDate, String loaiThongKe, String tuyChon) {
         return switch (loaiThongKe) {
-            case "Doanh thu" -> thongKeDAO.getDoanhThuTheoNgay(startDate, endDate);
+            case "Doanh thu" -> thongKeDAO.getDoanhThuTheoNgay(startDate, endDate, tuyChon);
             case "Món ăn" -> thongKeDAO.getThongKeMonAn(startDate, endDate, tuyChon);
-            case "Bàn" -> thongKeDAO.getThongKeBan(startDate, endDate);
+            case "Bàn" -> thongKeDAO.getThongKeBan(startDate, endDate, tuyChon);
             default -> null;
         };
     }
@@ -201,8 +217,13 @@ public class ThongKeController {
         barChart.setLegendVisible(false);
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName(seriesName);
-        for (Map.Entry<String, T> entry : data.entrySet()) {
-            series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+        
+        ObservableList<String> categories = FXCollections.observableArrayList(data.keySet());
+        FXCollections.sort(categories);
+        xAxis.setCategories(categories);
+
+        for (String category : categories) {
+            series.getData().add(new XYChart.Data<>(category, data.get(category)));
         }
         barChart.getData().add(series);
         return barChart;
@@ -218,8 +239,13 @@ public class ThongKeController {
         lineChart.setLegendVisible(false);
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         series.setName(seriesName);
-        for (Map.Entry<String, T> entry : data.entrySet()) {
-            series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+
+        ObservableList<String> categories = FXCollections.observableArrayList(data.keySet());
+        FXCollections.sort(categories);
+        xAxis.setCategories(categories);
+
+        for (String category : categories) {
+            series.getData().add(new XYChart.Data<>(category, data.get(category)));
         }
         lineChart.getData().add(series);
         return lineChart;
@@ -245,10 +271,57 @@ public class ThongKeController {
                     ngayKetThuc.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
 
-        if (("Món ăn".equals(loaiThongKe) || "Bàn".equals(loaiThongKe)) && tuyChon != null && !tuyChon.startsWith("Tất cả")) {
+        if (("Món ăn".equals(loaiThongKe) || "Bàn".equals(loaiThongKe) || "Doanh thu".equals(loaiThongKe)) && tuyChon != null && !tuyChon.startsWith("Tất cả")) {
             return String.format("%s (%s)", tuyChon, dateRange);
         }
         return dateRange;
+    }
+    
+    private String taoTieuDeBieuDo(String loaiThongKe, String tuyChon, LocalDate ngayBatDau, LocalDate ngayKetThuc) {
+        String thoiGian;
+        if (ngayBatDau.equals(ngayKetThuc)) {
+            thoiGian = "ngày " + ngayBatDau.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        } else {
+            thoiGian = String.format("từ %s đến %s",
+                    ngayBatDau.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    ngayKetThuc.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        }
+
+        if (("Món ăn".equals(loaiThongKe) || "Bàn".equals(loaiThongKe) || "Doanh thu".equals(loaiThongKe)) && tuyChon != null && !tuyChon.startsWith("Tất cả")) {
+            return String.format("Thống kê %s loại '%s' %s", loaiThongKe.toLowerCase(), tuyChon, thoiGian);
+        } else {
+            return String.format("Thống kê tất cả %s %s", loaiThongKe.toLowerCase(), thoiGian);
+        }
+    }
+
+    private void updateSummary(LocalDate startDate, LocalDate endDate, String loaiThongKe, Map<String, ? extends Number> data) {
+        GridPane summaryGrid = view.getSummaryGrid();
+        summaryGrid.getChildren().clear();
+        summaryGrid.setVisible(false);
+
+        if ("Món ăn".equals(loaiThongKe)) {
+            BigDecimal hoaDonCaoNhat = thongKeDAO.getInvoiceStat(startDate, endDate, "MAX");
+            BigDecimal hoaDonThapNhat = thongKeDAO.getInvoiceStat(startDate, endDate, "MIN");
+
+            Optional<? extends Map.Entry<String, ? extends Number>> bestSeller = data.entrySet().stream().max(Map.Entry.comparingByValue(Comparator.comparingDouble(Number::doubleValue)));
+            Optional<? extends Map.Entry<String, ? extends Number>> worstSeller = data.entrySet().stream().min(Map.Entry.comparingByValue(Comparator.comparingDouble(Number::doubleValue)));
+
+            summaryGrid.add(new Label("Hóa đơn cao nhất:"), 0, 0);
+            summaryGrid.add(new Label(NumberFormat.getCurrencyInstance(Locale.of("vi", "VN")).format(hoaDonCaoNhat)), 1, 0);
+            summaryGrid.add(new Label("Hóa đơn thấp nhất:"), 0, 1);
+            summaryGrid.add(new Label(NumberFormat.getCurrencyInstance(Locale.of("vi", "VN")).format(hoaDonThapNhat)), 1, 1);
+
+            bestSeller.ifPresent(entry -> {
+                summaryGrid.add(new Label("Món bán chạy nhất:"), 2, 0);
+                summaryGrid.add(new Label(String.format("%s (%d)", entry.getKey(), entry.getValue().intValue())), 3, 0);
+            });
+            worstSeller.ifPresent(entry -> {
+                summaryGrid.add(new Label("Món bán chậm nhất:"), 2, 1);
+                summaryGrid.add(new Label(String.format("%s (%d)", entry.getKey(), entry.getValue().intValue())), 3, 1);
+            });
+
+            summaryGrid.setVisible(true);
+        }
     }
 
     private void showAlert(String message) {
