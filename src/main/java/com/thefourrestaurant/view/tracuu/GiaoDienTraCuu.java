@@ -1,105 +1,130 @@
 package com.thefourrestaurant.view.tracuu;
 
-import javafx.collections.FXCollections;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+/**
+ * ============================
+ * CLASS CHA – GIAO DIỆN TRA CỨU
+ * ============================
+ *
+ * - Giữ layout top bar
+ * - Khai báo toàn bộ filter
+ * - Xử lý logic filter tại đây
+ * - Class con chỉ bật filter cần dùng
+ */
+public abstract class GiaoDienTraCuu extends VBox {
 
-public abstract class GiaoDienTraCuu<T> extends VBox {
+    protected HBox thanhDieuHuong;
 
-    protected List<T> danhSachGoc = new ArrayList<>();
-    protected List<T> danhSachHienThi = new ArrayList<>();
+    protected TextField filterTimKiem;     // Filter tìm kiếm
+    protected ComboBox<String> filterA;    // Filter A (vd: loại)
+    protected ComboBox<String> filterB;    // Filter B (vd: sắp xếp)
 
-    protected final TextField txtTimKiem = new TextField();
-    protected final ComboBox<String> cboFilter = new ComboBox<>();
-    protected final Label lblSoLuong = new Label();
+    private boolean dungTimKiem = false;
+    private boolean dungFilterA = false;
+    private boolean dungFilterB = false;
 
-    protected final VBox ketQuaContainer = new VBox();
 
-    public GiaoDienTraCuu(String breadcrumb) {
-        setAlignment(Pos.TOP_CENTER);
-        setSpacing(0);
-
-        getChildren().addAll(taoTopBar(breadcrumb), taoMiddleBar(), taoContent(), taoStatusBar());
-        taiDuLieu();
-        apDungLoc();
+    protected GiaoDienTraCuu() {
+        khoiTaoGiaoDien();
+        khoiTaoFilter();
+        khoiTaoLogicFilter();
     }
 
-    /* ================= ABSTRACT ================= */
+    // Giao diện
 
-    protected abstract void taiDuLieu();
-    protected abstract boolean thoaManTimKiem(T item, String keyword);
-    protected abstract Comparator<T> comparatorMacDinh();
-    protected abstract Node taoNodeKetQua(T item);
+    private void khoiTaoGiaoDien() {
+        thanhDieuHuong = new HBox(10);
+        thanhDieuHuong.setAlignment(Pos.CENTER_LEFT);
+        thanhDieuHuong.setPrefHeight(80);
+        thanhDieuHuong.setStyle("-fx-background-color: #1E424D;");
 
-    /* ================= UI ================= */
-
-    private Node taoTopBar(String breadcrumb) {
-        Label lbl = new Label(breadcrumb);
-        lbl.setTextFill(Color.web("#E5D595"));
-
-        HBox bar = new HBox(lbl);
-        bar.setPadding(new Insets(5, 20, 5, 20));
-        bar.setStyle("-fx-background-color: #673E1F;");
-        return bar;
+        getChildren().add(thanhDieuHuong);
     }
 
-    private Node taoMiddleBar() {
-        HBox bar = new HBox(10);
-        bar.setPadding(new Insets(10, 20, 10, 20));
-        bar.setAlignment(Pos.CENTER_LEFT);
-        bar.setStyle("-fx-background-color: #1E424D;");
+    // khởi tạo filter
 
-        txtTimKiem.setPromptText("Tìm kiếm...");
-        txtTimKiem.setOnAction(e -> apDungLoc());
+    private void khoiTaoFilter() {
 
-        Button btnTim = new Button("Tìm");
-        btnTim.setOnAction(e -> apDungLoc());
+        filterTimKiem = new TextField();
+        filterTimKiem.setPromptText("Tìm kiếm...");
 
-        bar.getChildren().addAll(txtTimKiem, btnTim);
-        return bar;
+        filterA = new ComboBox<>();
+        filterA.getItems().addAll("Tất cả");
+
+        filterB = new ComboBox<>();
+        filterB.getItems().addAll("Mặc định");
     }
 
-    private Node taoContent() {
-        ketQuaContainer.setPadding(new Insets(20));
-        ScrollPane scroll = new ScrollPane(ketQuaContainer);
-        scroll.setFitToWidth(true);
-        VBox.setVgrow(scroll, Priority.ALWAYS);
-        return scroll;
+    // logic filter
+
+    /**
+     * Gắn listener cho tất cả filter
+     * → Khi filter thay đổi sẽ gọi xuLyFilterTong()
+     */
+    private void khoiTaoLogicFilter() {
+
+        filterTimKiem.textProperty().addListener((obs, o, n) -> {
+            if (dungTimKiem) xuLyFilterTong();
+        });
+
+        filterA.valueProperty().addListener((obs, o, n) -> {
+            if (dungFilterA) xuLyFilterTong();
+        });
+
+        filterB.valueProperty().addListener((obs, o, n) -> {
+            if (dungFilterB) xuLyFilterTong();
+        });
     }
 
-    private Node taoStatusBar() {
-        lblSoLuong.setPadding(new Insets(5, 20, 5, 20));
-        return lblSoLuong;
+    // dùng cho class con gọi
+
+    /**
+     * Bật filter tìm kiếm
+     * → thêm vào giao diện + cho phép xử lý
+     */
+    protected void batFilterTimKiem() {
+        dungTimKiem = true;
+        thanhDieuHuong.getChildren().add(filterTimKiem);
     }
 
-    /* ================= LOGIC ================= */
-
-    protected void apDungLoc() {
-        String keyword = txtTimKiem.getText();
-
-        danhSachHienThi = danhSachGoc.stream()
-                .filter(item -> keyword == null || keyword.isBlank() || thoaManTimKiem(item, keyword))
-                .sorted(comparatorMacDinh())
-                .toList();
-
-        capNhatKetQua();
+    /**
+     * Bật filter A
+     * (ví dụ: lọc theo loại)
+     */
+    protected void batFilterA() {
+        dungFilterA = true;
+        thanhDieuHuong.getChildren().add(filterA);
     }
 
-    protected void capNhatKetQua() {
-        ketQuaContainer.getChildren().clear();
+    /**
+     * Bật filter B
+     * (ví dụ: sắp xếp)
+     */
+    protected void batFilterB() {
+        dungFilterB = true;
+        thanhDieuHuong.getChildren().add(filterB);
+    }
 
-        danhSachHienThi.forEach(item ->
-                ketQuaContainer.getChildren().add(taoNodeKetQua(item))
-        );
+    // xử lý tổng
 
-        lblSoLuong.setText("Hiển thị " + danhSachHienThi.size() + " kết quả");
+    /**
+     * HÀM QUAN TRỌNG NHẤT
+     *
+     * - Được gọi tự động khi filter thay đổi
+     * - Class con override để xử lý lọc dữ liệu
+     * - Dùng biến dungFilterX để biết filter nào đang bật
+     */
+    protected void xuLyFilterTong() {
+        // TODO:
+        // if (dungTimKiem) đọc filterTimKiem.getText()
+        // if (dungFilterA) đọc filterA.getValue()
+        // if (dungFilterB) đọc filterB.getValue()
+        // lọc danh sách
+        // cập nhật UI
     }
 }
