@@ -52,7 +52,7 @@ public class GiaoDienChinh {
         root.setCenter(mainLayout);
 
         //Tạo NavBar, truyền đúng mainContent
-        NavBar navBar = new NavBar(mainContent,sideBar,sideBarExtended);
+        NavBar navBar = new NavBar(mainContent, sideBar, sideBarExtended);
         navBar.setPrefHeight(80);
         navBar.setMinHeight(80);
 
