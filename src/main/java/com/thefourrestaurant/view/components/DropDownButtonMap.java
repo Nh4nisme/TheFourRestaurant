@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.components;
 
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -13,15 +14,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
 
-public class DropDownButton extends Button {
+public class DropDownButtonMap<T> extends Button {
 
     private final ContextMenu contextMenu = new ContextMenu();
-    private String selectedValue;
-    private Consumer<String> onItemSelected;
+    private T selectedValue;
+    private Consumer<T> onItemSelected;
 
-    public DropDownButton(
+    public DropDownButtonMap(
             String promptText,
-            List<String> options,
+            LinkedHashMap<String, T> options,
             String iconPath,
             double height,
             double fontSize,
@@ -58,15 +59,15 @@ public class DropDownButton extends Button {
         setGraphic(icon);
     }
 
-    private void khoiTaoMenu(List<String> options) {
-        for (String option : options) {
-            Label label = taoLabelMenu(option);
+    private void khoiTaoMenu(Map<String, T> options) {
+        options.forEach((key, value) -> {
+            Label label = taoLabelMenu(key);
 
             CustomMenuItem item = new CustomMenuItem(label, true);
-            item.setOnAction(e -> chonGiaTri(option));
+            item.setOnAction(e -> chonGiaTri(value));
 
             contextMenu.getItems().add(item);
-        }
+        });
     }
 
     private Label taoLabelMenu(String text) {
@@ -128,22 +129,19 @@ public class DropDownButton extends Button {
         return getWidth() - padding.getLeft();
     }
 
-    private void chonGiaTri(String value) {
+    private void chonGiaTri(T value) {
         selectedValue = value;
-        setText(value);
-
         if (onItemSelected != null) {
             onItemSelected.accept(value);
         }
     }
 
 
-
-    public void setOnItemSelected(Consumer<String> action) {
+    public void setOnItemSelected(Consumer<T> action) {
         this.onItemSelected = action;
     }
 
-    public String getSelectedValue() {
+    public T getSelectedValue() {
         return selectedValue;
     }
 }
