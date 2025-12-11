@@ -5,7 +5,7 @@ import com.thefourrestaurant.controller.MonAnController;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.components.ButtonSample;
-import com.thefourrestaurant.view.components.DropDownButton;
+import com.thefourrestaurant.view.components.DropDownButtonMap;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -25,6 +25,7 @@ import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -139,23 +140,29 @@ public class GiaoDienMonAn extends VBox {
         lblSapXep.setTextFill(Color.web("#E5D595"));
         lblSapXep.setFont(Font.font("System", FontWeight.BOLD, 14));
 
-        DropDownButton btnTheoChuCai = new DropDownButton("Theo bảng chữ cái  ▼", List.of("A → Z", "Z → A"), null, 35, 16, 3);
-        btnTheoChuCai.setOnItemSelected(selected -> {
-            if ("A → Z".equals(selected)) {
-                sapXepTheoTen(true);
-            } else if ("Z → A".equals(selected)) {
-                sapXepTheoTen(false);
-            }
-        });
+        LinkedHashMap<String, Boolean> mapChuCai = new LinkedHashMap<>();
+        mapChuCai.put("A → Z", true);   // Key: text hiển thị, Value: ascending = true
+        mapChuCai.put("Z → A", false);  // Key: text hiển thị, Value: ascending = false
+        
+        DropDownButtonMap<Boolean> btnTheoChuCai = new DropDownButtonMap<>(
+                "Theo bảng chữ cái  ▼",
+                mapChuCai,  // <-- LinkedHashMap thay vì List
+                null, 35, 16, 3
+        );
+        // Callback giờ nhận trực tiếp Boolean value, gọn hơn nhiều!
+        btnTheoChuCai.setOnItemSelected(ascending -> sapXepTheoTen(ascending));
 
-        DropDownButton btnTheoGia = new DropDownButton("Theo giá  ▼", List.of("Tăng dần", "Giảm dần"), null, 35, 16, 3);
-        btnTheoGia.setOnItemSelected(selected -> {
-            if ("Tăng dần".equals(selected)) {
-                sapXepTheoGia(true);
-            } else if ("Giảm dần".equals(selected)) {
-                sapXepTheoGia(false);
-            }
-        });
+        LinkedHashMap<String, Boolean> mapGia = new LinkedHashMap<>();
+        mapGia.put("Tăng dần", true);   // Key: text hiển thị, Value: ascending = true
+        mapGia.put("Giảm dần", false);  // Key: text hiển thị, Value: ascending = false
+        
+        DropDownButtonMap<Boolean> btnTheoGia = new DropDownButtonMap<>(
+                "Theo giá  ▼",
+                mapGia,  // <-- LinkedHashMap thay vì List
+                null, 35, 16, 3
+        );
+        // Callback giờ nhận trực tiếp Boolean value
+        btnTheoGia.setOnItemSelected(ascending -> sapXepTheoGia(ascending));
 
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);

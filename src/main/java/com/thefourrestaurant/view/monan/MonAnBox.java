@@ -10,7 +10,11 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
+import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 public class MonAnBox extends BaseBox {
@@ -50,16 +54,7 @@ public class MonAnBox extends BaseBox {
         // Cài đặt ảnh
         try {
             if (imagePath != null && !imagePath.isEmpty()) {
-                Image image = null;
-                if (imagePath.startsWith("/")) { // Resource path
-                    URL imageUrl = getClass().getResource(imagePath);
-                    if (imageUrl != null) {
-                        image = new Image(imageUrl.toExternalForm());
-                    }
-                } else { // File URI or full URL
-                    image = new Image(imagePath);
-                }
-
+                Image image = loadImage(imagePath);
                 if (image != null && !image.isError()) {
                     imageView.setImage(image);
                 } else {
@@ -104,6 +99,47 @@ public class MonAnBox extends BaseBox {
         // Gộp phần trên và dưới vào box chính
         this.getChildren().addAll(topPane, bottomPane);
         this.setStyle("-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
+    }
+
+    private Image loadImage(String imagePath) {
+        Image image = null;
+        
+        if (imagePath.startsWith("/")) {
+            // Thử load từ classpath resource trước
+            URL imageUrl = getClass().getResource(imagePath);
+            if (imageUrl != null) {
+                image = new Image(imageUrl.toExternalForm(), false);
+                if (!image.isError()) {
+                    return image;
+                }
+            }
+            
+            // Nếu không tìm thấy trong classpath, thử load từ file trực tiếp
+            String projectDir = System.getProperty("user.dir");
+            
+            // Thử từ target/classes
+            Path targetPath = Paths.get(projectDir, "target/classes", imagePath);
+            if (Files.exists(targetPath)) {
+                image = new Image(targetPath.toUri().toString(), false);
+                if (!image.isError()) {
+                    return image;
+                }
+            }
+            
+            // Thử từ src/main/resources
+            Path srcPath = Paths.get(projectDir, "src/main/resources", imagePath);
+            if (Files.exists(srcPath)) {
+                image = new Image(srcPath.toUri().toString(), false);
+                if (!image.isError()) {
+                    return image;
+                }
+            }
+        } else {
+            // File URI hoặc full URL
+            image = new Image(imagePath, false);
+        }
+        
+        return image;
     }
 
     // --- Tạo Box "Thêm món mới" ---

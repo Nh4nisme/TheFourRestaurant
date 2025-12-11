@@ -115,37 +115,65 @@ public class MonAnController {
 
     public String saoChepHinhAnhVaoProject(String sourceImagePath) {
         try {
-            // 1. Tạo tên tệp mới để tránh trùng lặp
+            // 1. Kiểm tra file nguồn tồn tại
             File sourceFile = new File(sourceImagePath);
+            if (!sourceFile.exists()) {
+                System.err.println("Lỗi: File nguồn không tồn tại: " + sourceImagePath);
+                return null;
+            }
+            
+            // 2. Kiểm tra định dạng file hợp lệ
             String originalFileName = sourceFile.getName();
             String fileExtension = "";
             int i = originalFileName.lastIndexOf('.');
             if (i > 0) {
-                fileExtension = originalFileName.substring(i);
+                fileExtension = originalFileName.substring(i).toLowerCase();
             }
+            
+            // Chỉ cho phép các định dạng ảnh phổ biến
+            if (!fileExtension.equals(".png") && !fileExtension.equals(".jpg") && 
+                !fileExtension.equals(".jpeg") && !fileExtension.equals(".gif") && 
+                !fileExtension.equals(".bmp")) {
+                System.err.println("Lỗi: Định dạng file không hợp lệ: " + fileExtension);
+                System.err.println("Chỉ hỗ trợ: .png, .jpg, .jpeg, .gif, .bmp");
+                return null;
+            }
+            
+            // 3. Kiểm tra kích thước file (giới hạn 10MB)
+            long fileSizeBytes = sourceFile.length();
+            long maxSizeBytes = 10 * 1024 * 1024; // 10MB
+            if (fileSizeBytes > maxSizeBytes) {
+                System.err.println("Lỗi: File quá lớn: " + (fileSizeBytes / 1024 / 1024) + "MB. Giới hạn 10MB.");
+                return null;
+            }
+            
+            // 4. Tạo tên tệp mới để tránh trùng lặp và ký tự đặc biệt
             String newFileName = UUID.randomUUID().toString() + fileExtension;
 
-            // 2. Xác định đường dẫn tương đối trong classpath
+            // 5. Xác định đường dẫn tương đối trong classpath
             String classpathRelativePath = "/com/thefourrestaurant/images/MonAn/" + newFileName;
 
-            // 3. Sao chép vào thư mục `src/main/resources`
+            // 6. Sao chép vào thư mục `src/main/resources`
             String projectDir = System.getProperty("user.dir");
             Path srcDestPath = Paths.get(projectDir, "src/main/resources", classpathRelativePath);
             Files.createDirectories(srcDestPath.getParent());
             Files.copy(sourceFile.toPath(), srcDestPath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Đã sao chép ảnh vào: " + srcDestPath);
 
-            // 4. Sao chép vào thư mục `target/classes` để ứng dụng đang chạy có thể thấy ngay
+            // 7. Sao chép vào thư mục `target/classes` để ứng dụng đang chạy có thể thấy ngay
             URL targetRootUrl = getClass().getResource("/");
             if (targetRootUrl != null) {
                 Path targetDestPath = Paths.get(targetRootUrl.toURI()).resolve(classpathRelativePath.substring(1));
                 Files.createDirectories(targetDestPath.getParent());
                 Files.copy(sourceFile.toPath(), targetDestPath, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Đã sao chép ảnh vào target: " + targetDestPath);
             }
 
-            // 5. Trả về đường dẫn tương đối (classpath resource path) để lưu vào DB
+            // 8. Trả về đường dẫn tương đối (classpath resource path) để lưu vào DB
             return classpathRelativePath;
 
         } catch (Exception e) {
+            System.err.println("Lỗi khi sao chép hình ảnh: " + e.getMessage());
             e.printStackTrace();
             return null;
         }

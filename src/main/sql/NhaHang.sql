@@ -1,4 +1,4 @@
-﻿-- ================================
+-- ================================
 -- Tạo CSDL
 -- ================================
 CREATE DATABASE NhaHangDB;
@@ -267,6 +267,9 @@ CREATE TABLE KhuyenMai (
     maKM CHAR(8) PRIMARY KEY CHECK (maKM LIKE 'KM%' AND LEN(maKM) = 8),
     maLoaiKM CHAR(8) NOT NULL,
     tenKM NVARCHAR(100) NOT NULL DEFAULT N'',
+    kieuKM NVARCHAR(20) NOT NULL DEFAULT N'SuKien' CHECK(kieuKM IN (N'SuKien', N'MaGiamGia')),
+    maCode VARCHAR(50) NULL,
+    soLuotSuDung INT NULL CHECK(soLuotSuDung IS NULL OR soLuotSuDung >= 0),
     tyLe DECIMAL(5,2) NULL CHECK(tyLe >= 0 AND tyLe <= 100),
     soTien DECIMAL(12,2) NULL CHECK(soTien >= 0),
     ngayBatDau DATETIME NULL,
@@ -278,6 +281,10 @@ CREATE TABLE KhuyenMai (
     (tyLe IS NOT NULL AND soTien IS NULL) OR
     (tyLe IS NULL AND soTien IS NOT NULL) OR
     (tyLe IS NULL AND soTien IS NULL)
+    ),
+    CHECK (
+    (kieuKM = N'SuKien') OR 
+    (kieuKM = N'MaGiamGia' AND maCode IS NOT NULL AND LEN(maCode) >= 3)
     )
 );
 GO
@@ -604,10 +611,10 @@ INSERT INTO LoaiKhuyenMai (maLoaiKM, tenLoaiKM) VALUES
 GO
 
 -- Khuyến mãi
-INSERT INTO KhuyenMai (maKM, maLoaiKM, tenKM, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) VALUES
-('KM000001', 'LKM00001', N'Giảm 10% hóa đơn', 10, NULL, '2025-10-01', '2025-10-31', N'Áp dụng cho tất cả đơn hàng trong tháng 10'),
-('KM000002', 'LKM00002', N'Mua cà phê tặng nước cam', NULL, NULL, '2025-10-10', '2025-10-31', N'Chương trình khuyến mãi đặc biệt cho khách hàng thân thiết'),
-('KM000003', 'LKM00003', N'Giảm 15.000đ cho bún bò Huế', NULL, 15000, '2025-11-01', '2025-11-30', N'Áp dụng cho món bún bò Huế tại tất cả chi nhánh');
+INSERT INTO KhuyenMai (maKM, maLoaiKM, tenKM, kieuKM, maCode, soLuotSuDung, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) VALUES
+('KM000001', 'LKM00001', N'Giảm 10% hóa đơn', N'SuKien', NULL, NULL, 10, NULL, '2025-10-01', '2025-10-31', N'Áp dụng cho tất cả đơn hàng trong tháng 10'),
+('KM000002', 'LKM00002', N'Mua cà phê tặng nước cam', N'SuKien', NULL, NULL, NULL, NULL, '2025-10-10', '2025-10-31', N'Chương trình khuyến mãi đặc biệt cho khách hàng thân thiết'),
+('KM000003', 'LKM00003', N'Giảm 15.000đ cho bún bò Huế', N'MaGiamGia', 'BUNBO15K', 100, NULL, 15000, '2025-11-01', '2025-11-30', N'Áp dụng cho món bún bò Huế tại tất cả chi nhánh');
 GO
 
 -- Chi tiết khuyến mãi
@@ -650,6 +657,3 @@ INSERT INTO ChiTietHD (maHD, maMonAn, soLuong, donGia) VALUES
 ('HD000002','MA000002',2,60000),
 ('HD000002','MA000004',1,30000);
 GO
-
-
-
