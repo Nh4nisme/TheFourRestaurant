@@ -57,8 +57,6 @@ public class GiaoDienMonAn extends VBox {
         GridPane contentPane = new GridPane();
         VBox.setVgrow(contentPane, Priority.ALWAYS);
         contentPane.setStyle("-fx-background-color: #F5F5F5;");
-
-        contentPane.add(createTopBar(), 0, 0);
         contentPane.add(createMiddleBar(), 0, 1);
 
         VBox khungDuoi = new VBox();
@@ -90,20 +88,6 @@ public class GiaoDienMonAn extends VBox {
 
         this.getChildren().add(contentPane);
         refreshViews();
-    }
-
-    private VBox createTopBar() {
-        Label duongDan = new Label("Quản Lý > Món Ăn > " + tenLoaiMon);
-        duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
-        VBox khungTren = new VBox(duongDan);
-        khungTren.setStyle("-fx-background-color: #673E1F;");
-        khungTren.setAlignment(Pos.CENTER_LEFT);
-        khungTren.setPadding(new Insets(0, 20, 0, 20));
-        khungTren.setPrefHeight(30);
-        khungTren.setMinHeight(30);
-        khungTren.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setHgrow(khungTren, Priority.ALWAYS);
-        return khungTren;
     }
 
     private HBox createMiddleBar() {

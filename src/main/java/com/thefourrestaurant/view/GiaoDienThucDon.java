@@ -8,7 +8,6 @@ import java.util.Optional;
 import com.thefourrestaurant.DAO.ThucDonDAO;
 import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.view.components.ButtonSample;
-import com.thefourrestaurant.view.components.NavBar;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
@@ -21,7 +20,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-public class QuanLyThucDon extends VBox {
+public class GiaoDienThucDon extends VBox {
 
     private final TableView<ThucDonDAO.ThucDonView> tableThucDon;
     private final TextField txtTenThucDon;
@@ -29,18 +28,18 @@ public class QuanLyThucDon extends VBox {
     private final VBox boxChonThucAn;
     private final List<FoodItem> selectedFoods = new ArrayList<>();
 
-    public QuanLyThucDon() {
+    public GiaoDienThucDon() {
         setAlignment(Pos.TOP_CENTER);
         setStyle("-fx-background-color: #FAFAFA;");
 
         // === Thanh breadcrumb ===
-        Label duongDan = new Label("Quản Lý > Thực Đơn");
-        duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
+        Label duongDan = new Label("Thực đơn");
+        duongDan.getStyleClass().add("toolbar-title");
         VBox khungDuongDan = new VBox(duongDan);
-        khungDuongDan.setStyle("-fx-background-color: #673E1F;");
+        khungDuongDan.setStyle("-fx-background-color: #1E424D;");
         khungDuongDan.setAlignment(Pos.CENTER_LEFT);
         khungDuongDan.setPadding(new Insets(10, 20, 10, 20));
-        khungDuongDan.setPrefHeight(40);
+        khungDuongDan.setPrefHeight(55);
         khungDuongDan.setMaxWidth(Double.MAX_VALUE);
 
         // === Khu vực chính (chia 2 cột) ===

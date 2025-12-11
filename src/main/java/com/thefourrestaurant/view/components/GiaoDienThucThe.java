@@ -64,14 +64,13 @@ public abstract class GiaoDienThucThe extends VBox {
         thanhTimKiem.setPadding(new Insets(0,10,0,10));
         txtTimKiem = new TextField();
         txtTimKiem.setPromptText("Nhập từ khóa tìm kiếm...");
-        txtTimKiem.setPrefHeight(45);
         txtTimKiem.setStyle("-fx-font-size: 16; -fx-background-radius: 8;");
 
-        btnTimKiem = new ButtonSample("Tìm kiếm", 45, 16, 3);
+        btnTimKiem = new ButtonSample("Tìm kiếm", 35, 16, 3);
 
         thanhTimKiem.getChildren().addAll(txtTimKiem, btnTimKiem);
 
-        btnLamMoi = new ButtonSample("Làm mới",45,16,3);
+        btnLamMoi = new ButtonSample("Làm mới",35,16,3);
 
         toolbar.getChildren().addAll(lblTieuDe, spacer, thanhTimKiem,btnLamMoi);
 

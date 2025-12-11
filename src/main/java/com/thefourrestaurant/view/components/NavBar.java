@@ -17,7 +17,6 @@ import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 import com.thefourrestaurant.view.thongke.ThongKeGiaoDienChinh;
 import com.thefourrestaurant.view.nhanvien.GiaoDienNhanVien;
 
-import com.thefourrestaurant.view.tracuu.GiaoDienTraCuu;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -214,7 +213,7 @@ public class NavBar extends HBox {
         sideBarExtended.setManaged(!isDatBan);
 
         Node newContent = switch (huong) {
-            case DM_THUC_DON -> new QuanLyThucDon();
+            case DM_THUC_DON -> new GiaoDienThucDon();
             case DM_MON_AN -> new GiaoDienMonAn(null, "Tất cả Món ăn");
             case DM_LOAI_MON -> new LoaiMonAn();
             case DM_KHUYEN_MAI -> new GiaoDienKhuyenMai();
