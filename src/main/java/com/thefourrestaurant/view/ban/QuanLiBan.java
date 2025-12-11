@@ -47,16 +47,6 @@ public class QuanLiBan extends VBox {
         this.setAlignment(Pos.TOP_CENTER);
         this.setStyle("-fx-background-color: #F5F5F5;");
 
-        // === Breadcrumb ===
-        lblBreadcrumb.setText("Trang chủ / Quản lý bàn");
-        lblBreadcrumb.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
-        VBox khungDuongDan = new VBox(lblBreadcrumb);
-        khungDuongDan.setStyle("-fx-background-color: #673E1F;");
-        khungDuongDan.setAlignment(Pos.CENTER_LEFT);
-        khungDuongDan.setPadding(new Insets(10, 20, 10, 20));
-        khungDuongDan.setPrefHeight(40);
-        khungDuongDan.setMaxWidth(Double.MAX_VALUE);
-
         //Toolbar
         ButtonSample btnThemBan = new ButtonSample("Thêm bàn", 45, 16, 3);
         btnThemBan.setOnAction(e -> moPopupTuyChinhBan(null));
@@ -73,7 +63,7 @@ public class QuanLiBan extends VBox {
         toolBar.setStyle("-fx-background-color: #1E424D");
         toolBar.setPadding(new Insets(10, 10, 10, 10));
 
-        VBox thanhTren = new VBox(khungDuongDan,toolBar);
+        VBox thanhTren = new VBox(toolBar);
         thanhTren.setSpacing(0);
         thanhTren.setAlignment(Pos.CENTER_LEFT);
         thanhTren.setPrefWidth(Double.MAX_VALUE);

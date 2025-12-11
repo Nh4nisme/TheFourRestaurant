@@ -43,8 +43,6 @@ public class GiaoDienKhuyenMai extends VBox {
         GridPane contentPane = new GridPane();
         VBox.setVgrow(contentPane, Priority.ALWAYS);
         contentPane.setStyle("-fx-background-color: #F5F5F5;");
-
-        contentPane.add(taoKhungTren(), 0, 0);
         contentPane.add(taoKhungGiua(), 0, 1);
 
         VBox khuyenMaiTableContainer = new VBox(10);
@@ -74,19 +72,6 @@ public class GiaoDienKhuyenMai extends VBox {
 
         this.getChildren().add(contentPane);
         lamMoiGiaoDien();
-    }
-
-    private VBox taoKhungTren() {
-        Label duongDan = new Label("Quản Lý > Khuyến Mãi");
-        duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
-        VBox khungTren = new VBox(duongDan);
-        khungTren.setStyle("-fx-background-color: #673E1F;");
-        khungTren.setAlignment(Pos.CENTER_LEFT);
-        khungTren.setPadding(new Insets(0, 20, 0, 20));
-        khungTren.setPrefHeight(30);
-        khungTren.setMinHeight(30);
-        GridPane.setHgrow(khungTren, Priority.ALWAYS);
-        return khungTren;
     }
 
     private HBox taoKhungGiua() {

@@ -45,16 +45,15 @@ public class LoaiMonAn extends VBox {
         VBox.setVgrow(contentPane, Priority.ALWAYS);
         contentPane.setStyle("-fx-background-color: #F5F5F5;");
 
-        // Thanh trên (Đường dẫn)
-        String breadcrumbText = navigateMode ? "Quản Lý > Món Ăn >" : "Quản Lý > Loại Món Ăn";
-        Label duongDan = new Label(breadcrumbText);
-        duongDan.setStyle("-fx-text-fill: #E5D595; -fx-font-size: 18px; -fx-font-weight: bold;");
+        // Thanh trên
+        Label duongDan = new Label("Loại món ăn");
+        duongDan.getStyleClass().add("toolbar-title");
         VBox khungTren = new VBox(duongDan);
-        khungTren.setStyle("-fx-background-color: #673E1F;");
+        khungTren.setStyle("-fx-background-color: #1E424D;");
         khungTren.setAlignment(Pos.CENTER_LEFT);
         khungTren.setPadding(new Insets(0, 20, 0, 20));
-        khungTren.setPrefHeight(30);
-        khungTren.setMinHeight(30);
+        khungTren.setPrefHeight(55);
+        khungTren.setMinHeight(55);
         khungTren.setMaxWidth(Double.MAX_VALUE);
         GridPane.setHgrow(khungTren, Priority.ALWAYS);
         contentPane.add(khungTren, 0, 0);
