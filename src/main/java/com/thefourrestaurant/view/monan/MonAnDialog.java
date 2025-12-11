@@ -20,7 +20,10 @@ import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MonAnDialog extends Stage {
 
@@ -35,6 +38,11 @@ public class MonAnDialog extends Stage {
     private final TextField truongGia = new TextField();
     private final ComboBox<LoaiMon> loaiMonComboBox = new ComboBox<>();
     private final CheckBox hopKiemHienThi = new CheckBox();
+
+    private static final Set<String> ALLOWED_EXTENSIONS = new HashSet<>(
+        Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp")
+    );
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
     public MonAnDialog(MonAn monAn, List<LoaiMon> tatCaLoaiMon, LoaiMon loaiMonMacDinh, MonAnController controller) {
         this.monAnHienTai = monAn;
@@ -172,10 +180,38 @@ public class MonAnDialog extends Stage {
     private void chonAnh() {
         FileChooser boChonTep = new FileChooser();
         boChonTep.setTitle("Chọn Ảnh Món Ăn");
-        boChonTep.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
+        boChonTep.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
+        );
         File tep = boChonTep.showOpenDialog(this);
         if (tep != null) {
+            // Kiểm tra định dạng file
+            String fileName = tep.getName().toLowerCase();
+            String extension = "";
+            int dotIndex = fileName.lastIndexOf('.');
+            if (dotIndex > 0) {
+                extension = fileName.substring(dotIndex);
+            }
+            
+            if (!ALLOWED_EXTENSIONS.contains(extension)) {
+                showAlert(Alert.AlertType.WARNING, 
+                    "Định dạng ảnh không hỗ trợ!\n" +
+                    "Chỉ chấp nhận: PNG, JPG, JPEG, GIF, BMP\n" +
+                    "File của bạn: " + extension);
+                return;
+            }
+            
+            // Kiểm tra kích thước file
+            if (tep.length() > MAX_FILE_SIZE) {
+                showAlert(Alert.AlertType.WARNING, 
+                    "File ảnh quá lớn!\n" +
+                    "Giới hạn: 10MB\n" +
+                    "Kích thước file: " + (tep.length() / 1024 / 1024) + "MB");
+                return;
+            }
+            
             tepAnhDaChon = tep;
+            showAlert(Alert.AlertType.INFORMATION, "Đã chọn ảnh: " + tep.getName());
         }
     }
 

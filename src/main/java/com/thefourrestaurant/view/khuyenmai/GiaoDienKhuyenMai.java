@@ -33,7 +33,8 @@ public class GiaoDienKhuyenMai extends VBox {
     private VBox khuyenMaiViewContainer;
     private KhuyenMaiGrid gridView;
     private Node listView;
-    private final Label lblItemCount = new Label(); // Nhãn đếm số lượng mục
+    private final Label lblItemCount = new Label();
+    private final ComboBox<String> hopLocKieu = new ComboBox<>();
 
     public GiaoDienKhuyenMai() {
         this.boDieuKhien = new KhuyenMaiController();
@@ -43,11 +44,9 @@ public class GiaoDienKhuyenMai extends VBox {
         VBox.setVgrow(contentPane, Priority.ALWAYS);
         contentPane.setStyle("-fx-background-color: #F5F5F5;");
 
-        // Thêm các khung trên và giữa
         contentPane.add(taoKhungTren(), 0, 0);
         contentPane.add(taoKhungGiua(), 0, 1);
 
-        // Vùng chứa chính cho danh sách/lưới khuyến mãi
         VBox khuyenMaiTableContainer = new VBox(10);
         khuyenMaiTableContainer.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
         khuyenMaiTableContainer.setPadding(new Insets(20));
@@ -60,12 +59,10 @@ public class GiaoDienKhuyenMai extends VBox {
         VBox.setVgrow(khuyenMaiViewContainer, Priority.ALWAYS);
         khuyenMaiTableContainer.getChildren().add(khuyenMaiViewContainer);
 
-        // Cài đặt và khởi tạo các chế độ xem
         caiDatBangKhuyenMai();
         listView = bangKhuyenMai;
         gridView = new KhuyenMaiGrid(this);
 
-        // Chế độ xem mặc định là GridView
         khuyenMaiViewContainer.getChildren().add(gridView);
 
         contentPane.add(taoThanhTrangThai(), 0, 3);
@@ -132,18 +129,23 @@ public class GiaoDienKhuyenMai extends VBox {
             }
         });
 
+        hopLocKieu.setItems(FXCollections.observableArrayList("Tất cả", "Sự kiện (Tự động)", "Mã giảm giá (Nhập mã)"));
+        hopLocKieu.setValue("Tất cả");
+        hopLocKieu.setStyle("-fx-background-color: white; -fx-background-radius: 5;");
+        hopLocKieu.setOnAction(e -> locTheoKieu());
+
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);
 
         TextField txtTimKiem = new TextField();
-        txtTimKiem.setPromptText("Tìm theo mã, tên...");
+        txtTimKiem.setPromptText("Tìm theo mã, tên, mã code...");
         txtTimKiem.setPrefWidth(300);
 
         ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
         btnTim.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText()));
-        txtTimKiem.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText())); // Kích hoạt tìm kiếm khi nhấn Enter
+        txtTimKiem.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText()));
 
-        khungGiua.getChildren().addAll(btnList, btnGrid, btnThemMoi, space, txtTimKiem, btnTim);
+        khungGiua.getChildren().addAll(btnList, btnGrid, btnThemMoi, hopLocKieu, space, txtTimKiem, btnTim);
         return khungGiua;
     }
 
@@ -165,11 +167,29 @@ public class GiaoDienKhuyenMai extends VBox {
 
         TableColumn<KhuyenMai, String> tenKMCol = new TableColumn<>("Tên KM");
         tenKMCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTenKM()));
-        tenKMCol.setPrefWidth(200);
+        tenKMCol.setPrefWidth(150);
 
-        TableColumn<KhuyenMai, String> moTaCol = new TableColumn<>("Mô tả");
-        moTaCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getMoTa()));
-        moTaCol.setPrefWidth(200);
+        TableColumn<KhuyenMai, String> kieuKMCol = new TableColumn<>("Kiểu KM");
+        kieuKMCol.setCellValueFactory(cellData -> {
+            KhuyenMai km = cellData.getValue();
+            String kieu = KhuyenMai.KIEU_MA_GIAM_GIA.equals(km.getKieuKM()) ? "Mã giảm giá" : "Sự kiện";
+            return new SimpleStringProperty(kieu);
+        });
+        kieuKMCol.setPrefWidth(90);
+
+        TableColumn<KhuyenMai, String> maCodeCol = new TableColumn<>("Mã Code");
+        maCodeCol.setCellValueFactory(cellData -> {
+            String maCode = cellData.getValue().getMaCode();
+            return new SimpleStringProperty(maCode != null ? maCode : "-");
+        });
+        maCodeCol.setPrefWidth(90);
+
+        TableColumn<KhuyenMai, String> soLuotCol = new TableColumn<>("Còn lại");
+        soLuotCol.setCellValueFactory(cellData -> {
+            Integer soLuot = cellData.getValue().getSoLuotSuDung();
+            return new SimpleStringProperty(soLuot != null ? String.valueOf(soLuot) : "∞");
+        });
+        soLuotCol.setPrefWidth(60);
 
         TableColumn<KhuyenMai, String> loaiKMCol = new TableColumn<>("Loại KM");
         loaiKMCol.setCellValueFactory(cellData -> {
@@ -185,7 +205,7 @@ public class GiaoDienKhuyenMai extends VBox {
             BigDecimal tyLe = cellData.getValue().getTyLe();
             return new SimpleStringProperty(tyLe != null && tyLe.compareTo(BigDecimal.ZERO) > 0 ? tyLe.stripTrailingZeros().toPlainString() + "%" : "");
         });
-        tyLeCol.setPrefWidth(80);
+        tyLeCol.setPrefWidth(60);
 
         TableColumn<KhuyenMai, String> soTienCol = new TableColumn<>("Số tiền");
         soTienCol.setCellValueFactory(cellData -> {
@@ -193,22 +213,22 @@ public class GiaoDienKhuyenMai extends VBox {
             NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
             return new SimpleStringProperty(soTien != null && soTien.compareTo(BigDecimal.ZERO) > 0 ? currencyFormatter.format(soTien) : "");
         });
-        soTienCol.setPrefWidth(120);
+        soTienCol.setPrefWidth(100);
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         TableColumn<KhuyenMai, String> ngayBDCol = new TableColumn<>("Ngày BĐ");
         ngayBDCol.setCellValueFactory(cellData -> {
             LocalDateTime date = cellData.getValue().getNgayBatDau();
             return new SimpleStringProperty(date != null ? date.format(dateTimeFormatter) : "");
         });
-        ngayBDCol.setPrefWidth(150);
+        ngayBDCol.setPrefWidth(90);
 
         TableColumn<KhuyenMai, String> ngayKTCol = new TableColumn<>("Ngày KT");
         ngayKTCol.setCellValueFactory(cellData -> {
             LocalDateTime date = cellData.getValue().getNgayKetThuc();
             return new SimpleStringProperty(date != null ? date.format(dateTimeFormatter) : "");
         });
-        ngayKTCol.setPrefWidth(150);
+        ngayKTCol.setPrefWidth(90);
 
         TableColumn<KhuyenMai, String> trangThaiCol = new TableColumn<>("Trạng thái");
         trangThaiCol.setCellValueFactory(cellData -> {
@@ -226,9 +246,9 @@ public class GiaoDienKhuyenMai extends VBox {
             }
             return new SimpleStringProperty(status);
         });
-        trangThaiCol.setPrefWidth(100);
+        trangThaiCol.setPrefWidth(90);
 
-        bangKhuyenMai.getColumns().addAll(maKMCol, tenKMCol, moTaCol, loaiKMCol, tyLeCol, soTienCol, ngayBDCol, ngayKTCol, trangThaiCol);
+        bangKhuyenMai.getColumns().addAll(maKMCol, tenKMCol, kieuKMCol, maCodeCol, soLuotCol, loaiKMCol, tyLeCol, soTienCol, ngayBDCol, ngayKTCol, trangThaiCol);
         bangKhuyenMai.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         bangKhuyenMai.setRowFactory(tv -> {
@@ -253,18 +273,33 @@ public class GiaoDienKhuyenMai extends VBox {
 
     public void lamMoiGiaoDien() {
         this.danhSachKhuyenMaiGoc = boDieuKhien.layDanhSachKhuyenMai();
-        this.danhSachKhuyenMaiHienThi = FXCollections.observableArrayList(danhSachKhuyenMaiGoc);
+        locTheoKieu();
+    }
+
+    private void locTheoKieu() {
+        String kieuChon = hopLocKieu.getValue();
+        if ("Sự kiện (Tự động)".equals(kieuChon)) {
+            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream()
+                    .filter(km -> KhuyenMai.KIEU_SU_KIEN.equals(km.getKieuKM()))
+                    .collect(Collectors.toList());
+        } else if ("Mã giảm giá (Nhập mã)".equals(kieuChon)) {
+            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream()
+                    .filter(km -> KhuyenMai.KIEU_MA_GIAM_GIA.equals(km.getKieuKM()))
+                    .collect(Collectors.toList());
+        } else {
+            danhSachKhuyenMaiHienThi = FXCollections.observableArrayList(danhSachKhuyenMaiGoc);
+        }
         capNhatHienThi();
     }
 
     private void locVaCapNhatKhuyenMai(String tuKhoa) {
-        if (tuKhoa == null || tuKhoa.trim().isEmpty()) {
-            danhSachKhuyenMaiHienThi = FXCollections.observableArrayList(danhSachKhuyenMaiGoc);
-        } else {
+        locTheoKieu();
+        if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
             String lowerCaseTuKhoa = tuKhoa.trim().toLowerCase();
-            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream()
+            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiHienThi.stream()
                     .filter(km -> km.getMaKM().toLowerCase().contains(lowerCaseTuKhoa) ||
-                                     (km.getTenKM() != null && km.getTenKM().toLowerCase().contains(lowerCaseTuKhoa)))
+                                     (km.getTenKM() != null && km.getTenKM().toLowerCase().contains(lowerCaseTuKhoa)) ||
+                                     (km.getMaCode() != null && km.getMaCode().toLowerCase().contains(lowerCaseTuKhoa)))
                     .collect(Collectors.toList());
         }
         capNhatHienThi();
