@@ -46,6 +46,8 @@ public class QuanLiBan extends VBox {
         this.setSpacing(0);
         this.setAlignment(Pos.TOP_CENTER);
         this.setStyle("-fx-background-color: #F5F5F5;");
+        
+        Platform.runLater(() -> hienThiBanTheoTang("TG000001"));
 
         //Toolbar
         ButtonSample btnThemBan = new ButtonSample("Thêm bàn", 45, 16, 3);
