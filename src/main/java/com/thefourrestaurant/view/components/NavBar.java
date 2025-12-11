@@ -14,7 +14,7 @@ import com.thefourrestaurant.view.khuyenmai.GiaoDienKhuyenMai;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.GiaoDienMonAn;
 import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
-import com.thefourrestaurant.view.thongke.ThongKeView;
+import com.thefourrestaurant.view.thongke.ThongKeGiaoDienChinh;
 import com.thefourrestaurant.view.nhanvien.GiaoDienNhanVien;
 
 import com.thefourrestaurant.view.tracuu.GiaoDienTraCuu;
@@ -245,7 +245,7 @@ public class NavBar extends HBox {
                 yield null;
             }
             case HT_DANG_XUAT -> null;
-            case THONG_KE -> new ThongKeView();
+            case THONG_KE -> new ThongKeGiaoDienChinh();
         };
 
         if (newContent != null) {
