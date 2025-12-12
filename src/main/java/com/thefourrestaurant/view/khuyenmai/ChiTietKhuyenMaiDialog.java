@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.khuyenmai;
 
+import com.thefourrestaurant.controller.KhuyenMaiController;
 import com.thefourrestaurant.model.ChiTietKhuyenMai;
 import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.MonAn;
@@ -19,28 +20,52 @@ import javafx.util.StringConverter;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class ChiTietKhuyenMaiDialog extends Stage {
 
-    private ChiTietKhuyenMai ketQua = null;
+    // Thay vì trả về list ChiTietKhuyenMai, trả về data
+    private Set<MonAn> cacMonApDungKetQua = null;
+    private MonAn monTangKetQua = null;
+    private BigDecimal tyLeGiamKetQua = null;
+    private BigDecimal soTienGiamKetQua = null;
+    private Integer soLuongTangKetQua = null;
+    private boolean daLuu = false;
+
+    private List<ChiTietKhuyenMai> danhSachKetQua = null;
     private final boolean isEditMode;
     private final ChiTietKhuyenMai chiTietHienTai;
-    private final KhuyenMai khuyenMaiCha; // Parent KhuyenMai
+    private final KhuyenMai khuyenMaiCha;
+    private final List<MonAn> tatCaMonAn;
+    private final String maCTKMGoc;
+    private final KhuyenMaiController boDieuKhien;
 
     // UI Components
     private final TextField truongMaCTKM = new TextField();
-    private final ComboBox<MonAn> monApDungComboBox = new ComboBox<>();
-    private final ComboBox<MonAn> monTangComboBox = new ComboBox<>();
+    private final TextField truongMonApDung = new TextField();
+    private final TextField truongMonTang = new TextField();
     private final TextField truongTyLeGiam = new TextField();
     private final TextField truongSoTienGiam = new TextField();
     private final TextField truongSoLuongTang = new TextField();
 
+    private final Set<MonAn> cacMonApDungDaChon = new HashSet<>();
+    private MonAn monTangDaChon = null;
+
     public ChiTietKhuyenMaiDialog(ChiTietKhuyenMai chiTiet, KhuyenMai khuyenMaiCha, List<MonAn> tatCaMonAn, String maCTKMMoi) {
+        this(chiTiet, khuyenMaiCha, tatCaMonAn, maCTKMMoi, null);
+    }
+
+    public ChiTietKhuyenMaiDialog(ChiTietKhuyenMai chiTiet, KhuyenMai khuyenMaiCha, List<MonAn> tatCaMonAn, String maCTKMMoi, KhuyenMaiController boDieuKhien) {
         this.chiTietHienTai = chiTiet;
         this.khuyenMaiCha = khuyenMaiCha;
+        this.tatCaMonAn = tatCaMonAn;
         this.isEditMode = (chiTiet != null);
+        this.maCTKMGoc = maCTKMMoi;
+        this.boDieuKhien = boDieuKhien;
 
         this.initModality(Modality.APPLICATION_MODAL);
         this.setTitle(isEditMode ? "Tùy Chỉnh Chi tiết KM" : "Thêm Chi tiết KM Mới");
@@ -79,13 +104,13 @@ public class ChiTietKhuyenMaiDialog extends Stage {
             dienDuLieuHienCo();
         }
 
-        Scene khungCanh = new Scene(layoutChinh, 500, 500);
+        Scene khungCanh = new Scene(layoutChinh, 500, 550);
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
             khungCanh.getStylesheets().add(urlCSS.toExternalForm());
         }
         this.setScene(khungCanh);
-        this.setHeight(500); // Chiều cao cố định
+        this.setHeight(550);
     }
 
     private GridPane createMainForm(List<MonAn> tatCaMonAn, String kieuFontStyle, String maCTKMMoi) {
@@ -95,79 +120,143 @@ public class ChiTietKhuyenMaiDialog extends Stage {
 
         String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8;";
 
-        truongMaCTKM.setStyle(kieuTruongNhap); truongMaCTKM.getStyleClass().add("text-field");
-        truongMaCTKM.setEditable(false);
-        truongMaCTKM.setText(isEditMode ? chiTietHienTai.getMaCTKM() : maCTKMMoi);
+        truongMonApDung.setStyle(kieuTruongNhap); truongMonApDung.getStyleClass().add("text-field");
+        truongMonApDung.setEditable(false);
+        truongMonApDung.setPromptText("Chọn món áp dụng...");
 
-        monApDungComboBox.setStyle(kieuTruongNhap); monApDungComboBox.getStyleClass().add("combo-box");
-        monTangComboBox.setStyle(kieuTruongNhap); monTangComboBox.getStyleClass().add("combo-box");
+        truongMonTang.setStyle(kieuTruongNhap); truongMonTang.getStyleClass().add("text-field");
+        truongMonTang.setEditable(false);
+        truongMonTang.setPromptText("Chọn món tặng...");
+
         truongTyLeGiam.setStyle(kieuTruongNhap); truongTyLeGiam.getStyleClass().add("text-field");
         truongSoTienGiam.setStyle(kieuTruongNhap); truongSoTienGiam.getStyleClass().add("text-field");
         truongSoLuongTang.setStyle(kieuTruongNhap); truongSoLuongTang.getStyleClass().add("text-field");
 
-        luoiForm.add(new Label("Mã CTKM:"), 0, 0);
-        luoiForm.add(truongMaCTKM, 1, 0);
+        luoiForm.add(new Label("Món áp dụng:"), 0, 0);
+        HBox hopMonApDung = new HBox(10);
+        HBox.setHgrow(truongMonApDung, Priority.ALWAYS);
+        ButtonSample btnChonMonApDung = new ButtonSample("Chọn", 35, 13, 2);
+        btnChonMonApDung.setOnAction(e -> moDialogChonMonApDung());
+        hopMonApDung.getChildren().addAll(truongMonApDung, btnChonMonApDung);
+        luoiForm.add(hopMonApDung, 1, 0);
 
-        luoiForm.add(new Label("Món áp dụng:"), 0, 1);
-        monApDungComboBox.setItems(FXCollections.observableArrayList(tatCaMonAn));
-        monApDungComboBox.setConverter(new StringConverter<>() {
-            @Override public String toString(MonAn object) { return object == null ? "" : object.getTenMon(); }
-            @Override public MonAn fromString(String string) { return null; }
-        });
-        luoiForm.add(monApDungComboBox, 1, 1);
+        luoiForm.add(new Label("Món tặng:"), 0, 1);
+        HBox hopMonTang = new HBox(10);
+        HBox.setHgrow(truongMonTang, Priority.ALWAYS);
+        ButtonSample btnChonMonTang = new ButtonSample("Chọn", 35, 13, 2);
+        btnChonMonTang.setOnAction(e -> moDialogChonMonTang());
+        hopMonTang.getChildren().addAll(truongMonTang, btnChonMonTang);
+        luoiForm.add(hopMonTang, 1, 1);
 
-        luoiForm.add(new Label("Món tặng:"), 0, 2);
-        ObservableList<MonAn> monTangItems = FXCollections.observableArrayList(tatCaMonAn);
-        monTangItems.add(0, null); // Add null for "None" option
-        monTangComboBox.setItems(monTangItems);
-        monTangComboBox.setConverter(new StringConverter<>() {
-            @Override public String toString(MonAn object) { return object == null ? "Không có" : object.getTenMon(); }
-            @Override public MonAn fromString(String string) { return null; }
-        });
-        luoiForm.add(monTangComboBox, 1, 2);
+        luoiForm.add(new Label("Tỷ lệ giảm (%):"), 0, 2);
+        luoiForm.add(truongTyLeGiam, 1, 2);
 
-        luoiForm.add(new Label("Tỷ lệ giảm (%):"), 0, 3);
-        luoiForm.add(truongTyLeGiam, 1, 3);
+        luoiForm.add(new Label("Số tiền giảm:"), 0, 3);
+        luoiForm.add(truongSoTienGiam, 1, 3);
 
-        luoiForm.add(new Label("Số tiền giảm:"), 0, 4);
-        luoiForm.add(truongSoTienGiam, 1, 4);
+        luoiForm.add(new Label("Số lượng tặng:"), 0, 4);
+        luoiForm.add(truongSoLuongTang, 1, 4);
 
-        luoiForm.add(new Label("Số lượng tặng:"), 0, 5);
-        luoiForm.add(truongSoLuongTang, 1, 5);
-
-        // Logic to enable/disable fields based on parent promotion type
+        // Logic to enable/disable fields and auto-fill values from parent promotion
         if (khuyenMaiCha != null && khuyenMaiCha.getLoaiKhuyenMai() != null) {
             String tenLoaiKM = khuyenMaiCha.getLoaiKhuyenMai().getTenLoaiKM();
             switch (tenLoaiKM) {
                 case "Giảm giá theo tỷ lệ":
                     truongTyLeGiam.setDisable(false);
                     truongSoTienGiam.setDisable(true);
-                    monTangComboBox.setDisable(true);
+                    hopMonTang.setDisable(true);
                     truongSoLuongTang.setDisable(true);
+
+                    // Tự động điền trị số từ khuyến mãi cha
+                    if (!isEditMode && khuyenMaiCha.getTyLe() != null) {
+                        truongTyLeGiam.setText(khuyenMaiCha.getTyLe().stripTrailingZeros().toPlainString());
+                    }
                     break;
+
                 case "Giảm giá theo số tiền":
                     truongTyLeGiam.setDisable(true);
                     truongSoTienGiam.setDisable(false);
-                    monTangComboBox.setDisable(true);
+                    hopMonTang.setDisable(true);
                     truongSoLuongTang.setDisable(true);
+
+                    // Tự động điền trị số từ khuyến mãi cha
+                    if (!isEditMode && khuyenMaiCha.getSoTien() != null) {
+                        truongSoTienGiam.setText(khuyenMaiCha.getSoTien().stripTrailingZeros().toPlainString());
+                    }
                     break;
+
                 case "Tặng món":
                     truongTyLeGiam.setDisable(true);
                     truongSoTienGiam.setDisable(true);
-                    monTangComboBox.setDisable(false);
+                    hopMonTang.setDisable(false);
                     truongSoLuongTang.setDisable(false);
                     break;
+
                 default:
-                    // Enable all for safety, though this case shouldn't happen with valid data
                     truongTyLeGiam.setDisable(false);
                     truongSoTienGiam.setDisable(false);
-                    monTangComboBox.setDisable(false);
+                    hopMonTang.setDisable(false);
                     truongSoLuongTang.setDisable(false);
                     break;
             }
         }
 
         return luoiForm;
+    }
+
+    private void moDialogChonMonApDung() {
+        ChonMonAnDialog dialog = new ChonMonAnDialog(tatCaMonAn, cacMonApDungDaChon, true);
+        dialog.initOwner(this);
+        dialog.showAndWait();
+
+        Set<MonAn> ketQua = dialog.getCacMonDaChon();
+        if (ketQua != null) {
+            cacMonApDungDaChon.clear();
+            cacMonApDungDaChon.addAll(ketQua);
+            capNhatHienThiMonApDung();
+        }
+    }
+
+    private void moDialogChonMonTang() {
+        Set<MonAn> cacMonHienTai = new HashSet<>();
+        if (monTangDaChon != null) {
+            cacMonHienTai.add(monTangDaChon);
+        }
+
+        ChonMonAnDialog dialog = new ChonMonAnDialog(tatCaMonAn, cacMonHienTai, false);
+        dialog.initOwner(this);
+        dialog.showAndWait();
+
+        Set<MonAn> ketQua = dialog.getCacMonDaChon();
+        if (ketQua != null) {
+            if (ketQua.isEmpty()) {
+                monTangDaChon = null;
+            } else {
+                monTangDaChon = ketQua.iterator().next();
+            }
+            capNhatHienThiMonTang();
+        }
+    }
+
+    private void capNhatHienThiMonApDung() {
+        if (cacMonApDungDaChon.isEmpty()) {
+            truongMonApDung.setText("");
+        } else {
+            String danhSachTen = cacMonApDungDaChon.stream()
+                    .map(MonAn::getTenMon)
+                    .sorted()
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("");
+            truongMonApDung.setText(danhSachTen);
+        }
+    }
+
+    private void capNhatHienThiMonTang() {
+        if (monTangDaChon == null) {
+            truongMonTang.setText("");
+        } else {
+            truongMonTang.setText(monTangDaChon.getTenMon());
+        }
     }
 
     private HBox createFooter() {
@@ -187,8 +276,16 @@ public class ChiTietKhuyenMaiDialog extends Stage {
     }
 
     private void dienDuLieuHienCo() {
-        monApDungComboBox.setValue(chiTietHienTai.getMonApDung());
-        monTangComboBox.setValue(chiTietHienTai.getMonTang());
+        if (chiTietHienTai.getMonApDung() != null) {
+            cacMonApDungDaChon.add(chiTietHienTai.getMonApDung());
+            capNhatHienThiMonApDung();
+        }
+
+        if (chiTietHienTai.getMonTang() != null) {
+            monTangDaChon = chiTietHienTai.getMonTang();
+            capNhatHienThiMonTang();
+        }
+
         if (chiTietHienTai.getTyLeGiam() != null) {
             truongTyLeGiam.setText(chiTietHienTai.getTyLeGiam().stripTrailingZeros().toPlainString());
         }
@@ -201,8 +298,8 @@ public class ChiTietKhuyenMaiDialog extends Stage {
     }
 
     private void luuThayDoi() {
-        if (monApDungComboBox.getValue() == null) {
-            showAlert(Alert.AlertType.WARNING, "Vui lòng chọn Món áp dụng!");
+        if (cacMonApDungDaChon.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Vui lòng chọn ít nhất một món áp dụng!");
             return;
         }
 
@@ -257,30 +354,68 @@ public class ChiTietKhuyenMaiDialog extends Stage {
             return;
         }
 
+        // Nếu đang edit, cập nhật chiTietHienTai
         if (isEditMode) {
-            ketQua = this.chiTietHienTai;
-        } else {
-            ketQua = new ChiTietKhuyenMai();
-            ketQua.setMaCTKM(truongMaCTKM.getText());
-            ketQua.setKhuyenMai(khuyenMaiCha);
+            MonAn monApDung = cacMonApDungDaChon.iterator().next();
+            chiTietHienTai.setMonApDung(monApDung);
+            chiTietHienTai.setMonTang(monTangDaChon);
+            chiTietHienTai.setTyLeGiam(tyLeGiam);
+            chiTietHienTai.setSoTienGiam(soTienGiam);
+            chiTietHienTai.setSoLuongTang(soLuongTang);
         }
 
-        ketQua.setMonApDung(monApDungComboBox.getValue());
-        ketQua.setMonTang(monTangComboBox.getValue());
-        ketQua.setTyLeGiam(tyLeGiam);
-        ketQua.setSoTienGiam(soTienGiam);
-        ketQua.setSoLuongTang(soLuongTang);
+        // Lưu data để ManagerDialog xử lý
+        cacMonApDungKetQua = new HashSet<>(cacMonApDungDaChon);
+        monTangKetQua = monTangDaChon;
+        tyLeGiamKetQua = tyLeGiam;
+        soTienGiamKetQua = soTienGiam;
+        soLuongTangKetQua = soLuongTang;
+        daLuu = true;
 
         this.close();
     }
 
-    private void showAlert(Alert.AlertType alertType, String message) {
-        Alert alert = new Alert(alertType, message);
-        alert.initOwner(this);
-        alert.showAndWait();
+    public ChiTietKhuyenMai layKetQua() {
+        if (isEditMode && chiTietHienTai != null) {
+            return chiTietHienTai;
+        }
+        return null;
     }
 
-    public ChiTietKhuyenMai layKetQua() {
-        return ketQua;
+    public boolean daLuu() {
+        return daLuu;
+    }
+
+    public Set<MonAn> layCacMonApDung() {
+        return cacMonApDungKetQua;
+    }
+
+    public MonAn layMonTang() {
+        return monTangKetQua;
+    }
+
+    public BigDecimal layTyLeGiam() {
+        return tyLeGiamKetQua;
+    }
+
+    public BigDecimal laySoTienGiam() {
+        return soTienGiamKetQua;
+    }
+
+    public Integer laySoLuongTang() {
+        return soLuongTangKetQua;
+    }
+
+    public List<ChiTietKhuyenMai> layDanhSachKetQua() {
+        return danhSachKetQua;
+    }
+
+    private void showAlert(Alert.AlertType type, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(type == Alert.AlertType.ERROR ? "Lỗi" : "Thông báo");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.initOwner(this);
+        alert.showAndWait();
     }
 }

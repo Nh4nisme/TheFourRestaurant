@@ -22,6 +22,7 @@ import java.net.URL;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class ChiTietKhuyenMaiManagerDialog extends Stage {
 
@@ -156,15 +157,41 @@ public class ChiTietKhuyenMaiManagerDialog extends Stage {
 
     private void themChiTiet() {
         List<MonAn> tatCaMonAn = boDieuKhien.layDanhSachMonAn();
-        String maCTKMMoi = boDieuKhien.taoMaChiTietKhuyenMaiMoi();
 
-        ChiTietKhuyenMaiDialog dialog = new ChiTietKhuyenMaiDialog(null, khuyenMaiCha, tatCaMonAn, maCTKMMoi);
+        ChiTietKhuyenMaiDialog dialog = new ChiTietKhuyenMaiDialog(null, khuyenMaiCha, tatCaMonAn, null, boDieuKhien);
         dialog.initOwner(this);
         dialog.showAndWait();
 
-        ChiTietKhuyenMai ketQua = dialog.layKetQua();
-        if (ketQua != null) {
-            if (boDieuKhien.themChiTietKhuyenMaiMoi(this, ketQua)) {
+        // Kiểm tra nếu user đã lưu
+        if (dialog.daLuu() && dialog.layCacMonApDung() != null && !dialog.layCacMonApDung().isEmpty()) {
+            Set<MonAn> cacMonApDung = dialog.layCacMonApDung();
+            MonAn monTang = dialog.layMonTang();
+            BigDecimal tyLeGiam = dialog.layTyLeGiam();
+            BigDecimal soTienGiam = dialog.laySoTienGiam();
+            Integer soLuongTang = dialog.laySoLuongTang();
+
+            // Tạo từng chi tiết khuyến mãi cho mỗi món, mỗi món 1 mã CTKM riêng
+            boolean thanhCong = true;
+            for (MonAn monApDung : cacMonApDung) {
+                // Tạo mã CTKM mới cho từng món
+                String maCTKMMoi = boDieuKhien.taoMaChiTietKhuyenMaiMoi();
+
+                ChiTietKhuyenMai chiTietMoi = new ChiTietKhuyenMai();
+                chiTietMoi.setMaCTKM(maCTKMMoi);
+                chiTietMoi.setKhuyenMai(khuyenMaiCha);
+                chiTietMoi.setMonApDung(monApDung);
+                chiTietMoi.setMonTang(monTang);
+                chiTietMoi.setTyLeGiam(tyLeGiam);
+                chiTietMoi.setSoTienGiam(soTienGiam);
+                chiTietMoi.setSoLuongTang(soLuongTang);
+
+                if (!boDieuKhien.themChiTietKhuyenMaiMoi(this, chiTietMoi)) {
+                    thanhCong = false;
+                    break;
+                }
+            }
+
+            if (thanhCong) {
                 lamMoiBang();
             }
         }
