@@ -10,6 +10,7 @@ import com.thefourrestaurant.view.*;
 import com.thefourrestaurant.view.ban.*;
 import com.thefourrestaurant.view.hoadon.GiaoDienHoaDon;
 import com.thefourrestaurant.view.khachhang.GiaoDienKhachHang;
+import com.thefourrestaurant.view.khachhang.GiaoDienTraCuuKhachHang;
 import com.thefourrestaurant.view.khuyenmai.GiaoDienKhuyenMai;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.GiaoDienMonAn;
@@ -227,7 +228,7 @@ public class NavBar extends HBox {
             case TC_PHIEU_DAT_BAN -> new GiaoDienPhieuDatBan();
             case TC_MON_AN -> new GiaoDienMonAn(null, "Tra cứu Món ăn");
             case TC_KHUYEN_MAI -> new GiaoDienKhuyenMai();
-            case TC_KHACH_HANG -> null;
+            case TC_KHACH_HANG -> new GiaoDienTraCuuKhachHang();
 
             case HT_TRANG_CHU -> {
                 Stage s = (Stage) mainContent.getScene().getWindow();
