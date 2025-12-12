@@ -7,6 +7,8 @@ public class ChiTietPDB {
     private int soLuong;
     private double donGia;
     private String ghiChu;
+    private double giaSauKhuyenMai;
+    private String tenKhuyenMai;
 
     public ChiTietPDB() {}
 
@@ -18,6 +20,7 @@ public class ChiTietPDB {
         this.soLuong = soLuong;
         this.donGia = donGia;
         this.ghiChu = ghiChu;
+        this.giaSauKhuyenMai = donGia;
     }
 
     public String getMaCT() { return maCT; }
@@ -33,8 +36,23 @@ public class ChiTietPDB {
     public void setSoLuong(int soLuong) { this.soLuong = soLuong; }
 
     public double getDonGia() { return donGia; }
-    public void setDonGia(double donGia) { this.donGia = donGia; }
+    public void setDonGia(double donGia) { 
+        this.donGia = donGia; 
+        if (this.giaSauKhuyenMai == 0) {
+            this.giaSauKhuyenMai = donGia;
+        }
+    }
 
     public String getGhiChu() { return ghiChu; }
     public void setGhiChu(String ghiChu) { this.ghiChu = ghiChu; }
+    
+    public double getGiaSauKhuyenMai() { 
+        return giaSauKhuyenMai == 0 ? donGia : giaSauKhuyenMai; 
+    }
+    public void setGiaSauKhuyenMai(double giaSauKhuyenMai) { 
+        this.giaSauKhuyenMai = giaSauKhuyenMai; 
+    }
+    
+    public String getTenKhuyenMai() { return tenKhuyenMai; }
+    public void setTenKhuyenMai(String tenKhuyenMai) { this.tenKhuyenMai = tenKhuyenMai; }
 }
