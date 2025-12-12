@@ -295,31 +295,18 @@ public abstract class GiaoDienDatBanBase extends VBox {
     }
     
     protected void showDatBanThanhCong(List<Ban> dsBan) {
+        showMessage("Đã đặt bàn thành công!", Alert.AlertType.INFORMATION);
+
         if(dsBan == null || dsBan.isEmpty()) return;
-
-        // 1. Hiển thị alert
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Đặt bàn");
-        alert.setHeaderText(null);
-        alert.setContentText("Đã đặt bàn thành công!");
-        if(this.getScene() != null && this.getScene().getWindow() != null){
-            alert.initOwner(this.getScene().getWindow());
-        }
-        alert.showAndWait();
-
-        // 2. Cập nhật trạng thái bàn
         try {
             if(quanLiBan != null){
-                // Cập nhật trạng thái qua DAO
-                banDAO .capNhatTrangThaiDanhSach(dsBan, "Đang sử dụng");
-                // Hiển thị lại bàn theo tầng
+                banDAO.capNhatTrangThaiDanhSach(dsBan, "Đang sử dụng");
                 quanLiBan.hienThiBanTheoTang(dsBan.get(0).getTang().getMaTang());
             }
         } catch(Exception e){
             e.printStackTrace();
         }
 
-        // 3. Remove giao diện và disable nút
         if(parentPane != null){
             parentPane.getChildren().remove(this);
         }
@@ -330,14 +317,7 @@ public abstract class GiaoDienDatBanBase extends VBox {
 
 //     Hiển thị thông báo lỗi.
     protected void showDatBanLoi(String message){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Đặt bàn");
-        alert.setHeaderText(null);
-        alert.setContentText(message != null ? message : "Lưu thất bại!");
-        if(this.getScene() != null && this.getScene().getWindow() != null){
-            alert.initOwner(this.getScene().getWindow());
-        }
-        alert.showAndWait();
+        showMessage(message, Alert.AlertType.ERROR);
     }
     
 	 protected boolean checkSoNguoiNotEmpty() {
@@ -425,5 +405,18 @@ public abstract class GiaoDienDatBanBase extends VBox {
 	
 	     return kh;
 	 }
+	 
+	 protected void showMessage(String message, Alert.AlertType type) {
+		    Alert alert = new Alert(type);
+		    alert.setTitle(type == Alert.AlertType.ERROR ? "Lỗi" : "Thông báo");
+		    alert.setHeaderText(null);
+		    alert.setContentText(message);
+
+		    if (this.getScene() != null && this.getScene().getWindow() != null) {
+		        alert.initOwner(this.getScene().getWindow());
+		    }
+
+		    alert.showAndWait();
+		}
 
 }
