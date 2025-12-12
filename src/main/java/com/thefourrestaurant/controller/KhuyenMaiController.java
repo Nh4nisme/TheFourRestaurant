@@ -121,7 +121,8 @@ public class KhuyenMaiController {
 
     public boolean themChiTietKhuyenMaiMoi(Stage owner, ChiTietKhuyenMai ct) {
         if (chiTietKhuyenMaiDAO.themChiTiet(ct)) {
-            showAlert(owner, Alert.AlertType.INFORMATION, "Thêm chi tiết khuyến mãi thành công!");
+            String tenMon = (ct.getMonApDung() != null) ? ct.getMonApDung().getTenMon() : "";
+            showAlert(owner, Alert.AlertType.INFORMATION, "Thêm món " + tenMon + " vào khuyến mãi thành công!");
             return true;
         } else {
             showAlert(owner, Alert.AlertType.ERROR, "Thêm chi tiết khuyến mãi thất bại.");
