@@ -110,7 +110,7 @@ public class GiaoDienDatBan extends BorderPane {
         header.setStyle("-fx-background-color: " + COLOR_BACKGROUND_SIDE + ";");
 
         Label lblDanhSachBan = taoLabel("Danh sách bàn", 20, true);
-        ClockText boDemGio = new ClockText();
+        ClockText boDemGio = ClockText.getInstance();
         boDemGio.setStyle("-fx-fill: #DDB248; -fx-font-size: 15px; -fx-font-weight: bold;");
 
         header.getChildren().addAll(lblDanhSachBan,boDemGio);

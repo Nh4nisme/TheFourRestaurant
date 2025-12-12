@@ -158,19 +158,35 @@ public class GiaoDienChiTietBan extends BorderPane {
     thongTinNho.setPadding(new Insets(8));
     thongTinNho.setAlignment(Pos.CENTER_LEFT);
 
-    Label n1 = new Label("Mã CTPDB:"), n2 = new Label("SDT khách hàng:"),
-          n3 = new Label("Tên khách hàng:"), n4 = new Label("Giờ vào:");
-    Label v1 = new Label(), v2 = new Label(), v3 = new Label(), v4 = new Label();
+        Label n1 = new Label("Mã CTPDB:"), 
+    	      n2 = new Label("SDT khách hàng:"),
+    	      n3 = new Label("Giờ vào:"),
+    	      n4 = new Label("Tên khách hàng:"), 
+    	      n5 = new Label("Còn lại:");
 
-    Label[] headers = {n1, n2, n3, n4};
+    	Label v1 = new Label(), 
+    	      v2 = new Label(), 
+    	      v3 = new Label(), 
+    	      v4 = new Label(),
+    	      v5 = new Label();
+
+    Label[] headers = {n1, n2, n3, n4, n5};
     for (Label lbl : headers) {
         lbl.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
         lbl.setMinWidth(120);
         lbl.setPrefWidth(120);
     }
 
-    VBox vboxTrai = new VBox(6, new HBox(6, n1, v1), new HBox(6, n3, v3));
-    VBox vboxPhai = new VBox(6, new HBox(6, n2, v2), new HBox(6, n4, v4));
+    VBox vboxTrai = new VBox(6, 
+    	    new HBox(6, n1, v1),
+    	    new HBox(6, n3, v3),
+    	    new HBox(6, n5, v5)  // NEW
+    	);
+
+    	VBox vboxPhai = new VBox(6, 
+    	    new HBox(6, n2, v2),
+    	    new HBox(6, n4, v4)
+    	);
     thongTinNho.getChildren().addAll(vboxTrai, vboxPhai);
 
     // Hóa đơn chi tiết món

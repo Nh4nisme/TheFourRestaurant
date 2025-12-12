@@ -45,7 +45,7 @@ public class SideBar extends VBox {
         BoDemGio.setAlignment(Pos.BOTTOM_CENTER);
         BoDemGio.setPadding(new Insets(10, 10, 10, 10));
         BoDemGio.setPrefHeight(500);
-        ClockText boDemGioText = new ClockText();
+        ClockText boDemGioText = ClockText.getInstance();
         boDemGioText.setFont(montserrat);
         boDemGioText.setStyle("-fx-fill: #DDB248; -fx-font-size: 15px; -fx-font-weight: bold;");
         BoDemGio.getChildren().add(boDemGioText);
