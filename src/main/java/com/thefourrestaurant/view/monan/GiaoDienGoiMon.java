@@ -1,19 +1,12 @@
 package com.thefourrestaurant.view.monan;
 
 import javafx.scene.control.ScrollPane;
-import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.thefourrestaurant.DAO.ChiTietKhuyenMaiDAO;
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
-import com.thefourrestaurant.DAO.KhuyenMaiDAO;
 import com.thefourrestaurant.DAO.MonAnDAO;
 import com.thefourrestaurant.model.Ban;
-import com.thefourrestaurant.model.ChiTietKhuyenMai;
 import com.thefourrestaurant.model.ChiTietPDB;
-import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.view.ban.GiaoDienDatBan;
@@ -48,32 +41,22 @@ public class GiaoDienGoiMon extends BorderPane {
     private ButtonSample btnTim, btnLamMoi;
     private StackPane mainContent;
     private MonAnDAO monAnDAO = new MonAnDAO();
-    private KhuyenMaiDAO khuyenMaiDAO = new KhuyenMaiDAO();
-    private ChiTietKhuyenMaiDAO chiTietKhuyenMaiDAO = new ChiTietKhuyenMaiDAO();
     private Ban ban;
-    
+
     private TableView<ChiTietPDB> bangPhieu;
     private Label lblTongTien;
     private ObservableList<ChiTietPDB> danhSachChiTiet = FXCollections.observableArrayList();
     private PhieuDatBan pdb;
-    
-    private List<KhuyenMai> cacKhuyenMaiHieuLuc;
-    private Map<String, List<ChiTietKhuyenMai>> mapChiTietKM = new HashMap<>();
 
-	public GiaoDienGoiMon(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
+
+    public GiaoDienGoiMon(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
         this.setStyle("-fx-background-color: white;");
         this.ban = ban;
         this.pdb = pdb;
         this.mainContent = mainContent;
-        
-        // Load khuyến mãi sự kiện hiệu lực
-        cacKhuyenMaiHieuLuc = khuyenMaiDAO.layDanhSachKhuyenMaiSuKienHieuLuc();
-        for (KhuyenMai km : cacKhuyenMaiHieuLuc) {
-            mapChiTietKM.put(km.getMaKM(), chiTietKhuyenMaiDAO.layTheoMaKM(km.getMaKM()));
-        }
-        
+
         getStylesheets().add(getClass().getResource("/com/thefourrestaurant/css/Application.css").toExternalForm());
-        
+
         HBox thanhTren = taoThanhTren();
 
         VBox topContainer = new VBox(thanhTren);
@@ -158,9 +141,9 @@ public class GiaoDienGoiMon extends BorderPane {
         int row = 0;
         for (MonAn mon : danhSachMon) {
             VBox monBox = new MonAnBox(
-                mon.getTenMon(),
-                String.format("%,.0f", mon.getDonGia().doubleValue()),
-                mon.getHinhAnh() != null ? mon.getHinhAnh() : "🍽️"
+                    mon.getTenMon(),
+                    String.format("%,.0f", mon.getDonGia().doubleValue()),
+                    mon.getHinhAnh() != null ? mon.getHinhAnh() : "🍽️"
             );
 
             monBox.setOnMouseClicked(e -> themMonVaoPhieu(mon));
@@ -194,115 +177,97 @@ public class GiaoDienGoiMon extends BorderPane {
     }
 
     @SuppressWarnings({ "unchecked", "deprecation" })
-	private VBox taoKhungPhieuGoiMon() {
-	    VBox panel = new VBox(15);
-	    panel.setPadding(new Insets(10));
-	    panel.setStyle("-fx-background-color: #E8E8E8; -fx-background-radius: 8;");
-	    panel.setPrefWidth(700);
-	    VBox.setVgrow(panel, Priority.ALWAYS);
-	
-	    Label lblTieuDe = new Label("PHIẾU GỌI MÓN");
-	    lblTieuDe.setFont(Font.font("System", FontWeight.BOLD, 28));
-	    lblTieuDe.setTextFill(Color.web("#D4A84A"));
-	    lblTieuDe.setAlignment(Pos.CENTER);
-	    lblTieuDe.setMaxWidth(Double.MAX_VALUE);
-	
-	    Label lblBan = new Label("Bàn: " + ban.getTenBan());
-	    lblBan.setFont(Font.font("System", FontWeight.BOLD, 18));
-	    lblBan.setTextFill(Color.web("#D4A84A"));
-	
-	    bangPhieu = new TableView<>();
-	    bangPhieu.setPrefHeight(450);
-	    bangPhieu.setStyle("-fx-background-color: white;");
-	    bangPhieu.setItems(danhSachChiTiet);
-	    bangPhieu.setEditable(true);
-	
-	    TableColumn<ChiTietPDB, String> tenMonCol = new TableColumn<>("Tên món");
-	    TableColumn<ChiTietPDB, String> donGiaCol = new TableColumn<>("Đơn giá");
-	    TableColumn<ChiTietPDB, String> giaSauGiamCol = new TableColumn<>("Giá sau giảm");
-	    TableColumn<ChiTietPDB, String> khuyenMaiCol = new TableColumn<>("Khuyến mãi");
-	    TableColumn<ChiTietPDB, String> soLuongCol = new TableColumn<>("SL");
-	    TableColumn<ChiTietPDB, String> thanhTienCol = new TableColumn<>("Thành tiền");
-	    TableColumn<ChiTietPDB, String> ghiChuCol = new TableColumn<>("Ghi chú");
-	    TableColumn<ChiTietPDB, Void> xoaCol = new TableColumn<>("Xóa");
-	    
-	    xoaCol.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
-	        private final Button btnXoa = new Button("❌");
+    private VBox taoKhungPhieuGoiMon() {
+        VBox panel = new VBox(15);
+        panel.setPadding(new Insets(10));
+        panel.setStyle("-fx-background-color: #E8E8E8; -fx-background-radius: 8;");
+        panel.setPrefWidth(650);
+        VBox.setVgrow(panel, Priority.ALWAYS);
 
-	        {
-	            btnXoa.setStyle(
-	                "-fx-background-color: transparent; " +
-	                "-fx-cursor: hand; -fx-font-size: 16px;"
-	            );
+        Label lblTieuDe = new Label("PHIẾU GỌI MÓN");
+        lblTieuDe.setFont(Font.font("System", FontWeight.BOLD, 28));
+        lblTieuDe.setTextFill(Color.web("#D4A84A"));
+        lblTieuDe.setAlignment(Pos.CENTER);
+        lblTieuDe.setMaxWidth(Double.MAX_VALUE);
 
-	            btnXoa.setOnAction(e -> {
-	                ChiTietPDB chiTiet = getTableView().getItems().get(getIndex());
-	                danhSachChiTiet.remove(chiTiet);
-	                capNhatTongTien();
-	            });
-	        }
+        Label lblBan = new Label("Bàn: " + ban.getTenBan());
+        lblBan.setFont(Font.font("System", FontWeight.BOLD, 18));
+        lblBan.setTextFill(Color.web("#D4A84A"));
 
-	        @Override
-	        protected void updateItem(Void item, boolean empty) {
-	            super.updateItem(item, empty);
-	            if (empty) {
-	                setGraphic(null);
-	            } else {
-	                setGraphic(btnXoa);
-	                setAlignment(Pos.CENTER);
-	            }
-	        }
-	    });
-	    
-	    ghiChuCol.setCellValueFactory(c ->
-        	new SimpleStringProperty(c.getValue().getGhiChu() != null ? c.getValue().getGhiChu() : "")
-	    );
-	    ghiChuCol.setCellFactory(TextFieldTableCell.forTableColumn());
-	    ghiChuCol.setOnEditCommit(e -> e.getRowValue().setGhiChu(e.getNewValue()));
-	
-	    tenMonCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
-	    donGiaCol.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f", c.getValue().getDonGia())));
-	    
-	    giaSauGiamCol.setCellValueFactory(c -> {
-	        double giaSauGiam = c.getValue().getGiaSauKhuyenMai();
-	        if (giaSauGiam < c.getValue().getDonGia()) {
-	            return new SimpleStringProperty(String.format("%,.0f", giaSauGiam));
-	        }
-	        return new SimpleStringProperty("-");
-	    });
-	    
-	    khuyenMaiCol.setCellValueFactory(c -> {
-	        String tenKM = c.getValue().getTenKhuyenMai();
-	        return new SimpleStringProperty(tenKM != null ? tenKM : "-");
-	    });
-	    
-	    soLuongCol.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getSoLuong())));
-	    thanhTienCol.setCellValueFactory(c -> {
-	        double giaSauGiam = c.getValue().getGiaSauKhuyenMai();
-	        double thanhTien = giaSauGiam * c.getValue().getSoLuong();
-	        return new SimpleStringProperty(String.format("%,.0f", thanhTien));
-	    });
-	
-	    bangPhieu.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-	    bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, giaSauGiamCol, khuyenMaiCol, soLuongCol, thanhTienCol, ghiChuCol, xoaCol);
-	
-	    lblTongTien = new Label("Tổng tiền: 0 VND");
-	    lblTongTien.setFont(Font.font("System", FontWeight.BOLD, 16));
-	    lblTongTien.setTextFill(Color.web("#2C5F5F"));
-	
-	    HBox tongTienBox = new HBox(lblTongTien);
-	    tongTienBox.setAlignment(Pos.CENTER_RIGHT);
-	
-	    ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", 40, 20, 3);
-	    VBox boxDuoi = new VBox(10, tongTienBox, btnGuiBep);
-	    boxDuoi.setAlignment(Pos.CENTER_RIGHT);
-	
-	    panel.getChildren().addAll(lblTieuDe, lblBan, bangPhieu, boxDuoi);
-	    btnGuiBep.setOnAction(e -> xuLyGuiBep());
-	    return panel;
-	}
+        bangPhieu = new TableView<>();
+        bangPhieu.setPrefHeight(450);
+        bangPhieu.setStyle("-fx-background-color: white;");
+        bangPhieu.setItems(danhSachChiTiet);
+        bangPhieu.setEditable(true);
+
+        TableColumn<ChiTietPDB, String> tenMonCol = new TableColumn<>("Tên món");
+        TableColumn<ChiTietPDB, String> donGiaCol = new TableColumn<>("Đơn giá");
+        TableColumn<ChiTietPDB, String> soLuongCol = new TableColumn<>("Số lượng");
+        TableColumn<ChiTietPDB, String> thanhTienCol = new TableColumn<>("Thành tiền");
+        TableColumn<ChiTietPDB, String> ghiChuCol = new TableColumn<>("Ghi chú");
+        TableColumn<ChiTietPDB, Void> xoaCol = new TableColumn<>("Xóa");
+        xoaCol.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
+            private final Button btnXoa = new Button("❌");
+
+            {
+                btnXoa.setStyle(
+                        "-fx-background-color: transparent; " +
+                                "-fx-cursor: hand; -fx-font-size: 16px;"
+                );
+
+                btnXoa.setOnAction(e -> {
+                    ChiTietPDB chiTiet = getTableView().getItems().get(getIndex());
+                    danhSachChiTiet.remove(chiTiet);
+                    capNhatTongTien();
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(btnXoa);
+                    setAlignment(Pos.CENTER);
+                }
+            }
+        });
+
+        ghiChuCol.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getGhiChu() != null ? c.getValue().getGhiChu() : "")
+        );
+        ghiChuCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        ghiChuCol.setOnEditCommit(e -> e.getRowValue().setGhiChu(e.getNewValue()));
+
+        tenMonCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
+        donGiaCol.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f", c.getValue().getDonGia())));
+        soLuongCol.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getSoLuong())));
+        thanhTienCol.setCellValueFactory(c -> new SimpleStringProperty(
+                String.format("%,.0f", c.getValue().getSoLuong() * c.getValue().getDonGia())
+        ));
+
+        bangPhieu.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, soLuongCol, thanhTienCol, ghiChuCol,xoaCol);
+
+        lblTongTien = new Label("Tổng tiền: 0 VND");
+        lblTongTien.setFont(Font.font("System", FontWeight.BOLD, 16));
+        lblTongTien.setTextFill(Color.web("#2C5F5F"));
+
+        HBox tongTienBox = new HBox(lblTongTien);
+        tongTienBox.setAlignment(Pos.CENTER_RIGHT);
+
+        ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", 40, 20, 3);
+        VBox boxDuoi = new VBox(10, tongTienBox, btnGuiBep);
+        boxDuoi.setAlignment(Pos.CENTER_RIGHT);
+
+        panel.getChildren().addAll(lblTieuDe, lblBan, bangPhieu, boxDuoi);
+        btnGuiBep.setOnAction(e -> xuLyGuiBep());
+        return panel;
+    }
 
     private void themMonVaoPhieu(MonAn mon) {
+        // Kiểm tra xem món đã có trong danh sách chưa
         for (ChiTietPDB ct : danhSachChiTiet) {
             if (ct.getMonAn().getMaMonAn().equals(mon.getMaMonAn())) {
                 ct.setSoLuong(ct.getSoLuong() + 1);
@@ -312,103 +277,64 @@ public class GiaoDienGoiMon extends BorderPane {
             }
         }
 
+        // Nếu món chưa có thì thêm mới
         ChiTietPDB chiTietMoi = new ChiTietPDB();
         chiTietMoi.setMonAn(mon);
         chiTietMoi.setDonGia(mon.getDonGia().doubleValue());
         chiTietMoi.setSoLuong(1);
-        
-        // Tính khuyến mãi cho món mới
-        apDungKhuyenMaiChoMon(chiTietMoi);
 
         danhSachChiTiet.add(chiTietMoi);
         capNhatTongTien();
     }
-    
-    private void apDungKhuyenMaiChoMon(ChiTietPDB chiTiet) {
-        double giaGocMon = chiTiet.getDonGia();
-        double tienGiamToiDa = 0;
-        String tenKMToiDa = null;
-        
-        for (KhuyenMai km : cacKhuyenMaiHieuLuc) {
-            List<ChiTietKhuyenMai> dsCTKM = mapChiTietKM.get(km.getMaKM());
-            if (dsCTKM == null) continue;
-            
-            for (ChiTietKhuyenMai ctkm : dsCTKM) {
-                if (ctkm.getMonApDung().getMaMonAn().equals(chiTiet.getMonAn().getMaMonAn())) {
-                    double tienGiam = 0;
-                    
-                    if (ctkm.getSoTienGiam() != null && ctkm.getSoTienGiam().doubleValue() > 0) {
-                        tienGiam = ctkm.getSoTienGiam().doubleValue();
-                    } else if (ctkm.getTyLeGiam() != null && ctkm.getTyLeGiam().doubleValue() > 0) {
-                        tienGiam = giaGocMon * ctkm.getTyLeGiam().doubleValue() / 100.0;
-                    }
-                    
-                    if (tienGiam > tienGiamToiDa) {
-                        tienGiamToiDa = tienGiam;
-                        tenKMToiDa = km.getTenKM();
-                    }
-                }
-            }
-        }
-        
-        if (tienGiamToiDa > 0) {
-            chiTiet.setGiaSauKhuyenMai(Math.max(0, giaGocMon - tienGiamToiDa));
-            chiTiet.setTenKhuyenMai(tenKMToiDa);
-        } else {
-            chiTiet.setGiaSauKhuyenMai(giaGocMon);
-            chiTiet.setTenKhuyenMai(null);
-        }
-    }
-    
+
     private void capNhatTongTien() {
         double tong = 0;
         for (ChiTietPDB ct : danhSachChiTiet) {
-            double giaSauGiam = ct.getGiaSauKhuyenMai();
-            tong += giaSauGiam * ct.getSoLuong();
+            tong += ct.getDonGia() * ct.getSoLuong();
         }
         lblTongTien.setText(String.format("Tổng tiền: %,.0f VND", tong));
     }
-    
+
     private void xuLyGuiBep() {
-	    try {
-	        if (danhSachChiTiet.isEmpty()) {
-	            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-	                javafx.scene.control.Alert.AlertType.WARNING, 
-	                "Chưa có món nào trong phiếu!"
-	            );
-	            alert.showAndWait();
-	            return;
-	        }
+        try {
+            if (danhSachChiTiet.isEmpty()) {
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                        javafx.scene.control.Alert.AlertType.WARNING,
+                        "Chưa có món nào trong phiếu!"
+                );
+                alert.showAndWait();
+                return;
+            }
 
-	        ChiTietPDBDAO chiTietDAO = new ChiTietPDBDAO();
+            ChiTietPDBDAO chiTietDAO = new ChiTietPDBDAO();
 
-	        for (ChiTietPDB ct : danhSachChiTiet) {
-	            ct.setPhieuDatBan(pdb);
-	            chiTietDAO.them(ct);
-	        }
+            for (ChiTietPDB ct : danhSachChiTiet) {
+                ct.setPhieuDatBan(pdb);
+                chiTietDAO.them(ct);
+            }
 
-	        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-	            javafx.scene.control.Alert.AlertType.INFORMATION,
-	            "Đã gửi bếp thành công!"
-	        );
-	        alert.showAndWait();
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.INFORMATION,
+                    "Đã gửi bếp thành công!"
+            );
+            alert.showAndWait();
 
-	        danhSachChiTiet.clear();
-	        bangPhieu.refresh();
-	        capNhatTongTien();
-	        
-	        mainContent.getChildren().clear();
-	        mainContent.getChildren().add(new GiaoDienDatBan(mainContent));
+            danhSachChiTiet.clear();
+            bangPhieu.refresh();
+            capNhatTongTien();
 
-	    } catch (Exception ex) {
-	        ex.printStackTrace();
-	        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-	            javafx.scene.control.Alert.AlertType.ERROR,
-	            "Lỗi khi gửi bếp: " + ex.getMessage()
-	        );
-	        alert.showAndWait();
-	    }
-	}
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(new GiaoDienDatBan(mainContent));
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.ERROR,
+                    "Lỗi khi gửi bếp: " + ex.getMessage()
+            );
+            alert.showAndWait();
+        }
+    }
 
 
 }
