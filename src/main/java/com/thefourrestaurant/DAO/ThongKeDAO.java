@@ -453,4 +453,73 @@ public class ThongKeDAO {
         }
         return 0;
     }
+
+    public Map<String, Double> getThongKeKhachHang(LocalDate startDate, LocalDate endDate, String tenKhachHang) {
+        Map<String, Double> data = new LinkedHashMap<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT TOP 10 COALESCE(KH.hoTen, N'Khách vãng lai') as TenKH, " +
+            "SUM(CT.soLuong * CT.donGia) as DoanhThu " +
+            "FROM HoaDon HD " +
+            "JOIN ChiTietHD CT ON HD.maHD = CT.maHD " +
+            "LEFT JOIN KhachHang KH ON HD.maKH = KH.maKH " +
+            "WHERE HD.ngayLap >= ? AND HD.ngayLap < ? AND HD.isDeleted = 0 "
+        );
+
+        if (tenKhachHang != null && !tenKhachHang.equals("Tất cả Khách Hàng")) {
+            sql.append("AND KH.hoTen = ? ");
+        }
+
+        sql.append("GROUP BY HD.maKH, KH.hoTen ORDER BY DoanhThu DESC");
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            ps.setDate(1, java.sql.Date.valueOf(startDate));
+            ps.setDate(2, java.sql.Date.valueOf(endDate.plusDays(1)));
+            if (tenKhachHang != null && !tenKhachHang.equals("Tất cả Khách Hàng")) {
+                ps.setString(3, tenKhachHang);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    data.put(rs.getString("TenKH"), rs.getDouble("DoanhThu"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    public Map<String, Double> getThongKeNhanVien(LocalDate startDate, LocalDate endDate, String tenNhanVien) {
+        Map<String, Double> data = new LinkedHashMap<>();
+        StringBuilder sql = new StringBuilder(
+            "SELECT NV.hoTen, SUM(CT.soLuong * CT.donGia) as DoanhThu " +
+            "FROM HoaDon HD " +
+            "JOIN ChiTietHD CT ON HD.maHD = CT.maHD " +
+            "JOIN NhanVien NV ON HD.maNV = NV.maNV " +
+            "WHERE HD.ngayLap >= ? AND HD.ngayLap < ? AND HD.isDeleted = 0 "
+        );
+
+        if (tenNhanVien != null && !tenNhanVien.equals("Tất cả Nhân Viên")) {
+            sql.append("AND NV.hoTen = ? ");
+        }
+
+        sql.append("GROUP BY HD.maNV, NV.hoTen ORDER BY DoanhThu DESC");
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            ps.setDate(1, java.sql.Date.valueOf(startDate));
+            ps.setDate(2, java.sql.Date.valueOf(endDate.plusDays(1)));
+            if (tenNhanVien != null && !tenNhanVien.equals("Tất cả Nhân Viên")) {
+                ps.setString(3, tenNhanVien);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    data.put(rs.getString("hoTen"), rs.getDouble("DoanhThu"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
 }

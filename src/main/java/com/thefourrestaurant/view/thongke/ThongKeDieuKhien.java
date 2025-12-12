@@ -199,7 +199,7 @@ public class ThongKeDieuKhien {
         if (!bieuDoXY.isLegendVisible()) {
             bieuDoXY.setLegendVisible(true);
         }
-        
+
         bieuDoXY.setAnimated(true);
     }
 
@@ -243,7 +243,7 @@ public class ThongKeDieuKhien {
         bieuDoCot.setBarGap(3);
         XYChart.Series<String, Number> chuoi = new XYChart.Series<>();
         chuoi.setName(tenChuoiDuLieu);
-        
+
         List<String> danhMucSapXep = new ArrayList<>(duLieu.keySet());
         Collections.sort(danhMucSapXep);
         trucX.setAutoRanging(false);
@@ -304,7 +304,7 @@ public class ThongKeDieuKhien {
         }
         return khoangNgay;
     }
-    
+
     private String taoTieuDeBieuDo(String loaiThongKe, String tuyChon, LocalDate ngayBatDau, LocalDate ngayKetThuc) {
         String thoiGian;
         if (ngayBatDau.equals(ngayKetThuc)) {

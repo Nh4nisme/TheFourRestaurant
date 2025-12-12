@@ -34,7 +34,7 @@ public class ThongKeGiaoDienChinh extends BorderPane {
         Label nhanTieuDe = new Label("Báo Cáo & Thống Kê");
         nhanTieuDe.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #D4A017;");
 
-        ButtonSample nutXuatCSV = new ButtonSample("Xuat CSV", 50, 25, 14);
+        ButtonSample nutXuatCSV = new ButtonSample("Xuất CSV", 50, 25, 14);
         nutXuatCSV.getStyleClass().add("button_sampleGamboge");
         nutXuatCSV.setOnAction(e -> xuatRaCSV());
 

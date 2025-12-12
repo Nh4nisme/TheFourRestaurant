@@ -83,11 +83,11 @@ public class ThongKeDashboard extends VBox {
 
         cardsContainer.getChildren().clear();
         cardsContainer.getChildren().addAll(
-            createCard("Tong Doanh Thu", currencyFormat.format(tongDoanhThu), "#27AE60"),
-            createCard("So Hoa Don", String.valueOf(soHoaDon), "#2980B9"),
-            createCard("Khach Hang Moi", String.valueOf(soKhachHangMoi), "#8E44AD"),
-            createCard("Mon An Ban Ra", String.valueOf(soMonAnBanRa), "#E67E22"),
-            createCard("TB/Hoa Don", currencyFormat.format(trungBinhHD), "#16A085")
+                createCard("Tong Doanh Thu", currencyFormat.format(tongDoanhThu), "#27AE60"),
+                createCard("So Hoa Don", String.valueOf(soHoaDon), "#2980B9"),
+                createCard("Khach Hang Moi", String.valueOf(soKhachHangMoi), "#8E44AD"),
+                createCard("Mon An Ban Ra", String.valueOf(soMonAnBanRa), "#E67E22"),
+                createCard("TB/Hoa Don", currencyFormat.format(trungBinhHD), "#16A085")
         );
 
         chartsContainer.getChildren().clear();
@@ -139,8 +139,8 @@ public class ThongKeDashboard extends VBox {
         card.setMinWidth(180);
         card.setMaxWidth(220);
         card.setStyle("-fx-background-color: white; -fx-background-radius: 10; " +
-                      "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4); " +
-                      "-fx-border-color: " + color + "; -fx-border-width: 0 0 0 5; -fx-border-radius: 10;");
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4); " +
+                "-fx-border-color: " + color + "; -fx-border-width: 0 0 0 5; -fx-border-radius: 10;");
 
         Label lblTitle = new Label(title);
         lblTitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #7F8C8D;");
