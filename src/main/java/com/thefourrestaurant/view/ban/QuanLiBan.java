@@ -182,33 +182,46 @@ public class QuanLiBan extends VBox {
 	    StackPane khungBan = new StackPane(imgBan, lblTenBan);
 	    khungBan.setLayoutX(ban.getToaDoX());
 	    khungBan.setLayoutY(ban.getToaDoY());
+	    
+	    final PhieuDatBan pdbDangPhucVu =
+	            "DAT_BAN".equals(context)
+	                    ? mapDangPhucVu.get(ban.getMaBan())
+	                    : null;
 	
-	    // ✅ Lấy phiếu đang phục vụ từ map (không truy vấn SQL)
-	    PhieuDatBan pdbDangPhucVu = mapDangPhucVu.get(ban.getMaBan());
-	    if (pdbDangPhucVu != null) {
-	    	showCountdown(ban, pdbDangPhucVu, khungBan);
-	    }
-	
-	    // ✅ Border theo trạng thái
-	    String borderStyle = switch (ban.getTrangThai().trim()) {
-	        case "Bảo trì" -> "-fx-border-color: green; -fx-border-width: 3; -fx-border-radius: 12;";
-	        case "Đang phục vụ" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
-	        case "Đặt trước" -> {
-	            String style = "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
-	
-	            // ✅ Lấy phiếu đặt trước từ map (không truy vấn SQL)
-	            PhieuDatBan pdbDatTruoc = mapDatTruoc.get(ban.getMaBan());
-	            if (pdbDatTruoc != null && pdbDatTruoc.getNgayDat() != null) {
-	                long hours = java.time.Duration.between(LocalDateTime.now(), pdbDatTruoc.getNgayDat()).toHours();
-	                if (hours >= 0 && hours < 2) {
-	                    style = "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
-	                }
-	            }
-	
-	            yield style;
-	        }
-	        default -> "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
-	    };
+	    String borderStyle;
+
+	 if ("QUAN_LY_BAN".equals(context)) {
+	     borderStyle = "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
+	 } 
+	 else {
+	     borderStyle = switch (ban.getTrangThai().trim()) {
+	         case "Bảo trì" ->
+	             "-fx-border-color: green; -fx-border-width: 3; -fx-border-radius: 12;";
+
+	         case "Đang phục vụ" ->
+	             "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
+
+	         case "Đặt trước" -> {
+	             String style = "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
+
+	             PhieuDatBan pdbDatTruoc = mapDatTruoc.get(ban.getMaBan());
+	             if (pdbDatTruoc != null && pdbDatTruoc.getNgayDat() != null) {
+	                 long hours = java.time.Duration
+	                         .between(LocalDateTime.now(), pdbDatTruoc.getNgayDat())
+	                         .toHours();
+
+	                 if (hours >= 0 && hours < 2) {
+	                     style = "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
+	                 }
+	             }
+	             yield style;
+	         }
+
+	         default ->
+	             "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
+	     };
+	 }
+
 	
 	    khungBan.setStyle(borderStyle);
 	
