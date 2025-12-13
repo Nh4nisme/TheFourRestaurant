@@ -274,11 +274,15 @@ public class PhieuDatBanDAO {
             
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                // Gọi thêm để lưu bàn vào bảng liên kết
-                if (pdb.getBan() != null) {
-                    PhieuDatBan_BanDAO pdbbDAO = new PhieuDatBan_BanDAO();
-                    pdbbDAO.themBanVaoPhieu(maMoi, danhSachBan);
-                }
+            	if (danhSachBan != null && !danhSachBan.isEmpty()) {
+            		
+            		PhieuDatBan_BanDAO pdbbDAO = new PhieuDatBan_BanDAO();
+
+            	    pdbbDAO.themBanVaoPhieu(maMoi, danhSachBan);
+
+            	    banDAO.capNhatTrangThaiDanhSach(danhSachBan, trangThaiThucTe);
+            	}
+
                 return true;
             }
 

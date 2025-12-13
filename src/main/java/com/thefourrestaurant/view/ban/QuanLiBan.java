@@ -14,6 +14,7 @@ import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
@@ -21,7 +22,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.util.Duration;
 import javafx.scene.paint.Color;
 
@@ -181,25 +185,14 @@ public class QuanLiBan extends VBox {
 	
 	    // ✅ Lấy phiếu đang phục vụ từ map (không truy vấn SQL)
 	    PhieuDatBan pdbDangPhucVu = mapDangPhucVu.get(ban.getMaBan());
-	
-	    if ("DAT_BAN".equals(context) && pdbDangPhucVu != null) {
-	        LocalDateTime gioKetThuc = pdbDangPhucVu.getNgayDat().plusMinutes(90);
-	        long phutConLai = java.time.Duration.between(LocalDateTime.now(), gioKetThuc).toMinutes();
-	
-	        if (phutConLai > 0 && phutConLai <= 15) {
-	            Label lblCountdown = new Label();
-	            lblCountdown.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: red;");
-	            StackPane.setAlignment(lblCountdown, Pos.TOP_CENTER);
-	            khungBan.getChildren().add(lblCountdown);
-	            lblCountdown.setVisible(true);
-	            startCountdown(lblCountdown, gioKetThuc);
-	        }
+	    if (pdbDangPhucVu != null) {
+	    	showCountdown(ban, pdbDangPhucVu, khungBan);
 	    }
 	
 	    // ✅ Border theo trạng thái
 	    String borderStyle = switch (ban.getTrangThai().trim()) {
 	        case "Bảo trì" -> "-fx-border-color: green; -fx-border-width: 3; -fx-border-radius: 12;";
-	        case "Đang sử dụng" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
+	        case "Đang phục vụ" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
 	        case "Đặt trước" -> {
 	            String style = "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
 	
@@ -277,6 +270,7 @@ public class QuanLiBan extends VBox {
 	        }
 	    });
 	
+	    khungBan.setUserData(ban.getMaBan());
 	    pane.getChildren().add(khungBan);
 	}
 
@@ -365,21 +359,84 @@ public class QuanLiBan extends VBox {
         }
     }
     
-    private void startCountdown(Label lblCountdown, LocalDateTime gioKetThuc) {
-        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
-            new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> {
-                long phutConLai = java.time.Duration.between(LocalDateTime.now(), gioKetThuc).toMinutes();
-                long giayConLai = java.time.Duration.between(LocalDateTime.now(), gioKetThuc).getSeconds() % 60;
-                if (phutConLai >= 0) {
-                    lblCountdown.setText(String.format("%02d:%02d", phutConLai, giayConLai));
+    public void showCountdown(Ban ban, PhieuDatBan pdb, StackPane khungBan) {
+        LocalDateTime start = pdb.getNgayDat();
+        LocalDateTime end = start.plusHours(2);
+        LocalDateTime now = LocalDateTime.now();
+
+        // Nếu hết giờ
+        if (now.isAfter(end)) {
+            banDAO.capNhatTrangThai(ban.getMaBan(), "Trống");
+            return;
+        }
+
+        // Tạo label countdown
+        Label lbl = new Label();
+        lbl.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-text-fill: red;" +
+            "-fx-background-color: rgba(0,0,0,0.6);" +
+            "-fx-padding: 2 8;" +
+            "-fx-background-radius: 6;"
+        );
+
+        StackPane.setAlignment(lbl, Pos.TOP_CENTER);
+        StackPane.setMargin(lbl, new Insets(-35, 0, 0, 0));
+        khungBan.getChildren().add(lbl);
+
+        startCountdownForDangPhucVu(ban, pdb, lbl);
+    }
+    
+    public void startCountdownForDangPhucVu(Ban ban, PhieuDatBan pdb, Label countdownLabel) {
+        LocalDateTime start = pdb.getNgayDat();             // thời điểm phục vụ
+        LocalDateTime end = start.plusHours(2);             // khách ngồi tối đa 2h
+
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.seconds(1), event -> {
+                LocalDateTime now = LocalDateTime.now();
+                java.time.Duration remaining = java.time.Duration.between(now, end);
+
+                long seconds = remaining.getSeconds();
+
+                if (seconds <= 0) {
+                    countdownLabel.setText("Hết giờ");
+                    countdownLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+                    ban.setTrangThai("Hết giờ");
+                    return;
+                }
+
+                long h = seconds / 3600;
+                long m = (seconds % 3600) / 60;
+                long s = seconds % 60;
+
+                countdownLabel.setText(String.format("%02d:%02d:%02d", h, m, s));
+
+                // 15 phút cuối đổi màu đỏ
+                if (seconds <= 900) {
+                    countdownLabel.setStyle("-fx-text-fill: red;");
                 } else {
-                    lblCountdown.setText("00:00");
+                    countdownLabel.setStyle("-fx-text-fill: black;");
                 }
             })
         );
-        timeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
     }
+
+    public StackPane timKhungBanTheoMa(String maBan) {
+        for (Node n : khuVucBan.getChildren()) {
+            if (n instanceof StackPane sp) {
+                if (sp.getUserData() != null && sp.getUserData().equals(maBan)) {
+                    return sp;
+                }
+            }
+        }
+        return null;
+    }
+    
+
+
 
 
 }

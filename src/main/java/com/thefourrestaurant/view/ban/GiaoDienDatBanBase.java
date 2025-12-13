@@ -5,6 +5,8 @@ import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import com.thefourrestaurant.DAO.*;
 import com.thefourrestaurant.model.*;
 import com.thefourrestaurant.view.khachhang.GiaoDienThemKhachHang;
+
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -272,25 +274,24 @@ public abstract class GiaoDienDatBanBase extends VBox {
         });
     }
     
-    protected void xuLySauKhiLuu(boolean ok, PhieuDatBan pdb, List<Ban> dsBan, boolean datNgay) {
-        if(ok) {
-            // 1. Lưu bàn vào bảng liên kết
-            PhieuDatBan_BanDAO pdbbDAO = new PhieuDatBan_BanDAO();
-            System.out.println("MA PDB trong xuLySauKhiLuu: " + pdb.getMaPDB());
-            if (dsBan != null && !dsBan.isEmpty() && datNgay) {
-                banDAO.capNhatTrangThaiDanhSach(dsBan, "Đang sử dụng");
-                quanLiBan.hienThiBanTheoTang(dsBan.get(0).getTang().getMaTang());
+    protected void xuLySauKhiLuu(boolean ok, PhieuDatBan pdb, List<Ban> dsBan, boolean isDatNgay) {
+        if (ok) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Đặt bàn thành công!");
+            alert.initOwner(getScene() != null ? getScene().getWindow() : null);
+
+            alert.showAndWait();    // DÙNG SHOWANDWAIT
+
+            if (isDatNgay) {
+                Ban banChinh = dsBan.isEmpty()?null:dsBan.get(0);
+                Platform.runLater(() -> quanLiBan.showCountdown(banChinh, pdb, quanLiBan.timKhungBanTheoMa(dsBan.get(0).getMaBan())));
             }
 
-            // 3. Thông báo thành công
-            showDatBanThanhCong(dsBan);
-
-            // 4. Vô hiệu nút và remove giao diện
-            btnDatBan.setDisable(true);
-            if(parentPane != null) parentPane.getChildren().remove(this);
+            parentPane.getChildren().remove(this);
 
         } else {
-            showDatBanLoi("Lưu thất bại!");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Lỗi khi lưu phiếu!");
+            alert.initOwner(getScene() != null ? getScene().getWindow() : null);
+            alert.showAndWait();
         }
     }
     
