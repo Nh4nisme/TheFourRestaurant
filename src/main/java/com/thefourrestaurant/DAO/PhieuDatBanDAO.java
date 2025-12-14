@@ -160,7 +160,10 @@ public class PhieuDatBanDAO {
                     pdb = new PhieuDatBan();
                     pdb.setMaPDB(rs.getString("maPDB"));
                     pdb.setNgayTao(rs.getTimestamp("ngayTao").toLocalDateTime());
-                    pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
+                    Timestamp tsNgayDat = rs.getTimestamp("ngayDat");
+                    if (tsNgayDat != null) {
+                        pdb.setNgayDat(tsNgayDat.toLocalDateTime());
+                    }
                     pdb.setSoNguoi(rs.getInt("soNguoi"));
                     pdb.setTrangThai(rs.getString("trangThai"));
                     pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
@@ -218,7 +221,10 @@ public class PhieuDatBanDAO {
                 if (maChiTiet != null && !mapChiTiet.containsKey(maChiTiet)) {
                     ChiTietPDB ct = new ChiTietPDB();
                     ct.setMaCT(maChiTiet);
-                    ct.setMonAn(new MonAn(rs.getString("tenMon")));
+                    MonAn mon = new MonAn();
+                    mon.setMaMonAn(rs.getString("maMonAn"));
+                    mon.setTenMon(rs.getString("tenMon"));
+                    ct.setMonAn(mon);
                     ct.setSoLuong(rs.getInt("soLuong"));
                     pdb.getChiTietPDB().add(ct);
                     mapChiTiet.put(maChiTiet, ct);
