@@ -43,22 +43,22 @@ public class LoaiMonAnBox extends BaseBox {
         topPane.setMaxWidth(Double.MAX_VALUE);
         topPane.setAlignment(Pos.CENTER);
 
-        // Set background ảnh nếu có
         try {
             if (imagePath != null && !imagePath.isEmpty()) {
-                URL imageUrl = LoaiMonAnBox.class.getResource(imagePath);
-                if (imageUrl != null) {
-                    Image image = new Image(imageUrl.toExternalForm());
-                    topPane.setBackground(new Background(
-                            new BackgroundImage(image,
-                                    BackgroundRepeat.NO_REPEAT,
-                                    BackgroundRepeat.NO_REPEAT,
-                                    BackgroundPosition.CENTER,
-                                    new BackgroundSize(
-                                            100, 100, true, true, false, true))
-                    ));
-                } else {
-                    setDefaultBackground(topPane);
+                try (java.io.InputStream stream = LoaiMonAnBox.class.getResourceAsStream(imagePath)) {
+                    if (stream != null) {
+                        Image image = new Image(stream);
+                        topPane.setBackground(new Background(
+                                new BackgroundImage(image,
+                                        BackgroundRepeat.NO_REPEAT,
+                                        BackgroundRepeat.NO_REPEAT,
+                                        BackgroundPosition.CENTER,
+                                        new BackgroundSize(
+                                                100, 100, true, true, false, true))
+                        ));
+                    } else {
+                        setDefaultBackground(topPane);
+                    }
                 }
             } else {
                 setDefaultBackground(topPane);

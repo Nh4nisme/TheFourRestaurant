@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
@@ -39,6 +40,7 @@ public class MonAnDialog extends Stage {
     private final ComboBox<LoaiMon> loaiMonComboBox = new ComboBox<>();
     private final CheckBox hopKiemHienThi = new CheckBox();
     private final Spinner<Integer> truongSoLuong = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 1000000, 0));
+    private final ImageView khungHinhAnh = new ImageView();
 
     private static final Set<String> ALLOWED_EXTENSIONS = new HashSet<>(
         Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp")
@@ -111,8 +113,31 @@ public class MonAnDialog extends Stage {
         loaiMonComboBox.getStyleClass().add("combo-box");
         hopKiemHienThi.getStyleClass().add("custom-checkbox");
 
-        luoiForm.add(new Label("Tên:"), 0, 0);
-        luoiForm.add(truongTen, 1, 0);
+        // Ảnh ở trên cùng
+        VBox hopAnh = new VBox(5);
+        hopAnh.setAlignment(Pos.CENTER);
+        hopAnh.setPrefSize(120, 120);
+        hopAnh.setMinSize(120, 120);
+        hopAnh.setMaxSize(120, 120);
+        hopAnh.setStyle("-fx-background-color: #F0F0F0; -fx-border-color: #CCCCCC; "
+                + "-fx-border-radius: 10; -fx-background-radius: 10; -fx-border-style: dashed;");
+        hopAnh.setCursor(javafx.scene.Cursor.HAND);
+
+        try (InputStream luongAnh = getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/ThayAnh.png")) {
+            if (luongAnh != null) {
+                khungHinhAnh.setImage(new javafx.scene.image.Image(luongAnh));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        khungHinhAnh.setFitWidth(100);
+        khungHinhAnh.setFitHeight(100);
+        hopAnh.getChildren().add(khungHinhAnh);
+        hopAnh.setOnMouseClicked(e -> chonAnh());
+        luoiForm.add(hopAnh, 0, 0, 2, 1);
+
+        luoiForm.add(new Label("Tên:"), 0, 1);
+        luoiForm.add(truongTen, 1, 1);
 
         TextField truongMa = new TextField(isEditMode ? monAnHienTai.getMaMonAn() : "Tạo tự động");
         truongMa.setEditable(false);
@@ -121,20 +146,13 @@ public class MonAnDialog extends Stage {
         truongMa.setStyle(kieuTruongNhap);
         truongMa.getStyleClass().add("text-field");
         truongMa.setTooltip(new Tooltip("Mã được tạo tự động và không thể chỉnh sửa"));
-        luoiForm.add(new Label("Mã Món Ăn:"), 0, 1);
-        luoiForm.add(truongMa, 1, 1);
+        luoiForm.add(new Label("Mã Món Ăn:"), 0, 2);
+        luoiForm.add(truongMa, 1, 2);
 
-        luoiForm.add(new Label("Giá:"), 0, 2);
-        luoiForm.add(truongGia, 1, 2);
+        luoiForm.add(new Label("Giá:"), 0, 3);
+        luoiForm.add(truongGia, 1, 3);
 
-        // Số lượng
-        truongSoLuong.setEditable(true);
-        truongSoLuong.setPrefWidth(120);
-        truongSoLuong.getStyleClass().add("text-field");
-        luoiForm.add(new Label("Số lượng:"), 0, 6);
-        luoiForm.add(truongSoLuong, 1, 6);
-
-        luoiForm.add(new Label("Loại món:"), 0, 3);
+        luoiForm.add(new Label("Loại món:"), 0, 4);
         loaiMonComboBox.setItems(FXCollections.observableArrayList(tatCaLoaiMon));
         loaiMonComboBox.setConverter(new StringConverter<>() {
             @Override
@@ -150,16 +168,18 @@ public class MonAnDialog extends Stage {
         if (loaiMonMacDinh != null) {
             loaiMonComboBox.setValue(loaiMonMacDinh);
         }
-        luoiForm.add(loaiMonComboBox, 1, 3);
-
-        Hyperlink lienKetDinhKemAnh = new Hyperlink("đính kèm một ảnh");
-        lienKetDinhKemAnh.setOnAction(e -> chonAnh());
-        luoiForm.add(new Label("Hình ảnh:"), 0, 4);
-        luoiForm.add(lienKetDinhKemAnh, 1, 4);
+        luoiForm.add(loaiMonComboBox, 1, 4);
 
         luoiForm.add(new Label("Hiển thị:"), 0, 5);
         hopKiemHienThi.setSelected(true);
         luoiForm.add(hopKiemHienThi, 1, 5);
+
+        // Số lượng (chỉ thêm một lần)
+        truongSoLuong.setEditable(true);
+        truongSoLuong.setPrefWidth(120);
+        truongSoLuong.getStyleClass().add("text-field");
+        luoiForm.add(new Label("Số lượng:"), 0, 6);
+        luoiForm.add(truongSoLuong, 1, 6);
 
         return luoiForm;
     }
@@ -190,6 +210,31 @@ public class MonAnDialog extends Stage {
             truongSoLuong.getValueFactory().setValue(monAnHienTai.getSoLuong());
         } catch (Exception e) {
             truongSoLuong.getValueFactory().setValue(0);
+        }
+        // Hiển thị ảnh hiện có nếu có
+        String imagePath = monAnHienTai.getHinhAnh();
+        if (imagePath != null && !imagePath.isEmpty()) {
+            try {
+                javafx.scene.image.Image anh = null;
+                if (imagePath.startsWith("/")) {
+                    try (java.io.InputStream stream = getClass().getResourceAsStream(imagePath)) {
+                        if (stream != null) {
+                            anh = new javafx.scene.image.Image(stream);
+                        } else {
+                            System.err.println("Không tìm thấy tài nguyên classpath: " + imagePath);
+                        }
+                    }
+                } else {
+                    anh = new javafx.scene.image.Image(imagePath);
+                }
+
+                if (anh != null && !anh.isError()) {
+                    khungHinhAnh.setImage(anh);
+                }
+            } catch (Exception e) {
+                System.err.println("Không thể tải ảnh: " + imagePath);
+                e.printStackTrace();
+            }
         }
     }
 
@@ -227,6 +272,12 @@ public class MonAnDialog extends Stage {
             }
             
             tepAnhDaChon = tep;
+            try {
+                javafx.scene.image.Image anh = new javafx.scene.image.Image(tep.toURI().toString());
+                khungHinhAnh.setImage(anh);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
             showAlert(Alert.AlertType.INFORMATION, "Đã chọn ảnh: " + tep.getName());
         }
     }
