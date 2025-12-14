@@ -60,7 +60,13 @@ public class ChiTietPDBDAO {
             ps.setDouble(5, chiTiet.getDonGia());
             ps.setString(6, chiTiet.getGhiChu());
 
-            return ps.executeUpdate() > 0;
+            int affected = ps.executeUpdate();
+            boolean success = affected > 0;
+            if (success) {
+                MonAnDAO monAnDAO = new MonAnDAO();
+                monAnDAO.giamSoLuong(chiTiet.getMonAn().getMaMonAn(), chiTiet.getSoLuong());
+            }
+            return success;
 
         } catch (Exception e) {
             e.printStackTrace();

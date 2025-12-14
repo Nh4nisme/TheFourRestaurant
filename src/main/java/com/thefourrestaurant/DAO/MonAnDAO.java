@@ -21,6 +21,11 @@ public class MonAnDAO {
         LoaiMon loai = new LoaiMon(rs.getString("maLoaiMon"), rs.getString("tenLoaiMon"), null);
         mon.setLoaiMon(loai);
         mon.setDeleted(rs.getBoolean("isDeleted")); // Đọc trường isDeleted
+        try {
+            mon.setSoLuong(rs.getInt("soLuong"));
+        } catch (SQLException e) {
+            mon.setSoLuong(0);
+        }
         return mon;
     }
 
@@ -78,7 +83,7 @@ public class MonAnDAO {
     }
 
     public boolean themMonAn(MonAn mon) {
-        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, soLuong, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, mon.getMaMonAn());
@@ -87,13 +92,14 @@ public class MonAnDAO {
             ps.setString(4, mon.getTrangThai());
             ps.setString(5, mon.getLoaiMon().getMaLoaiMon());
             ps.setString(6, mon.getHinhAnh());
-            ps.setBoolean(7, false); // Mặc định là chưa xóa
+            ps.setInt(7, mon.getSoLuong());
+            ps.setBoolean(8, false); // Mặc định là chưa xóa
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
     public boolean capNhatMonAn(MonAn mon) {
-        String sql = "UPDATE MonAn SET tenMon=?, donGia=?, trangThai=?, maLoaiMon=?, hinhAnh=? WHERE maMonAn=? AND isDeleted = 0"; // Chỉ cập nhật món ăn chưa xóa
+        String sql = "UPDATE MonAn SET tenMon=?, donGia=?, trangThai=?, maLoaiMon=?, hinhAnh=?, soLuong=? WHERE maMonAn=? AND isDeleted = 0"; // Chỉ cập nhật món ăn chưa xóa
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, mon.getTenMon());
@@ -101,7 +107,19 @@ public class MonAnDAO {
             ps.setString(3, mon.getTrangThai());
             ps.setString(4, mon.getLoaiMon().getMaLoaiMon());
             ps.setString(5, mon.getHinhAnh());
-            ps.setString(6, mon.getMaMonAn());
+            ps.setInt(6, mon.getSoLuong());
+            ps.setString(7, mon.getMaMonAn());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    public boolean giamSoLuong(String maMonAn, int soLuongGiam) {
+        String sql = "UPDATE MonAn SET soLuong = CASE WHEN soLuong - ? >= 0 THEN soLuong - ? ELSE 0 END WHERE maMonAn = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, soLuongGiam);
+            ps.setInt(2, soLuongGiam);
+            ps.setString(3, maMonAn);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }

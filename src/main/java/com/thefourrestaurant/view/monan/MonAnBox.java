@@ -101,6 +101,18 @@ public class MonAnBox extends BaseBox {
         this.setStyle("-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
     }
 
+    public MonAnBox(String ten, String gia, String imagePath, int soLuong) {
+        this(ten, gia, imagePath);
+        Label lblSoLuong = new Label("Số lượng: " + soLuong);
+        lblSoLuong.setStyle("-fx-text-fill: #666666; -fx-font-size: 11px;");
+        if (!this.getChildren().isEmpty()) {
+            Region bottom = (Region) this.getChildren().get(1);
+            if (bottom instanceof VBox) {
+                ((VBox) bottom).getChildren().add(lblSoLuong);
+            }
+        }
+    }
+
     private Image loadImage(String imagePath) {
         Image image = null;
         

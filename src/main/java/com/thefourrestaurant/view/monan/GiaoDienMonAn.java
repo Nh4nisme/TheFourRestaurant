@@ -287,7 +287,7 @@ public class GiaoDienMonAn extends VBox {
         for (int i = 0; i < danhSachMonAnHienThi.size(); i++) {
             MonAn item = danhSachMonAnHienThi.get(i);
             String formattedPrice = currencyFormatter.format(item.getDonGia());
-            MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh());
+            MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh(), item.getSoLuong());
 
             hopMonAn.setPickOnBounds(true);
 
