@@ -150,6 +150,8 @@ public class GiaoDienGoiMon extends BorderPane {
             );
             // Hiển thị số lượng hiện có dưới giá
             monBox.updateSoLuong(mon.getSoLuong());
+            // Hiển thị số đã bán
+            monBox.updateDaBan(mon.getDaBan());
 
             monBox.setOnMouseClicked(e -> themMonVaoPhieu(mon));
 

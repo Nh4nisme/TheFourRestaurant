@@ -141,6 +141,34 @@ public class MonAnBox extends BaseBox {
         }
     }
 
+    // Cập nhật hoặc thêm nhãn đã bán (hiển thị số đã bán cho món)
+    public void updateDaBan(int daBan) {
+        if (this.getChildren().size() < 2) return;
+        javafx.scene.Node bottom = this.getChildren().get(1);
+        if (!(bottom instanceof VBox)) return;
+        VBox vb = (VBox) bottom;
+
+        // Tìm label bắt đầu bằng "Đã bán:" hoặc "Đã bán: "
+        Label found = null;
+        for (javafx.scene.Node n : vb.getChildren()) {
+            if (n instanceof Label) {
+                Label l = (Label) n;
+                if (l.getText() != null && l.getText().startsWith("Đã bán:")) {
+                    found = l;
+                    break;
+                }
+            }
+        }
+
+        if (found != null) {
+            found.setText("Đã bán: " + daBan);
+        } else {
+            Label lblDaBan = new Label("Đã bán: " + daBan);
+            lblDaBan.setStyle("-fx-text-fill: #666666; -fx-font-size: 11px;");
+            vb.getChildren().add(lblDaBan);
+        }
+    }
+
     private Image loadImage(String imagePath) {
         Image image = null;
         

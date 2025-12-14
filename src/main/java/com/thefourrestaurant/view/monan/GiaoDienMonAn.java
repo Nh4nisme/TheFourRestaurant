@@ -129,7 +129,7 @@ public class GiaoDienMonAn extends VBox {
         mapChuCai.put("Z → A", false);  // Key: text hiển thị, Value: ascending = false
         
         DropDownButtonMap<Boolean> btnTheoChuCai = new DropDownButtonMap<>(
-                "Theo bảng chữ cái  ▼",
+                "Theo chữ ▼",
                 mapChuCai, 
                 null, 35, 16, 3
         );
@@ -140,18 +140,29 @@ public class GiaoDienMonAn extends VBox {
         mapGia.put("Giảm dần", false);  // Key: text hiển thị, Value: ascending = false
         
         DropDownButtonMap<Boolean> btnTheoGia = new DropDownButtonMap<>(
-                "Theo giá  ▼",
+                "Theo giá ▼",
                 mapGia,
                 null, 35, 16, 3
         );
         btnTheoGia.setOnItemSelected(ascending -> sapXepTheoGia(ascending));
+
+        LinkedHashMap<String, Boolean> mapDaBan = new LinkedHashMap<>();
+        mapDaBan.put("Phổ biến nhất", false);
+        mapDaBan.put("Ít phổ biến", true);
+
+        DropDownButtonMap<Boolean> btnTheoDaBan = new DropDownButtonMap<>(
+            "Theo độ phổ biến ▼",
+            mapDaBan,
+            null, 35, 16, 3
+        );
+        btnTheoDaBan.setOnItemSelected(ascending -> sapXepTheoDaBan(ascending));
 
         LinkedHashMap<String, Boolean> mapNgay = new LinkedHashMap<>();
         mapNgay.put("Mới nhất", false); 
         mapNgay.put("Cũ nhất", true); 
 
         DropDownButtonMap<Boolean> btnTheoNgay = new DropDownButtonMap<>(
-            "Mới nhất  ▼",
+            "Theo thời gian  ▼",
             mapNgay,
             null, 35, 16, 3
         );
@@ -167,7 +178,7 @@ public class GiaoDienMonAn extends VBox {
         btnTim.setOnAction(event -> locVaCapNhatMonAn());
         txtTimKiem.setOnAction(event -> locVaCapNhatMonAn());
 
-        khungGiua.getChildren().addAll(cboLoaiMonFilter, btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnTheoNgay, space, txtTimKiem, btnTim);
+        khungGiua.getChildren().addAll(cboLoaiMonFilter, btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnTheoNgay, btnTheoDaBan, space, txtTimKiem, btnTim);
         return khungGiua;
     }
 
@@ -292,6 +303,15 @@ public class GiaoDienMonAn extends VBox {
         updateViews();
     }
 
+    private void sapXepTheoDaBan(boolean ascending) {
+        if (ascending) {
+            danhSachMonAnHienThi.sort(Comparator.comparingInt(MonAn::getDaBan));
+        } else {
+            danhSachMonAnHienThi.sort(Comparator.comparingInt(MonAn::getDaBan).reversed());
+        }
+        updateViews();
+    }
+
 
     private void updateViews() {
         updateGridView();
@@ -311,6 +331,9 @@ public class GiaoDienMonAn extends VBox {
             MonAn item = danhSachMonAnHienThi.get(i);
             String formattedPrice = currencyFormatter.format(item.getDonGia());
             MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh(), item.getSoLuong());
+
+            // Hiển thị số đã bán (độ phổ biến)
+            hopMonAn.updateDaBan(item.getDaBan());
 
             hopMonAn.setPickOnBounds(true);
 

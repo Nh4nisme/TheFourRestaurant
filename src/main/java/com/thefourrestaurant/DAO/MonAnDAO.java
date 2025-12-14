@@ -26,6 +26,11 @@ public class MonAnDAO {
         } catch (SQLException e) {
             mon.setSoLuong(0);
         }
+        try {
+            mon.setDaBan(rs.getInt("daBan"));
+        } catch (SQLException e) {
+            mon.setDaBan(0);
+        }
         return mon;
     }
 
@@ -83,7 +88,7 @@ public class MonAnDAO {
     }
 
     public boolean themMonAn(MonAn mon) {
-        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, soLuong, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, soLuong, daBan, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, mon.getMaMonAn());
@@ -93,7 +98,8 @@ public class MonAnDAO {
             ps.setString(5, mon.getLoaiMon().getMaLoaiMon());
             ps.setString(6, mon.getHinhAnh());
             ps.setInt(7, mon.getSoLuong());
-            ps.setBoolean(8, false); // Mặc định là chưa xóa
+            ps.setInt(8, mon.getDaBan());
+            ps.setBoolean(9, false); // Mặc định là chưa xóa
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
@@ -114,12 +120,15 @@ public class MonAnDAO {
     }
 
     public boolean giamSoLuong(String maMonAn, int soLuongGiam) {
-        String sql = "UPDATE MonAn SET soLuong = CASE WHEN soLuong - ? >= 0 THEN soLuong - ? ELSE 0 END WHERE maMonAn = ?";
+        String sql = "UPDATE MonAn SET soLuong = CASE WHEN soLuong - ? >= 0 THEN soLuong - ? ELSE 0 END, "
+                + "daBan = COALESCE(daBan,0) + CASE WHEN soLuong - ? >= 0 THEN ? ELSE soLuong END WHERE maMonAn = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, soLuongGiam);
             ps.setInt(2, soLuongGiam);
-            ps.setString(3, maMonAn);
+            ps.setInt(3, soLuongGiam);
+            ps.setInt(4, soLuongGiam);
+            ps.setString(5, maMonAn);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }

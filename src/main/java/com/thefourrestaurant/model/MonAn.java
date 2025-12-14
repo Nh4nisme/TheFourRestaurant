@@ -12,6 +12,7 @@ public class MonAn {
     private LoaiMon loaiMon;
     private String hinhAnh;
     private int soLuong;
+    private int daBan;
     private Boolean isDeleted;
 
     public MonAn() {}
@@ -25,6 +26,7 @@ public class MonAn {
         setHinhAnh(hinhAnh);
         setDeleted(isDeleted);
         this.soLuong = 0;
+        this.daBan = 0;
     }
 
     public MonAn(String maMonAn) {
@@ -58,6 +60,9 @@ public class MonAn {
 
     public int getSoLuong() { return soLuong; }
     public void setSoLuong(int soLuong) { this.soLuong = soLuong; }
+
+    public int getDaBan() { return daBan; }
+    public void setDaBan(int daBan) { this.daBan = daBan; }
 
     public Boolean getDeleted() {return isDeleted;}
     public void setDeleted(Boolean deleted) {isDeleted = deleted;}

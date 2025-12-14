@@ -156,7 +156,8 @@ CREATE TABLE MonAn (
     trangThai NVARCHAR(10) CHECK (trangThai IN ('Con', 'Het')),
     maLoaiMon CHAR(8) NOT NULL,
     hinhAnh NVARCHAR(255) NULL,
-    soLuong INT DEFAULT 0,
+    soLuong INT DEFAULT 0 NOT NULL,
+    daBan INT DEFAULT 0 NOT NULL,
     isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon)
 );
