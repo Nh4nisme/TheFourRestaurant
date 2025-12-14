@@ -124,6 +124,19 @@ public class MonAnDAO {
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
+        public boolean capNhatSoLuong(String maMonAn, int soLuongMoi) {
+            String sql = "UPDATE MonAn SET soLuong = ? WHERE maMonAn = ?";
+            try (Connection conn = ConnectSQL.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, soLuongMoi);
+                ps.setString(2, maMonAn);
+                return ps.executeUpdate() > 0;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
     public boolean xoaMonAn(String maMonAn) {
         String sql = "UPDATE MonAn SET isDeleted = 1 WHERE maMonAn = ?"; // Xóa mềm
         try (Connection conn = ConnectSQL.getConnection();
