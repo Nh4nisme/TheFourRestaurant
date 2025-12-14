@@ -109,11 +109,10 @@ GO
 -- Bảng LoaiBan
 -- ================================
 CREATE TABLE LoaiBan (
-    maLoaiBan CHAR(8) PRIMARY KEY
-        CHECK (maLoaiBan LIKE 'LB%' AND LEN(maLoaiBan) = 8),
-    tenLoaiBan NVARCHAR(50) NOT NULL,  -- Ví dụ: 'Bàn thường', 'Bàn VIP'
-    giaTien DECIMAL(10, 2) NOT NULL CHECK (giaTien >= 0), -- Giá thuê / phụ phí
-    soChoNgoi INT NOT NULL CHECK(soChoNgoi > 0), -- Sức chứa (số ghế)
+    maLoaiBan CHAR(8) PRIMARY KEY CHECK (maLoaiBan LIKE 'LB%' AND LEN(maLoaiBan) = 8),
+    tenLoaiBan NVARCHAR(50) NOT NULL,
+    giaTien DECIMAL(10, 2) NOT NULL CHECK (giaTien >= 0),
+    soChoNgoi INT NOT NULL CHECK(soChoNgoi > 0),
     moTa NVARCHAR(200) NULL
 );
 GO
@@ -147,7 +146,45 @@ CREATE TABLE LoaiMonAn (
 GO
 
 -- ================================
--- Bảng MonAn
+-- Bảng LoaiKhuyenMai (DI CHUYỂN LÊN TRƯỚC)
+-- ================================
+CREATE TABLE LoaiKhuyenMai (
+    maLoaiKM CHAR(8) PRIMARY KEY CHECK (maLoaiKM LIKE 'LKM%' AND LEN(maLoaiKM) = 8),
+    tenLoaiKM NVARCHAR(50) NOT NULL UNIQUE
+);
+GO
+
+-- ================================
+-- Bảng KhuyenMai (DI CHUYỂN LÊN TRƯỚC)
+-- ================================
+CREATE TABLE KhuyenMai (
+    maKM CHAR(8) PRIMARY KEY CHECK (maKM LIKE 'KM%' AND LEN(maKM) = 8),
+    maLoaiKM CHAR(8) NOT NULL,
+    tenKM NVARCHAR(100) NOT NULL DEFAULT N'',
+    kieuKM NVARCHAR(20) NOT NULL DEFAULT N'SuKien' CHECK(kieuKM IN (N'SuKien', N'MaGiamGia')),
+    maCode VARCHAR(50) NULL,
+    soLuotSuDung INT NULL CHECK(soLuotSuDung IS NULL OR soLuotSuDung >= 0),
+    tyLe DECIMAL(5,2) NULL CHECK(tyLe >= 0 AND tyLe <= 100),
+    soTien DECIMAL(12,2) NULL CHECK(soTien >= 0),
+    ngayBatDau DATETIME NULL,
+    ngayKetThuc DATETIME NULL,
+    moTa NVARCHAR(200) NULL,
+    CONSTRAINT FK_KM_LoaiKM FOREIGN KEY (maLoaiKM) REFERENCES LoaiKhuyenMai(maLoaiKM),
+    CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau)),
+    CHECK (
+        (tyLe IS NOT NULL AND soTien IS NULL) OR
+        (tyLe IS NULL AND soTien IS NOT NULL) OR
+        (tyLe IS NULL AND soTien IS NULL)
+    ),
+    CHECK (
+        (kieuKM = N'SuKien') OR
+        (kieuKM = N'MaGiamGia' AND maCode IS NOT NULL AND LEN(maCode) >= 3)
+    )
+);
+GO
+
+-- ================================
+-- Bảng MonAn (BÂY GIỜ CÓ THỂ THAM CHIẾU KhuyenMai)
 -- ================================
 CREATE TABLE MonAn (
     maMonAn CHAR(8) PRIMARY KEY CHECK (maMonAn LIKE 'MA%' AND LEN(maMonAn) = 8),
@@ -159,9 +196,9 @@ CREATE TABLE MonAn (
     soLuong INT DEFAULT 0 NOT NULL,
     daBan INT DEFAULT 0 NOT NULL,
     isDeleted BIT DEFAULT 0,
-    maKM CHAR(8) NULL,  
+    maKM CHAR(8) NULL,
     CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon),
-    CONSTRAINT FK_MonAn_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM) 
+    CONSTRAINT FK_MonAn_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
 );
 GO
 
@@ -196,8 +233,7 @@ CREATE TABLE PhieuDatBan (
     soNguoi INT CHECK(soNguoi > 0),
     maKH CHAR(8) NOT NULL,
     maNV CHAR(8) NOT NULL,
-    trangThai NVARCHAR(50) DEFAULT N'Đang phục vụ'
-        CHECK (trangThai IN (N'Đang phục vụ', N'Đặt trước', N'Đã thanh toán', N'Đã hủy')),
+    trangThai NVARCHAR(50) DEFAULT N'Đang phục vụ' CHECK (trangThai IN (N'Đang phục vụ', N'Đặt trước', N'Đã thanh toán', N'Đã hủy')),
     tienCoc DECIMAL(18, 2) NOT NULL CHECK (tienCoc >= 0),
     isDeleted BIT DEFAULT 0,
     CONSTRAINT FK_PDB_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
@@ -227,10 +263,8 @@ CREATE TABLE PhieuDatBan_Ban (
     maPDB CHAR(8) NOT NULL,
     maBan CHAR(8) NOT NULL,
     PRIMARY KEY (maPDB, maBan),
-    CONSTRAINT FK_PDBB_PDB FOREIGN KEY (maPDB)
-        REFERENCES PhieuDatBan(maPDB) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT FK_PDBB_Ban FOREIGN KEY (maBan)
-        REFERENCES Ban(maBan) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT FK_PDBB_PDB FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT FK_PDBB_Ban FOREIGN KEY (maBan) REFERENCES Ban(maBan) ON DELETE CASCADE ON UPDATE CASCADE
 );
 GO
 
@@ -256,51 +290,13 @@ CREATE TABLE Thue (
 GO
 
 -- ================================
--- Bảng LoaiKhuyenMai
--- ================================
-CREATE TABLE LoaiKhuyenMai (
-    maLoaiKM CHAR(8) PRIMARY KEY CHECK (maLoaiKM LIKE 'LKM%' AND LEN(maLoaiKM) = 8),
-    tenLoaiKM NVARCHAR(50) NOT NULL UNIQUE
-);
-GO
-
--- ================================
--- Bảng KhuyenMai
--- ================================
-CREATE TABLE KhuyenMai (
-    maKM CHAR(8) PRIMARY KEY CHECK (maKM LIKE 'KM%' AND LEN(maKM) = 8),
-    maLoaiKM CHAR(8) NOT NULL,
-    tenKM NVARCHAR(100) NOT NULL DEFAULT N'',
-    kieuKM NVARCHAR(20) NOT NULL DEFAULT N'SuKien' CHECK(kieuKM IN (N'SuKien', N'MaGiamGia')),
-    maCode VARCHAR(50) NULL,
-    soLuotSuDung INT NULL CHECK(soLuotSuDung IS NULL OR soLuotSuDung >= 0),
-    tyLe DECIMAL(5,2) NULL CHECK(tyLe >= 0 AND tyLe <= 100),
-    soTien DECIMAL(12,2) NULL CHECK(soTien >= 0),
-    ngayBatDau DATETIME NULL,
-    ngayKetThuc DATETIME NULL,
-    moTa NVARCHAR(200) NULL,
-    CONSTRAINT FK_KM_LoaiKM FOREIGN KEY (maLoaiKM) REFERENCES LoaiKhuyenMai(maLoaiKM),
-    CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau)),
-    CHECK (
-    (tyLe IS NOT NULL AND soTien IS NULL) OR
-    (tyLe IS NULL AND soTien IS NOT NULL) OR
-    (tyLe IS NULL AND soTien IS NULL)
-    ),
-    CHECK (
-    (kieuKM = N'SuKien') OR 
-    (kieuKM = N'MaGiamGia' AND maCode IS NOT NULL AND LEN(maCode) >= 3)
-    )
-);
-GO
-
--- ================================
 -- Bảng ChiTietKhuyenMai
 -- ================================
 CREATE TABLE ChiTietKhuyenMai (
     maCTKM CHAR(8) PRIMARY KEY CHECK (maCTKM LIKE 'CTKM%' AND LEN(maCTKM) = 8),
     maKM CHAR(8) NOT NULL,
-    maMonApDung CHAR(8) NOT NULL,     -- Món được áp dụng khuyến mãi
-    maMonTang CHAR(8) NULL,           -- Món được tặng (nếu có)
+    maMonApDung CHAR(8) NOT NULL,
+    maMonTang CHAR(8) NULL,
     tyLeGiam DECIMAL(5,2) NULL CHECK(tyLeGiam >= 0 AND tyLeGiam <= 100),
     soTienGiam DECIMAL(12,2) NULL CHECK(soTienGiam >= 0),
     soLuongTang INT NULL CHECK(soLuongTang >= 0),
@@ -311,7 +307,7 @@ CREATE TABLE ChiTietKhuyenMai (
 GO
 
 -- ================================
--- Bảng KhungGio (dùng chung cho KM và Combo)
+-- Bảng KhungGio
 -- ================================
 CREATE TABLE KhungGio (
     maTG CHAR(8) PRIMARY KEY CHECK(maTG LIKE 'TG%' AND LEN(maTG) = 8),
@@ -323,7 +319,7 @@ CREATE TABLE KhungGio (
 GO
 
 -- ================================
--- Bảng liên kết KhungGio <-> KhuyenMai
+-- Bảng KhungGio_KM
 -- ================================
 CREATE TABLE KhungGio_KM (
     maTG CHAR(8) NOT NULL,
