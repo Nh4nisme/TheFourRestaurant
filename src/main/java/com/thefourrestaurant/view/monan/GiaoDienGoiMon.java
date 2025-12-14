@@ -46,7 +46,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class GiaoDienGoiMon extends BorderPane {
-
     private ButtonSample btnTim, btnLamMoi;
     private StackPane mainContent;
     private MonAnDAO monAnDAO = new MonAnDAO();
@@ -298,13 +297,13 @@ public class GiaoDienGoiMon extends BorderPane {
             tenMonCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
             donGiaCol.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f", c.getValue().getDonGia())));
 
-            khuyenMaiCol.setCellValueFactory(c -> new SimpleStringProperty(getBestPromotionName(c.getValue())));
-            giaKhuyenMaiCol.setCellValueFactory(c -> new SimpleStringProperty(formatCurrency(getBestPromotionPrice(c.getValue()))));
+            khuyenMaiCol.setCellValueFactory(c -> new SimpleStringProperty(getTenKhuyenMaiTotNhat(c.getValue())));
+            giaKhuyenMaiCol.setCellValueFactory(c -> new SimpleStringProperty(formatCurrency(getGiaKhuyenMaiTotNhat(c.getValue()))));
 
             soLuongCol.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getSoLuong())));
 
             thanhTienCol.setCellValueFactory(c -> new SimpleStringProperty(
-                String.format("%,.0f", getBestPromotionPrice(c.getValue()) * c.getValue().getSoLuong())
+                String.format("%,.0f", getGiaKhuyenMaiTotNhat(c.getValue()) * c.getValue().getSoLuong())
             ));
 	
         bangPhieu.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -364,7 +363,8 @@ public class GiaoDienGoiMon extends BorderPane {
     private void capNhatTongTien() {
         double tong = 0;
         for (ChiTietPDB ct : danhSachChiTiet) {
-            tong += ct.getDonGia() * ct.getSoLuong();
+            double giaApDung = getGiaKhuyenMaiTotNhat(ct);
+            tong += giaApDung * ct.getSoLuong();
         }
         lblTongTien.setText(String.format("Tổng tiền: %,.0f VND", tong));
     }
@@ -378,7 +378,7 @@ public class GiaoDienGoiMon extends BorderPane {
         }
     }
 
-    private double getBestPromotionPrice(ChiTietPDB ct) {
+    private double getGiaKhuyenMaiTotNhat(ChiTietPDB ct) {
         if (ct == null || ct.getMonAn() == null) return ct != null ? ct.getDonGia() : 0.0;
         double base = ct.getDonGia();
         try {
@@ -418,7 +418,7 @@ public class GiaoDienGoiMon extends BorderPane {
         }
     }
 
-    private String getBestPromotionName(ChiTietPDB ct) {
+    private String getTenKhuyenMaiTotNhat(ChiTietPDB ct) {
         if (ct == null || ct.getMonAn() == null) return "";
         try {
             List<ChiTietKhuyenMai> promos = chiTietKhuyenMaiDAO.layActiveTheoMonApDung(ct.getMonAn().getMaMonAn());
