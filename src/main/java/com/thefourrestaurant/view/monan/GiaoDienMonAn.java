@@ -46,6 +46,7 @@ public class GiaoDienMonAn extends VBox {
     private final Label lblItemCount = new Label(); // Nhãn đếm số lượng mục
     private final ComboBox<String> cboLoaiMonFilter = new ComboBox<>();
     private final TextField txtTimKiem = new TextField();
+    private MonAnBox hopThemMoiBox;
 
     public GiaoDienMonAn(String maLoaiMon, String tenLoaiMon) {
         this.maLoaiMon = maLoaiMon;
@@ -96,7 +97,6 @@ public class GiaoDienMonAn extends VBox {
         khungGiua.setAlignment(Pos.CENTER_LEFT);
         khungGiua.setStyle("-fx-background-color: #1E424D;");
 
-        // --- Filter cho các Loại Món Ăn ---
         cboLoaiMonFilter.setPromptText("Lọc theo loại");
         LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
         List<String> tenLoaiMon = loaiMonDAO.layTatCaLoaiMon().stream()
@@ -130,10 +130,9 @@ public class GiaoDienMonAn extends VBox {
         
         DropDownButtonMap<Boolean> btnTheoChuCai = new DropDownButtonMap<>(
                 "Theo bảng chữ cái  ▼",
-                mapChuCai,  // <-- LinkedHashMap thay vì List
+                mapChuCai, 
                 null, 35, 16, 3
         );
-        // Callback giờ nhận trực tiếp Boolean value, gọn hơn nhiều!
         btnTheoChuCai.setOnItemSelected(ascending -> sapXepTheoTen(ascending));
 
         LinkedHashMap<String, Boolean> mapGia = new LinkedHashMap<>();
@@ -142,10 +141,9 @@ public class GiaoDienMonAn extends VBox {
         
         DropDownButtonMap<Boolean> btnTheoGia = new DropDownButtonMap<>(
                 "Theo giá  ▼",
-                mapGia,  // <-- LinkedHashMap thay vì List
+                mapGia,
                 null, 35, 16, 3
         );
-        // Callback giờ nhận trực tiếp Boolean value
         btnTheoGia.setOnItemSelected(ascending -> sapXepTheoGia(ascending));
 
         Region space = new Region();
@@ -187,23 +185,17 @@ public class GiaoDienMonAn extends VBox {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
-
-        VBox hopThemMoi = MonAnBox.createThemMoiBox();
-        hopThemMoi.setMinHeight(200);
-        GridPane luoiThem = new GridPane();
-        luoiThem.setAlignment(Pos.BASELINE_LEFT);
-        luoiThem.setPadding(new Insets(0, 0, 0, 7.5));
-        luoiThem.add(hopThemMoi, 0, 0);
-
-        hopThemMoi.setPickOnBounds(true);
-        hopThemMoi.setOnMouseClicked(event -> {
+        this.hopThemMoiBox = MonAnBox.createThemMoiBox();
+        this.hopThemMoiBox.setMinHeight(200);
+        this.hopThemMoiBox.setPickOnBounds(true);
+        this.hopThemMoiBox.setOnMouseClicked(event -> {
             Stage owner = (Stage) getScene().getWindow();
             if (controller.themMoiMonAn(owner, this.maLoaiMon)) {
                 refreshViews();
             }
         });
 
-        gridContainer.getChildren().addAll(luoiThem, scrollPane);
+        gridContainer.getChildren().addAll(scrollPane);
         return gridContainer;
     }
 
@@ -241,14 +233,12 @@ public class GiaoDienMonAn extends VBox {
 
         List<MonAn> filteredList = new ArrayList<>(danhSachMonAnGoc);
 
-        // Filter by LoaiMon
         if (loaiMonFilter != null && !loaiMonFilter.equals("Tất cả")) {
             filteredList = filteredList.stream()
                     .filter(monAn -> monAn.getLoaiMon() != null && monAn.getLoaiMon().getTenLoaiMon().equals(loaiMonFilter))
                     .collect(Collectors.toList());
         }
 
-        // Filter by search keyword
         if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
             String lowerCaseTuKhoa = tuKhoa.trim().toLowerCase();
             filteredList = filteredList.stream()
@@ -258,7 +248,7 @@ public class GiaoDienMonAn extends VBox {
         }
 
         danhSachMonAnHienThi = filteredList;
-        sapXepTheoTen(true); // Default sort
+        sapXepTheoTen(true);
     }
 
     private void sapXepTheoTen(boolean ascending) {
@@ -290,11 +280,14 @@ public class GiaoDienMonAn extends VBox {
     private void updateGridView() {
         gridViewPane.getChildren().clear();
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        if (this.hopThemMoiBox != null) {
+            gridViewPane.add(this.hopThemMoiBox, 0, 0);
+        }
 
         for (int i = 0; i < danhSachMonAnHienThi.size(); i++) {
             MonAn item = danhSachMonAnHienThi.get(i);
             String formattedPrice = currencyFormatter.format(item.getDonGia());
-            MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh());
+            MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh(), item.getSoLuong());
 
             hopMonAn.setPickOnBounds(true);
 
@@ -310,8 +303,9 @@ public class GiaoDienMonAn extends VBox {
                 }
             });
 
-            int col = i % soCotMoiHang;
-            int row = i / soCotMoiHang;
+            int idx = i + 1;
+            int col = idx % soCotMoiHang;
+            int row = idx / soCotMoiHang;
             gridViewPane.add(hopMonAn, col, row);
         }
     }

@@ -113,6 +113,10 @@ public class MonAnController {
         return false;
     }
 
+    public boolean capNhatSoLuong(String maMonAn, int soLuongMoi) {
+        return monAnDAO.capNhatSoLuong(maMonAn, soLuongMoi);
+    }
+
     public String saoChepHinhAnhVaoProject(String sourceImagePath) {
         try {
             // 1. Kiểm tra file nguồn tồn tại

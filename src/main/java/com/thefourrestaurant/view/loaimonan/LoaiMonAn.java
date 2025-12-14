@@ -28,7 +28,8 @@ public class LoaiMonAn extends VBox {
     private final GridPane gridPane = new GridPane();
     private final int soCotMoiHang = 8;
     private StackPane mainContent;
-    private boolean navigateMode = false; // true = click to navigate to MonAn, false = click to edit
+    private boolean navigateMode = false;
+    private com.thefourrestaurant.view.loaimonan.LoaiMonAnBox hopThemMoiBox;
 
     public LoaiMonAn() {
         this(null, false);
@@ -85,29 +86,17 @@ public class LoaiMonAn extends VBox {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-
-        // Hộp "Thêm mới"
-        VBox hopThemMoi = LoaiMonAnBox.createThemMoiBox();
-        GridPane luoiThem = new GridPane();
-        luoiThem.setAlignment(Pos.BASELINE_LEFT);
-        luoiThem.setPadding(new Insets(0,0,0,15));
-        luoiThem.add(hopThemMoi, 0, 0);
-
-        Button themMoiButton = new Button(); // Nút ẩn để kích hoạt hành động
-        themMoiButton.setVisible(false);
-        themMoiButton.setManaged(false);
-        themMoiButton.setOnAction(event -> {
+        this.hopThemMoiBox = LoaiMonAnBox.createThemMoiBox();
+        this.hopThemMoiBox.setOnMouseClicked(event -> {
             Stage owner = (Stage) getScene().getWindow();
             if (controller.themMoiLoaiMonAn(owner)) {
                 refreshGrid();
             }
         });
-        hopThemMoi.setOnMouseClicked(event -> themMoiButton.fire());
 
-        dsLoaiMonAnContainer.getChildren().addAll(luoiThem, scrollPane, themMoiButton);
+        dsLoaiMonAnContainer.getChildren().addAll(scrollPane);
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
-        // Tải CSS
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
             this.getStylesheets().add(urlCSS.toExternalForm());
@@ -115,13 +104,16 @@ public class LoaiMonAn extends VBox {
 
         this.getChildren().add(contentPane);
 
-        // Tải dữ liệu ban đầu
         refreshGrid();
     }
 
     private void refreshGrid() {
         this.danhSachLoaiMonAn = controller.layTatCaLoaiMonAn();
         gridPane.getChildren().clear();
+
+        if (this.hopThemMoiBox != null) {
+            gridPane.add(this.hopThemMoiBox, 0, 0);
+        }
 
         for (int i = 0; i < danhSachLoaiMonAn.size(); i++) {
             LoaiMon item = danhSachLoaiMonAn.get(i);
@@ -132,7 +124,6 @@ public class LoaiMonAn extends VBox {
             hopLoaiMonAn.setOnMouseClicked(event -> {
                 if (event.getButton() == MouseButton.PRIMARY) {
                     if (navigateMode && mainContent != null) {
-                        // Navigate to GiaoDienMonAn with selected category
                         GiaoDienMonAn giaoDienMonAn = new GiaoDienMonAn(item.getMaLoaiMon(), item.getTenLoaiMon());
                         Region region = giaoDienMonAn;
                         region.prefWidthProperty().bind(mainContent.widthProperty());
@@ -149,8 +140,9 @@ public class LoaiMonAn extends VBox {
                 }
             });
 
-            int col = i % soCotMoiHang;
-            int row = i / soCotMoiHang;
+            int idx = i + 1; 
+            int col = idx % soCotMoiHang;
+            int row = idx / soCotMoiHang;
             gridPane.add(hopLoaiMonAn, col, row);
         }
     }

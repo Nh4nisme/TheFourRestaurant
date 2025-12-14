@@ -38,6 +38,7 @@ public class MonAnDialog extends Stage {
     private final TextField truongGia = new TextField();
     private final ComboBox<LoaiMon> loaiMonComboBox = new ComboBox<>();
     private final CheckBox hopKiemHienThi = new CheckBox();
+    private final Spinner<Integer> truongSoLuong = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 1000000, 0));
 
     private static final Set<String> ALLOWED_EXTENSIONS = new HashSet<>(
         Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp")
@@ -115,13 +116,23 @@ public class MonAnDialog extends Stage {
 
         TextField truongMa = new TextField(isEditMode ? monAnHienTai.getMaMonAn() : "Tạo tự động");
         truongMa.setEditable(false);
+        truongMa.setDisable(true);
+        truongMa.setFocusTraversable(false);
         truongMa.setStyle(kieuTruongNhap);
         truongMa.getStyleClass().add("text-field");
+        truongMa.setTooltip(new Tooltip("Mã được tạo tự động và không thể chỉnh sửa"));
         luoiForm.add(new Label("Mã Món Ăn:"), 0, 1);
         luoiForm.add(truongMa, 1, 1);
 
         luoiForm.add(new Label("Giá:"), 0, 2);
         luoiForm.add(truongGia, 1, 2);
+
+        // Số lượng
+        truongSoLuong.setEditable(true);
+        truongSoLuong.setPrefWidth(120);
+        truongSoLuong.getStyleClass().add("text-field");
+        luoiForm.add(new Label("Số lượng:"), 0, 6);
+        luoiForm.add(truongSoLuong, 1, 6);
 
         luoiForm.add(new Label("Loại món:"), 0, 3);
         loaiMonComboBox.setItems(FXCollections.observableArrayList(tatCaLoaiMon));
@@ -175,6 +186,11 @@ public class MonAnDialog extends Stage {
         hopKiemHienThi.setSelected(monAnHienTai.getTrangThai().equalsIgnoreCase("Con"));
 
         loaiMonComboBox.setValue(monAnHienTai.getLoaiMon());
+        try {
+            truongSoLuong.getValueFactory().setValue(monAnHienTai.getSoLuong());
+        } catch (Exception e) {
+            truongSoLuong.getValueFactory().setValue(0);
+        }
     }
 
     private void chonAnh() {
@@ -243,6 +259,11 @@ public class MonAnDialog extends Stage {
         ketQua.setDonGia(donGia);
         ketQua.setTrangThai(hopKiemHienThi.isSelected() ? "Con" : "Het");
         ketQua.setLoaiMon(loaiMonComboBox.getValue());
+        try {
+            ketQua.setSoLuong(truongSoLuong.getValue());
+        } catch (Exception e) {
+            ketQua.setSoLuong(0);
+        }
 
         if (tepAnhDaChon != null) {
             String newImagePath = controller.saoChepHinhAnhVaoProject(tepAnhDaChon.getAbsolutePath());
