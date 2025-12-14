@@ -7,6 +7,8 @@ import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -89,7 +91,7 @@ public class MonAnDialog extends Stage {
             dienDuLieuHienCo();
         }
 
-        Scene khungCanh = new Scene(layoutChinh, 500, 450);
+        Scene khungCanh = new Scene(layoutChinh, 400, 640);
         URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
         if (urlCSS != null) {
             khungCanh.getStylesheets().add(urlCSS.toExternalForm());
@@ -102,6 +104,14 @@ public class MonAnDialog extends Stage {
         GridPane luoiForm = new GridPane();
         luoiForm.setVgap(12);
         luoiForm.setHgap(15);
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setHgrow(Priority.ALWAYS);
+        col1.setPercentWidth(50);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setHgrow(Priority.ALWAYS);
+        col2.setPercentWidth(50);
+        luoiForm.getColumnConstraints().addAll(col1, col2);
 
         String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8;";
 
@@ -116,9 +126,9 @@ public class MonAnDialog extends Stage {
         // Ảnh ở trên cùng
         VBox hopAnh = new VBox(5);
         hopAnh.setAlignment(Pos.CENTER);
-        hopAnh.setPrefSize(120, 120);
-        hopAnh.setMinSize(120, 120);
-        hopAnh.setMaxSize(120, 120);
+        hopAnh.setPrefSize(160, 160);
+        hopAnh.setMinSize(140, 140);
+        hopAnh.setMaxSize(200, 200);
         hopAnh.setStyle("-fx-background-color: #F0F0F0; -fx-border-color: #CCCCCC; "
                 + "-fx-border-radius: 10; -fx-background-radius: 10; -fx-border-style: dashed;");
         hopAnh.setCursor(javafx.scene.Cursor.HAND);
@@ -130,12 +140,13 @@ public class MonAnDialog extends Stage {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        khungHinhAnh.setFitWidth(100);
-        khungHinhAnh.setFitHeight(100);
+        khungHinhAnh.setFitWidth(140);
+        khungHinhAnh.setFitHeight(140);
         hopAnh.getChildren().add(khungHinhAnh);
         hopAnh.setOnMouseClicked(e -> chonAnh());
         luoiForm.add(hopAnh, 0, 0, 2, 1);
-
+        GridPane.setHalignment(hopAnh, HPos.CENTER);
+        GridPane.setValignment(hopAnh, VPos.CENTER);
         luoiForm.add(new Label("Tên:"), 0, 1);
         luoiForm.add(truongTen, 1, 1);
 
