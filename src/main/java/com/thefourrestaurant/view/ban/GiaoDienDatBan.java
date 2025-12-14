@@ -479,11 +479,9 @@ public class GiaoDienDatBan extends BorderPane {
 
     private void datMon() {
         List<Ban> dsChon = layDsBanDangChonHoacThongBao();
-        if (dsChon == null) return;
-        
+        if (dsChon == null) return;        
         PhieuDatBan pdbHienCo = phieuDAO.layPhieuDangHoatDongTheoBan(dsChon.get(0).getMaBan());
 
-        System.out.println(pdbHienCo.toString());
         mainContent.getChildren().clear();
         mainContent.getChildren().add(new GiaoDienGoiMon(mainContent, dsChon.get(0), pdbHienCo));
     }
