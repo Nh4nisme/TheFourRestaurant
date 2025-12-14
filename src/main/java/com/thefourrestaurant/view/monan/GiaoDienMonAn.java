@@ -146,6 +146,17 @@ public class GiaoDienMonAn extends VBox {
         );
         btnTheoGia.setOnItemSelected(ascending -> sapXepTheoGia(ascending));
 
+        LinkedHashMap<String, Boolean> mapNgay = new LinkedHashMap<>();
+        mapNgay.put("Mới nhất", false); 
+        mapNgay.put("Cũ nhất", true); 
+
+        DropDownButtonMap<Boolean> btnTheoNgay = new DropDownButtonMap<>(
+            "Mới nhất  ▼",
+            mapNgay,
+            null, 35, 16, 3
+        );
+        btnTheoNgay.setOnItemSelected(ascending -> sapXepTheoNgay(ascending));
+
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);
 
@@ -156,7 +167,7 @@ public class GiaoDienMonAn extends VBox {
         btnTim.setOnAction(event -> locVaCapNhatMonAn());
         txtTimKiem.setOnAction(event -> locVaCapNhatMonAn());
 
-        khungGiua.getChildren().addAll(cboLoaiMonFilter, btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, space, txtTimKiem, btnTim);
+        khungGiua.getChildren().addAll(cboLoaiMonFilter, btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnTheoNgay, space, txtTimKiem, btnTim);
         return khungGiua;
     }
 
@@ -248,7 +259,19 @@ public class GiaoDienMonAn extends VBox {
         }
 
         danhSachMonAnHienThi = filteredList;
-        sapXepTheoTen(true);
+        sapXepTheoNgay(false);
+    }
+
+    private void sapXepTheoNgay(boolean ascending) {
+        Comparator<MonAn> comp = Comparator.comparingInt(m -> {
+            String id = m.getMaMonAn();
+            if (id == null) return 0;
+            String digits = id.replaceAll("\\D+", "");
+            try { return Integer.parseInt(digits); } catch (Exception e) { return 0; }
+        });
+        if (!ascending) comp = comp.reversed();
+        danhSachMonAnHienThi.sort(comp);
+        updateViews();
     }
 
     private void sapXepTheoTen(boolean ascending) {
