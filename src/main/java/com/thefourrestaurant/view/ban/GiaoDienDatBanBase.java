@@ -275,24 +275,27 @@ public abstract class GiaoDienDatBanBase extends VBox {
     }
     
     protected void xuLySauKhiLuu(boolean ok, PhieuDatBan pdb, List<Ban> dsBan, boolean isDatNgay) {
-        if (ok) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Đặt bàn thành công!");
-            alert.initOwner(getScene() != null ? getScene().getWindow() : null);
-
-            alert.showAndWait();    // DÙNG SHOWANDWAIT
-
-            if (isDatNgay) {
-                Ban banChinh = dsBan.isEmpty()?null:dsBan.get(0);
-                Platform.runLater(() -> quanLiBan.showCountdown(banChinh, pdb, quanLiBan.timKhungBanTheoMa(dsBan.get(0).getMaBan())));
-            }
-
-            parentPane.getChildren().remove(this);
-
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Lỗi khi lưu phiếu!");
-            alert.initOwner(getScene() != null ? getScene().getWindow() : null);
-            alert.showAndWait();
+        if (!ok) {
+            showMessage("Lỗi khi lưu phiếu!", Alert.AlertType.ERROR);
+            return;
         }
+
+        showMessage("Đặt bàn thành công!", Alert.AlertType.INFORMATION);
+
+        if (isDatNgay && quanLiBan != null && dsBan != null && !dsBan.isEmpty()) {
+            Ban banChinh = dsBan.get(0);
+
+            quanLiBan.hienThiBanTheoTang(banChinh.getTang().getMaTang());
+
+            Platform.runLater(() -> {
+                StackPane khungBan = quanLiBan.timKhungBanTheoMa(banChinh.getMaBan());
+                if (khungBan != null) {
+                    quanLiBan.showCountdown(banChinh, pdb, khungBan);
+                }
+            });
+        }
+
+        parentPane.getChildren().remove(this);
     }
     
     protected void showDatBanThanhCong(List<Ban> dsBan) {
@@ -301,7 +304,7 @@ public abstract class GiaoDienDatBanBase extends VBox {
         if(dsBan == null || dsBan.isEmpty()) return;
         try {
             if(quanLiBan != null){
-                banDAO.capNhatTrangThaiDanhSach(dsBan, "Đang sử dụng");
+                banDAO.capNhatTrangThaiDanhSach(dsBan, "Đang phục vụ");
                 quanLiBan.hienThiBanTheoTang(dsBan.get(0).getTang().getMaTang());
             }
         } catch(Exception e){

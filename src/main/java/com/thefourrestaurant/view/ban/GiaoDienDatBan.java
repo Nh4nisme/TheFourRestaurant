@@ -4,12 +4,12 @@ import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.controller.PhieuDatBanController;
+import com.thefourrestaurant.controller.ThanhToanController;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.util.ClockText;
 import com.thefourrestaurant.view.monan.GiaoDienGoiMon;
-import com.thefourrestaurant.view.hoadon.GiaoDienLapHoaDon;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -30,6 +30,7 @@ public class GiaoDienDatBan extends BorderPane {
     private static final String COLOR_BACKGROUND_MAIN = "#f0f0f0";
     private static final String COLOR_BACKGROUND_SIDE = "#1E424D";
     private static final String COLOR_TEXT = "#DDB248";
+    private ThanhToanController thanhToanController = new ThanhToanController();
     
     private StackPane mainContent;
     private QuanLiBan quanLiBan;
@@ -498,12 +499,10 @@ public class GiaoDienDatBan extends BorderPane {
         List<Ban> dsChon = layDsBanDangChonHoacThongBao();
         if (dsChon == null) return;
 
-        PhieuDatBan pdb = phieuDatBanController.layPhieuTheoBan(dsChon.get(0).getMaBan());
+        PhieuDatBan pdb = phieuDatBanController
+                .layPhieuTheoBan(dsChon.get(0).getMaBan());
 
-        Stage stageThanhToan = new Stage();
-        GiaoDienLapHoaDon thanhToan = new GiaoDienLapHoaDon(stageThanhToan);
-
-        thanhToan.hienThiThongTin(pdb);
+        thanhToanController.moManThanhToan(pdb);
     }
 
     private void tangTruoc() {
