@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
+import com.thefourrestaurant.DAO.ChiTietKhuyenMaiDAO;
+import com.thefourrestaurant.model.ChiTietKhuyenMai;
+import com.thefourrestaurant.DAO.KhuyenMaiDAO;
+import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.DAO.MonAnDAO;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.ChiTietPDB;
@@ -43,6 +47,8 @@ public class GiaoDienGoiMon extends BorderPane {
     private ButtonSample btnTim, btnLamMoi;
     private StackPane mainContent;
     private MonAnDAO monAnDAO = new MonAnDAO();
+    private ChiTietKhuyenMaiDAO chiTietKhuyenMaiDAO = new ChiTietKhuyenMaiDAO();
+    private KhuyenMaiDAO khuyenMaiDAO = new KhuyenMaiDAO();
     private Ban ban;
     
     private TableView<ChiTietPDB> bangPhieu;
@@ -209,10 +215,12 @@ public class GiaoDienGoiMon extends BorderPane {
 	    bangPhieu.setItems(danhSachChiTiet);
 	    bangPhieu.setEditable(true);
 	
-	    TableColumn<ChiTietPDB, String> tenMonCol = new TableColumn<>("Tên món");
-	    TableColumn<ChiTietPDB, String> donGiaCol = new TableColumn<>("Đơn giá");
-	    TableColumn<ChiTietPDB, String> soLuongCol = new TableColumn<>("Số lượng");
-	    TableColumn<ChiTietPDB, String> thanhTienCol = new TableColumn<>("Thành tiền");
+        TableColumn<ChiTietPDB, String> tenMonCol = new TableColumn<>("Tên món");
+        TableColumn<ChiTietPDB, String> donGiaCol = new TableColumn<>("Đơn giá");
+        TableColumn<ChiTietPDB, String> khuyenMaiCol = new TableColumn<>("Khuyến mãi");
+        TableColumn<ChiTietPDB, String> giaKhuyenMaiCol = new TableColumn<>("Giá khuyến mãi");
+        TableColumn<ChiTietPDB, String> soLuongCol = new TableColumn<>("Số lượng");
+        TableColumn<ChiTietPDB, String> thanhTienCol = new TableColumn<>("Thành tiền");
 	    TableColumn<ChiTietPDB, String> ghiChuCol = new TableColumn<>("Ghi chú");
 	    TableColumn<ChiTietPDB, Void> xoaCol = new TableColumn<>("Xóa");
 	    xoaCol.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
@@ -250,21 +258,26 @@ public class GiaoDienGoiMon extends BorderPane {
 	        }
 	    });
 	    
-	    ghiChuCol.setCellValueFactory(c ->
-        	new SimpleStringProperty(c.getValue().getGhiChu() != null ? c.getValue().getGhiChu() : "")
-	    );
+        ghiChuCol.setCellValueFactory(c ->
+            new SimpleStringProperty(c.getValue().getGhiChu() != null ? c.getValue().getGhiChu() : "")
+        );
 	    ghiChuCol.setCellFactory(TextFieldTableCell.forTableColumn());
 	    ghiChuCol.setOnEditCommit(e -> e.getRowValue().setGhiChu(e.getNewValue()));
 	
-	    tenMonCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
-	    donGiaCol.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f", c.getValue().getDonGia())));
-	    soLuongCol.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getSoLuong())));
-	    thanhTienCol.setCellValueFactory(c -> new SimpleStringProperty(
-	            String.format("%,.0f", c.getValue().getSoLuong() * c.getValue().getDonGia())
-	    ));
+            tenMonCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
+            donGiaCol.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f", c.getValue().getDonGia())));
+
+            khuyenMaiCol.setCellValueFactory(c -> new SimpleStringProperty(getBestPromotionName(c.getValue())));
+            giaKhuyenMaiCol.setCellValueFactory(c -> new SimpleStringProperty(formatCurrency(getBestPromotionPrice(c.getValue()))));
+
+            soLuongCol.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getSoLuong())));
+
+            thanhTienCol.setCellValueFactory(c -> new SimpleStringProperty(
+                String.format("%,.0f", getBestPromotionPrice(c.getValue()) * c.getValue().getSoLuong())
+            ));
 	
-	    bangPhieu.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-	    bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, soLuongCol, thanhTienCol, ghiChuCol,xoaCol);
+        bangPhieu.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, khuyenMaiCol, giaKhuyenMaiCol, soLuongCol, thanhTienCol, ghiChuCol, xoaCol);
 	
 	    lblTongTien = new Label("Tổng tiền: 0 VND");
 	    lblTongTien.setFont(Font.font("System", FontWeight.BOLD, 16));
@@ -323,6 +336,116 @@ public class GiaoDienGoiMon extends BorderPane {
             tong += ct.getDonGia() * ct.getSoLuong();
         }
         lblTongTien.setText(String.format("Tổng tiền: %,.0f VND", tong));
+    }
+
+    private String formatCurrency(double value) {
+        try {
+            java.text.NumberFormat nf = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
+            return nf.format(Math.max(0, value));
+        } catch (Exception e) {
+            return String.format("%,.0f VND", value);
+        }
+    }
+
+    private double getBestPromotionPrice(ChiTietPDB ct) {
+        if (ct == null || ct.getMonAn() == null) return ct != null ? ct.getDonGia() : 0.0;
+        double base = ct.getDonGia();
+        try {
+            List<ChiTietKhuyenMai> promos = chiTietKhuyenMaiDAO.layActiveTheoMonApDung(ct.getMonAn().getMaMonAn());
+            List<KhuyenMai> globalPromos = khuyenMaiDAO.layDanhSachKhuyenMaiSuKienHieuLuc();
+            java.math.BigDecimal baseBD = java.math.BigDecimal.valueOf(base);
+            java.math.BigDecimal best = baseBD;
+            if (promos != null) {
+                for (ChiTietKhuyenMai p : promos) {
+                    java.math.BigDecimal candidate = baseBD;
+                    if (p.getTyLeGiam() != null && p.getTyLeGiam().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        candidate = baseBD.multiply(java.math.BigDecimal.ONE.subtract(p.getTyLeGiam().divide(java.math.BigDecimal.valueOf(100))));
+                    } else if (p.getSoTienGiam() != null && p.getSoTienGiam().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        candidate = baseBD.subtract(p.getSoTienGiam());
+                    } else if (p.getSoLuongTang() != null && p.getSoLuongTang() > 0) {
+                        candidate = baseBD; 
+                    }
+                    if (candidate.compareTo(best) < 0) best = candidate;
+                }
+            }
+            if (globalPromos != null) {
+                for (KhuyenMai g : globalPromos) {
+                    java.math.BigDecimal candidate = baseBD;
+                    if (g.getTyLe() != null && g.getTyLe().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        candidate = baseBD.multiply(java.math.BigDecimal.ONE.subtract(g.getTyLe().divide(java.math.BigDecimal.valueOf(100))));
+                    } else if (g.getSoTien() != null && g.getSoTien().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        candidate = baseBD.subtract(g.getSoTien());
+                    }
+                    if (candidate.compareTo(best) < 0) best = candidate;
+                }
+            }
+            double result = best.doubleValue();
+            return result < 0 ? 0.0 : result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return base;
+        }
+    }
+
+    private String getBestPromotionName(ChiTietPDB ct) {
+        if (ct == null || ct.getMonAn() == null) return "";
+        try {
+            List<ChiTietKhuyenMai> promos = chiTietKhuyenMaiDAO.layActiveTheoMonApDung(ct.getMonAn().getMaMonAn());
+            List<KhuyenMai> globalPromos = khuyenMaiDAO.layDanhSachKhuyenMaiSuKienHieuLuc();
+            double base = ct.getDonGia();
+            double bestPrice = base;
+            ChiTietKhuyenMai bestPromo = null;
+            KhuyenMai bestGlobal = null;
+            if (promos != null) {
+                for (ChiTietKhuyenMai p : promos) {
+                    double candidate = base;
+                    if (p.getTyLeGiam() != null && p.getTyLeGiam().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        candidate = base * (1 - p.getTyLeGiam().doubleValue() / 100.0);
+                    } else if (p.getSoTienGiam() != null && p.getSoTienGiam().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        candidate = base - p.getSoTienGiam().doubleValue();
+                    } else if (p.getSoLuongTang() != null && p.getSoLuongTang() > 0) {
+                        candidate = base;
+                    }
+                    if (candidate < bestPrice || bestPromo == null) {
+                        bestPrice = candidate;
+                        bestPromo = p;
+                    }
+                }
+            }
+            if (globalPromos != null) {
+                for (KhuyenMai g : globalPromos) {
+                    double candidate = base;
+                    if (g.getTyLe() != null && g.getTyLe().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        candidate = base * (1 - g.getTyLe().doubleValue() / 100.0);
+                    } else if (g.getSoTien() != null && g.getSoTien().compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        candidate = base - g.getSoTien().doubleValue();
+                    }
+                    if (candidate < bestPrice) {
+                        bestPrice = candidate;
+                        bestGlobal = g;
+                        bestPromo = null;
+                    }
+                }
+            }
+            if (bestPromo != null && bestPromo.getKhuyenMai() != null) {
+                String name = bestPromo.getKhuyenMai().getTenKM();
+                if (name == null || name.isBlank()) name = bestPromo.getKhuyenMai().getMaKM();
+                if ((bestPromo.getTyLeGiam() == null || bestPromo.getTyLeGiam().compareTo(java.math.BigDecimal.ZERO) == 0)
+                        && (bestPromo.getSoTienGiam() == null || bestPromo.getSoTienGiam().compareTo(java.math.BigDecimal.ZERO) == 0)
+                        && bestPromo.getSoLuongTang() != null && bestPromo.getSoLuongTang() > 0) {
+                    return name + " (Tặng món)";
+                }
+                return name;
+            }
+            if (bestGlobal != null) {
+                String name = bestGlobal.getTenKM();
+                return name != null ? name : bestGlobal.getMaKM();
+            }
+            return "";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
     }
     
     private void xuLyGuiBep() {

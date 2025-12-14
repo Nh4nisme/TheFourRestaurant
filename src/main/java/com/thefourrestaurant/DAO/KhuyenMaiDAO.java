@@ -14,25 +14,34 @@ public class KhuyenMaiDAO {
     private KhuyenMai anhXaResultSetVaoKhuyenMai(ResultSet rs) throws SQLException {
         KhuyenMai km = new KhuyenMai();
         km.setMaKM(rs.getString("maKM"));
-        km.setTenKM(rs.getString("tenKM"));
-        km.setKieuKM(rs.getString("kieuKM"));
-        km.setMaCode(rs.getString("maCode"));
-        int soLuot = rs.getInt("soLuotSuDung");
-        km.setSoLuotSuDung(rs.wasNull() ? null : soLuot);
-        km.setTyLe(rs.getBigDecimal("tyLe"));
-        km.setSoTien(rs.getBigDecimal("soTien"));
-        Timestamp ngayBDTimestamp = rs.getTimestamp("ngayBatDau");
-        if (ngayBDTimestamp != null) km.setNgayBatDau(ngayBDTimestamp.toLocalDateTime());
-        Timestamp ngayKTTimestamp = rs.getTimestamp("ngayKetThuc");
-        if (ngayKTTimestamp != null) km.setNgayKetThuc(ngayKTTimestamp.toLocalDateTime());
-        km.setMoTa(rs.getString("moTa"));
+        try { km.setTenKM(rs.getString("tenKM")); } catch (SQLException ignored) {}
+        try { km.setKieuKM(rs.getString("kieuKM")); } catch (SQLException ignored) {}
+        try { km.setMaCode(rs.getString("maCode")); } catch (SQLException ignored) {}
+        try {
+            int soLuot = rs.getInt("soLuotSuDung");
+            km.setSoLuotSuDung(rs.wasNull() ? null : soLuot);
+        } catch (SQLException ignored) {}
+        try { km.setTyLe(rs.getBigDecimal("tyLe")); } catch (SQLException ignored) {}
+        try { km.setSoTien(rs.getBigDecimal("soTien")); } catch (SQLException ignored) {}
+        try {
+            Timestamp ngayBDTimestamp = rs.getTimestamp("ngayBatDau");
+            if (ngayBDTimestamp != null) km.setNgayBatDau(ngayBDTimestamp.toLocalDateTime());
+        } catch (SQLException ignored) {}
+        try {
+            Timestamp ngayKTTimestamp = rs.getTimestamp("ngayKetThuc");
+            if (ngayKTTimestamp != null) km.setNgayKetThuc(ngayKTTimestamp.toLocalDateTime());
+        } catch (SQLException ignored) {}
+        try { km.setMoTa(rs.getString("moTa")); } catch (SQLException ignored) {}
 
-        if (rs.getString("maLoaiKM") != null) {
-            LoaiKhuyenMai lkm = new LoaiKhuyenMai();
-            lkm.setMaLoaiKM(rs.getString("maLoaiKM"));
-            lkm.setTenLoaiKM(rs.getString("tenLoaiKM"));
-            km.setLoaiKhuyenMai(lkm);
-        }
+        try {
+            String maLoai = rs.getString("maLoaiKM");
+            if (maLoai != null) {
+                LoaiKhuyenMai lkm = new LoaiKhuyenMai();
+                lkm.setMaLoaiKM(maLoai);
+                try { lkm.setTenLoaiKM(rs.getString("tenLoaiKM")); } catch (SQLException ignored) {}
+                km.setLoaiKhuyenMai(lkm);
+            }
+        } catch (SQLException ignored) {}
 
         return km;
     }
@@ -232,23 +241,8 @@ public class KhuyenMaiDAO {
 
     public List<KhuyenMai> layDanhSachKhuyenMaiSuKienHieuLuc() {
         List<KhuyenMai> danhSach = new ArrayList<>();
-        String sql = layCauTruyVanCoBan() +
-                "WHERE km.kieuKM = ? " +
-                "AND GETDATE() BETWEEN km.ngayBatDau AND km.ngayKetThuc " +
-                "ORDER BY km.maKM DESC";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, KhuyenMai.KIEU_SU_KIEN);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    danhSach.add(anhXaResultSetVaoKhuyenMai(rs));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return danhSach;
+        // For now ignore SQL-level filters (kieuKM / dates) — return all promotions so UI can pick
+        return layDanhSachKhuyenMai();
     }
 
     public boolean giamSoLuotSuDung(String maKM) {

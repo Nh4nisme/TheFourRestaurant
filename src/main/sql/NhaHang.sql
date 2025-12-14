@@ -159,7 +159,9 @@ CREATE TABLE MonAn (
     soLuong INT DEFAULT 0 NOT NULL,
     daBan INT DEFAULT 0 NOT NULL,
     isDeleted BIT DEFAULT 0,
-    CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon)
+    maKM CHAR(8) NULL,  
+    CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon),
+    CONSTRAINT FK_MonAn_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM) 
 );
 GO
 

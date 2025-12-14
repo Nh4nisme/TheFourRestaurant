@@ -19,7 +19,10 @@ public class ChiTietKhuyenMaiDAO {
         KhuyenMai km = new KhuyenMai();
         km.setMaKM(rs.getString("maKM"));
         km.setMoTa(rs.getString("moTaKM")); // Alias for KhuyenMai.moTa
-        // Có thể set thêm các thuộc tính khác của KhuyenMai nếu cần
+        try {
+            String tenKM = rs.getString("tenKM");
+            if (tenKM != null) km.setTenKM(tenKM);
+        } catch (SQLException ignored) {}
         ct.setKhuyenMai(km);
 
         // MonApDung
@@ -46,13 +49,28 @@ public class ChiTietKhuyenMaiDAO {
 
     private String getBaseSelectSQL() {
         return "SELECT ctkm.*, " +
-               "km.moTa AS moTaKM, " + // Alias for KhuyenMai.moTa
-               "ma_ad.tenMon AS tenMonApDung, " + // Alias for MonAn.tenMon (applied)
-               "ma_tang.tenMon AS tenMonTang " + // Alias for MonAn.tenMon (gifted)
+               "km.moTa AS moTaKM, km.tenKM AS tenKM, " +
+               "ma_ad.tenMon AS tenMonApDung, " +
+               "ma_tang.tenMon AS tenMonTang " +
                "FROM ChiTietKhuyenMai ctkm " +
                "JOIN KhuyenMai km ON ctkm.maKM = km.maKM " +
                "JOIN MonAn ma_ad ON ctkm.maMonApDung = ma_ad.maMonAn " +
                "LEFT JOIN MonAn ma_tang ON ctkm.maMonTang = ma_tang.maMonAn ";
+    }
+
+    public List<ChiTietKhuyenMai> layActiveTheoMonApDung(String maMonApDung) {
+        List<ChiTietKhuyenMai> ds = new ArrayList<>();
+        String sql = getBaseSelectSQL() + " WHERE ctkm.maMonApDung = ? AND GETDATE() BETWEEN km.ngayBatDau AND km.ngayKetThuc ORDER BY ctkm.maCTKM";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maMonApDung);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) ds.add(mapResultSetToChiTiet(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ds;
     }
 
     public List<ChiTietKhuyenMai> layTheoMaKM(String maKM) {
