@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.monan;
 
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ComboBox;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +12,9 @@ import com.thefourrestaurant.model.ChiTietKhuyenMai;
 import com.thefourrestaurant.DAO.KhuyenMaiDAO;
 import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.DAO.MonAnDAO;
+import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.model.Ban;
+import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.ChiTietPDB;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.model.PhieuDatBan;
@@ -47,9 +50,13 @@ public class GiaoDienGoiMon extends BorderPane {
     private ButtonSample btnTim, btnLamMoi;
     private StackPane mainContent;
     private MonAnDAO monAnDAO = new MonAnDAO();
+    private LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
     private ChiTietKhuyenMaiDAO chiTietKhuyenMaiDAO = new ChiTietKhuyenMaiDAO();
     private KhuyenMaiDAO khuyenMaiDAO = new KhuyenMaiDAO();
     private Ban ban;
+    private ComboBox<LoaiMon> cboLoaiMon;
+    private List<MonAn> allMonAn = new java.util.ArrayList<>();
+    private GridPane gridMon;
     
     private TableView<ChiTietPDB> bangPhieu;
     private Label lblTongTien;
@@ -106,9 +113,21 @@ public class GiaoDienGoiMon extends BorderPane {
         lblLoaiMon.setTextFill(Color.web("#D4A84A"));
         lblLoaiMon.setFont(Font.font("System", FontWeight.BOLD, 14));
 
-        TextField txtLoaiMon = new TextField();
-        txtLoaiMon.setPromptText("Tìm loại món...");
-        txtLoaiMon.setPrefWidth(200);
+        // ComboBox chọn loại món để lọc
+        cboLoaiMon = new ComboBox<>();
+        cboLoaiMon.setPromptText("Chọn loại món...");
+        cboLoaiMon.setPrefWidth(200);
+        // Nạp dữ liệu loại món (thêm tùy chọn Tất cả)
+        LoaiMon allItem = new LoaiMon("ALL", "Tất cả", null);
+        List<LoaiMon> loaiList = loaiMonDAO.layTatCaLoaiMon();
+        cboLoaiMon.getItems().add(allItem);
+        if (loaiList != null && !loaiList.isEmpty()) cboLoaiMon.getItems().addAll(loaiList);
+        cboLoaiMon.setValue(allItem);
+        cboLoaiMon.setOnAction(evt -> {
+            LoaiMon sel = cboLoaiMon.getValue();
+            if (sel == null || "ALL".equals(sel.getMaLoaiMon())) refreshMonGrid(null);
+            else refreshMonGrid(sel.getMaLoaiMon());
+        });
 
         Label lblTenMon = new Label("Tên món:");
         lblTenMon.setTextFill(Color.web("#D4A84A"));
@@ -121,7 +140,7 @@ public class GiaoDienGoiMon extends BorderPane {
         btnTim = new ButtonSample("Tìm kiếm", "", 35, 14,3);
         btnLamMoi = new ButtonSample("Làm mới", "", 35, 14,3);
 
-        thanhTren.getChildren().addAll(menuThucDon, lblLoaiMon, txtLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi);
+        thanhTren.getChildren().addAll(menuThucDon, lblLoaiMon, cboLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi);
         return thanhTren;
     }
 
@@ -130,51 +149,26 @@ public class GiaoDienGoiMon extends BorderPane {
         container.setAlignment(Pos.CENTER);
         container.setPadding(new Insets(10));
 
-        // GridPane chứa các món ăn
-        GridPane grid = new GridPane();
-        grid.setHgap(15);
-        grid.setVgap(15);
-        grid.setAlignment(Pos.TOP_CENTER);
+        // GridPane chứa các món ăn (dùng lại để refresh khi lọc)
+        gridMon = new GridPane();
+        gridMon.setHgap(15);
+        gridMon.setVgap(15);
+        gridMon.setAlignment(Pos.TOP_CENTER);
 
         for (int i = 0; i < 4; i++) {
             ColumnConstraints cc = new ColumnConstraints();
             cc.setPercentWidth(25);
             cc.setHalignment(HPos.CENTER);
-            grid.getColumnConstraints().add(cc);
+            gridMon.getColumnConstraints().add(cc);
         }
 
-        // Lấy danh sách món ăn từ DB
-        List<MonAn> danhSachMon = monAnDAO.layTatCaMonAn();
-
-        int col = 0;
-        int row = 0;
-        for (MonAn mon : danhSachMon) {
-            MonAnBox monBox = new MonAnBox(
-                mon.getTenMon(),
-                String.format("%,.0f", mon.getDonGia().doubleValue()),
-                mon.getHinhAnh() != null ? mon.getHinhAnh() : "🍽️"
-            );
-            // Hiển thị số lượng hiện có dưới giá
-            monBox.updateSoLuong(mon.getSoLuong());
-            // Hiển thị số đã bán
-            monBox.updateDaBan(mon.getDaBan());
-
-            monBox.setOnMouseClicked(e -> themMonVaoPhieu(mon));
-
-            monBoxMap.put(mon.getMaMonAn(), monBox);
-
-            grid.add(monBox, col, row);
-
-            col++;
-            if (col == 4) {
-                col = 0;
-                row++;
-            }
-        }
+        // Lấy danh sách món ăn từ DB và hiển thị
+        allMonAn = monAnDAO.layTatCaMonAn();
+        populateGrid(allMonAn);
 
         // ScrollPane bọc GridPane
         ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setContent(grid);
+        scrollPane.setContent(gridMon);
         scrollPane.setFitToWidth(true);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -189,6 +183,43 @@ public class GiaoDienGoiMon extends BorderPane {
         VBox.setVgrow(scrollPane, Priority.ALWAYS); // ScrollPane mở rộng theo VBox
 
         return container;
+    }
+
+    private void populateGrid(List<MonAn> danhSachMon) {
+        gridMon.getChildren().clear();
+        monBoxMap.clear();
+
+        int col = 0;
+        int row = 0;
+        if (danhSachMon == null) return;
+        for (MonAn mon : danhSachMon) {
+            MonAnBox monBox = new MonAnBox(
+                mon.getTenMon(),
+                mon.getDonGia() != null ? String.format("%,.0f", mon.getDonGia().doubleValue()) : "0",
+                mon.getHinhAnh() != null ? mon.getHinhAnh() : "🍽️"
+            );
+            monBox.updateSoLuong(mon.getSoLuong());
+            monBox.updateDaBan(mon.getDaBan());
+            monBox.setOnMouseClicked(e -> themMonVaoPhieu(mon));
+
+            monBoxMap.put(mon.getMaMonAn(), monBox);
+            gridMon.add(monBox, col, row);
+
+            col++;
+            if (col == 4) { col = 0; row++; }
+        }
+    }
+
+    private void refreshMonGrid(String maLoai) {
+        if (maLoai == null || maLoai.isEmpty()) {
+            populateGrid(allMonAn);
+            return;
+        }
+        List<MonAn> filtered = new java.util.ArrayList<>();
+        for (MonAn m : allMonAn) {
+            if (m.getLoaiMon() != null && maLoai.equals(m.getLoaiMon().getMaLoaiMon())) filtered.add(m);
+        }
+        populateGrid(filtered);
     }
 
     @SuppressWarnings({ "unchecked", "deprecation" })
