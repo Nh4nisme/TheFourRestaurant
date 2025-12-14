@@ -2,6 +2,8 @@ package com.thefourrestaurant.view.monan;
 
 import javafx.scene.control.ScrollPane;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
 import com.thefourrestaurant.DAO.MonAnDAO;
@@ -47,6 +49,7 @@ public class GiaoDienGoiMon extends BorderPane {
     private Label lblTongTien;
     private ObservableList<ChiTietPDB> danhSachChiTiet = FXCollections.observableArrayList();
     private PhieuDatBan pdb;
+    private Map<String, MonAnBox> monBoxMap = new HashMap<>();
 
 
 	public GiaoDienGoiMon(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
@@ -140,13 +143,17 @@ public class GiaoDienGoiMon extends BorderPane {
         int col = 0;
         int row = 0;
         for (MonAn mon : danhSachMon) {
-            VBox monBox = new MonAnBox(
+            MonAnBox monBox = new MonAnBox(
                 mon.getTenMon(),
                 String.format("%,.0f", mon.getDonGia().doubleValue()),
                 mon.getHinhAnh() != null ? mon.getHinhAnh() : "🍽️"
             );
+            // Hiển thị số lượng hiện có dưới giá
+            monBox.updateSoLuong(mon.getSoLuong());
 
             monBox.setOnMouseClicked(e -> themMonVaoPhieu(mon));
+
+            monBoxMap.put(mon.getMaMonAn(), monBox);
 
             grid.add(monBox, col, row);
 
@@ -215,11 +222,18 @@ public class GiaoDienGoiMon extends BorderPane {
 	                "-fx-cursor: hand; -fx-font-size: 16px;"
 	            );
 
-	            btnXoa.setOnAction(e -> {
-	                ChiTietPDB chiTiet = getTableView().getItems().get(getIndex());
-	                danhSachChiTiet.remove(chiTiet);
-	                capNhatTongTien();
-	            });
+                btnXoa.setOnAction(e -> {
+                    ChiTietPDB chiTiet = getTableView().getItems().get(getIndex());
+                    // Trả lại số lượng cho món (client-side)
+                    MonAn mon = chiTiet.getMonAn();
+                    if (mon != null) {
+                        mon.setSoLuong(mon.getSoLuong() + chiTiet.getSoLuong());
+                        MonAnBox box = monBoxMap.get(mon.getMaMonAn());
+                        if (box != null) box.updateSoLuong(mon.getSoLuong());
+                    }
+                    danhSachChiTiet.remove(chiTiet);
+                    capNhatTongTien();
+                });
 	        }
 
 	        @Override
@@ -267,7 +281,22 @@ public class GiaoDienGoiMon extends BorderPane {
 	}
 
     private void themMonVaoPhieu(MonAn mon) {
-        // Kiểm tra xem món đã có trong danh sách chưa
+        // Không cho đặt nếu hiện tại số lượng bằng 0 (client-side)
+        if (mon.getSoLuong() <= 0) {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                javafx.scene.control.Alert.AlertType.WARNING,
+                "Món " + mon.getTenMon() + " hiện đã hết."
+            );
+            alert.showAndWait();
+            return;
+        }
+
+        // Trừ 1 ở client-side và cập nhật hiển thị số lượng trên box
+        mon.setSoLuong(Math.max(0, mon.getSoLuong() - 1));
+        MonAnBox box = monBoxMap.get(mon.getMaMonAn());
+        if (box != null) box.updateSoLuong(mon.getSoLuong());
+
+        // Kiểm tra xem món đã có trong danh sách chưa; nếu có tăng số lượng, nếu chưa thêm mới
         for (ChiTietPDB ct : danhSachChiTiet) {
             if (ct.getMonAn().getMaMonAn().equals(mon.getMaMonAn())) {
                 ct.setSoLuong(ct.getSoLuong() + 1);
@@ -277,7 +306,6 @@ public class GiaoDienGoiMon extends BorderPane {
             }
         }
 
-        // Nếu món chưa có thì thêm mới
         ChiTietPDB chiTietMoi = new ChiTietPDB();
         chiTietMoi.setMonAn(mon);
         chiTietMoi.setDonGia(mon.getDonGia().doubleValue());

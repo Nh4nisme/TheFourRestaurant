@@ -113,6 +113,34 @@ public class MonAnBox extends BaseBox {
         }
     }
 
+    // Cập nhật hoặc thêm nhãn số lượng (dùng bởi giao diện gọi khi số lượng thay đổi phía client)
+    public void updateSoLuong(int soLuong) {
+        if (this.getChildren().size() < 2) return;
+        javafx.scene.Node bottom = this.getChildren().get(1);
+        if (!(bottom instanceof VBox)) return;
+        VBox vb = (VBox) bottom;
+
+        // Tìm label bắt đầu bằng "Số lượng:"
+        Label found = null;
+        for (javafx.scene.Node n : vb.getChildren()) {
+            if (n instanceof Label) {
+                Label l = (Label) n;
+                if (l.getText() != null && l.getText().startsWith("Số lượng:")) {
+                    found = l;
+                    break;
+                }
+            }
+        }
+
+        if (found != null) {
+            found.setText("Số lượng: " + soLuong);
+        } else {
+            Label lblSoLuong = new Label("Số lượng: " + soLuong);
+            lblSoLuong.setStyle("-fx-text-fill: #666666; -fx-font-size: 11px;");
+            vb.getChildren().add(lblSoLuong);
+        }
+    }
+
     private Image loadImage(String imagePath) {
         Image image = null;
         
