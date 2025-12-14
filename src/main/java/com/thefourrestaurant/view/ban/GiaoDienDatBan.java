@@ -479,9 +479,17 @@ public class GiaoDienDatBan extends BorderPane {
 
     private void datMon() {
         List<Ban> dsChon = layDsBanDangChonHoacThongBao();
-        if (dsChon == null) return;        
+        if (dsChon == null) return;
+        
         PhieuDatBan pdbHienCo = phieuDAO.layPhieuDangHoatDongTheoBan(dsChon.get(0).getMaBan());
-
+        if (pdbHienCo == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Thông báo");
+            alert.setHeaderText(null);
+            alert.setContentText("Bàn này chưa có phiếu đặt hoặc đang trống, không thể gọi món!");
+            alert.showAndWait();
+            return;
+        }
         mainContent.getChildren().clear();
         mainContent.getChildren().add(new GiaoDienGoiMon(mainContent, dsChon.get(0), pdbHienCo));
     }
