@@ -14,6 +14,7 @@ import com.thefourrestaurant.view.khachhang.GiaoDienTraCuuKhachHang;
 import com.thefourrestaurant.view.khuyenmai.GiaoDienKhuyenMai;
 import com.thefourrestaurant.view.loaimonan.LoaiMonAn;
 import com.thefourrestaurant.view.monan.GiaoDienMonAn;
+import com.thefourrestaurant.view.monan.GiaoDienTraCuuMonAn;
 import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 import com.thefourrestaurant.view.thongke.ThongKeGiaoDienChinh;
 import com.thefourrestaurant.view.nhanvien.GiaoDienNhanVien;
@@ -221,12 +222,12 @@ public class NavBar extends HBox {
             case DM_HOA_DON -> new GiaoDienHoaDon();
             case DM_KHACH_HANG -> new GiaoDienKhachHang();
             case DM_TAI_KHOAN -> new GiaoDienTaiKhoan();
-            case DM_NHAN_VIEN -> new GiaoDienNhanVien(); // <--- Add this line
+            case DM_NHAN_VIEN -> new GiaoDienNhanVien();
             case DM_TANG_BAN -> new QuanLiBan((StackPane) mainContent, "QUAN_LY_BAN");
 
             case XL_DAT_BAN -> new GiaoDienDatBan((StackPane) mainContent);
             case TC_PHIEU_DAT_BAN -> new GiaoDienPhieuDatBan();
-            case TC_MON_AN -> new GiaoDienMonAn(null, "Tra cứu Món ăn");
+            case TC_MON_AN -> new GiaoDienTraCuuMonAn();
             case TC_KHUYEN_MAI -> new GiaoDienKhuyenMai();
             case TC_KHACH_HANG -> new GiaoDienTraCuuKhachHang();
 

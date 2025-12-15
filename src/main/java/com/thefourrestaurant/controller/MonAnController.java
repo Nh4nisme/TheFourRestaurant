@@ -8,7 +8,6 @@ import com.thefourrestaurant.view.monan.MonAnDialog;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -18,6 +17,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public class MonAnController {
@@ -117,6 +117,39 @@ public class MonAnController {
         return monAnDAO.capNhatSoLuong(maMonAn, soLuongMoi);
     }
 
+    public List<MonAn> layMonAnDaXoa() {
+        return monAnDAO.layMonAnDaXoa();
+    }
+
+    public boolean khoiPhucMonAn(Stage owner, Set<MonAn> cacMonCanKhoiPhuc) {
+        if (cacMonCanKhoiPhuc == null || cacMonCanKhoiPhuc.isEmpty()) {
+            showAlert(owner, Alert.AlertType.WARNING, "Không có món ăn nào được chọn để khôi phục.");
+            return false;
+        }
+
+        int thanhCong = 0;
+        int thatBai = 0;
+
+        for (MonAn mon : cacMonCanKhoiPhuc) {
+            if (monAnDAO.khoiPhucMonAn(mon.getMaMonAn())) {
+                thanhCong++;
+            } else {
+                thatBai++;
+            }
+        }
+
+        if (thanhCong > 0 && thatBai == 0) {
+            showAlert(owner, Alert.AlertType.INFORMATION, "Khôi phục thành công " + thanhCong + " món ăn!");
+            return true;
+        } else if (thanhCong > 0 && thatBai > 0) {
+            showAlert(owner, Alert.AlertType.WARNING, "Khôi phục thành công " + thanhCong + " món, thất bại " + thatBai + " món.");
+            return true;
+        } else {
+            showAlert(owner, Alert.AlertType.ERROR, "Khôi phục thất bại tất cả các món ăn.");
+            return false;
+        }
+    }
+
     public String saoChepHinhAnhVaoProject(String sourceImagePath) {
         try {
             // 1. Kiểm tra file nguồn tồn tại
@@ -125,7 +158,7 @@ public class MonAnController {
                 System.err.println("Lỗi: File nguồn không tồn tại: " + sourceImagePath);
                 return null;
             }
-            
+
             // 2. Kiểm tra định dạng file hợp lệ
             String originalFileName = sourceFile.getName();
             String fileExtension = "";
@@ -133,16 +166,16 @@ public class MonAnController {
             if (i > 0) {
                 fileExtension = originalFileName.substring(i).toLowerCase();
             }
-            
+
             // Chỉ cho phép các định dạng ảnh phổ biến
-            if (!fileExtension.equals(".png") && !fileExtension.equals(".jpg") && 
-                !fileExtension.equals(".jpeg") && !fileExtension.equals(".gif") && 
-                !fileExtension.equals(".bmp")) {
+            if (!fileExtension.equals(".png") && !fileExtension.equals(".jpg") &&
+                    !fileExtension.equals(".jpeg") && !fileExtension.equals(".gif") &&
+                    !fileExtension.equals(".bmp")) {
                 System.err.println("Lỗi: Định dạng file không hợp lệ: " + fileExtension);
                 System.err.println("Chỉ hỗ trợ: .png, .jpg, .jpeg, .gif, .bmp");
                 return null;
             }
-            
+
             // 3. Kiểm tra kích thước file (giới hạn 10MB)
             long fileSizeBytes = sourceFile.length();
             long maxSizeBytes = 10 * 1024 * 1024; // 10MB
@@ -150,7 +183,7 @@ public class MonAnController {
                 System.err.println("Lỗi: File quá lớn: " + (fileSizeBytes / 1024 / 1024) + "MB. Giới hạn 10MB.");
                 return null;
             }
-            
+
             // 4. Tạo tên tệp mới để tránh trùng lặp và ký tự đặc biệt
             String newFileName = UUID.randomUUID().toString() + fileExtension;
 
