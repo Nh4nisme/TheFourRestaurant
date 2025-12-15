@@ -1,11 +1,10 @@
 package com.thefourrestaurant.view.ban;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import javafx.scene.paint.Color;
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
+import com.thefourrestaurant.controller.CountdownController;
 import com.thefourrestaurant.controller.ThanhToanController;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.ChiTietPDB;
@@ -14,9 +13,6 @@ import com.thefourrestaurant.view.monan.GiaoDienGoiMon;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -27,7 +23,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 public class GiaoDienChiTietBan extends BorderPane {
 
@@ -35,6 +30,8 @@ public class GiaoDienChiTietBan extends BorderPane {
 	private Ban ban;
 	private PhieuDatBan pdb;
 	private Label lblConLai;
+	private final CountdownController countdownController =
+	        CountdownController.getInstance();
 
 	public GiaoDienChiTietBan(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
 		this.mainContent = mainContent;
@@ -68,22 +65,13 @@ public class GiaoDienChiTietBan extends BorderPane {
 
 		Button nutQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 120);
 		nutQuayLai.setOnAction(e -> {
-		    Object ud = lblConLai.getUserData();
-		    if (ud instanceof Timeline tl) {
-		        tl.stop();
-		    }
 		    mainContent.getChildren().setAll(new GiaoDienDatBan(mainContent));
 		});
 
 		Region dayCach = new Region();
 		HBox.setHgrow(dayCach, Priority.ALWAYS);
 		Button nutTinhTien = new ButtonSample2("Tính tiền", Variant.YELLOW, 120);
-
 		nutTinhTien.setOnAction(e -> {
-		    // stop countdown nếu có
-		    Object ud = lblConLai.getUserData();
-		    if (ud instanceof Timeline tl) tl.stop();
-
 		    new ThanhToanController().moManThanhToan(pdb);
 		});
 
@@ -180,7 +168,13 @@ public class GiaoDienChiTietBan extends BorderPane {
 		Label lblMaPDB = new Label(), lblSDT = new Label(), lblGioVao = new Label(), lblHoTen = new Label();
 		
 		lblConLai = new Label();
-		startCountdownChiTiet(lblConLai);
+
+		if ("Đang phục vụ".equals(ban.getTrangThai())) {
+		    countdownController.startDangPhucVu(pdb, lblConLai);
+		} else {
+		    lblConLai.setText("—");
+		}
+
 
 		Label[] headers = { n1, n2, n3, n4, n5 };
 		for (Label lbl : headers) {
@@ -314,40 +308,6 @@ public class GiaoDienChiTietBan extends BorderPane {
 		p.setMinWidth(width);
 		p.setPrefWidth(width);
 		return p;
-	}
-
-	private void startCountdownChiTiet(Label lblConLai) {
-		if (pdb == null || pdb.getNgayDat() == null) {
-			lblConLai.setText("");
-			return;
-		}
-
-		LocalDateTime end = pdb.getNgayDat().plusHours(2);
-
-		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-
-			long seconds = java.time.Duration.between(LocalDateTime.now(), end).getSeconds();
-
-			if (seconds <= 0) {
-				lblConLai.setText("Hết giờ");
-				lblConLai.setTextFill(Color.RED);
-				((Timeline) e.getSource()).stop();
-				return;
-			}
-
-			long h = seconds / 3600;
-			long m = (seconds % 3600) / 60;
-			long s = seconds % 60;
-
-			lblConLai.setText(String.format("%02d:%02d:%02d", h, m, s));
-
-			lblConLai.setTextFill(seconds <= 900 ? Color.RED : Color.BLACK);
-		}));
-
-		timeline.setCycleCount(Animation.INDEFINITE);
-		timeline.play();
-
-		lblConLai.setUserData(timeline);
 	}
 
 }

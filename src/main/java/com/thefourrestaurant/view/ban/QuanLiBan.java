@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
+import com.thefourrestaurant.controller.CountdownController;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.view.components.ButtonSample;
@@ -22,11 +23,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.PauseTransition;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
 import javafx.scene.paint.Color;
 
 public class QuanLiBan extends VBox {
@@ -88,7 +84,7 @@ public class QuanLiBan extends VBox {
 	public void hienThiBanTheoTang(String maTang) {
 		Map<String, PhieuDatBan> mapDangPhucVu = pdbDAO.layTatCaPhieuDangPhucVuTheoTang();
 		Map<String, PhieuDatBan> mapDatTruoc = pdbDAO.layTatCaPhieuDatTruocTheoTang();
-
+		
 		khuVucBan.getChildren().clear();
 
 		lblBreadcrumb.setText("Trang chủ / Quản lý bàn / Tầng " + maTang.replace("TG00000", ""));
@@ -199,7 +195,6 @@ public class QuanLiBan extends VBox {
 			banDAO.capNhatToaDo(ban.getMaBan(), (int) khungBan.getLayoutX(), (int) khungBan.getLayoutY());
 		});
 
-		// ✅ Click chọn bàn / mở popup
 		khungBan.setOnMouseClicked(e -> {
 			if (e.getClickCount() == 1) {
 				if (dsBanDangChon.contains(ban)) {
@@ -234,15 +229,30 @@ public class QuanLiBan extends VBox {
 			}
 		});
 
-		khungBan.setUserData(ban.getMaBan());
 		pane.getChildren().add(khungBan);
+		khungBan.setUserData(ban.getMaBan());
 
-		// ✅ Hiển thị countdown nếu đang phục vụ
-		if ("Đang phục vụ".equals(ban.getTrangThai()) && "DAT_BAN".equals(context)) {
-			PhieuDatBan pdbDangPhucVu = mapDangPhucVu.get(ban.getMaBan());
-			if (pdbDangPhucVu != null) {
-				Platform.runLater(() -> showCountdown(ban, pdbDangPhucVu, khungBan));
-			}
+		if ("Đang phục vụ".equals(ban.getTrangThai())) {
+
+		    PhieuDatBan pdb = mapDangPhucVu.get(ban.getMaBan());
+		    if (pdb != null) {
+
+		        Label lblCountDown = new Label();
+		        lblCountDown.setStyle(
+		            "-fx-font-size: 14px;" +
+		            "-fx-font-weight: bold;" +
+		            "-fx-text-fill: white;" +
+		            "-fx-background-color: rgba(0,0,0,0.6);" +
+		            "-fx-padding: 2 8;" +
+		            "-fx-background-radius: 6;"
+		        );
+
+		        StackPane.setAlignment(lblCountDown, Pos.TOP_CENTER);
+		        StackPane.setMargin(lblCountDown, new Insets(-35, 0, 0, 0));
+		        khungBan.getChildren().add(lblCountDown);
+
+		        CountdownController.getInstance().startDangPhucVu(pdb, lblCountDown);
+		    }
 		}
 	}
 
@@ -302,7 +312,7 @@ public class QuanLiBan extends VBox {
 	}
 
 	public void clearAllBan() {
-		khuVucBan.getChildren().clear();
+	    khuVucBan.getChildren().clear();
 	}
 
 	public void hienThiBanTheoDieuKien(String maTang, String trangThai, String loaiBan, int soGhe) {
@@ -352,64 +362,6 @@ public class QuanLiBan extends VBox {
 				taoBan(khuVucBan, b, new HashMap<>(), new HashMap<>());
 			}
 		}
-	}
-
-	public void showCountdown(Ban ban, PhieuDatBan pdb, StackPane khungBan) {
-		if (ban == null || pdb == null || khungBan == null)
-			return;
-		if (!"Đang phục vụ".equals(ban.getTrangThai()))
-			return;
-
-		khungBan.getChildren()
-				.removeIf(n -> n instanceof Label lbl && "COUNTDOWN".equals(lbl.getProperties().get("TYPE")));
-
-		Label lbl = new Label();
-		lbl.getProperties().put("TYPE", "COUNTDOWN");
-		lbl.setStyle("-fx-font-size: 14px;" + "-fx-font-weight: bold;" + "-fx-text-fill: red;"
-				+ "-fx-background-color: rgba(0,0,0,0.6);" + "-fx-padding: 2 8;" + "-fx-background-radius: 6;");
-
-		StackPane.setAlignment(lbl, Pos.TOP_CENTER);
-		StackPane.setMargin(lbl, new Insets(-35, 0, 0, 0));
-		khungBan.getChildren().add(lbl);
-
-		startCountdownForDangPhucVu(ban, pdb, lbl);
-	}
-
-	public void startCountdownForDangPhucVu(Ban ban, PhieuDatBan pdb, Label lbl) {
-
-		Timeline old = (Timeline) lbl.getUserData();
-		if (old != null)
-			old.stop();
-
-		LocalDateTime end = pdb.getNgayDat().plusHours(2);
-
-		final Timeline[] timelineRef = new Timeline[1];
-
-		timelineRef[0] = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-
-			long seconds = java.time.Duration.between(LocalDateTime.now(), end).getSeconds();
-
-			if (seconds <= 0) {
-				lbl.setText("Hết giờ");
-				timelineRef[0].stop(); // ✅ OK
-
-				banDAO.capNhatTrangThai(ban.getMaBan(), "Trống");
-
-				Platform.runLater(() -> hienThiBanTheoTang(ban.getTang().getMaTang()));
-				return;
-			}
-
-			long h = seconds / 3600;
-			long m = (seconds % 3600) / 60;
-			long s = seconds % 60;
-
-			lbl.setText(String.format("%02d:%02d:%02d", h, m, s));
-			lbl.setTextFill(seconds <= 900 ? Color.RED : Color.BLACK);
-		}));
-
-		timelineRef[0].setCycleCount(Animation.INDEFINITE);
-		timelineRef[0].play();
-		lbl.setUserData(timelineRef[0]);
 	}
 
 	public StackPane timKhungBanTheoMa(String maBan) {
