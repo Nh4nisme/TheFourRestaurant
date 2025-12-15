@@ -46,7 +46,7 @@ public class KhungGioManagerDialog extends Stage {
         titleBox.setStyle("-fx-background-color: #1E424D;");
         layoutChinh.setTop(titleBox);
 
-        // Center: List of existing KhungGio and a form to add new ones
+        // Center: Danh sách KhungGio hiện có và biểu mẫu để thêm mới
         VBox centerBox = new VBox(15);
         centerBox.setPadding(new Insets(10));
 

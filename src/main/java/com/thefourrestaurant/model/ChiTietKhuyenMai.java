@@ -9,7 +9,7 @@ public class ChiTietKhuyenMai {
     private MonAn monTang;
     private BigDecimal tyLeGiam;
     private BigDecimal soTienGiam;
-    private Integer soLuongTang; // Use Integer for nullability
+    private Integer soLuongTang;
 
     public ChiTietKhuyenMai() {
     }

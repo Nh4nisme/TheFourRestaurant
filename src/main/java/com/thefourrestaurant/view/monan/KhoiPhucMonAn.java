@@ -1,19 +1,14 @@
-package com.thefourrestaurant.view.khuyenmai;
+package com.thefourrestaurant.view.monan;
 
 import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.components.ButtonSample;
-import com.thefourrestaurant.view.monan.MonAnBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -22,9 +17,9 @@ import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ChonMonAnDialog extends Stage {
+public class KhoiPhucMonAn extends Stage {
 
-    private final List<MonAn> danhSachMonAnGoc;
+    private final List<MonAn> danhSachMonAnDaXoa;
     private List<MonAn> danhSachMonAnHienThi;
 
     private final Set<MonAn> cacMonDaChon = new HashSet<>();
@@ -37,26 +32,21 @@ public class ChonMonAnDialog extends Stage {
 
     private boolean daXacNhan = false;
 
-    public ChonMonAnDialog(List<MonAn> danhSachMonAn, Set<MonAn> cacMonDaChonTruoc, boolean choPhepChonNhieu) {
-        this.danhSachMonAnGoc = new ArrayList<>(danhSachMonAn);
-        this.danhSachMonAnHienThi = new ArrayList<>(danhSachMonAnGoc);
-
-        if (cacMonDaChonTruoc != null) {
-            this.cacMonDaChon.addAll(cacMonDaChonTruoc);
-        }
+    public KhoiPhucMonAn(List<MonAn> danhSachMonAnDaXoa) {
+        this.danhSachMonAnDaXoa = new ArrayList<>(danhSachMonAnDaXoa);
+        this.danhSachMonAnHienThi = new ArrayList<>(this.danhSachMonAnDaXoa);
 
         this.initModality(Modality.APPLICATION_MODAL);
-        this.setTitle("Chọn món ăn");
+        this.setTitle("Khôi phục món ăn");
 
         BorderPane layoutChinh = new BorderPane();
         layoutChinh.setStyle("-fx-background-color: #F5F5F5;");
 
-        // Header
         VBox header = new VBox(10);
         header.setStyle("-fx-background-color: #1E424D;");
         header.setPadding(new Insets(15));
 
-        Label tieuDe = new Label("Chọn món ăn áp dụng khuyến mãi");
+        Label tieuDe = new Label("Khôi phục món ăn đã xóa");
         tieuDe.setStyle("-fx-text-fill: #D4A017; -fx-font-size: 18px; -fx-font-weight: bold;");
 
         lblDaChon.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
@@ -64,10 +54,8 @@ public class ChonMonAnDialog extends Stage {
 
         header.getChildren().addAll(tieuDe, lblDaChon);
 
-        // Middle bar với các nút lọc và tìm kiếm
         HBox khungGiua = createMiddleBar();
 
-        // Content
         VBox contentBox = new VBox(10);
         contentBox.setPadding(new Insets(20));
         VBox.setVgrow(contentBox, Priority.ALWAYS);
@@ -90,21 +78,19 @@ public class ChonMonAnDialog extends Stage {
         dsMonAnContainer.getChildren().add(scrollPane);
         contentBox.getChildren().add(dsMonAnContainer);
 
-        // Status bar
         HBox statusBar = new HBox();
         statusBar.setPadding(new Insets(5, 20, 5, 20));
         statusBar.setAlignment(Pos.CENTER_LEFT);
         lblItemCount.setStyle("-fx-text-fill: #333333; -fx-font-size: 12px;");
         statusBar.getChildren().add(lblItemCount);
 
-        // Footer
         HBox footer = new HBox(10);
         footer.setPadding(new Insets(15));
         footer.setAlignment(Pos.CENTER_RIGHT);
         footer.setStyle("-fx-background-color: #F0F0F0; -fx-border-color: #E0E0E0; -fx-border-width: 1 0 0 0;");
 
-        ButtonSample btnXacNhan = new ButtonSample("Xác nhận", 35, 14, 2);
-        btnXacNhan.setOnAction(e -> {
+        ButtonSample btnKhoiPhuc = new ButtonSample("Khôi phục", 35, 14, 2);
+        btnKhoiPhuc.setOnAction(e -> {
             daXacNhan = true;
             this.close();
         });
@@ -112,7 +98,7 @@ public class ChonMonAnDialog extends Stage {
         ButtonSample btnHuy = new ButtonSample("Hủy", 35, 14, 2);
         btnHuy.setOnAction(e -> this.close());
 
-        footer.getChildren().addAll(btnXacNhan, btnHuy);
+        footer.getChildren().addAll(btnKhoiPhuc, btnHuy);
 
         layoutChinh.setTop(header);
         layoutChinh.setCenter(new VBox(khungGiua, contentBox, statusBar));
@@ -134,7 +120,6 @@ public class ChonMonAnDialog extends Stage {
         khungGiua.setAlignment(Pos.CENTER_LEFT);
         khungGiua.setStyle("-fx-background-color: #1E424D;");
 
-        // Filter cho các Loại Món Ăn
         cboLoaiMonFilter.setPromptText("Lọc theo loại");
         LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
         List<String> tenLoaiMon = loaiMonDAO.layTatCaLoaiMon().stream()
@@ -169,16 +154,14 @@ public class ChonMonAnDialog extends Stage {
         String tuKhoa = txtTimKiem.getText();
         String loaiMonFilter = cboLoaiMonFilter.getValue();
 
-        List<MonAn> filteredList = new ArrayList<>(danhSachMonAnGoc);
+        List<MonAn> filteredList = new ArrayList<>(danhSachMonAnDaXoa);
 
-        // Filter by LoaiMon
         if (loaiMonFilter != null && !loaiMonFilter.equals("Tất cả")) {
             filteredList = filteredList.stream()
                     .filter(monAn -> monAn.getLoaiMon() != null && monAn.getLoaiMon().getTenLoaiMon().equals(loaiMonFilter))
                     .collect(Collectors.toList());
         }
 
-        // Filter by từ khóa tìm kiếm
         if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
             String lowerCaseTuKhoa = tuKhoa.trim().toLowerCase();
             filteredList = filteredList.stream()
@@ -206,12 +189,10 @@ public class ChonMonAnDialog extends Stage {
 
             MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh());
 
-            // Checkbox để chọn món
             CheckBox checkbox = new CheckBox();
             checkbox.setSelected(cacMonDaChon.contains(item));
             checkbox.setStyle("-fx-font-size: 14px;");
 
-            // Đổi màu nền nếu đã chọn
             if (cacMonDaChon.contains(item)) {
                 hopMonAn.setStyle("-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #DDB248; -fx-border-width: 3;");
             }
@@ -241,7 +222,7 @@ public class ChonMonAnDialog extends Stage {
         }
 
         int count = danhSachMonAnHienThi.size();
-        lblItemCount.setText("Hiển thị " + count + " món ăn");
+        lblItemCount.setText("Hiển thị " + count + " món ăn đã xóa");
     }
 
     private void capNhatLabelDaChon() {

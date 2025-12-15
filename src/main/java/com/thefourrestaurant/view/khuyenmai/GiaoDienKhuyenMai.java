@@ -249,9 +249,7 @@ public class GiaoDienKhuyenMai extends VBox {
             });
 
             ContextMenu contextMenu = taoMenuNguCanh(row);
-            row.contextMenuProperty().bind(
-                row.emptyProperty().map(empty -> empty ? null : contextMenu)
-            );
+            row.contextMenuProperty().bind(row.emptyProperty().map(empty -> empty ? null : contextMenu));
             return row;
         });
     }
@@ -264,13 +262,9 @@ public class GiaoDienKhuyenMai extends VBox {
     private void locTheoKieu() {
         String kieuChon = hopLocKieu.getValue();
         if ("Sự kiện (Tự động)".equals(kieuChon)) {
-            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream()
-                    .filter(km -> KhuyenMai.KIEU_SU_KIEN.equals(km.getKieuKM()))
-                    .collect(Collectors.toList());
+            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream().filter(km -> KhuyenMai.KIEU_SU_KIEN.equals(km.getKieuKM())).collect(Collectors.toList());
         } else if ("Mã giảm giá (Nhập mã)".equals(kieuChon)) {
-            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream()
-                    .filter(km -> KhuyenMai.KIEU_MA_GIAM_GIA.equals(km.getKieuKM()))
-                    .collect(Collectors.toList());
+            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream().filter(km -> KhuyenMai.KIEU_MA_GIAM_GIA.equals(km.getKieuKM())).collect(Collectors.toList());
         } else {
             danhSachKhuyenMaiHienThi = FXCollections.observableArrayList(danhSachKhuyenMaiGoc);
         }
@@ -281,11 +275,7 @@ public class GiaoDienKhuyenMai extends VBox {
         locTheoKieu();
         if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
             String lowerCaseTuKhoa = tuKhoa.trim().toLowerCase();
-            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiHienThi.stream()
-                    .filter(km -> km.getMaKM().toLowerCase().contains(lowerCaseTuKhoa) ||
-                                     (km.getTenKM() != null && km.getTenKM().toLowerCase().contains(lowerCaseTuKhoa)) ||
-                                     (km.getMaCode() != null && km.getMaCode().toLowerCase().contains(lowerCaseTuKhoa)))
-                    .collect(Collectors.toList());
+            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiHienThi.stream().filter(km -> km.getMaKM().toLowerCase().contains(lowerCaseTuKhoa) || (km.getTenKM() != null && km.getTenKM().toLowerCase().contains(lowerCaseTuKhoa)) || (km.getMaCode() != null && km.getMaCode().toLowerCase().contains(lowerCaseTuKhoa))).collect(Collectors.toList());
         }
         capNhatHienThi();
     }

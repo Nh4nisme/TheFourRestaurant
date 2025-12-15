@@ -133,18 +133,18 @@ public class MonAnDAO {
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
-        public boolean capNhatSoLuong(String maMonAn, int soLuongMoi) {
-            String sql = "UPDATE MonAn SET soLuong = ? WHERE maMonAn = ?";
-            try (Connection conn = ConnectSQL.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setInt(1, soLuongMoi);
-                ps.setString(2, maMonAn);
-                return ps.executeUpdate() > 0;
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
-            }
+    public boolean capNhatSoLuong(String maMonAn, int soLuongMoi) {
+        String sql = "UPDATE MonAn SET soLuong = ? WHERE maMonAn = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, soLuongMoi);
+            ps.setString(2, maMonAn);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
+    }
 
     public boolean xoaMonAn(String maMonAn) {
         String sql = "UPDATE MonAn SET isDeleted = 1 WHERE maMonAn = ?"; // Xóa mềm
@@ -174,5 +174,25 @@ public class MonAnDAO {
             int number = Integer.parseInt(maxMaMonAn.substring(2)); // bỏ "MA"
             return "MA" + String.format("%06d", number + 1);
         }
+    }
+
+    public List<MonAn> layMonAnDaXoa() {
+        List<MonAn> ds = new ArrayList<>();
+        String sql = "SELECT ma.*, lm.tenLoaiMon FROM MonAn ma LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon WHERE ma.isDeleted = 1";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) ds.add(mapResultSetToMonAn(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return ds;
+    }
+
+    public boolean khoiPhucMonAn(String maMonAn) {
+        String sql = "UPDATE MonAn SET isDeleted = 0 WHERE maMonAn = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maMonAn);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 }

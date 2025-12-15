@@ -19,6 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -28,6 +29,8 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GiaoDienMonAn extends VBox {
@@ -120,6 +123,32 @@ public class GiaoDienMonAn extends VBox {
         btnList.setOnAction(event -> dsMonAnContainer.getChildren().setAll(listViewPane));
         btnGrid.setOnAction(event -> dsMonAnContainer.getChildren().setAll(createGridViewContent()));
 
+        ButtonSample btnKhoiPhuc = new ButtonSample("Khôi phục", 35, 14, 3);
+        btnKhoiPhuc.setOnAction(event -> {
+            List<MonAn> danhSachMonAnDaXoa = controller.layMonAnDaXoa();
+            if (danhSachMonAnDaXoa.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Thông báo");
+                alert.setHeaderText(null);
+                alert.setContentText("Không có món ăn nào đã bị xóa.");
+                alert.initOwner((Stage) getScene().getWindow());
+                alert.showAndWait();
+                return;
+            }
+
+            KhoiPhucMonAn dialog = new KhoiPhucMonAn(danhSachMonAnDaXoa);
+            dialog.initOwner((Stage) getScene().getWindow());
+            dialog.showAndWait();
+
+            Set<MonAn> cacMonCanKhoiPhuc = dialog.getCacMonDaChon();
+            if (cacMonCanKhoiPhuc != null && !cacMonCanKhoiPhuc.isEmpty()) {
+                Stage owner = (Stage) getScene().getWindow();
+                if (controller.khoiPhucMonAn(owner, cacMonCanKhoiPhuc)) {
+                    refreshViews();
+                }
+            }
+        });
+
         Label lblSapXep = new Label("Sắp xếp:");
         lblSapXep.setTextFill(Color.web("#E5D595"));
         lblSapXep.setFont(Font.font("System", FontWeight.BOLD, 14));
@@ -127,10 +156,10 @@ public class GiaoDienMonAn extends VBox {
         LinkedHashMap<String, Boolean> mapChuCai = new LinkedHashMap<>();
         mapChuCai.put("A → Z", true);   // Key: text hiển thị, Value: ascending = true
         mapChuCai.put("Z → A", false);  // Key: text hiển thị, Value: ascending = false
-        
+
         DropDownButtonMap<Boolean> btnTheoChuCai = new DropDownButtonMap<>(
                 "Theo chữ ▼",
-                mapChuCai, 
+                mapChuCai,
                 null, 35, 16, 3
         );
         btnTheoChuCai.setOnItemSelected(ascending -> sapXepTheoTen(ascending));
@@ -138,7 +167,7 @@ public class GiaoDienMonAn extends VBox {
         LinkedHashMap<String, Boolean> mapGia = new LinkedHashMap<>();
         mapGia.put("Tăng dần", true);   // Key: text hiển thị, Value: ascending = true
         mapGia.put("Giảm dần", false);  // Key: text hiển thị, Value: ascending = false
-        
+
         DropDownButtonMap<Boolean> btnTheoGia = new DropDownButtonMap<>(
                 "Theo giá ▼",
                 mapGia,
@@ -151,20 +180,20 @@ public class GiaoDienMonAn extends VBox {
         mapDaBan.put("Ít phổ biến", true);
 
         DropDownButtonMap<Boolean> btnTheoDaBan = new DropDownButtonMap<>(
-            "Theo độ phổ biến ▼",
-            mapDaBan,
-            null, 35, 16, 3
+                "Theo độ phổ biến ▼",
+                mapDaBan,
+                null, 35, 16, 3
         );
         btnTheoDaBan.setOnItemSelected(ascending -> sapXepTheoDaBan(ascending));
 
         LinkedHashMap<String, Boolean> mapNgay = new LinkedHashMap<>();
-        mapNgay.put("Mới nhất", false); 
-        mapNgay.put("Cũ nhất", true); 
+        mapNgay.put("Mới nhất", false);
+        mapNgay.put("Cũ nhất", true);
 
         DropDownButtonMap<Boolean> btnTheoNgay = new DropDownButtonMap<>(
-            "Theo thời gian  ▼",
-            mapNgay,
-            null, 35, 16, 3
+                "Theo thời gian  ▼",
+                mapNgay,
+                null, 35, 16, 3
         );
         btnTheoNgay.setOnItemSelected(ascending -> sapXepTheoNgay(ascending));
 
@@ -178,7 +207,7 @@ public class GiaoDienMonAn extends VBox {
         btnTim.setOnAction(event -> locVaCapNhatMonAn());
         txtTimKiem.setOnAction(event -> locVaCapNhatMonAn());
 
-        khungGiua.getChildren().addAll(cboLoaiMonFilter, btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnTheoNgay, btnTheoDaBan, space, txtTimKiem, btnTim);
+        khungGiua.getChildren().addAll(cboLoaiMonFilter, btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnTheoNgay, btnTheoDaBan, space, txtTimKiem, btnTim, btnKhoiPhuc);
         return khungGiua;
     }
 
