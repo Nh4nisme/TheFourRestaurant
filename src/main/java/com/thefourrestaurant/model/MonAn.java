@@ -39,14 +39,14 @@ public class MonAn {
     public String getTenMon() { return tenMon; }
     public void setTenMon(String tenMon) { this.tenMon = tenMon; }
 
-    public BigDecimal getDonGia() { 
-        return donGia != null ? donGia.setScale(0, RoundingMode.HALF_UP) : BigDecimal.ZERO; 
+    public BigDecimal getDonGia() {
+        return donGia != null ? donGia.setScale(0, RoundingMode.HALF_UP) : BigDecimal.ZERO;
     }
-    
+
     public BigDecimal getRawDonGia() {
         return donGia;
     }
-    
+
     public void setDonGia(BigDecimal donGia) { this.donGia = donGia; }
 
     public String getTrangThai() { return trangThai; }
@@ -59,7 +59,18 @@ public class MonAn {
     public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }
 
     public int getSoLuong() { return soLuong; }
-    public void setSoLuong(int soLuong) { this.soLuong = soLuong; }
+    public void setSoLuong(int soLuong) {
+        this.soLuong = soLuong;
+        capNhatTrangThaiTheoSoLuong();
+    }
+
+    public void capNhatTrangThaiTheoSoLuong() {
+        if (this.soLuong == 0) {
+            this.trangThai = "Hết";
+        } else {
+            this.trangThai = "Còn";
+        }
+    }
 
     public int getDaBan() { return daBan; }
     public void setDaBan(int daBan) { this.daBan = daBan; }

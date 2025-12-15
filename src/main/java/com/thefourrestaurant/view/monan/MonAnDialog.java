@@ -214,7 +214,7 @@ public class MonAnDialog extends Stage {
     private void dienDuLieuHienCo() {
         truongTen.setText(monAnHienTai.getTenMon());
         truongGia.setText(monAnHienTai.getDonGia().toPlainString());
-        hopKiemHienThi.setSelected(monAnHienTai.getTrangThai().equalsIgnoreCase("Con"));
+        hopKiemHienThi.setSelected(monAnHienTai.getTrangThai().equalsIgnoreCase("Còn"));
 
         loaiMonComboBox.setValue(monAnHienTai.getLoaiMon());
         try {

@@ -18,7 +18,7 @@ import com.thefourrestaurant.view.monan.GiaoDienTraCuuMonAn;
 import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 import com.thefourrestaurant.view.thongke.ThongKeGiaoDienChinh;
 import com.thefourrestaurant.view.nhanvien.GiaoDienNhanVien;
-
+import com.thefourrestaurant.view.khuyenmai.GiaoDienTraCuuKhuyenMai;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -228,7 +228,7 @@ public class NavBar extends HBox {
             case XL_DAT_BAN -> new GiaoDienDatBan((StackPane) mainContent);
             case TC_PHIEU_DAT_BAN -> new GiaoDienPhieuDatBan();
             case TC_MON_AN -> new GiaoDienTraCuuMonAn();
-            case TC_KHUYEN_MAI -> new GiaoDienKhuyenMai();
+            case TC_KHUYEN_MAI -> new GiaoDienTraCuuKhuyenMai();
             case TC_KHACH_HANG -> new GiaoDienTraCuuKhachHang();
 
             case HT_TRANG_CHU -> {
