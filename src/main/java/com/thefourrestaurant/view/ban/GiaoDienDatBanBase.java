@@ -286,13 +286,6 @@ public abstract class GiaoDienDatBanBase extends VBox {
             Ban banChinh = dsBan.get(0);
 
             quanLiBan.hienThiBanTheoTang(banChinh.getTang().getMaTang());
-
-            Platform.runLater(() -> {
-                StackPane khungBan = quanLiBan.timKhungBanTheoMa(banChinh.getMaBan());
-                if (khungBan != null) {
-                    quanLiBan.showCountdown(banChinh, pdb, khungBan);
-                }
-            });
         }
 
         parentPane.getChildren().remove(this);
