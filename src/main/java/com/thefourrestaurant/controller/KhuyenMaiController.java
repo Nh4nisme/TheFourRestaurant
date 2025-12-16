@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class KhuyenMaiController {
 
@@ -81,30 +82,16 @@ public class KhuyenMaiController {
     }
 
     public boolean xoaKhuyenMai(Stage owner, KhuyenMai km) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Bạn có chắc chắn muốn xóa khuyến mãi '" + km.getTenKM() + "' không?\nTất cả chi tiết và khung giờ liên quan cũng sẽ bị xóa.", ButtonType.YES, ButtonType.NO);
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Bạn có chắc chắn muốn xóa khuyến mãi '" + km.getTenKM() + "' không?", ButtonType.YES, ButtonType.NO);
         confirm.initOwner(owner);
         Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.YES) {
-            try {
-                // Bước 1: Xóa tất cả các ChiTietKhuyenMai liên quan
-                chiTietKhuyenMaiDAO.xoaTheoMaKM(km.getMaKM());
-
-                // Bước 2: Xóa tất cả các liên kết KhungGio_KM
-                khungGio_KM_DAO.xoaTatCaKhungGio_KMTheoMaKM(km.getMaKM());
-
-                // Bước 3: Xóa bản thân KhuyenMai
-                if (khuyenMaiDAO.xoaKhuyenMai(km.getMaKM())) {
-                    showAlert(owner, Alert.AlertType.INFORMATION, "Xóa khuyến mãi thành công!");
-                    return true;
-                } else {
-                    // Trường hợp này ít khi xảy ra nếu các bước trên thành công
-                    showAlert(owner, Alert.AlertType.ERROR, "Xóa khuyến mãi thất bại sau khi đã xóa các dữ liệu liên quan.");
-                    return false;
-                }
-            } catch (Exception e) {
-                e.printStackTrace(); // In lỗi ra console để debug
-                showAlert(owner, Alert.AlertType.ERROR, "Đã xảy ra lỗi trong quá trình xóa: " + e.getMessage());
+            if (khuyenMaiDAO.xoaKhuyenMai(km.getMaKM())) {
+                showAlert(owner, Alert.AlertType.INFORMATION, "Xóa khuyến mãi thành công!");
+                return true;
+            } else {
+                showAlert(owner, Alert.AlertType.ERROR, "Xóa khuyến mãi thất bại.");
                 return false;
             }
         }
@@ -155,6 +142,39 @@ public class KhuyenMaiController {
             }
         }
         return false;
+    }
+
+    public List<KhuyenMai> layKhuyenMaiDaXoa() {
+        return khuyenMaiDAO.layKhuyenMaiDaXoa();
+    }
+
+    public boolean khoiPhucKhuyenMai(Stage owner, Set<KhuyenMai> cacKMCamKhoiPhuc) {
+        if (cacKMCamKhoiPhuc == null || cacKMCamKhoiPhuc.isEmpty()) {
+            showAlert(owner, Alert.AlertType.WARNING, "Không có khuyến mãi nào được chọn để khôi phục.");
+            return false;
+        }
+
+        int thanhCong = 0;
+        int thatBai = 0;
+
+        for (KhuyenMai km : cacKMCamKhoiPhuc) {
+            if (khuyenMaiDAO.khoiPhucKhuyenMai(km.getMaKM())) {
+                thanhCong++;
+            } else {
+                thatBai++;
+            }
+        }
+
+        if (thanhCong > 0 && thatBai == 0) {
+            showAlert(owner, Alert.AlertType.INFORMATION, "Khôi phục thành công " + thanhCong + " khuyến mãi!");
+            return true;
+        } else if (thanhCong > 0 && thatBai > 0) {
+            showAlert(owner, Alert.AlertType.WARNING, "Khôi phục thành công " + thanhCong + " khuyến mãi, thất bại " + thatBai + " khuyến mãi.");
+            return true;
+        } else {
+            showAlert(owner, Alert.AlertType.ERROR, "Khôi phục thất bại tất cả các khuyến mãi.");
+            return false;
+        }
     }
 
     private void showAlert(Stage owner, Alert.AlertType alertType, String message) {

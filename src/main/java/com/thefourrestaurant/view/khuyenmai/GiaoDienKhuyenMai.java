@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GiaoDienKhuyenMai extends VBox {
@@ -106,6 +107,32 @@ public class GiaoDienKhuyenMai extends VBox {
             }
         });
 
+        ButtonSample btnKhoiPhuc = new ButtonSample("Khôi phục", 35, 14, 3);
+        btnKhoiPhuc.setOnAction(event -> {
+            List<KhuyenMai> danhSachKMDaXoa = boDieuKhien.layKhuyenMaiDaXoa();
+            if (danhSachKMDaXoa.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Thông báo");
+                alert.setHeaderText(null);
+                alert.setContentText("Không có khuyến mãi nào đã bị xóa.");
+                alert.initOwner((Stage) getScene().getWindow());
+                alert.showAndWait();
+                return;
+            }
+
+            KhoiPhucKhuyenMai dialog = new KhoiPhucKhuyenMai(danhSachKMDaXoa);
+            dialog.initOwner((Stage) getScene().getWindow());
+            dialog.showAndWait();
+
+            Set<KhuyenMai> cacKMCamKhoiPhuc = dialog.getCacKMDaChon();
+            if (cacKMCamKhoiPhuc != null && !cacKMCamKhoiPhuc.isEmpty()) {
+                Stage owner = (Stage) getScene().getWindow();
+                if (boDieuKhien.khoiPhucKhuyenMai(owner, cacKMCamKhoiPhuc)) {
+                    lamMoiGiaoDien();
+                }
+            }
+        });
+
         hopLocKieu.setItems(FXCollections.observableArrayList("Tất cả", "Sự kiện (Tự động)", "Mã giảm giá (Nhập mã)"));
         hopLocKieu.setValue("Tất cả");
         hopLocKieu.setStyle("-fx-background-color: white; -fx-background-radius: 5;");
@@ -122,7 +149,7 @@ public class GiaoDienKhuyenMai extends VBox {
         btnTim.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText()));
         txtTimKiem.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText()));
 
-        khungGiua.getChildren().addAll(btnList, btnGrid, hopLocKieu, space, txtTimKiem, btnTim);
+        khungGiua.getChildren().addAll(btnList, btnGrid, hopLocKieu, space, txtTimKiem, btnTim, btnKhoiPhuc);
         return khungGiua;
     }
 
