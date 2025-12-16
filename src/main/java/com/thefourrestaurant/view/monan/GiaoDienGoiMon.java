@@ -161,8 +161,8 @@ public class GiaoDienGoiMon extends BorderPane {
             gridMon.getColumnConstraints().add(cc);
         }
 
-        // Lấy danh sách món ăn từ DB và hiển thị
-        allMonAn = monAnDAO.layTatCaMonAn();
+        // Lấy danh sách món ăn (chỉ những món HIỂN THỊ) từ DB và hiển thị
+        allMonAn = monAnDAO.layTatCaMonAnHienThi();
         populateGrid(allMonAn);
 
         // ScrollPane bọc GridPane

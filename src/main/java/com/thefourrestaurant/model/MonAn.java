@@ -14,6 +14,7 @@ public class MonAn {
     private int soLuong;
     private int daBan;
     private Boolean isDeleted;
+    private Boolean isVisible;
 
     public MonAn() {}
 
@@ -25,6 +26,7 @@ public class MonAn {
         setLoaiMon(loaiMon);
         setHinhAnh(hinhAnh);
         setDeleted(isDeleted);
+        this.isVisible = true;
         this.soLuong = 0;
         this.daBan = 0;
     }
@@ -77,6 +79,9 @@ public class MonAn {
 
     public Boolean getDeleted() {return isDeleted;}
     public void setDeleted(Boolean deleted) {isDeleted = deleted;}
+
+    public Boolean getVisible() { return isVisible; }
+    public void setVisible(Boolean visible) { this.isVisible = visible; }
 
     @Override
     public String toString() {

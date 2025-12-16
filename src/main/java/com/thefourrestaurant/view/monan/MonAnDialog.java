@@ -214,8 +214,7 @@ public class MonAnDialog extends Stage {
     private void dienDuLieuHienCo() {
         truongTen.setText(monAnHienTai.getTenMon());
         truongGia.setText(monAnHienTai.getDonGia().toPlainString());
-        hopKiemHienThi.setSelected(monAnHienTai.getTrangThai().equalsIgnoreCase("Còn"));
-
+        hopKiemHienThi.setSelected(Boolean.TRUE.equals(monAnHienTai.getVisible()));
         loaiMonComboBox.setValue(monAnHienTai.getLoaiMon());
         try {
             truongSoLuong.getValueFactory().setValue(monAnHienTai.getSoLuong());
@@ -320,6 +319,7 @@ public class MonAnDialog extends Stage {
         ketQua.setTenMon(truongTen.getText().trim());
         ketQua.setDonGia(donGia);
         ketQua.setTrangThai(hopKiemHienThi.isSelected() ? "Còn" : "Hết");
+        ketQua.setVisible(hopKiemHienThi.isSelected());
         ketQua.setLoaiMon(loaiMonComboBox.getValue());
         try {
             ketQua.setSoLuong(truongSoLuong.getValue());
