@@ -102,11 +102,22 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
             LocalTime gio = getGioNhanBan();
 
             if (ngay == null || ngay.isBefore(LocalDate.now())) {
-                showDatBanLoi("Vui lòng chọn ngày hợp lệ!");
+                showDatBanLoi("Vui lòng chọn ngày nhận bàn!");
                 return;
             }
 
-            if (gio == null) gio = LocalTime.MIDNIGHT;
+            if (gio == null) {
+                showDatBanLoi("Vui lòng chọn giờ nhận bàn!");
+                return;
+            }
+            
+            if (ngay.equals(LocalDate.now())) {
+                LocalTime gioHienTai = LocalTime.now();
+                if (!gio.isAfter(gioHienTai)) {
+                    showDatBanLoi("Giờ nhận bàn phải sau thời điểm hiện tại!");
+                    return;
+                }
+            }
 
             if (dsBan.isEmpty()) return;
 
@@ -135,6 +146,12 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
             pdb.setNhanVien(assigned);
 
             boolean ok = phieuDatBanDAO.themPhieu(pdb, "DAT_TRUOC", dsBan);
+            
+            if (ok) {
+                quanLiBan.hienThiBanTheoTang(
+                    banChinh.getTang().getMaTang()
+                );
+            }
 
             xuLySauKhiLuu(ok, pdb, dsBan, false);
 
