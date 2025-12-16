@@ -123,7 +123,7 @@ GO
 CREATE TABLE Ban (
     maBan CHAR(8) PRIMARY KEY CHECK (maBan LIKE 'BA%' AND LEN(maBan) = 8),
     tenBan NVARCHAR(50) NOT NULL UNIQUE,
-    trangThai NVARCHAR(20) CHECK(trangThai IN (N'Trống', N'Đang sử dụng', N'Đặt trước', N'Bảo trì')) DEFAULT N'Trống',
+    trangThai NVARCHAR(20) CHECK(trangThai IN (N'Trống', N'Đang phục vụ', N'Đặt trước', N'Bảo trì')) DEFAULT N'Trống',
     toaDoX INT CHECK(toaDoX >= 0),
     toaDoY INT CHECK(toaDoY >= 0),
     maTang CHAR(8) NOT NULL,
@@ -190,7 +190,7 @@ CREATE TABLE MonAn (
     maMonAn CHAR(8) PRIMARY KEY CHECK (maMonAn LIKE 'MA%' AND LEN(maMonAn) = 8),
     tenMon NVARCHAR(50) NOT NULL,
     donGia DECIMAL(12,2) CHECK (donGia >= 0),
-    trangThai NVARCHAR(10) CHECK (trangThai IN ('Con', 'Het')),
+    trangThai NVARCHAR(10) CHECK (trangThai IN (N'Còn', N'Hết')),
     maLoaiMon CHAR(8) NOT NULL,
     hinhAnh NVARCHAR(255) NULL,
     soLuong INT DEFAULT 0 NOT NULL,
@@ -536,12 +536,12 @@ GO
 
 -- Món ăn
 INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh) VALUES
-('MA000001', N'Cơm tấm sườn bì', 55000, 'Con', 'LM000001', N'/com/thefourrestaurant/images/MonAn/com_tam_suon_bi.png'),
-('MA000002', N'Cơm gà xối mỡ', 60000, 'Con', 'LM000001', N'/com/thefourrestaurant/images/MonAn/com_ga_xoi_mo.png'),
-('MA000003', N'Nước cam ép', 25000, 'Con', 'LM000002', N'/com/thefourrestaurant/images/MonAn/nuoc_cam_ep.png'),
-('MA000004', N'Sinh tố bơ', 30000, 'Con', 'LM000002', N'/com/thefourrestaurant/images/MonAn/sinh_to_bo.png'),
-('MA000005', N'Bánh flan', 20000, 'Con', 'LM000003', N'/com/thefourrestaurant/images/MonAn/banh_flan.png'),
-('MA000006', N'Lẩu thái hải sản', 250000, 'Con', 'LM000004', N'/com/thefourrestaurant/images/MonAn/lau_thai_hai_san.png');
+('MA000001', N'Cơm tấm sườn bì', 55000, N'Còn', 'LM000001', N'/com/thefourrestaurant/images/MonAn/com_tam_suon_bi.png'),
+('MA000002', N'Cơm gà xối mỡ', 60000, N'Còn', 'LM000001', N'/com/thefourrestaurant/images/MonAn/com_ga_xoi_mo.png'),
+('MA000003', N'Nước cam ép', 25000, N'Còn', 'LM000002', N'/com/thefourrestaurant/images/MonAn/nuoc_cam_ep.png'),
+('MA000004', N'Sinh tố bơ', 30000, N'Còn', 'LM000002', N'/com/thefourrestaurant/images/MonAn/sinh_to_bo.png'),
+('MA000005', N'Bánh flan', 20000, N'Còn', 'LM000003', N'/com/thefourrestaurant/images/MonAn/banh_flan.png'),
+('MA000006', N'Lẩu thái hải sản', 250000, N'Còn', 'LM000004', N'/com/thefourrestaurant/images/MonAn/lau_thai_hai_san.png');
 GO
 
 -- Loại ThucDon
