@@ -20,7 +20,12 @@ public class MonAnDAO {
         mon.setHinhAnh(rs.getString("hinhAnh"));
         LoaiMon loai = new LoaiMon(rs.getString("maLoaiMon"), rs.getString("tenLoaiMon"), null);
         mon.setLoaiMon(loai);
-        mon.setDeleted(rs.getBoolean("isDeleted")); // Đọc trường isDeleted
+        mon.setDeleted(rs.getBoolean("isDeleted"));
+        try {
+            mon.setVisible(rs.getBoolean("isVisible"));
+        } catch (SQLException e) {
+            mon.setVisible(true);
+        }
         try {
             mon.setSoLuong(rs.getInt("soLuong"));
         } catch (SQLException e) {
@@ -36,6 +41,17 @@ public class MonAnDAO {
 
     private String baseQuery() {
         return "SELECT ma.*, lm.tenLoaiMon FROM MonAn ma LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon WHERE ma.isDeleted = 0 ";
+    }
+
+    public List<MonAn> layTatCaMonAnHienThi() {
+        List<MonAn> ds = new ArrayList<>();
+        String sql = "SELECT ma.*, lm.tenLoaiMon FROM MonAn ma LEFT JOIN LoaiMonAn lm ON ma.maLoaiMon = lm.maLoaiMon WHERE ma.isDeleted = 0 AND ma.isVisible = 1";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) ds.add(mapResultSetToMonAn(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return ds;
     }
 
     public List<MonAn> layTatCaMonAn() {
@@ -88,7 +104,7 @@ public class MonAnDAO {
     }
 
     public boolean themMonAn(MonAn mon) {
-        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, soLuong, daBan, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO MonAn (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, soLuong, daBan, isDeleted, isVisible) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, mon.getMaMonAn());
@@ -99,13 +115,14 @@ public class MonAnDAO {
             ps.setString(6, mon.getHinhAnh());
             ps.setInt(7, mon.getSoLuong());
             ps.setInt(8, mon.getDaBan());
-            ps.setBoolean(9, false); // Mặc định là chưa xóa
+            ps.setBoolean(9, Boolean.TRUE.equals(mon.getDeleted()));
+            ps.setBoolean(10, mon.getVisible() == null ? true : Boolean.TRUE.equals(mon.getVisible()));
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
     public boolean capNhatMonAn(MonAn mon) {
-        String sql = "UPDATE MonAn SET tenMon=?, donGia=?, trangThai=?, maLoaiMon=?, hinhAnh=?, soLuong=? WHERE maMonAn=? AND isDeleted = 0"; // Chỉ cập nhật món ăn chưa xóa
+        String sql = "UPDATE MonAn SET tenMon=?, donGia=?, trangThai=?, maLoaiMon=?, hinhAnh=?, soLuong=?, isDeleted=?, isVisible=? WHERE maMonAn=?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, mon.getTenMon());
@@ -114,7 +131,9 @@ public class MonAnDAO {
             ps.setString(4, mon.getLoaiMon().getMaLoaiMon());
             ps.setString(5, mon.getHinhAnh());
             ps.setInt(6, mon.getSoLuong());
-            ps.setString(7, mon.getMaMonAn());
+            ps.setBoolean(7, Boolean.TRUE.equals(mon.getDeleted()));
+            ps.setBoolean(8, mon.getVisible() == null ? true : Boolean.TRUE.equals(mon.getVisible()));
+            ps.setString(9, mon.getMaMonAn());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
