@@ -68,7 +68,7 @@ public class ChiTietKhuyenMaiDialog extends Stage {
         this.boDieuKhien = boDieuKhien;
 
         this.initModality(Modality.APPLICATION_MODAL);
-        this.setTitle(isEditMode ? "Tùy Chỉnh Chi tiết KM" : "Thêm Chi tiết KM Mới");
+        this.setTitle(isEditMode ? "Tùy Chỉnh Chi Tiết Khuyến Mãi" : "Thêm Chi Tiết Khuyến Mãi Mới");
 
         Font fontMontserrat = null;
         try (InputStream luongFont = getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf")) {

@@ -322,15 +322,15 @@ public class KhuyenMaiDialog extends Stage {
 
     private void luuThayDoi() {
         if (!truongTenKM.getText().trim().matches(TEN_KM_REGEX)) {
-            showAlert(Alert.AlertType.WARNING, "Quy tắc Tên Khuyến Mãi: Phải là một dãy ký tự không dấu, không chứa khoảng trắng, và có độ dài từ 1 đến 100 ký tự.");
+            showAlert(Alert.AlertType.WARNING, "Tên khuyến mãi phải là một dãy ký tự không dấu, không chứa khoảng trắng và có độ dài từ 1 đến 100 ký tự.");
             return;
         }
         if (!truongMoTa.getText().trim().matches(MO_TA_REGEX)) {
-            showAlert(Alert.AlertType.WARNING, "Quy tắc Mô Tả: Không được để trống và phải có độ dài từ 1 đến 255 ký tự.");
+            showAlert(Alert.AlertType.WARNING, "Mô tả không được để trống và phải có độ dài từ 1 đến 255 ký tự.");
             return;
         }
         if (hopChonLoaiKhuyenMai.getValue() == null) {
-            showAlert(Alert.AlertType.WARNING, "Vui lòng chọn Loại khuyến mãi!");
+            showAlert(Alert.AlertType.WARNING, "Vui lòng chọn loại khuyến mãi!");
             return;
         }
 
@@ -343,7 +343,7 @@ public class KhuyenMaiDialog extends Stage {
         if (KhuyenMai.KIEU_MA_GIAM_GIA.equals(kieuKM)) {
             String maCodeInput = truongMaCode.getText().trim().toUpperCase();
             if (maCodeInput.isEmpty() || !maCodeInput.matches(MA_CODE_REGEX)) {
-                showAlert(Alert.AlertType.WARNING, "Mã Code phải từ 3-50 ký tự, chỉ gồm chữ in hoa và số (VD: GIAM10K)");
+                showAlert(Alert.AlertType.WARNING, "Mã Code phải từ 3-50 ký tự, chỉ gồm chữ in hoa và số (VD: GIAM10K).");
                 return;
             }
             maCode = maCodeInput;
@@ -366,13 +366,13 @@ public class KhuyenMaiDialog extends Stage {
         switch (tenLoaiKM) {
             case "Giảm giá theo tỷ lệ":
                 if (truongTyLe.getText().trim().isEmpty() || !truongTyLe.getText().trim().matches(TY_LE_REGEX)) {
-                    showAlert(Alert.AlertType.WARNING, "Quy tắc Tỷ Lệ: Phải là một số hợp lệ từ 0 đến 100.");
+                    showAlert(Alert.AlertType.WARNING, "Tỷ lệ phải là một số hợp lệ từ 0 đến 100.");
                     return;
                 }
                 try {
                     tyLe = new BigDecimal(truongTyLe.getText().trim());
                 } catch (NumberFormatException e) {
-                    showAlert(Alert.AlertType.WARNING, "Quy tắc Tỷ Lệ: Phải là một số hợp lệ từ 0 đến 100.");
+                    showAlert(Alert.AlertType.WARNING, "Tỷ lệ phải là một số hợp lệ từ 0 đến 100.");
                     return;
                 }
                 break;
@@ -380,13 +380,13 @@ public class KhuyenMaiDialog extends Stage {
             case "Giảm giá theo giá trị":
             case "Giảm giá theo số tiền":
                 if (truongSoTien.getText().trim().isEmpty() || !truongSoTien.getText().trim().matches(SO_TIEN_REGEX)) {
-                    showAlert(Alert.AlertType.WARNING, "Quy tắc Số Tiền: Phải là một số hợp lệ và lớn hơn 0.");
+                    showAlert(Alert.AlertType.WARNING, "Số tiền phải là một số hợp lệ và lớn hơn 0.");
                     return;
                 }
                 try {
                     soTien = new BigDecimal(truongSoTien.getText().trim());
                 } catch (NumberFormatException e) {
-                    showAlert(Alert.AlertType.WARNING, "Quy tắc Số Tiền: Phải là một số hợp lệ và lớn hơn 0.");
+                    showAlert(Alert.AlertType.WARNING, "Số tiền phải là một số hợp lệ và lớn hơn 0.");
                     return;
                 }
                 break;

@@ -253,7 +253,7 @@ public class MonAnDialog extends Stage {
         FileChooser boChonTep = new FileChooser();
         boChonTep.setTitle("Chọn Ảnh Món Ăn");
         boChonTep.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
+            new FileChooser.ExtensionFilter("Tệp Ảnh", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
         );
         File tep = boChonTep.showOpenDialog(this);
         if (tep != null) {
@@ -269,16 +269,16 @@ public class MonAnDialog extends Stage {
                 showAlert(Alert.AlertType.WARNING, 
                     "Định dạng ảnh không hỗ trợ!\n" +
                     "Chỉ chấp nhận: PNG, JPG, JPEG, GIF, BMP\n" +
-                    "File của bạn: " + extension);
+                    "Tệp của bạn: " + extension);
                 return;
             }
             
             // Kiểm tra kích thước file
             if (tep.length() > MAX_FILE_SIZE) {
                 showAlert(Alert.AlertType.WARNING, 
-                    "File ảnh quá lớn!\n" +
+                    "Tệp ảnh quá lớn!\n" +
                     "Giới hạn: 10MB\n" +
-                    "Kích thước file: " + (tep.length() / 1024 / 1024) + "MB");
+                    "Kích thước tệp: " + (tep.length() / 1024 / 1024) + "MB");
                 return;
             }
             
@@ -319,7 +319,7 @@ public class MonAnDialog extends Stage {
 
         ketQua.setTenMon(truongTen.getText().trim());
         ketQua.setDonGia(donGia);
-        ketQua.setTrangThai(hopKiemHienThi.isSelected() ? "Con" : "Het");
+        ketQua.setTrangThai(hopKiemHienThi.isSelected() ? "Còn" : "Hết");
         ketQua.setLoaiMon(loaiMonComboBox.getValue());
         try {
             ketQua.setSoLuong(truongSoLuong.getValue());
