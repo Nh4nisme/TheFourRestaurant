@@ -37,6 +37,7 @@ public class QuanLiBan extends VBox {
 	private boolean choPhepDiChuyen = false;
 	private final List<Ban> dsBanDangChon = new ArrayList<>();
 	private static final Map<String, Image> cacheAnhBan = new HashMap<>();
+	private final Map<String, PhieuDatBan> mapDangPhucVuToanBo = new HashMap<>();
 
 	public QuanLiBan(StackPane mainContent, String context) {
 		this.mainContent = mainContent;
@@ -82,8 +83,11 @@ public class QuanLiBan extends VBox {
 
 	// Hiển thị bàn theo tầng
 	public void hienThiBanTheoTang(String maTang) {
-		Map<String, PhieuDatBan> mapDangPhucVu = pdbDAO.layTatCaPhieuDangPhucVuTheoTang();
+
 		Map<String, PhieuDatBan> mapDatTruoc = pdbDAO.layTatCaPhieuDatTruocTheoTang();
+		Map<String, PhieuDatBan> mapDangPhucVu = pdbDAO.layTatCaPhieuDangPhucVuTheoTang();
+		mapDangPhucVuToanBo.clear();
+		mapDangPhucVuToanBo.putAll(mapDangPhucVu);
 		
 		khuVucBan.getChildren().clear();
 
@@ -209,13 +213,13 @@ public class QuanLiBan extends VBox {
 				if ("QUAN_LY_BAN".equals(context)) {
 					moPopupTuyChinhBan(ban);
 				} else if ("DAT_BAN".equals(context)) {
-					PhieuDatBan pdbTomTat = mapDangPhucVu.get(ban.getMaBan());
-				    if (pdbTomTat == null) {
-				        Alert alert = new Alert(Alert.AlertType.INFORMATION,
-				                "Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
-				        alert.show();
-				        return;
-				    }
+					PhieuDatBan pdbTomTat = mapDangPhucVuToanBo.get(ban.getMaBan());
+					if (pdbTomTat == null) {
+					    Alert alert = new Alert(Alert.AlertType.INFORMATION,
+					        "Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
+					    alert.show();
+					    return;
+					}
 
 				    PhieuDatBan pdbDayDu = pdbDAO.layPhieuTheoMa(pdbTomTat.getMaPDB());
 				    if (pdbDayDu == null) {
@@ -234,7 +238,8 @@ public class QuanLiBan extends VBox {
 
 		if ("Đang phục vụ".equals(ban.getTrangThai())) {
 
-		    PhieuDatBan pdb = mapDangPhucVu.get(ban.getMaBan());
+			PhieuDatBan pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
+
 		    if (pdb != null) {
 
 		        Label lblCountDown = new Label();
