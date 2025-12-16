@@ -32,6 +32,7 @@ public class KhuyenMaiDAO {
             if (ngayKTTimestamp != null) km.setNgayKetThuc(ngayKTTimestamp.toLocalDateTime());
         } catch (SQLException ignored) {}
         try { km.setMoTa(rs.getString("moTa")); } catch (SQLException ignored) {}
+        try { km.setDeleted(rs.getBoolean("isDeleted")); } catch (SQLException ignored) {}
 
         try {
             String maLoai = rs.getString("maLoaiKM");
@@ -54,7 +55,7 @@ public class KhuyenMaiDAO {
 
     public List<KhuyenMai> layDanhSachKhuyenMai() {
         List<KhuyenMai> danhSach = new ArrayList<>();
-        String sql = layCauTruyVanCoBan() + "ORDER BY km.maKM DESC";
+        String sql = layCauTruyVanCoBan() + " WHERE km.isDeleted = 0 ORDER BY km.maKM DESC";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -70,7 +71,7 @@ public class KhuyenMaiDAO {
 
     public List<KhuyenMai> layDanhSachKhuyenMaiTheoKieu(String kieuKM) {
         List<KhuyenMai> danhSach = new ArrayList<>();
-        String sql = layCauTruyVanCoBan() + "WHERE km.kieuKM = ? ORDER BY km.maKM DESC";
+        String sql = layCauTruyVanCoBan() + "WHERE km.kieuKM = ? AND km.isDeleted = 0 ORDER BY km.maKM DESC";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -87,7 +88,7 @@ public class KhuyenMaiDAO {
     }
 
     public KhuyenMai layKhuyenMaiTheoMa(String maKM) {
-        String sql = layCauTruyVanCoBan() + " WHERE km.maKM = ?";
+        String sql = layCauTruyVanCoBan() + " WHERE km.maKM = ? AND km.isDeleted = 0";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -123,8 +124,8 @@ public class KhuyenMaiDAO {
     }
 
     public boolean themKhuyenMai(KhuyenMai km) {
-        String sql = "INSERT INTO KhuyenMai (maKM, tenKM, maLoaiKM, kieuKM, maCode, soLuotSuDung, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO KhuyenMai (maKM, tenKM, maLoaiKM, kieuKM, maCode, soLuotSuDung, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa, isDeleted) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -143,6 +144,7 @@ public class KhuyenMaiDAO {
             ps.setObject(9, km.getNgayBatDau());
             ps.setObject(10, km.getNgayKetThuc());
             ps.setString(11, km.getMoTa());
+            ps.setBoolean(12, false);
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -153,7 +155,7 @@ public class KhuyenMaiDAO {
 
     public boolean capNhatKhuyenMai(KhuyenMai km) {
         String sql = "UPDATE KhuyenMai SET tenKM = ?, maLoaiKM = ?, kieuKM = ?, maCode = ?, soLuotSuDung = ?, tyLe = ?, soTien = ?, " +
-                     "ngayBatDau = ?, ngayKetThuc = ?, moTa = ? WHERE maKM = ?";
+                     "ngayBatDau = ?, ngayKetThuc = ?, moTa = ? WHERE maKM = ? AND isDeleted = 0";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -181,7 +183,7 @@ public class KhuyenMaiDAO {
     }
 
     public boolean xoaKhuyenMai(String maKM) {
-        String sql = "DELETE FROM KhuyenMai WHERE maKM = ?";
+        String sql = "UPDATE KhuyenMai SET isDeleted = 1 WHERE maKM = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -197,7 +199,7 @@ public class KhuyenMaiDAO {
     public KhuyenMai timKhuyenMaiTheoMaHoacTen(String input) {
         String sql = layCauTruyVanCoBan() +
                 " WHERE (km.maKM = ? OR km.tenKM = ?) " +
-                " AND GETDATE() BETWEEN km.ngayBatDau AND km.ngayKetThuc";
+                " AND GETDATE() BETWEEN km.ngayBatDau AND km.ngayKetThuc AND km.isDeleted = 0";
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -220,7 +222,7 @@ public class KhuyenMaiDAO {
         String sql = layCauTruyVanCoBan() +
                 " WHERE km.maCode = ? AND km.kieuKM = ? " +
                 " AND GETDATE() BETWEEN km.ngayBatDau AND km.ngayKetThuc" +
-                " AND (km.soLuotSuDung IS NULL OR km.soLuotSuDung > 0)";
+                " AND (km.soLuotSuDung IS NULL OR km.soLuotSuDung > 0) AND km.isDeleted = 0";
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -257,5 +259,25 @@ public class KhuyenMaiDAO {
             e.printStackTrace();
             return false;
         }
+    }
+    
+    public List<KhuyenMai> layKhuyenMaiDaXoa() {
+        List<KhuyenMai> ds = new ArrayList<>();
+        String sql = layCauTruyVanCoBan() + " WHERE km.isDeleted = 1";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) ds.add(anhXaResultSetVaoKhuyenMai(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return ds;
+    }
+
+    public boolean khoiPhucKhuyenMai(String maKM) {
+        String sql = "UPDATE KhuyenMai SET isDeleted = 0 WHERE maKM = ?";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, maKM);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 }
