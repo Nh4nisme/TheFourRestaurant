@@ -271,6 +271,47 @@ public class GiaoDienMonAn extends VBox {
 
         listViewPane.getColumns().addAll(maMonCol, tenMonAnCol, donGiaCol, trangThaiCol);
         listViewPane.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        listViewPane.setRowFactory(tv -> {
+            TableRow<MonAn> row = new TableRow<>();
+            // Sự kiện cho menu chuột phải
+            final ContextMenu contextMenu = new ContextMenu();
+            final MenuItem editItem = new MenuItem("Sửa");
+            editItem.setOnAction(event -> {
+                MonAn monAn = row.getItem();
+                if (monAn != null) {
+                    Stage owner = (Stage) getScene().getWindow();
+                    if (controller.tuyChinhMonAn(owner, monAn)) {
+                        refreshViews();
+                    }
+                }
+            });
+            final MenuItem deleteItem = new MenuItem("Xóa");
+            deleteItem.setOnAction(event -> {
+                MonAn monAn = row.getItem();
+                if (monAn != null) {
+                    Stage owner = (Stage) getScene().getWindow();
+                    if (controller.xoaMonAn(owner, monAn)) {
+                        refreshViews();
+                    }
+                }
+            });
+            contextMenu.getItems().addAll(editItem, deleteItem);
+            row.setOnMouseClicked(event -> {
+                if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2 && !row.isEmpty()) {
+                    MonAn monAn = row.getItem();
+                    Stage owner = (Stage) getScene().getWindow();
+                    if (controller.tuyChinhMonAn(owner, monAn)) {
+                        refreshViews();
+                    }
+                }
+            });
+            // Áp dụng
+            row.contextMenuProperty().bind(
+                    row.emptyProperty().map(empty -> empty ? null : contextMenu)
+            );
+            return row;
+        });
     }
 
     private void refreshViews() {
