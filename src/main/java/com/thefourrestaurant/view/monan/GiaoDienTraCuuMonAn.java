@@ -40,15 +40,6 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
         themThanhTimKiem();
         themButtonLamMoi();
 
-        ButtonSample btnThemMoi = new ButtonSample("+ Thêm món", 35, 16, 3);
-        btnThemMoi.setOnAction(e -> {
-            Stage owner = (Stage) getScene().getWindow();
-            if (controller.themMoiMonAn(owner, null)) {
-                lamMoiDuLieu();
-            }
-        });
-        thanhPhai.getChildren().add(btnThemMoi);
-
         lamMoiDuLieu();
     }
 
