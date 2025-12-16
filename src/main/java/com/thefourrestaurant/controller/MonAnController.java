@@ -46,7 +46,7 @@ public class MonAnController {
         List<LoaiMon> allLoaiMon = layTatCaLoaiMonAn();
 
         if (allLoaiMon.isEmpty()) {
-            showAlert(owner, Alert.AlertType.ERROR, "Không có loại món ăn nào trong CSDL. Vui lòng thêm loại món ăn trước.");
+            showAlert(owner, Alert.AlertType.ERROR, "Không có loại món ăn nào trong cơ sở dữ liệu. Vui lòng thêm loại món ăn trước.");
             return false;
         }
 
@@ -155,7 +155,7 @@ public class MonAnController {
             // 1. Kiểm tra file nguồn tồn tại
             File sourceFile = new File(sourceImagePath);
             if (!sourceFile.exists()) {
-                System.err.println("Lỗi: File nguồn không tồn tại: " + sourceImagePath);
+                System.err.println("Lỗi: Tệp nguồn không tồn tại: " + sourceImagePath);
                 return null;
             }
 
@@ -171,7 +171,7 @@ public class MonAnController {
             if (!fileExtension.equals(".png") && !fileExtension.equals(".jpg") &&
                     !fileExtension.equals(".jpeg") && !fileExtension.equals(".gif") &&
                     !fileExtension.equals(".bmp")) {
-                System.err.println("Lỗi: Định dạng file không hợp lệ: " + fileExtension);
+                System.err.println("Lỗi: Định dạng tệp không hợp lệ: " + fileExtension);
                 System.err.println("Chỉ hỗ trợ: .png, .jpg, .jpeg, .gif, .bmp");
                 return null;
             }
@@ -180,7 +180,7 @@ public class MonAnController {
             long fileSizeBytes = sourceFile.length();
             long maxSizeBytes = 10 * 1024 * 1024; // 10MB
             if (fileSizeBytes > maxSizeBytes) {
-                System.err.println("Lỗi: File quá lớn: " + (fileSizeBytes / 1024 / 1024) + "MB. Giới hạn 10MB.");
+                System.err.println("Lỗi: Tệp quá lớn: " + (fileSizeBytes / 1024 / 1024) + "MB. Giới hạn 10MB.");
                 return null;
             }
 

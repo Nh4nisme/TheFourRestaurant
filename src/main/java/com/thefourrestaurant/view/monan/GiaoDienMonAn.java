@@ -334,8 +334,7 @@ public class GiaoDienMonAn extends VBox {
         if (tuKhoa != null && !tuKhoa.trim().isEmpty()) {
             String lowerCaseTuKhoa = tuKhoa.trim().toLowerCase();
             filteredList = filteredList.stream()
-                    .filter(monAn -> monAn.getTenMon().toLowerCase().contains(lowerCaseTuKhoa) ||
-                            monAn.getMaMonAn().toLowerCase().contains(lowerCaseTuKhoa))
+                    .filter(monAn -> monAn.getTenMon().toLowerCase().contains(lowerCaseTuKhoa))
                     .collect(Collectors.toList());
         }
 
@@ -418,6 +417,17 @@ public class GiaoDienMonAn extends VBox {
                     contextMenu.show(hopMonAn, event.getScreenX(), event.getScreenY());
                 }
             });
+
+            // Gán sự kiện cho icon xóa
+            if (hopMonAn.getDeleteButton() != null) {
+                hopMonAn.getDeleteButton().setOnMouseClicked(event -> {
+                    event.consume(); // Ngăn sự kiện lan sang hopMonAn
+                    Stage owner = (Stage) getScene().getWindow();
+                    if (controller.xoaMonAn(owner, item)) {
+                        refreshViews();
+                    }
+                });
+            }
 
             int idx = i + 1;
             int col = idx % soCotMoiHang;

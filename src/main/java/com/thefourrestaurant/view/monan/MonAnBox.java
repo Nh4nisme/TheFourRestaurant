@@ -9,6 +9,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 
 import java.io.File;
 import java.net.URL;
@@ -18,6 +19,8 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 public class MonAnBox extends BaseBox {
+
+    private StackPane deleteButton;
 
     private MonAnBox() {
         super();
@@ -36,6 +39,11 @@ public class MonAnBox extends BaseBox {
         this.setPadding(Insets.EMPTY);
         this.setAlignment(Pos.CENTER);
         this.getStyleClass().add("mon-an-box");
+
+        // --- Container chính để chứa topPane và deleteButton ---
+        StackPane mainContainer = new StackPane();
+        mainContainer.setPrefHeight(130);
+        mainContainer.setMaxWidth(Double.MAX_VALUE);
 
         // --- Panel trên: hiển thị ảnh ---
         StackPane topPane = new StackPane();
@@ -88,16 +96,44 @@ public class MonAnBox extends BaseBox {
 
         bottomPane.getChildren().addAll(tenMon, lblGia);
 
+        // Icon xóa (dấu X)
+        deleteButton = new StackPane();
+        deleteButton.setVisible(false);
+        deleteButton.setPrefSize(32, 32);
+        deleteButton.setMaxSize(32, 32);
+        deleteButton.setMinSize(32, 32);
+        deleteButton.setStyle("-fx-background-color: rgba(255, 0, 0, 0.8); -fx-background-radius: 16; -fx-cursor: hand;");
+        StackPane.setAlignment(deleteButton, Pos.TOP_RIGHT);
+        StackPane.setMargin(deleteButton, new Insets(8, 8, 0, 0));
+
+        Label xLabel = new Label("×");
+        xLabel.setStyle("-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
+        xLabel.setAlignment(Pos.CENTER);
+        deleteButton.getChildren().add(xLabel);
+
+        // Hiệu ứng hover cho icon xóa
+        deleteButton.setOnMouseEntered(e -> {
+            deleteButton.setStyle("-fx-background-color: rgba(200, 0, 0, 0.9); -fx-background-radius: 16; -fx-cursor: hand;");
+        });
+        deleteButton.setOnMouseExited(e -> {
+            deleteButton.setStyle("-fx-background-color: rgba(255, 0, 0, 0.8); -fx-background-radius: 16; -fx-cursor: hand;");
+        });
+
+        // Gộp topPane và deleteButton vào mainContainer
+        mainContainer.getChildren().addAll(topPane, deleteButton);
+
         // --- Hiệu ứng hover ---
         this.setOnMouseEntered(e -> {
             this.setStyle("-fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 4);");
+            deleteButton.setVisible(true);
         });
         this.setOnMouseExited(e -> {
             this.setStyle("-fx-effect: none;");
+            deleteButton.setVisible(false);
         });
 
         // Gộp phần trên và dưới vào box chính
-        this.getChildren().addAll(topPane, bottomPane);
+        this.getChildren().addAll(mainContainer, bottomPane);
         this.setStyle("-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
     }
 
@@ -141,14 +177,14 @@ public class MonAnBox extends BaseBox {
         }
     }
 
-    // Cập nhật hoặc thêm nhãn đã bán (hiển thị số đã bán cho món)
+    // Cập nhật hoặc thêm nhãn đã bán
     public void updateDaBan(int daBan) {
         if (this.getChildren().size() < 2) return;
         javafx.scene.Node bottom = this.getChildren().get(1);
         if (!(bottom instanceof VBox)) return;
         VBox vb = (VBox) bottom;
 
-        // Tìm label bắt đầu bằng "Đã bán:" hoặc "Đã bán: "
+        // Tìm label bắt đầu bằng "Đã bán:"
         Label found = null;
         for (javafx.scene.Node n : vb.getChildren()) {
             if (n instanceof Label) {
@@ -171,7 +207,7 @@ public class MonAnBox extends BaseBox {
 
     private Image loadImage(String imagePath) {
         Image image = null;
-        
+
         if (imagePath.startsWith("/")) {
             // Thử load từ classpath resource trước
             URL imageUrl = getClass().getResource(imagePath);
@@ -181,10 +217,10 @@ public class MonAnBox extends BaseBox {
                     return image;
                 }
             }
-            
+
             // Nếu không tìm thấy trong classpath, thử load từ file trực tiếp
             String projectDir = System.getProperty("user.dir");
-            
+
             // Thử từ target/classes
             Path targetPath = Paths.get(projectDir, "target/classes", imagePath);
             if (Files.exists(targetPath)) {
@@ -193,7 +229,7 @@ public class MonAnBox extends BaseBox {
                     return image;
                 }
             }
-            
+
             // Thử từ src/main/resources
             Path srcPath = Paths.get(projectDir, "src/main/resources", imagePath);
             if (Files.exists(srcPath)) {
@@ -206,7 +242,7 @@ public class MonAnBox extends BaseBox {
             // File URI hoặc full URL
             image = new Image(imagePath, false);
         }
-        
+
         return image;
     }
 
@@ -243,5 +279,10 @@ public class MonAnBox extends BaseBox {
         clip.setArcWidth(30); // Bán kính bo góc ngang (15*2)
         clip.setArcHeight(30); // Bán kính bo góc dọc (15*2)
         return clip;
+    }
+
+    // --- Lấy nút xóa để gán sự kiện ---
+    public StackPane getDeleteButton() {
+        return deleteButton;
     }
 }

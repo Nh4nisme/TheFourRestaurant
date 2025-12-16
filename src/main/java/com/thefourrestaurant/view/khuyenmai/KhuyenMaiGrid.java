@@ -73,15 +73,26 @@ public class KhuyenMaiGrid extends VBox {
             // --- END: Thêm Context Menu ---
 
             box.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-                if (event.getButton() == MouseButton.SECONDARY) { // Chuột phải
+                if (event.getButton() == MouseButton.SECONDARY) {
                     contextMenu.show(box, event.getScreenX(), event.getScreenY());
-                } else if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) { // Nhấn đúp chuột trái
+                } else if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
                     Stage owner = (Stage) getScene().getWindow();
                     if (boDieuKhien.capNhatKhuyenMai(owner, km)) {
                         mainView.lamMoiGiaoDien();
                     }
                 }
             });
+
+            if (box.getDeleteButton() != null) {
+                box.getDeleteButton().setOnMouseClicked(event -> {
+                    event.consume();
+                    Stage owner = (Stage) getScene().getWindow();
+                    if (boDieuKhien.xoaKhuyenMai(owner, km)) {
+                        mainView.lamMoiGiaoDien();
+                    }
+                });
+            }
+
             grid.getChildren().add(box);
         }
     }

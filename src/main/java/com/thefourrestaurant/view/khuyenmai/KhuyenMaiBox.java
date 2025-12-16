@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -26,6 +27,8 @@ public class KhuyenMaiBox extends BaseBox {
     private final String selectedStyle = "-fx-background-color: #ffffff; -fx-background-radius: 15; -fx-border-color: #673E1F; -fx-border-radius: 15; -fx-border-width: 2; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 8, 0, 0, 4);";
     private final String hoverStyle = "-fx-background-color: #ffffff; -fx-background-radius: 15; -fx-border-color: #d0d0d0; -fx-border-radius: 15; -fx-border-width: 1; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 8, 0, 0, 4);";
 
+    private StackPane deleteButton;
+
     private KhuyenMaiBox() {
         super();
         setPrefSize(220, 200);
@@ -40,6 +43,8 @@ public class KhuyenMaiBox extends BaseBox {
         setPadding(new Insets(15));
         getStyleClass().add("sukien-box");
         setStyle(defaultStyle);
+
+        StackPane mainContainer = new StackPane();
 
         VBox contentBox = new VBox(10);
         contentBox.setAlignment(Pos.TOP_CENTER);
@@ -64,7 +69,7 @@ public class KhuyenMaiBox extends BaseBox {
             giamGiaStr = "Tặng món";
         }
         Label lblGiamGia = new Label(giamGiaStr);
-        lblGiamGia.setFont(Font.font("System", FontWeight.BOLD, 20)); // Reduced size
+        lblGiamGia.setFont(Font.font("System", FontWeight.BOLD, 20));
         lblGiamGia.setWrapText(true);
         lblGiamGia.setTextAlignment(TextAlignment.CENTER);
         lblGiamGia.setStyle("-fx-text-fill: #FF6600;");
@@ -81,24 +86,23 @@ public class KhuyenMaiBox extends BaseBox {
 
         // Trang thai
         String status = "Chưa áp dụng";
-        String statusStyle = "-fx-text-fill: #7f8c8d;"; // gray
+        String statusStyle = "-fx-text-fill: #7f8c8d;";
         LocalDateTime now = LocalDateTime.now();
         if (khuyenMai.getNgayBatDau() != null && khuyenMai.getNgayKetThuc() != null) {
             if (now.isAfter(khuyenMai.getNgayKetThuc())) {
                 status = "Đã hết hạn";
-                statusStyle = "-fx-text-fill: #c0392b;"; // red
+                statusStyle = "-fx-text-fill: #c0392b;";
             } else if (now.isBefore(khuyenMai.getNgayBatDau())) {
                 status = "Sắp diễn ra";
-                statusStyle = "-fx-text-fill: #2980b9;"; // blue
+                statusStyle = "-fx-text-fill: #2980b9;";
             } else {
                 status = "Đang diễn ra";
-                statusStyle = "-fx-text-fill: #27ae60;"; // green
+                statusStyle = "-fx-text-fill: #27ae60;";
             }
         }
         Label lblTrangThai = new Label(status);
         lblTrangThai.setFont(Font.font("System", FontWeight.BOLD, 14));
         lblTrangThai.setStyle(statusStyle);
-
 
         contentBox.getChildren().addAll(
                 lblTenKM,
@@ -107,18 +111,43 @@ public class KhuyenMaiBox extends BaseBox {
                 lblTrangThai
         );
 
+        deleteButton = new StackPane();
+        deleteButton.setVisible(false);
+        deleteButton.setPrefSize(32, 32);
+        deleteButton.setMaxSize(32, 32);
+        deleteButton.setMinSize(32, 32);
+        deleteButton.setStyle("-fx-background-color: rgba(255, 0, 0, 0.8); -fx-background-radius: 16; -fx-cursor: hand;");
+        StackPane.setAlignment(deleteButton, Pos.TOP_RIGHT);
+        StackPane.setMargin(deleteButton, new Insets(0, 0, 0, 0));
+
+        Label xLabel = new Label("×");
+        xLabel.setStyle("-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;");
+        xLabel.setAlignment(Pos.CENTER);
+        deleteButton.getChildren().add(xLabel);
+
+        deleteButton.setOnMouseEntered(e -> {
+            deleteButton.setStyle("-fx-background-color: rgba(200, 0, 0, 0.9); -fx-background-radius: 16; -fx-cursor: hand;");
+        });
+        deleteButton.setOnMouseExited(e -> {
+            deleteButton.setStyle("-fx-background-color: rgba(255, 0, 0, 0.8); -fx-background-radius: 16; -fx-cursor: hand;");
+        });
+
+        mainContainer.getChildren().addAll(contentBox, deleteButton);
+
         this.setOnMouseEntered(e -> {
             if (!getStyle().equals(selectedStyle)) {
                 setStyle(hoverStyle);
             }
+            deleteButton.setVisible(true);
         });
         this.setOnMouseExited(e -> {
             if (!getStyle().equals(selectedStyle)) {
                 setStyle(defaultStyle);
             }
+            deleteButton.setVisible(false);
         });
 
-        this.getChildren().add(contentBox);
+        this.getChildren().add(mainContainer);
     }
 
     public void setDefaultStyle() {
@@ -158,5 +187,9 @@ public class KhuyenMaiBox extends BaseBox {
         hop.setOnMouseExited(e -> hop.setStyle("-fx-background-color: #f5f5f5; -fx-background-radius: 15; -fx-border-color: #e0e0e0; -fx-border-radius: 15; -fx-border-width: 2;"));
 
         return hop;
+    }
+
+    public StackPane getDeleteButton() {
+        return deleteButton;
     }
 }
