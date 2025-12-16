@@ -52,9 +52,9 @@ public abstract class GiaoDienTraCuu extends VBox {
     }
 
     // Thêm ô tìm kiếm
-    protected void themThanhTimKiem() {
+    protected void themThanhTimKiem(String promptText) {
         txtTimKiem = new TextField();
-        txtTimKiem.setPromptText("Nhập từ khóa...");
+        txtTimKiem.setPromptText(promptText);
         txtTimKiem.setStyle("-fx-font-size: 16; -fx-background-radius: 8");
 
         ButtonSample btnTim = new ButtonSample("Tìm", 35, 16, 3);
@@ -63,6 +63,7 @@ public abstract class GiaoDienTraCuu extends VBox {
         HBox box = new HBox(10, txtTimKiem, btnTim);
         thanhPhai.getChildren().add(box);
     }
+
 
     // Thêm nút làm mới
     protected void themButtonLamMoi() {
@@ -74,9 +75,7 @@ public abstract class GiaoDienTraCuu extends VBox {
 
     // Tạo bộ lọc A-Z dạng popup bảng chọn như DatePicker
     protected void themBoLocChuCai() {
-        Button btnChon = new Button("Chọn chữ cái");
-        btnChon.setPrefHeight(32);
-        btnChon.setStyle("-fx-font-size: 13;");
+        ButtonSample btnChon = new ButtonSample("Chọn chữ cái", "", 35, 16, 3);
 
         Popup popup = new Popup();
 
@@ -101,7 +100,7 @@ public abstract class GiaoDienTraCuu extends VBox {
 
             char finalC = c;
             btn.setOnAction(e -> {
-                btnChon.setText("Chữ: " + finalC);
+                btnChon.setText("Lọc theo chữ: " + finalC);
                 thucHienLocTheoChuCai(String.valueOf(finalC));
                 popup.hide();
             });

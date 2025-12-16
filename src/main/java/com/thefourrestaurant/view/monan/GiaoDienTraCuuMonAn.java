@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.monan;
 
 import com.thefourrestaurant.DAO.LoaiMonDAO;
+import com.thefourrestaurant.controller.LoaiMonAnController;
 import com.thefourrestaurant.controller.MonAnController;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
@@ -25,37 +26,52 @@ import java.util.stream.Collectors;
 public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
 
     private final MonAnController controller;
+    private final LoaiMonAnController loaiMonAnController;
     private List<MonAn> danhSachMonAnGoc;
     private List<MonAn> danhSachMonAnHienThi;
-    private final ComboBox<String> cboLoaiMonFilter = new ComboBox<>();
+    private DropDownButtonMap<String> btnLoaiMon;
 
     public GiaoDienTraCuuMonAn() {
         super();
         this.controller = new MonAnController();
+        this.loaiMonAnController = new LoaiMonAnController();
 
         khoiTaoGiaoDien();
         themBoLocChuCai();
         themBoLocLoaiMon();
         themBoLocSapXep();
-        themThanhTimKiem();
+        themThanhTimKiem("Nhập tên món ăn");
         themButtonLamMoi();
-
         lamMoiDuLieu();
     }
 
     private void themBoLocLoaiMon() {
-        cboLoaiMonFilter.setPromptText("Lọc theo loại");
-        LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
-        List<String> tenLoaiMon = loaiMonDAO.layTatCaLoaiMon().stream()
-                .map(LoaiMon::getTenLoaiMon)
-                .collect(Collectors.toList());
-        cboLoaiMonFilter.getItems().add("Tất cả");
-        cboLoaiMonFilter.getItems().addAll(tenLoaiMon);
-        cboLoaiMonFilter.setValue("Tất cả");
-        cboLoaiMonFilter.setOnAction(e -> locVaCapNhatMonAn());
+//        cboLoaiMonFilter.setPromptText("Lọc theo loại");
+//        LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
+//        List<String> tenLoaiMon = loaiMonDAO.layTatCaLoaiMon().stream()
+//                .map(LoaiMon::getTenLoaiMon)
+//                .collect(Collectors.toList());
+//        cboLoaiMonFilter.getItems().add("Tất cả");
+//        cboLoaiMonFilter.getItems().addAll(tenLoaiMon);
+//        cboLoaiMonFilter.setValue("Tất cả");
+//        cboLoaiMonFilter.setOnAction(e -> locVaCapNhatMonAn());
+//
+//        thanhTrai.getChildren().add(cboLoaiMonFilter);
 
-        thanhTrai.getChildren().add(cboLoaiMonFilter);
+        LinkedHashMap<String, String> dsLoaiMon = new LinkedHashMap<>();
+        dsLoaiMon.put("Tất cả", null);
+        loaiMonAnController.layTatCaLoaiMonAn()
+                .forEach(loaiMon -> {
+                    dsLoaiMon.put(
+                            loaiMon.getTenLoaiMon(),   // text hiển thị
+                            loaiMon.getMaLoaiMon()     // value logic
+                    );
+                });
+        btnLoaiMon = new DropDownButtonMap<>("Lọc theo loại", dsLoaiMon, null, 35, 16, 3);
+        btnLoaiMon.setOnItemSelected(maLoaiMon -> locVaCapNhatMonAn());
+        thanhTrai.getChildren().add(btnLoaiMon);
     }
+
 
     private void themBoLocSapXep() {
         LinkedHashMap<String, Boolean> mapGia = new LinkedHashMap<>();
@@ -134,17 +150,33 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
     }
 
     private void locVaCapNhatMonAn() {
-        String loaiMonFilter = cboLoaiMonFilter.getValue();
+//        String loaiMonFilter = cboLoaiMonFilter.getValue();
+//
+//        if (loaiMonFilter != null && !loaiMonFilter.equals("Tất cả")) {
+//            danhSachMonAnHienThi = danhSachMonAnGoc.stream()
+//                    .filter(monAn -> monAn.getLoaiMon() != null && monAn.getLoaiMon().getTenLoaiMon().equals(loaiMonFilter))
+//                    .collect(Collectors.toList());
+//        } else {
+//            danhSachMonAnHienThi = danhSachMonAnGoc;
+//        }
+//        capNhatBang();
 
-        if (loaiMonFilter != null && !loaiMonFilter.equals("Tất cả")) {
-            danhSachMonAnHienThi = danhSachMonAnGoc.stream()
-                    .filter(monAn -> monAn.getLoaiMon() != null && monAn.getLoaiMon().getTenLoaiMon().equals(loaiMonFilter))
-                    .collect(Collectors.toList());
-        } else {
+        String maLoaiDuocChon = btnLoaiMon.getSelectedValue();
+
+        if (maLoaiDuocChon == null) {
             danhSachMonAnHienThi = danhSachMonAnGoc;
+        } else {
+            danhSachMonAnHienThi = danhSachMonAnGoc.stream()
+                    .filter(monAn ->
+                            monAn.getLoaiMon() != null &&
+                                    maLoaiDuocChon.equals(monAn.getLoaiMon().getMaLoaiMon())
+                    )
+                    .toList();
         }
+
         capNhatBang();
     }
+
 
     @Override
     protected TableView<?> taoBangChinh() {

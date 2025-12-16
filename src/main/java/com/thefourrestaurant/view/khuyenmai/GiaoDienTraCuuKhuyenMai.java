@@ -39,7 +39,7 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
         themBoLocChuCai();
         themBoLocLoaiKhuyenMai();
         themBoLocSapXep();
-        themThanhTimKiem();
+        themThanhTimKiem("Nhập tên khuyến mãi");
         themButtonLamMoi();
 
         lamMoiDuLieu();
