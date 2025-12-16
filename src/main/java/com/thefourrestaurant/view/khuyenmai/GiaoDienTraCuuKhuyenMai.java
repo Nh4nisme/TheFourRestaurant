@@ -42,15 +42,6 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
         themThanhTimKiem();
         themButtonLamMoi();
 
-        ButtonSample btnThemMoi = new ButtonSample("+ Thêm khuyến mãi", 35, 16, 3);
-        btnThemMoi.setOnAction(e -> {
-            Stage owner = (Stage) getScene().getWindow();
-            if (controller.themKhuyenMaiMoi(owner)) {
-                lamMoiDuLieu();
-            }
-        });
-        thanhPhai.getChildren().add(btnThemMoi);
-
         lamMoiDuLieu();
     }
 

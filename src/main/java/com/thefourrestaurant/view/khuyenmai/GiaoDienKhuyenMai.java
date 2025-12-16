@@ -106,14 +106,6 @@ public class GiaoDienKhuyenMai extends VBox {
             }
         });
 
-        ButtonSample btnThemMoi = new ButtonSample("Thêm khuyến mãi", "", 35, 14, 3);
-        btnThemMoi.setOnAction(e -> {
-            Stage owner = (Stage) getScene().getWindow();
-            if (boDieuKhien.themKhuyenMaiMoi(owner)) {
-                lamMoiGiaoDien();
-            }
-        });
-
         hopLocKieu.setItems(FXCollections.observableArrayList("Tất cả", "Sự kiện (Tự động)", "Mã giảm giá (Nhập mã)"));
         hopLocKieu.setValue("Tất cả");
         hopLocKieu.setStyle("-fx-background-color: white; -fx-background-radius: 5;");
@@ -130,7 +122,7 @@ public class GiaoDienKhuyenMai extends VBox {
         btnTim.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText()));
         txtTimKiem.setOnAction(event -> locVaCapNhatKhuyenMai(txtTimKiem.getText()));
 
-        khungGiua.getChildren().addAll(btnList, btnGrid, btnThemMoi, hopLocKieu, space, txtTimKiem, btnTim);
+        khungGiua.getChildren().addAll(btnList, btnGrid, hopLocKieu, space, txtTimKiem, btnTim);
         return khungGiua;
     }
 
