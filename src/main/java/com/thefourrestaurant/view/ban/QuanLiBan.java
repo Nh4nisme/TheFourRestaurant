@@ -88,7 +88,7 @@ public class QuanLiBan extends VBox {
 		Map<String, PhieuDatBan> mapDangPhucVu = pdbDAO.layTatCaPhieuDangPhucVuTheoTang();
 		mapDangPhucVuToanBo.clear();
 		mapDangPhucVuToanBo.putAll(mapDangPhucVu);
-		
+
 		khuVucBan.getChildren().clear();
 
 		lblBreadcrumb.setText("Trang chủ / Quản lý bàn / Tầng " + maTang.replace("TG00000", ""));
@@ -213,22 +213,20 @@ public class QuanLiBan extends VBox {
 				if ("QUAN_LY_BAN".equals(context)) {
 					moPopupTuyChinhBan(ban);
 				} else if ("DAT_BAN".equals(context)) {
-					PhieuDatBan pdbTomTat = mapDangPhucVuToanBo.get(ban.getMaBan());
-					if (pdbTomTat == null) {
-					    Alert alert = new Alert(Alert.AlertType.INFORMATION,
-					        "Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
-					    alert.show();
-					    return;
-					}
+					PhieuDatBan pdbDayDu = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
 
-				    PhieuDatBan pdbDayDu = pdbDAO.layPhieuTheoMa(pdbTomTat.getMaPDB());
 				    if (pdbDayDu == null) {
-				        Alert alert = new Alert(Alert.AlertType.ERROR,
-				                "Không tải được dữ liệu phiếu đặt bàn!");
+				        Alert alert = new Alert(
+				            Alert.AlertType.INFORMATION,
+				            "Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động."
+				        );
 				        alert.show();
 				        return;
 				    }
-					mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban, pdbDayDu));
+
+				    mainContent.getChildren().setAll(
+				        new GiaoDienChiTietBan(mainContent, ban, pdbDayDu)
+				    );
 				}
 			}
 		});
@@ -240,24 +238,18 @@ public class QuanLiBan extends VBox {
 
 			PhieuDatBan pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
 
-		    if (pdb != null) {
+			if (pdb != null) {
 
-		        Label lblCountDown = new Label();
-		        lblCountDown.setStyle(
-		            "-fx-font-size: 14px;" +
-		            "-fx-font-weight: bold;" +
-		            "-fx-text-fill: white;" +
-		            "-fx-background-color: rgba(0,0,0,0.6);" +
-		            "-fx-padding: 2 8;" +
-		            "-fx-background-radius: 6;"
-		        );
+				Label lblCountDown = new Label();
+				lblCountDown.setStyle("-fx-font-size: 14px;" + "-fx-font-weight: bold;" + "-fx-text-fill: white;"
+						+ "-fx-background-color: rgba(0,0,0,0.6);" + "-fx-padding: 2 8;" + "-fx-background-radius: 6;");
 
-		        StackPane.setAlignment(lblCountDown, Pos.TOP_CENTER);
-		        StackPane.setMargin(lblCountDown, new Insets(-35, 0, 0, 0));
-		        khungBan.getChildren().add(lblCountDown);
+				StackPane.setAlignment(lblCountDown, Pos.TOP_CENTER);
+				StackPane.setMargin(lblCountDown, new Insets(-35, 0, 0, 0));
+				khungBan.getChildren().add(lblCountDown);
 
-		        CountdownController.getInstance().startDangPhucVu(pdb, lblCountDown);
-		    }
+				CountdownController.getInstance().startDangPhucVu(pdb, lblCountDown);
+			}
 		}
 	}
 
@@ -267,22 +259,26 @@ public class QuanLiBan extends VBox {
 			return "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
 		}
 
-		return switch (ban.getTrangThai().trim()) {
-		case "Bảo trì" -> "-fx-border-color: green; -fx-border-width: 3; -fx-border-radius: 12;";
-		case "Đang phục vụ" -> "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
-		case "Đặt trước" -> {
-			String style = "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
-			PhieuDatBan pdbDatTruoc = mapDatTruoc.get(ban.getMaBan());
-			if (pdbDatTruoc != null && pdbDatTruoc.getNgayDat() != null) {
-				long hours = java.time.Duration.between(LocalDateTime.now(), pdbDatTruoc.getNgayDat()).toHours();
-				if (hours >= 0 && hours < 2) {
-					style = "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
-				}
+		// ƯU TIÊN PHIẾU ĐẶT TRƯỚC
+		PhieuDatBan pdb = mapDatTruoc.get(ban.getMaBan());
+		if (pdb != null && pdb.getNgayDat() != null) {
+			long minutes = java.time.Duration.between(LocalDateTime.now(), pdb.getNgayDat()).toMinutes();
+
+			if (minutes >= 0 && minutes <= 90) {
+				return "-fx-border-color: deepskyblue; -fx-border-width: 3; -fx-border-radius: 12;";
 			}
-			yield style;
 		}
-		default -> "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
-		};
+
+		// AU ĐÓ MỚI XÉT TRẠNG THÁI BÀN
+		if ("Đang phục vụ".equals(ban.getTrangThai())) {
+			return "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
+		}
+
+		if ("Bảo trì".equals(ban.getTrangThai())) {
+			return "-fx-border-color: green; -fx-border-width: 3; -fx-border-radius: 12;";
+		}
+
+		return "-fx-border-color: lightgray; -fx-border-width: 3; -fx-border-radius: 12;";
 	}
 
 	private void moPopupTuyChinhBan(Ban ban) {
@@ -317,7 +313,7 @@ public class QuanLiBan extends VBox {
 	}
 
 	public void clearAllBan() {
-	    khuVucBan.getChildren().clear();
+		khuVucBan.getChildren().clear();
 	}
 
 	public void hienThiBanTheoDieuKien(String maTang, String trangThai, String loaiBan, int soGhe) {
