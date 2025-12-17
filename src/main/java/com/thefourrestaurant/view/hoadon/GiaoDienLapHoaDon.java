@@ -193,6 +193,9 @@ public class GiaoDienLapHoaDon extends VBox {
     /* ================== DATA ================== */
     public void hienThiThongTin(PhieuDatBan pdb) {
         this.phieuDatBan = pdb;
+        
+        PhieuDatBan_BanDAO pdbBanDAO = new PhieuDatBan_BanDAO();
+        pdb.setDanhSachBan(pdbBanDAO.layDanhSachBanTheoPhieu(pdb.getMaPDB()));
 
         lblMaPDB.setText(pdb.getMaPDB());
         lblTenKH.setText(pdb.getKhachHang().getHoTen());
