@@ -2,7 +2,6 @@ package com.thefourrestaurant.controller;
 
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
-import com.thefourrestaurant.model.ChiTietPDB;
 import com.thefourrestaurant.model.PhieuDatBan;
 
 import java.util.List;
@@ -27,4 +26,10 @@ public class PhieuDatBanController {
 
     public boolean xoaPhieuDatBan(String maPDB) {return phieuDatBanDAO.xoaPhieu(maPDB);}
 
+    public void capNhatTrangThai(String maPDB, String trangThaiMoi) {
+        if (maPDB == null || maPDB.isBlank()) {
+            return;
+        }
+        phieuDatBanDAO.capNhatTrangThai(maPDB, trangThaiMoi);
+    }
 }
