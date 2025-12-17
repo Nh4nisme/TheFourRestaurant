@@ -661,3 +661,52 @@ GO
 
 ALTER TABLE KhuyenMai
     ADD isDeleted BIT NOT NULL DEFAULT 0;
+GO
+
+
+
+
+-- Thêm món ăn
+INSERT INTO MonAn
+(maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, soLuong, daBan, isDeleted, isVisible)
+VALUES
+-- Bánh & Tráng miệng
+('MA000007', N'Bánh kếp socola', 35000, N'Còn', 'LM000003', N'/com/thefourrestaurant/images/MonAn/banh-kep-socola.jpg', 100, 0, 0, 1),
+('MA000008', N'Bánh mì', 20000, N'Còn', 'LM000001', N'/com/thefourrestaurant/images/MonAn/banh-mi.jpg', 100, 0, 0, 1),
+('MA000009', N'Bánh mì chảo', 45000, N'Còn', 'LM000001', N'/com/thefourrestaurant/images/MonAn/banh-mi-chao.jpg', 100, 0, 0, 1),
+
+-- Bún / Phở
+('MA000010', N'Bún bò Huế', 55000, N'Còn', 'LM000002', N'/com/thefourrestaurant/images/MonAn/bun-bo-hue.jpg', 100, 0, 0, 1),
+('MA000011', N'Bún thịt nướng', 50000, N'Còn', 'LM000002', N'/com/thefourrestaurant/images/MonAn/bun-thit-nuong.jpg', 100, 0, 0, 1),
+('MA000012', N'Bún tôm', 52000, N'Còn', 'LM000002', N'/com/thefourrestaurant/images/MonAn/bun-tom.jpg', 100, 0, 0, 1),
+
+-- Món chính
+('MA000013', N'Cá hồi nướng', 120000, N'Còn', 'LM000004', N'/com/thefourrestaurant/images/MonAn/ca-hoi-nuong.jpg', 100, 0, 0, 1),
+('MA000014', N'Croissant', 30000, N'Còn', 'LM000003', N'/com/thefourrestaurant/images/MonAn/croisant.jpg', 100, 0, 0, 1),
+('MA000015', N'Dim-sum', 65000, N'Còn', 'LM000004', N'/com/thefourrestaurant/images/MonAn/dim-sum.jpg', 100, 0, 0, 1),
+
+-- Khai vị & salad
+('MA000016', N'Gỏi cuốn tôm thịt', 40000, N'Còn', 'LM000003', N'/com/thefourrestaurant/images/MonAn/goi-cuon-tom-thit.jpg', 100, 0, 0, 1),
+('MA000017', N'Hoa quả mix', 45000, N'Còn', 'LM000003', N'/com/thefourrestaurant/images/MonAn/hoa-qua-mix.jpg', 100, 0, 0, 1),
+
+-- Nướng & đặc biệt
+('MA000018', N'Bò nướng tảng', 180000, N'Còn', 'LM000004', N'/com/thefourrestaurant/images/MonAn/bo-nuong-tang.jpg', 100, 0, 0, 1),
+('MA000019', N'Mỳ Ý', 60000, N'Còn', 'LM000002', N'/com/thefourrestaurant/images/MonAn/my-y.jpg', 100, 0, 0, 1),
+('MA000020', N'Chả tôm', 50000, N'Còn', 'LM000004', N'/com/thefourrestaurant/images/MonAn/cha-tom.jpg', 100, 0, 0, 1),
+('MA000021', N'Pasta', 65000, N'Còn', 'LM000002', N'/com/thefourrestaurant/images/MonAn/pasta.jpg', 100, 0, 0, 1),
+
+-- Bánh & xiên
+('MA000022', N'Bánh kếp dâu', 38000, N'Còn', 'LM000003', N'/com/thefourrestaurant/images/MonAn/banh-kep-dau.jpg', 100, 0, 0, 1),
+('MA000023', N'Xiên nướng bò rau củ', 70000, N'Còn', 'LM000004', N'/com/thefourrestaurant/images/MonAn/xien-nuong-bo-rau-cu.jpg', 100, 0, 0, 1),
+
+-- Phở
+('MA000024', N'Phở bò', 55000, N'Còn', 'LM000002', N'/com/thefourrestaurant/images/MonAn/pho-bo.jpg', 100, 0, 0, 1),
+('MA000025', N'Phở gà', 50000, N'Còn', 'LM000002', N'/com/thefourrestaurant/images/MonAn/pho-ga.jpg', 100, 0, 0, 1),
+
+-- Salad & Nhật
+('MA000026', N'Salad hải sản', 75000, N'Còn', 'LM000003', N'/com/thefourrestaurant/images/MonAn/salad-hai-san.jpg', 100, 0, 0, 1),
+('MA000027', N'Salad kiểu Úc', 70000, N'Còn', 'LM000003', N'/com/thefourrestaurant/images/MonAn/salad-kieu-uc.jpg', 100, 0, 0, 1),
+('MA000028', N'Sushi tôm tít', 90000, N'Còn', 'LM000004', N'/com/thefourrestaurant/images/MonAn/sushi-tom-tit.jpg', 100, 0, 0, 1),
+
+-- Tráng miệng cao cấp
+('MA000029', N'Tiramisu', 55000, N'Còn', 'LM000003', N'/com/thefourrestaurant/images/MonAn/tiramisu.jpg', 100, 0, 0, 1);
