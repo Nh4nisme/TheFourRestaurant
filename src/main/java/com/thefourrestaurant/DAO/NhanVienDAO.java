@@ -68,6 +68,43 @@ public class NhanVienDAO {
         return null;
     }
 
+    public NhanVien layNhanVienTheoMaTK(String maTK) {
+
+        String sql = "SELECT * FROM NhanVien WHERE maTK = ? AND isDeleted = 0";
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maTK);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    NhanVien nv = new NhanVien(
+                            rs.getString("maNV"),
+                            rs.getString("hoTen"),
+                            rs.getDate("ngaySinh"),
+                            rs.getString("gioiTinh"),
+                            rs.getString("soDienThoai"),
+                            rs.getBigDecimal("luong"),
+                            TaiKhoanDAO.layTaiKhoanTheoMa(rs.getString("maTK")),
+                            rs.getBoolean("isDeleted")
+                    );
+
+                    try {
+                        nv.setHinhAnh(rs.getString("hinhAnh"));
+                    } catch (Exception ignored) {}
+
+                    return nv;
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     public boolean capNhatNhanVien(NhanVien nv) {
         String sql = "UPDATE NhanVien SET hoTen = ?, ngaySinh = ?, gioiTinh = ?, soDienThoai = ?, luong = ?, maTK = ?, hinhAnh = ? WHERE maNV = ?";
         try (Connection conn = ConnectSQL.getConnection();
