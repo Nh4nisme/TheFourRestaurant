@@ -104,6 +104,15 @@ public class NavBar extends HBox {
     private void khoiTaoButtons() {
 
         ButtonSample btnTaiKhoan = taoButtonTaiKhoan();
+        javafx.scene.control.ContextMenu menuTaiKhoan = new javafx.scene.control.ContextMenu();
+        javafx.scene.control.MenuItem itemKetCa = new javafx.scene.control.MenuItem("Kết ca");
+        menuTaiKhoan.getItems().add(itemKetCa);
+        btnTaiKhoan.setOnMouseClicked(e -> {
+            if (e.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
+                menuTaiKhoan.show(btnTaiKhoan, javafx.geometry.Side.BOTTOM, 0, 0);
+            }
+        });
+        itemKetCa.setOnAction(e -> xuLyKetCa());
 
         btnDanhMuc = taoDropDown("Danh mục", taoMenuDanhMuc(), ICON_DANH_MUC);
         btnXuLy    = taoDropDown("Xử lý", taoMenuXuLy(), ICON_XU_LY);
@@ -122,8 +131,23 @@ public class NavBar extends HBox {
                 btnTimKiem,
                 btnThongKe,
                 spacer,
-                btnTaiKhoan
+            btnTaiKhoan
         );
+    }
+
+    private void xuLyKetCa() {
+        TaiKhoan current = Session.getCurrentUser();
+        if (current != null && current.getVaiTro() != null &&
+                ("VT000002".equals(current.getVaiTro().getMaVT()) ||
+                        "ThuNgan".equalsIgnoreCase(current.getVaiTro().getTenVaiTro()) ||
+                        "Thu Ngan".equalsIgnoreCase(current.getVaiTro().getTenVaiTro()) ||
+                        "Thu ngân".equalsIgnoreCase(current.getVaiTro().getTenVaiTro()))) {
+            new com.thefourrestaurant.view.GiaoDienKetCa().show((Stage) getScene().getWindow());
+        } else {
+            com.thefourrestaurant.util.Session.setCurrentUser(null);
+            com.thefourrestaurant.util.Session.setLoginTime(null);
+            new com.thefourrestaurant.view.GiaoDienDangNhap().show((Stage) getScene().getWindow());
+        }
     }
 
     private void khoiTaoSuKien() {

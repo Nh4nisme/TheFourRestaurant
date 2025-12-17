@@ -110,27 +110,22 @@ public class GiaoDienDangNhap {
            btnDangNhapTransitionDown.playFromStart();
        });
 
+
        Runnable tryLogin = () -> {
            String user = txtTenDangNhap.getText().trim();
            String pass = txtMatKhau.getText().trim();
-
-           // Kiểm tra rỗng
            if (user.isEmpty() || pass.isEmpty()) {
                Alert a = new Alert(Alert.AlertType.WARNING, "Vui lòng nhập đầy đủ Tài Khoản và Mật Khẩu.", ButtonType.OK);
                a.initOwner(stage);
                a.showAndWait();
                return;
            }
-
-           // Kiểm tra độ dài tối thiểu
            if (user.length() < 6 || pass.length() < 6) {
                Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu.", ButtonType.OK);
                a.initOwner(stage);
                a.showAndWait();
                return;
            }
-
-           // Gọi DAO kiểm tra đăng nhập
            TaiKhoan taiKhoan = TaiKhoanDAO.dangNhap(user, pass);
            if (taiKhoan == null) {
                Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu.", ButtonType.OK);
@@ -138,15 +133,25 @@ public class GiaoDienDangNhap {
                a.showAndWait();
                return;
            }
-
            Session.setCurrentUser(taiKhoan);
            LocalDateTime now = LocalDateTime.now();
            Session.setLoginTime(now);
            System.out.println("[LOGIN] User: " + taiKhoan.getTenDN() + " (Role: " + taiKhoan.getVaiTro() + ") at " + now);
 
-           // Đăng nhập thành công -> điều hướng sang giao diện chính
-           new GiaoDienChinh().show(stage);
-           stage.setFullScreen(true);
+           if (taiKhoan.getVaiTro() != null &&
+               ("VT000002".equals(taiKhoan.getVaiTro().getMaVT()) ||
+                "ThuNgan".equalsIgnoreCase(taiKhoan.getVaiTro().getTenVaiTro()) ||
+                "Thu Ngan".equalsIgnoreCase(taiKhoan.getVaiTro().getTenVaiTro()) ||
+                "Thu ngân".equalsIgnoreCase(taiKhoan.getVaiTro().getTenVaiTro()))) {
+               GiaoDienNhapTien giaoDienNhapTien = new GiaoDienNhapTien(stage);
+               giaoDienNhapTien.hienThi(() -> {
+                   new GiaoDienChinh().show(stage);
+                   stage.setFullScreen(true);
+               });
+           } else {
+               new GiaoDienChinh().show(stage);
+               stage.setFullScreen(true);
+           }
        };
        btnDangNhap.setOnAction(e -> tryLogin.run());
        txtMatKhau.setOnAction(e -> tryLogin.run());
