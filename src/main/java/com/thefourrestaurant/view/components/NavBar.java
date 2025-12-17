@@ -105,14 +105,21 @@ public class NavBar extends HBox {
 
         ButtonSample btnTaiKhoan = taoButtonTaiKhoan();
         javafx.scene.control.ContextMenu menuTaiKhoan = new javafx.scene.control.ContextMenu();
-        javafx.scene.control.MenuItem itemKetCa = new javafx.scene.control.MenuItem("Kết ca");
-        menuTaiKhoan.getItems().add(itemKetCa);
+        javafx.scene.control.Label lblKetCa = new javafx.scene.control.Label("Kết ca");
+        lblKetCa.setPadding(new Insets(10));
+        lblKetCa.setStyle("-fx-text-fill: #1E424D; -fx-alignment: center-left; -fx-font-size: 14px;");
+        lblKetCa.setOnMouseClicked(ev -> { xuLyKetCa(); menuTaiKhoan.hide(); });
+        javafx.scene.layout.VBox box = new javafx.scene.layout.VBox(lblKetCa);
+        // ensure the menu content is as wide as the button
+        box.prefWidthProperty().bind(btnTaiKhoan.widthProperty());
+        javafx.scene.control.CustomMenuItem customItem = new javafx.scene.control.CustomMenuItem(box, true);
+        menuTaiKhoan.getItems().add(customItem);
         btnTaiKhoan.setOnMouseClicked(e -> {
             if (e.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
-                menuTaiKhoan.show(btnTaiKhoan, javafx.geometry.Side.BOTTOM, 0, 0);
+                if (menuTaiKhoan.isShowing()) menuTaiKhoan.hide();
+                else menuTaiKhoan.show(btnTaiKhoan, javafx.geometry.Side.BOTTOM, 0, 0);
             }
         });
-        itemKetCa.setOnAction(e -> xuLyKetCa());
 
         btnDanhMuc = taoDropDown("Danh mục", taoMenuDanhMuc(), ICON_DANH_MUC);
         btnXuLy    = taoDropDown("Xử lý", taoMenuXuLy(), ICON_XU_LY);
@@ -142,10 +149,10 @@ public class NavBar extends HBox {
                         "ThuNgan".equalsIgnoreCase(current.getVaiTro().getTenVaiTro()) ||
                         "Thu Ngan".equalsIgnoreCase(current.getVaiTro().getTenVaiTro()) ||
                         "Thu ngân".equalsIgnoreCase(current.getVaiTro().getTenVaiTro()))) {
-            new com.thefourrestaurant.view.GiaoDienKetCa().show((Stage) getScene().getWindow());
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(new com.thefourrestaurant.view.GiaoDienKetCa());
         } else {
-            com.thefourrestaurant.util.Session.setCurrentUser(null);
-            com.thefourrestaurant.util.Session.setLoginTime(null);
+            Session.clear();
             new com.thefourrestaurant.view.GiaoDienDangNhap().show((Stage) getScene().getWindow());
         }
     }
@@ -171,7 +178,7 @@ public class NavBar extends HBox {
         map.put("Hóa đơn", MapDieuHuong.DM_HOA_DON);
         map.put("Khách hàng", MapDieuHuong.DM_KHACH_HANG);
         map.put("Tài khoản", MapDieuHuong.DM_TAI_KHOAN);
-        map.put("Nhân viên", MapDieuHuong.DM_NHAN_VIEN); // <--- Add this line
+        map.put("Nhân viên", MapDieuHuong.DM_NHAN_VIEN); 
         map.put("Tầng và bàn", MapDieuHuong.DM_TANG_BAN);
         return map;
     }

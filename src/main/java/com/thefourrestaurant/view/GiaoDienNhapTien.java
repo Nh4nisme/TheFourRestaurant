@@ -28,6 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import java.math.BigDecimal;
 
 public class GiaoDienNhapTien {
 
@@ -83,6 +84,7 @@ public class GiaoDienNhapTien {
        btnXacNhan.setOnAction(e -> {
            try {
                double soTien = Double.parseDouble(txtSoTien.getText().trim());
+               Session.setStartingCash(BigDecimal.valueOf(soTien));
                if (onSuccess != null) onSuccess.run();
            } catch (NumberFormatException ex) {
                txtSoTien.setStyle("-fx-border-color: red;");
