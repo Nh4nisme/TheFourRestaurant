@@ -70,7 +70,8 @@ public class GiaoDienKetCa extends BorderPane {
 
         VBox contentCard = new VBox(20);
         contentCard.setPadding(new Insets(18));
-        contentCard.setStyle("-fx-background-color: " + COLOR_CARD + "; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 8, 0, 0, 3);");
+        contentCard.setStyle("-fx-background-color: #D2D2D2; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 8, 0, 0, 3);");
+        contentCard.prefHeightProperty().bind(this.heightProperty().multiply(0.55));
 
         GridPane form = new GridPane();
         form.setHgap(40);
@@ -86,14 +87,14 @@ public class GiaoDienKetCa extends BorderPane {
         VBox leftCol = new VBox(12);
         Label lblTienDauCa = new Label("Tiền đầu ca:");
         lblTienDauCa.setFont(montserratSemibold);
-        lblTienDauCa.setTextFill(Color.WHITE);
+        lblTienDauCa.setTextFill(Color.BLACK);
         TextField txtTienDauCa = createValueField();
         BigDecimal tienDau = Session.getStartingCash() != null ? Session.getStartingCash() : BigDecimal.ZERO;
         txtTienDauCa.setText(formatCurrency(tienDau));
 
         Label lblSoHoaDon = new Label("Tổng số hóa đơn:");
         lblSoHoaDon.setFont(montserratSemibold);
-        lblSoHoaDon.setTextFill(Color.WHITE);
+        lblSoHoaDon.setTextFill(Color.BLACK);
         TextField txtSoHoaDon = createValueField();
         int soHoaDon = tk.getSoHoaDon(startDate, endDate);
         txtSoHoaDon.setText(String.valueOf(soHoaDon));
@@ -103,25 +104,25 @@ public class GiaoDienKetCa extends BorderPane {
         VBox rightCol = new VBox(12);
         Label lblTienMat = new Label("Tiền mặt thu được:");
         lblTienMat.setFont(montserratSemibold);
-        lblTienMat.setTextFill(Color.WHITE);
+        lblTienMat.setTextFill(Color.BLACK);
         TextField txtTienMat = createValueField();
         BigDecimal tienMat = getTotalByPaymentType(startDate, endDate, "Tiền mặt");
         txtTienMat.setText(formatCurrency(tienMat));
 
         Label lblChuyenKhoan = new Label("Tiền chuyển khoản thu được:");
         lblChuyenKhoan.setFont(montserratSemibold);
-        lblChuyenKhoan.setTextFill(Color.WHITE);
+        lblChuyenKhoan.setTextFill(Color.BLACK);
         TextField txtChuyenKhoan = createValueField();
         BigDecimal tienCK = getTotalByPaymentType(startDate, endDate, "Chuyển khoản");
         txtChuyenKhoan.setText(formatCurrency(tienCK));
 
         Label lblTienCuoi = new Label("Tiền cuối ca:");
         lblTienCuoi.setFont(montserratSemibold);
-        lblTienCuoi.setTextFill(Color.WHITE);
+        lblTienCuoi.setTextFill(Color.BLACK);
         TextField txtTienCuoi = createValueField();
         BigDecimal tienCuoi = tienDau.add(tienMat != null ? tienMat : BigDecimal.ZERO);
         txtTienCuoi.setText(formatCurrency(tienCuoi));
-        txtTienCuoi.setStyle("-fx-background-color: #E8F8F0; -fx-text-fill: #0B6B3A; -fx-font-weight: bold; -fx-background-radius: 6;");
+        txtTienCuoi.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #000000; -fx-font-weight: bold; -fx-background-radius: 6;");
 
         rightCol.getChildren().addAll(lblTienMat, txtTienMat, lblChuyenKhoan, txtChuyenKhoan, lblTienCuoi, txtTienCuoi);
 
@@ -130,7 +131,7 @@ public class GiaoDienKetCa extends BorderPane {
         form.getChildren().addAll(leftCol, rightCol);
         GridPane.setHgrow(leftCol, Priority.ALWAYS);
         GridPane.setHgrow(rightCol, Priority.ALWAYS);
-        rightCol.setAlignment(Pos.TOP_RIGHT);
+        rightCol.setAlignment(Pos.TOP_LEFT);
 
         Button btnXacNhan = new Button("Xác nhận kết ca");
         btnXacNhan.setFont(montserratExtrabold);
@@ -148,6 +149,7 @@ public class GiaoDienKetCa extends BorderPane {
         bottomBar.setPadding(new Insets(12));
         bottomBar.setAlignment(Pos.CENTER_RIGHT);
         bottomBar.getChildren().add(btnXacNhan);
+        bottomBar.setTranslateY(-50);
 
         contentCard.getChildren().addAll(form);
 
@@ -193,7 +195,7 @@ public class GiaoDienKetCa extends BorderPane {
         f.setEditable(false);
         f.setMaxWidth(Double.MAX_VALUE);
         f.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        f.setStyle("-fx-background-color: " + COLOR_CARD_INNER + "; -fx-background-radius: 6; -fx-text-fill: white; -fx-padding: 8 10 8 10;");
+        f.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 6; -fx-text-fill: #000000; -fx-padding: 8 10 8 10;");
         return f;
     }
 
