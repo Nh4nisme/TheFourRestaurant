@@ -26,6 +26,10 @@ public class NhanVienController {
     public NhanVien layNhanVienTheoMa(String maNV) {
         return dao.layNhanVienTheoMa(maNV);
     }
+
+    public NhanVien layNhanVienTheoMaTK(String maTK) {
+        return dao.layNhanVienTheoMaTK(maTK);
+    }
     
     public String saoChepHinhAnhVaoProject(String sourceImagePath) {
         try {
@@ -117,4 +121,5 @@ public class NhanVienController {
         }
         return dao.capNhatNhanVien(nv);
     }
+
 }

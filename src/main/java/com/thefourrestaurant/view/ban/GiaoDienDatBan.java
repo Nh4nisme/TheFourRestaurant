@@ -502,7 +502,7 @@ public class GiaoDienDatBan extends BorderPane {
         PhieuDatBan pdb = phieuDatBanController
                 .layPhieuTheoBan(dsChon.get(0).getMaBan());
 
-        thanhToanController.moManThanhToan(pdb);
+        thanhToanController.moManThanhToan(pdb, mainContent);
     }
 
     private void tangTruoc() {
