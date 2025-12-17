@@ -197,59 +197,55 @@ public class PhieuDatBanDAO {
 
 	// 🔹 Thêm phiếu mới (tự động lưu tiền cọc nếu là "Đặt trước")
 	public boolean themPhieu(PhieuDatBan pdb, String context, List<Ban> danhSachBan) {
+
 		String sql = """
 				    INSERT INTO PhieuDatBan
 				    (maPDB, ngayDat, soNguoi, maKH, maNV, trangThai, tienCoc)
 				    VALUES (?, ?, ?, ?, ?, ?, ?)
 				""";
 
-		try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+		Connection conn = null;
+
+		try {
+			conn = ConnectSQL.getConnection();
+			conn.setAutoCommit(false); // transaction duy nhất
 
 			String maMoi = taoMaPhieuMoi();
 			pdb.setMaPDB(maMoi);
 
-			// 🔥 TRẠNG THÁI PHIẾU
-			String trangThaiPhieu = "Đang phục vụ";
-			if ("DAT_TRUOC".equals(context)) {
-				trangThaiPhieu = "Đặt trước";
-			}
-			
-			//Tiền cọc
-			BigDecimal tienCoc = BigDecimal.ZERO;
-			if ("Đặt trước".equals(trangThaiPhieu) && danhSachBan != null && !danhSachBan.isEmpty()) {
-	            Ban ban = banDAO.layTheoMa(danhSachBan.get(0).getMaBan());
-	            if (ban != null && ban.getLoaiBan() != null) {
-	                tienCoc = ban.getLoaiBan().getGiaTien();
-	            }
-	        }
+			String trangThaiPhieu = "DAT_TRUOC".equals(context) ? "Đặt trước" : "Đang phục vụ";
 
+			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, maMoi);
-			ps.setTimestamp(2, Timestamp.valueOf(pdb.getNgayDat() != null ? pdb.getNgayDat() : LocalDateTime.now()));
+			ps.setTimestamp(2, Timestamp.valueOf(pdb.getNgayDat()));
 			ps.setInt(3, pdb.getSoNguoi());
 			ps.setString(4, pdb.getKhachHang().getMaKH());
 			ps.setString(5, pdb.getNhanVien().getMaNV());
 			ps.setString(6, trangThaiPhieu);
-			ps.setBigDecimal(7, tienCoc);
+			ps.setBigDecimal(7, BigDecimal.ZERO);
+			ps.executeUpdate();
 
-			int rows = ps.executeUpdate();
-			if (rows > 0) {
+			// INSERT bảng liên kết CÙNG CONNECTION
+			new PhieuDatBan_BanDAO().themBanVaoPhieu(conn, maMoi, danhSachBan);
 
-				if (danhSachBan != null && !danhSachBan.isEmpty()) {
-					new PhieuDatBan_BanDAO().themBanVaoPhieu(maMoi, danhSachBan);
-
-			        // CHỈ đặt bàn ngay mới đổi trạng thái bàn
-			        if ("DAT_NGAY".equals(context)) {
-			            banDAO.capNhatTrangThaiDanhSach(danhSachBan, trangThaiPhieu);
-			        }
-			    }
-
-				return true;
+			// chỉ DAT_NGAY mới đổi trạng thái bàn
+			if ("DAT_NGAY".equals(context)) {
+				banDAO.capNhatTrangThaiDanhSach(danhSachBan, trangThaiPhieu);
 			}
 
+			conn.commit();
+			return true;
+
 		} catch (Exception e) {
+			try {
+				if (conn != null)
+					conn.rollback();
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
 			e.printStackTrace();
+			return false;
 		}
-		return false;
 	}
 
 	// Xóa phiếu (xóa logic, set isDeleted = 1)
@@ -375,21 +371,21 @@ public class PhieuDatBanDAO {
 				// Chi tiết phiếu
 				String maChiTiet = rs.getString("maCT");
 				if (maChiTiet != null && !mapChiTiet.containsKey(maChiTiet)) {
-				    ChiTietPDB ct = new ChiTietPDB();
-				    ct.setMaCT(maChiTiet);
+					ChiTietPDB ct = new ChiTietPDB();
+					ct.setMaCT(maChiTiet);
 
-				    MonAn mon = new MonAn();
-				    mon.setMaMonAn(rs.getString("maMonAn"));
-				    mon.setTenMon(rs.getString("tenMon"));
-				    mon.setDonGia(rs.getBigDecimal("donGia"));
-				    ct.setMonAn(mon);
+					MonAn mon = new MonAn();
+					mon.setMaMonAn(rs.getString("maMonAn"));
+					mon.setTenMon(rs.getString("tenMon"));
+					mon.setDonGia(rs.getBigDecimal("donGia"));
+					ct.setMonAn(mon);
 
-				    ct.setSoLuong(rs.getInt("soLuong"));
-				    ct.setDonGia(rs.getDouble("donGia")); 
-				    ct.setGhiChu(rs.getString("ghiChu"));
+					ct.setSoLuong(rs.getInt("soLuong"));
+					ct.setDonGia(rs.getDouble("donGia"));
+					ct.setGhiChu(rs.getString("ghiChu"));
 
-				    pdb.getChiTietPDB().add(ct);
-				    mapChiTiet.put(maChiTiet, ct);
+					pdb.getChiTietPDB().add(ct);
+					mapChiTiet.put(maChiTiet, ct);
 				}
 
 			}

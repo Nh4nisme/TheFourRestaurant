@@ -15,13 +15,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-/**
- * Giao diện NHẬN BÀN – tìm phiếu đặt trước theo SĐT
- * Đồng bộ màu sắc với GiaoDienDatBan
- */
 public class GiaoDienNhanBan extends BorderPane {
 
-    // ==== MÀU ĐỒNG BỘ ==== 
+    // ===== MÀU =====
     private static final String COLOR_BG_MAIN = "#f0f0f0";
     private static final String COLOR_BG_HEADER = "#1E424D";
     private static final String COLOR_TEXT_GOLD = "#DDB248";
@@ -33,14 +29,16 @@ public class GiaoDienNhanBan extends BorderPane {
     private TableView<PhieuDatBan> table;
     private TextField txtSoDT;
 
+    private GiaoDienChiTietPhieuDatBan chiTietPane;
+    private PhieuDatBan phieuDangChon;
+
     public GiaoDienNhanBan(QuanLiBan quanLiBan) {
         this.quanLiBan = quanLiBan;
 
         setStyle("-fx-background-color: " + COLOR_BG_MAIN + ";");
 
         setTop(taoHeader());
-        setCenter(taoBangPhieu());
-        setBottom(taoFooter());
+        setCenter(taoNoiDungChinh());
     }
 
     // ================= HEADER =================
@@ -66,15 +64,30 @@ public class GiaoDienNhanBan extends BorderPane {
         txtSoDT.setPrefWidth(250);
 
         searchBox.getChildren().addAll(lblSoDT, txtSoDT);
-
         header.getChildren().addAll(lblTitle, clock, searchBox);
+
         return header;
     }
 
-    // ================= TABLE =================
+    // ================= NỘI DUNG CHÍNH =================
+    private SplitPane taoNoiDungChinh() {
+        SplitPane split = new SplitPane();
+        split.setDividerPositions(0.45);
+
+        VBox bangPhieu = taoBangPhieu();
+
+        chiTietPane = new GiaoDienChiTietPhieuDatBan();
+        VBox rightBox = new VBox(10, chiTietPane, taoNutHanhDong());
+        rightBox.setPadding(new Insets(10));
+
+        split.getItems().addAll(bangPhieu, rightBox);
+        return split;
+    }
+
+    // ================= TABLE PHIẾU =================
     private VBox taoBangPhieu() {
         table = new TableView<>();
-        table.setPrefHeight(400);
+        table.setPrefHeight(500);
 
         TableColumn<PhieuDatBan, String> colMa = new TableColumn<>("Mã PĐB");
         colMa.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getMaPDB()));
@@ -105,11 +118,71 @@ public class GiaoDienNhanBan extends BorderPane {
         table.getColumns().addAll(colMa, colKH, colSDT, colNgay, colBan);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Load data
+        refreshTable();
+
+        table.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
+            phieuDangChon = selected;
+            if (selected != null) {
+                chiTietPane.hienThiThongTin(selected);
+            }
+        });
+
+        VBox box = new VBox(table);
+        box.setPadding(new Insets(10));
+        return box;
+    }
+
+    // ================= NÚT HÀNH ĐỘNG =================
+    private HBox taoNutHanhDong() {
+        ButtonSample2 btnNhanBan = new ButtonSample2("Nhận bàn", ButtonSample2.Variant.YELLOW, 150, 45);
+        ButtonSample2 btnHuyPhieu = new ButtonSample2("Hủy phiếu", ButtonSample2.Variant.YELLOW, 150, 45);
+
+        btnNhanBan.setOnAction(e -> xuLyNhanBan());
+        btnHuyPhieu.setOnAction(e -> xuLyHuyPhieu());
+
+        HBox box = new HBox(15, btnHuyPhieu, btnNhanBan);
+        box.setAlignment(Pos.CENTER_RIGHT);
+        return box;
+    }
+
+    // ================= LOGIC =================
+    private void xuLyNhanBan() {
+        if (phieuDangChon == null) {
+            new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu!").showAndWait();
+            return;
+        }
+
+        phieuDAO.capNhatTrangThai(phieuDangChon.getMaPDB(), "Đang phục vụ");
+        banDAO.capNhatTrangThaiDanhSach(phieuDangChon.getDanhSachBan(), "Đang phục vụ");
+
+        refreshTable();
+        quanLiBan.refresh();
+
+        new Alert(Alert.AlertType.INFORMATION, "Nhận bàn thành công!").showAndWait();
+    }
+
+    private void xuLyHuyPhieu() {
+        if (phieuDangChon == null) return;
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "Bạn có chắc muốn hủy phiếu này?",
+                ButtonType.YES, ButtonType.NO);
+
+        if (confirm.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+            phieuDAO.capNhatTrangThai(phieuDangChon.getMaPDB(), "Đã hủy");
+            banDAO.capNhatTrangThaiDanhSach(phieuDangChon.getDanhSachBan(), "Trống");
+
+            refreshTable();
+            quanLiBan.refresh();
+            phieuDangChon = null;
+        }
+    }
+
+    private void refreshTable() {
         ObservableList<PhieuDatBan> dsPhieu =
-        	    FXCollections.observableArrayList(
-        	        phieuDAO.layPhieuTheoTrangThai("Đặt trước")
-        	    );
+                FXCollections.observableArrayList(
+                        phieuDAO.layPhieuTheoTrangThai("Đặt trước")
+                );
 
         FilteredList<PhieuDatBan> filtered = new FilteredList<>(dsPhieu, p -> true);
         txtSoDT.textProperty().addListener((obs, old, val) -> {
@@ -122,46 +195,5 @@ public class GiaoDienNhanBan extends BorderPane {
         });
 
         table.setItems(filtered);
-
-        VBox box = new VBox(10, table);
-        box.setPadding(new Insets(15));
-        return box;
-    }
-
-    // ================= FOOTER =================
-    private HBox taoFooter() {
-        HBox footer = new HBox(15);
-        footer.setPadding(new Insets(15));
-        footer.setAlignment(Pos.CENTER_RIGHT);
-
-        ButtonSample2 btnNhanBan = new ButtonSample2("Nhận bàn", ButtonSample2.Variant.YELLOW, 160, 45);
-        ButtonSample2 btnDong = new ButtonSample2("Đóng", ButtonSample2.Variant.YELLOW, 120, 45);
-
-        btnNhanBan.setOnAction(e -> xuLyNhanBan());
-        btnDong.setOnAction(e -> ((Stage) getScene().getWindow()).close());
-
-        footer.getChildren().addAll(btnDong, btnNhanBan);
-        return footer;
-    }
-
-    // ================= LOGIC =================
-    private void xuLyNhanBan() {
-        PhieuDatBan pdb = table.getSelectionModel().getSelectedItem();
-        if (pdb == null) {
-            new Alert(Alert.AlertType.WARNING, "Vui lòng chọn một phiếu đặt trước!").showAndWait();
-            return;
-        }
-
-        // 1. đổi trạng thái phiếu
-        phieuDAO.capNhatTrangThai(pdb.getMaPDB(), "Đang phục vụ");
-
-        // 2. đổi trạng thái tất cả bàn
-        banDAO.capNhatTrangThaiDanhSach(pdb.getDanhSachBan(), "Đang phục vụ");
-
-        // 3. refresh giao diện bàn
-        quanLiBan.refresh();
-
-        new Alert(Alert.AlertType.INFORMATION, "Nhận bàn thành công!").showAndWait();
-        ((Stage) getScene().getWindow()).close();
     }
 }
