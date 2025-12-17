@@ -13,6 +13,7 @@ import com.thefourrestaurant.model.*;
 
 public class PhieuDatBanDAO {
 	private BanDAO banDAO = new BanDAO();
+	private List<Ban> danhSachBan = new ArrayList<Ban>();
 
 	private PhieuDatBan mapResultSetToPhieuDatBan(ResultSet rs, Map<String, Ban> mapBan,
 			Map<String, ChiTietPDB> mapChiTiet) throws SQLException {
@@ -215,13 +216,20 @@ public class PhieuDatBanDAO {
 
 			BigDecimal tienCoc = BigDecimal.ZERO;
 
-			// 🔥 TIỀN CỌC CHỈ ÁP DỤNG CHO ĐẶT TRƯỚC
+			//Tiền cọc
 			if ("Đặt trước".equals(trangThaiPhieu)) {
-				Ban ban = banDAO.layTheoMa(pdb.getBan().getMaBan());
-				if (ban != null && ban.getLoaiBan() != null) {
-					tienCoc = ban.getLoaiBan().getGiaTien();
-				}
+
+			    if (danhSachBan != null && !danhSachBan.isEmpty()) {
+
+			        // Lấy bàn đầu tiên làm bàn chính
+			        Ban ban = banDAO.layTheoMa(danhSachBan.get(0).getMaBan());
+
+			        if (ban != null && ban.getLoaiBan() != null) {
+			            tienCoc = ban.getLoaiBan().getGiaTien();
+			        }
+			    }
 			}
+
 
 			ps.setString(1, maMoi);
 			ps.setTimestamp(2, Timestamp.valueOf(pdb.getNgayDat() != null ? pdb.getNgayDat() : LocalDateTime.now()));
@@ -237,7 +245,7 @@ public class PhieuDatBanDAO {
 				if (danhSachBan != null && !danhSachBan.isEmpty()) {
 			        new PhieuDatBan_BanDAO().themBanVaoPhieu(maMoi, danhSachBan);
 
-			        // ✅ CHỈ đặt bàn ngay mới đổi trạng thái bàn
+			        // CHỈ đặt bàn ngay mới đổi trạng thái bàn
 			        if ("DAT_NGAY".equals(context)) {
 			            for (Ban ban : danhSachBan) {
 			                banDAO.capNhatTrangThai(ban.getMaBan(), "Đang phục vụ");

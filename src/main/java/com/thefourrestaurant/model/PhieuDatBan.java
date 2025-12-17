@@ -1,7 +1,6 @@
 package com.thefourrestaurant.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,6 @@ public class PhieuDatBan {
     private int soNguoi;
     private KhachHang khachHang;
     private NhanVien nhanVien;
-    private Ban ban;
     private String trangThai;
     private BigDecimal tienCoc;
     private boolean isDeleted;
@@ -62,9 +60,6 @@ public class PhieuDatBan {
     public NhanVien getNhanVien() { return nhanVien; }
     public void setNhanVien(NhanVien nhanVien) { this.nhanVien = nhanVien; }
 
-    public Ban getBan() { return ban; }
-    public void setBan(Ban ban) { this.ban = ban; }
-
     public String getTrangThai() { return trangThai; }
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
 
@@ -95,7 +90,6 @@ public class PhieuDatBan {
         return "PhieuDatBan{" +
                "maPDB='" + maPDB + '\'' +
                ", ngayDat=" + ngayDat +
-               ", ban=" + (ban != null ? ban.getMaBan() : "null") +
                ", trangThai='" + trangThai + '\'' +
                '}';
     }
