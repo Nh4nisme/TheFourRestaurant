@@ -130,7 +130,7 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
             }
 
             PhieuDatBan pdb = new PhieuDatBan();
-            pdb.setBan(banChinh);
+            pdb.setDanhSachBan(dsBan);
             pdb.setSoNguoi(soNguoi);
             pdb.setKhachHang(kh);
             pdb.setNgayDat(ngayGioMoi);

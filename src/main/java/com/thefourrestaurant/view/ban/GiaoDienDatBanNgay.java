@@ -37,8 +37,7 @@ class GiaoDienDatBanNgay extends GiaoDienDatBanBase {
             int soNguoi = Integer.parseInt(txtSoNguoi.getText().trim());
 
             PhieuDatBan pdb = new PhieuDatBan();
-            Ban banChinh = dsBan.isEmpty()?null:dsBan.get(0);
-            pdb.setBan(banChinh);
+            pdb.setDanhSachBan(dsBan);
             pdb.setNgayDat(LocalDateTime.now());
             pdb.setSoNguoi(soNguoi);
             pdb.setKhachHang(kh);

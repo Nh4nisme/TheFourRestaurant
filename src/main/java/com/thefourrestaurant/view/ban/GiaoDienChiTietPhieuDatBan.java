@@ -110,7 +110,9 @@ public class GiaoDienChiTietPhieuDatBan extends VBox {
         thongTinPhu.get("Nhân viên lập:").setText(pdb.getNhanVien() != null ? pdb.getNhanVien().getHoTen() : "");
         thongTinPhu.get("Trạng thái:").setText(pdb.getTrangThai());
         // Lọc danh sách bàn
-        tableBan.getItems().setAll(pdb.getBan() != null ? List.of(pdb.getBan()) : List.of());
+        tableBan.getItems().setAll(
+        	    pdb.getDanhSachBan() != null ? pdb.getDanhSachBan() : List.of()
+        	);
 
         // Lọc danh sách món
         tableMonAn.getItems().setAll(pdb.getChiTietPDB());
