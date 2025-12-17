@@ -50,7 +50,7 @@ public class ThongKeBan {
         // Thống kê số lần bàn được đặt ở mỗi tầng
         Map<String, Long> luotSuDungTheoTang = tatCaPhieu.stream()
                 .filter(boLoc) // Lọc phiếu theo ngày/tháng/năm
-                .flatMap(pdb -> pdb.getDanhSachBan().stream()) // Lấy ra đối tượng Bàn từ PhieuDatBan
+                .flatMap(pdb -> pdb.getDanhSachBan().stream()) // Lấy ra tất cả các bàn từ tất cả các phiếu
                 .filter(Objects::nonNull)
                 .map(Ban::getTang) // Lấy ra đối tượng Tầng từ Bàn
                 .filter(Objects::nonNull)

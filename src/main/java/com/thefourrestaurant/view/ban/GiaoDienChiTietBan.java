@@ -74,7 +74,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 		HBox.setHgrow(dayCach, Priority.ALWAYS);
 		Button nutTinhTien = new ButtonSample2("Tính tiền", Variant.YELLOW, 120);
 		nutTinhTien.setOnAction(e -> {
-		    new ThanhToanController().moManThanhToanTheoMaBan(ban.getMaBan());
+		    new ThanhToanController().moManThanhToanTheoMaBan(ban.getMaBan(), mainContent);
 		});
 
 		footer.getChildren().addAll(nutQuayLai, dayCach, nutTinhTien);

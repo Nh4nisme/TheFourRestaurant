@@ -1,45 +1,50 @@
 package com.thefourrestaurant.view.hoadon;
 
-import com.thefourrestaurant.DAO.*;
-import com.thefourrestaurant.controller.HoaDonController;
-import com.thefourrestaurant.controller.PhuongThucThanhToanController;
+import com.thefourrestaurant.DAO.BanDAO;
+import com.thefourrestaurant.controller.*;
 import com.thefourrestaurant.model.*;
 import com.thefourrestaurant.util.Session;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Scene;
+import com.thefourrestaurant.view.ban.GiaoDienDatBan;
+import javafx.beans.property.*;
+import javafx.geometry.*;
+import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class GiaoDienLapHoaDon extends VBox {
-    /* ================== STATE ================== */
+
+    // ================== CONST ==================
+    private static final BigDecimal VAT_RATE = BigDecimal.valueOf(0.10);
+
+    // ================== STATE ==================
     private final Stage stage;
+    private final StackPane mainContent;
     private PhieuDatBan phieuDatBan;
-    private KhuyenMai kmHienTai;
+    private KhuyenMai khuyenMaiHienTai;
 
-    /* ================== CONTROLLER & DAO ================== */
+    // ================== CONTROLLERS ==================
     private final HoaDonController hoaDonController = new HoaDonController();
+    private final ChiTietHoaDonController chiTietHoaDonController = new ChiTietHoaDonController();
+    private final KhuyenMaiController khuyenMaiController = new KhuyenMaiController();
     private final PhuongThucThanhToanController ptttController = new PhuongThucThanhToanController();
-    private final KhuyenMaiDAO khuyenMaiDAO = new KhuyenMaiDAO();
-    private final KhachHangDAO khachHangDAO = new KhachHangDAO();
-    private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
-    private final ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO();
+    private final NhanVienController nhanVienController = new NhanVienController();
+    private final PhieuDatBanController phieuDatBanController = new PhieuDatBanController();
 
-    /* ================== UI COMPONENT ================== */
+    // ================== UI ==================
     private final Label lblMaHD = new Label();
     private final Label lblMaPDB = new Label();
     private final Label lblTenKH = new Label();
     private final Label lblSDT = new Label();
     private final Label lblNgayNhan = new Label();
+    private final Label lblNhanVien = new Label();
 
     private final Label lblTongTien = new Label("0 đ");
     private final Label lblVAT = new Label("10%");
@@ -48,96 +53,92 @@ public class GiaoDienLapHoaDon extends VBox {
     private final Label lblTienThua = new Label("0 đ");
     private final Label lblTienCoc = new Label("0 đ");
 
-    private final TextField txtKhuyenMai = new TextField();
     private final TextField txtTienKhachDua = new TextField();
-
     private final ComboBox<PhuongThucThanhToan> cboPTTT = new ComboBox<>();
-    private final CheckBox chkXuatHoaDon = new CheckBox("Xuất hóa đơn");
+    private final ComboBox<KhuyenMai> cboKhuyenMai = new ComboBox<>();
 
     private final TableView<ChiTietPDB> tblMon = new TableView<>();
 
-    /* ================== CONSTRUCTOR ================== */
-    public GiaoDienLapHoaDon(Stage stage) {
+    // QR overlay
+    private final StackPane qrOverlay = new StackPane();
+
+    // ================== CONSTRUCTOR ==================
+    public GiaoDienLapHoaDon(Stage stage, StackPane mainContent) {
         this.stage = stage;
-        initUI();
+        this.mainContent = mainContent;
+        khoiTaoUI();
     }
 
-    /* ================== INIT UI ================== */
-    private void initUI() {
-        setPadding(new Insets(15));
-        setSpacing(12);
-        initComboPTTT();
+    // ================== INIT ==================
+    private void khoiTaoUI() {
+        setPadding(new Insets(20));
+        setSpacing(15);
 
-        VBox root = new VBox(15,
-                initHeader(),
-                initThongTinKhach(),
-                initBangMon(),
-                initThanhToanPane(),
-                initFooter()
+        khoiTaoComboPTTT();
+        khoiTaoComboKhuyenMai();
+        khoiTaoQR();
+
+        getChildren().addAll(
+                taoHeader(),
+                taoBangMon(),
+                taoThanhToan(),
+                taoFooter()
         );
 
-        getChildren().add(root);
-        stage.setScene(new Scene(this, 950, 800));
+        stage.setScene(new Scene(new StackPane(this, qrOverlay), 900, 780));
         stage.setTitle("Lập hóa đơn");
         stage.show();
     }
 
-    private Node initHeader() {
-        Label title = new Label("LẬP HÓA ĐƠN THANH TOÁN");
-        title.setStyle("-fx-font-size: 22; -fx-font-weight: bold;");
-
-        HBox box = new HBox(title);
-        box.setAlignment(Pos.CENTER);
-        return box;
-    }
-
-    private Node initThongTinKhach() {
+    // ================== HEADER ==================
+    private Node taoHeader() {
         GridPane grid = new GridPane();
-        grid.setHgap(10);
+        grid.setHgap(20);
         grid.setVgap(8);
 
-        grid.addRow(0, new Label("Mã HD:"), lblMaHD, new Label("Mã PĐB:"), lblMaPDB);
-        grid.addRow(1, new Label("Tên KH:"), lblTenKH, new Label("SĐT:"), lblSDT);
-        grid.addRow(2, new Label("Ngày nhận:"), lblNgayNhan);
+        Label title = new Label("LẬP HÓA ĐƠN THANH TOÁN");
+        title.setStyle("-fx-font-size:22;-fx-font-weight:bold;");
+        grid.add(title, 0, 0, 4, 1);
+
+        grid.addRow(1, new Label("Mã HD:"), lblMaHD, new Label("Nhân viên:"), lblNhanVien);
+        grid.addRow(2, new Label("Mã PĐB:"), lblMaPDB, new Label("Ngày:"), lblNgayNhan);
+        grid.addRow(3, new Label("Khách hàng:"), lblTenKH, new Label("SĐT:"), lblSDT);
 
         return grid;
     }
 
-    private Node initBangMon() {
-        TableColumn<ChiTietPDB, String> colTenMon = new TableColumn<>("Tên món");
-        colTenMon.setCellValueFactory(c ->
+    // ================== TABLE ==================
+    private Node taoBangMon() {
+        TableColumn<ChiTietPDB, String> colTen = new TableColumn<>("Món ăn");
+        colTen.setCellValueFactory(c ->
                 new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
+        colTen.setPrefWidth(300);
 
         TableColumn<ChiTietPDB, Integer> colSL = new TableColumn<>("SL");
         colSL.setCellValueFactory(c ->
                 new SimpleIntegerProperty(c.getValue().getSoLuong()).asObject());
+        colSL.setPrefWidth(80);
 
-        TableColumn<ChiTietPDB, BigDecimal> colThanhTien = new TableColumn<>("Thành tiền");
-        colThanhTien.setCellValueFactory(c -> {
-            BigDecimal tt = c.getValue().getMonAn().getDonGia()
-                    .multiply(BigDecimal.valueOf(c.getValue().getSoLuong()));
-            return new SimpleObjectProperty<>(tt);
-        });
+        TableColumn<ChiTietPDB, BigDecimal> colTien = new TableColumn<>("Thành tiền");
+        colTien.setCellValueFactory(c ->
+                new SimpleObjectProperty<>(tinhThanhTienMon(c.getValue())));
+        colTien.setPrefWidth(150);
 
-        tblMon.getColumns().addAll(colTenMon, colSL, colThanhTien);
-        tblMon.setPrefHeight(250);
+        tblMon.getColumns().setAll(colTen, colSL, colTien);
+        tblMon.setPrefHeight(260);
+
         return tblMon;
     }
 
-    private Node initThanhToanPane() {
+    // ================== PAYMENT ==================
+    private Node taoThanhToan() {
         GridPane grid = new GridPane();
-        grid.setHgap(10);
+        grid.setHgap(15);
         grid.setVgap(10);
-
-        cboPTTT.getItems().addAll(ptttController.layPhuongThucThanhToan());
-        cboPTTT.getSelectionModel().selectFirst();
 
         txtTienKhachDua.textProperty().addListener((o, a, b) -> capNhatTienThua());
 
-        Button btnKiemTraKM = new Button("Kiểm tra");
-        btnKiemTraKM.setOnAction(e -> xuLyKiemTraKhuyenMai());
-
-        grid.addRow(0, new Label("Khuyến mãi:"), new HBox(8, txtKhuyenMai, btnKiemTraKM));
+        grid.addRow(0, new Label("Khuyến mãi:"), cboKhuyenMai);
         grid.addRow(1, new Label("Chiết khấu:"), lblChietKhau);
         grid.addRow(2, new Label("VAT:"), lblVAT);
         grid.addRow(3, new Label("Tổng tiền:"), lblTongTien);
@@ -145,169 +146,216 @@ public class GiaoDienLapHoaDon extends VBox {
         grid.addRow(5, new Label("PTTT:"), cboPTTT);
         grid.addRow(6, new Label("Tiền khách đưa:"), txtTienKhachDua);
         grid.addRow(7, new Label("Tiền thừa:"), lblTienThua);
-        grid.addRow(8, new Label("Phải thanh toán:"), lblThanhToan, chkXuatHoaDon);
+        grid.addRow(8, new Label("Phải thanh toán:"), lblThanhToan);
 
         return grid;
     }
 
-    private Node initFooter() {
-        Button btnXacNhan = new Button("Xác nhận");
-        btnXacNhan.setOnAction(e -> xuLyXacNhanThanhToan());
+    // ================== FOOTER ==================
+    private Node taoFooter() {
+        Button btnBack = new Button("⬅ Quay lại");
+        btnBack.setOnAction(e -> stage.close());
 
-        Button btnThoat = new Button("Thoát");
-        btnThoat.setOnAction(e -> stage.close());
+        Button btnOk = new Button("✔ Xác nhận");
+        btnOk.setOnAction(e -> xuLyXacNhanThanhToan());
 
-        HBox box = new HBox(10, btnThoat, btnXacNhan);
+        HBox box = new HBox(15, btnBack, btnOk);
         box.setAlignment(Pos.CENTER_RIGHT);
         return box;
     }
 
-    private void initComboPTTT() {
+    // ================== QR ==================
+    private void khoiTaoQR() {
+        qrOverlay.setVisible(false);
+        qrOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.5)");
 
+        ImageView qr = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/thefourrestaurant/images/QR.png"))));
+        qr.setFitWidth(260);
+        qr.setPreserveRatio(true);
+
+        VBox box = new VBox(10, qr, new Label("Quét mã để thanh toán"));
+        box.setAlignment(Pos.CENTER);
+        box.setStyle("-fx-background-color:white;-fx-padding:20");
+
+        qrOverlay.getChildren().add(box);
+    }
+
+    private void khoiTaoComboPTTT() {
         cboPTTT.getItems().setAll(ptttController.layPhuongThucThanhToan());
-
-        cboPTTT.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(PhuongThucThanhToan item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null
-                        ? ""
-                        : item.getLoaiPTTT().getTenHienThi());
-            }
-        });
-
-        cboPTTT.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(PhuongThucThanhToan item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null
-                        ? ""
-                        : item.getLoaiPTTT().getTenHienThi());
-            }
-        });
-
         cboPTTT.getSelectionModel().selectFirst();
+
+        cboPTTT.valueProperty().addListener((obs, o, n) -> {
+            if (n.getLoaiPTTT().getTenHienThi().equalsIgnoreCase("Chuyển khoản")) {
+                qrOverlay.setVisible(true);
+                txtTienKhachDua.setText(tinhTienThanhToan().toString());
+                txtTienKhachDua.setDisable(true);
+            } else {
+                qrOverlay.setVisible(false);
+                txtTienKhachDua.clear();
+                txtTienKhachDua.setDisable(false);
+            }
+        });
+    }
+
+    private void khoiTaoComboKhuyenMai() {
+        // Lấy danh sách khuyến mãi
+        cboKhuyenMai.getItems().setAll(khuyenMaiController.layDanhSachKhuyenMai());
+
+        // Hiển thị tên khuyến mãi trong ComboBox
+        cboKhuyenMai.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(KhuyenMai item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText("");
+                } else {
+                    setText(item.getTenKM());
+                }
+            }
+        });
+
+        cboKhuyenMai.setButtonCell(cboKhuyenMai.getCellFactory().call(null));
+        cboKhuyenMai.setPromptText("Áp dụng khuyến mãi");
+        cboKhuyenMai.valueProperty().addListener((obs, oldVal, newVal) -> {
+            khuyenMaiHienTai = newVal;
+            capNhatHienThiKhuyenMai();
+            capNhatSoTienThanhToan();
+        });
     }
 
 
-    /* ================== DATA ================== */
-    public void hienThiThongTin(PhieuDatBan pdb) {
+    // ================== DISPLAY ==================
+    public void hienThiThongTinPhieuDatBan(PhieuDatBan pdb) {
         this.phieuDatBan = pdb;
         
         PhieuDatBan_BanDAO pdbBanDAO = new PhieuDatBan_BanDAO();
         pdb.setDanhSachBan(pdbBanDAO.layDanhSachBanTheoPhieu(pdb.getMaPDB()));
 
+        lblMaHD.setText(hoaDonController.taoMaHD());
         lblMaPDB.setText(pdb.getMaPDB());
         lblTenKH.setText(pdb.getKhachHang().getHoTen());
         lblSDT.setText(pdb.getKhachHang().getSoDT());
         lblNgayNhan.setText(pdb.getNgayDat().toString());
 
-        lblMaHD.setText(hoaDonController.taoMaHD());
+        TaiKhoan tk = Session.getCurrentUser();
+        NhanVien nv = nhanVienController.layNhanVienTheoMaTK(tk.getMaTK());
+        lblNhanVien.setText(nv.getHoTen());
 
         tblMon.getItems().setAll(pdb.getChiTietPDB());
-
-        lblTienCoc.setText(formatTien(
+        lblTienCoc.setText(dinhDangTien(
                 pdb.getTienCoc() == null ? BigDecimal.ZERO : pdb.getTienCoc()) + " đ");
 
-        capNhatThanhToan();
+        capNhatSoTienThanhToan();
     }
 
-    /* ================== LOGIC ================== */
+    private void capNhatHienThiKhuyenMai() {
+        if (khuyenMaiHienTai == null) {
+            lblChietKhau.setText("0");
+            return;
+        }
+
+        if (khuyenMaiHienTai.getTyLe() != null) {
+            lblChietKhau.setText(khuyenMaiHienTai.getTyLe() + "%");
+        }
+        else if (khuyenMaiHienTai.getSoTien() != null) {
+            lblChietKhau.setText(
+                    dinhDangTien(khuyenMaiHienTai.getSoTien()) + " đ"
+            );
+        }
+        else {
+            lblChietKhau.setText("0");
+        }
+    }
+
+
+    // ================== LOGIC (GIỮ NGUYÊN) ==================
+    private BigDecimal tinhThanhTienMon(ChiTietPDB ct) {
+        return ct.getMonAn().getDonGia().multiply(BigDecimal.valueOf(ct.getSoLuong()));
+    }
+
     private BigDecimal tinhTongTienMon() {
         return tblMon.getItems().stream()
-                .map(ct -> ct.getMonAn().getDonGia()
-                        .multiply(BigDecimal.valueOf(ct.getSoLuong())))
+                .map(this::tinhThanhTienMon)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private BigDecimal tinhThanhToanSauKMVaVAT() {
-        BigDecimal tong = tinhTongTienMon();
+    private BigDecimal tinhTienSauKhuyenMai(BigDecimal tong) {
+        if (khuyenMaiHienTai == null) return tong;
+        if (khuyenMaiHienTai.getTyLe() != null)
+            return tong.subtract(tong.multiply(khuyenMaiHienTai.getTyLe()).divide(BigDecimal.valueOf(100)));
+        if (khuyenMaiHienTai.getSoTien() != null)
+            return tong.subtract(khuyenMaiHienTai.getSoTien());
+        return tong;
+    }
 
-        if (kmHienTai != null) {
-            if (kmHienTai.getTyLe() != null)
-                tong = tong.subtract(tong.multiply(kmHienTai.getTyLe()).divide(BigDecimal.valueOf(100)));
-            else if (kmHienTai.getSoTien() != null)
-                tong = tong.subtract(kmHienTai.getSoTien());
-        }
-
-        tong = tong.add(tong.multiply(BigDecimal.valueOf(0.1)));
-
+    private BigDecimal tinhTienThanhToan() {
+        BigDecimal tong = tinhTienSauKhuyenMai(tinhTongTienMon());
+        tong = tong.add(tong.multiply(VAT_RATE));
         if (phieuDatBan.getTienCoc() != null)
             tong = tong.subtract(phieuDatBan.getTienCoc());
-
         return tong.max(BigDecimal.ZERO);
     }
 
-    private void capNhatThanhToan() {
-        lblTongTien.setText(formatTien(tinhTongTienMon()) + " đ");
-        lblThanhToan.setText(formatTien(tinhThanhToanSauKMVaVAT()) + " đ");
+    private void capNhatSoTienThanhToan() {
+        lblTongTien.setText(dinhDangTien(tinhTongTienMon()) + " đ");
+        lblThanhToan.setText(dinhDangTien(tinhTienThanhToan()) + " đ");
         capNhatTienThua();
     }
 
     private void capNhatTienThua() {
         try {
-            BigDecimal khachDua = new BigDecimal(txtTienKhachDua.getText());
-            BigDecimal canTra = tinhThanhToanSauKMVaVAT();
-            lblTienThua.setText(formatTien(khachDua.subtract(canTra).max(BigDecimal.ZERO)) + " đ");
+            BigDecimal khach = new BigDecimal(txtTienKhachDua.getText());
+            lblTienThua.setText(dinhDangTien(khach.subtract(tinhTienThanhToan())) + " đ");
         } catch (Exception e) {
             lblTienThua.setText("0 đ");
         }
     }
 
-    private void xuLyKiemTraKhuyenMai() {
-        kmHienTai = khuyenMaiDAO.timKhuyenMaiTheoMaHoacTen(txtKhuyenMai.getText());
-        lblChietKhau.setText(kmHienTai == null ? "0%" :
-                kmHienTai.getTyLe() != null ? kmHienTai.getTyLe() + "%" : formatTien(kmHienTai.getSoTien()) + " đ");
-        capNhatThanhToan();
+    private String dinhDangTien(BigDecimal t) {
+        return new DecimalFormat("#,###").format(t);
     }
 
     private void xuLyXacNhanThanhToan() {
-
         try {
-            BigDecimal thanhToan = tinhThanhToanSauKMVaVAT();
+            // ===== TIỀN KHÁCH ĐƯA =====
             BigDecimal tienKhachDua = new BigDecimal(txtTienKhachDua.getText());
-            BigDecimal tienThua = tienKhachDua.subtract(thanhToan);
+            BigDecimal canTra = tinhTienThanhToan();
 
-            if (tienThua.compareTo(BigDecimal.ZERO) < 0) {
-                thongBao("Khách đưa chưa đủ tiền!", Alert.AlertType.WARNING);
+            if (tienKhachDua.compareTo(canTra) < 0) {
+                hienThongBao("Khách đưa chưa đủ tiền!", Alert.AlertType.WARNING);
                 return;
             }
 
+            // ===== LẤY NHÂN VIÊN HIỆN TẠI =====
+            TaiKhoan tk = Session.getCurrentUser();
+            NhanVien nv = nhanVienController.layNhanVienTheoMaTK(tk.getMaTK());
+
+            // ===== THUẾ MẶC ĐỊNH =====
+            Thue thueMacDinh = new Thue();
+            thueMacDinh.setMaThue("TH000001");
+
+            // ===== TẠO HÓA ĐƠN =====
             HoaDon hd = new HoaDon();
             hd.setMaHD(lblMaHD.getText());
             hd.setNgayLap(LocalDateTime.now());
-
-            TaiKhoan tk = Session.getCurrentUser();
-            if (tk == null) {
-                thongBao("Phiên đăng nhập không hợp lệ!", Alert.AlertType.ERROR);
-                return;
-            }
-            NhanVienDAO nvDAO = new NhanVienDAO();
-            NhanVien nv = nvDAO.layNhanVienTheoMaTK(tk.getMaTK());
-            if (nv == null) {
-                thongBao("Không tìm thấy nhân viên ứng với tài khoản đăng nhập!",
-                        Alert.AlertType.ERROR);
-                return;
-            }
             hd.setNhanVien(nv);
-
             hd.setKhachHang(phieuDatBan.getKhachHang());
             hd.setPhieuDatBan(phieuDatBan);
-            hd.setKhuyenMai(kmHienTai);
+            hd.setKhuyenMai(khuyenMaiHienTai);
+            hd.setThue(thueMacDinh);
             hd.setTienKhachDua(tienKhachDua);
-            hd.setTienThua(tienThua);
+            hd.setTienThua(tienKhachDua.subtract(canTra));
             hd.setPhuongThucThanhToan(cboPTTT.getValue());
             hd.setDeleted(false);
 
-            // ===== LƯU HÓA ĐƠN =====
-            if (!hoaDonDAO.themHoaDon(hd)) {
-                thongBao("Lưu hóa đơn thất bại!", Alert.AlertType.ERROR);
+            if (!hoaDonController.themHoaDon(hd)) {
+                hienThongBao("Lưu hóa đơn thất bại!", Alert.AlertType.ERROR);
                 return;
             }
 
-            // ===== LƯU CHI TIẾT =====
+            // ===== LƯU CHI TIẾT HÓA ĐƠN =====
             for (ChiTietPDB ct : tblMon.getItems()) {
-                chiTietHoaDonDAO.themChiTietHD(
+                chiTietHoaDonController.themChiTietHoaDon(
                         hd.getMaHD(),
                         ct.getMonAn().getMaMonAn(),
                         ct.getSoLuong(),
@@ -315,18 +363,25 @@ public class GiaoDienLapHoaDon extends VBox {
                 );
             }
 
-            // ===== CẬP NHẬT TRẠNG THÁI PDB =====
-            PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
-            boolean okPDB = pdbDAO.capNhatTrangThai(
+            // ===== CẬP NHẬT PHIẾU ĐẶT BÀN =====
+            phieuDatBanController.capNhatTrangThai(
                     phieuDatBan.getMaPDB(),
                     "Đã thanh toán"
             );
 
-            if (!okPDB) {
-                thongBao("Không thể cập nhật trạng thái phiếu đặt bàn!",
-                        Alert.AlertType.WARNING);
+            // ===== DEBUG DANH SÁCH BÀN =====
+            System.out.println("=== DEBUG DANH SÁCH BÀN ===");
+            if (phieuDatBan == null) {
+                System.out.println("phieuDatBan = null");
+            } else if (phieuDatBan.getDanhSachBan() == null) {
+                System.out.println("Danh sách bàn = null");
+            } else {
+                System.out.println("Số bàn: " + phieuDatBan.getDanhSachBan().size());
+                phieuDatBan.getDanhSachBan()
+                        .forEach(ban -> System.out.println(" - maBan = " + ban.getMaBan()));
             }
 
+            // ===== CẬP NHẬT TRẠNG THÁI BÀN =====
             BanDAO banDAO = new BanDAO();
             int soBanCapNhat = banDAO.capNhatTrangThaiDanhSach(
                     phieuDatBan.getDanhSachBan(),
@@ -334,27 +389,19 @@ public class GiaoDienLapHoaDon extends VBox {
             );
 
             if (soBanCapNhat == 0) {
-                thongBao("Không thể cập nhật trạng thái bàn!",
-                        Alert.AlertType.WARNING);
+                hienThongBao("Không thể cập nhật trạng thái bàn!", Alert.AlertType.WARNING);
             }
 
-
-            thongBao("Thanh toán thành công!", Alert.AlertType.INFORMATION);
+            // ===== HOÀN TẤT =====
+            hienThongBao("Thanh toán thành công!", Alert.AlertType.INFORMATION);
             stage.close();
+            mainContent.getChildren().setAll(new GiaoDienDatBan(mainContent));
 
         } catch (Exception e) {
             e.printStackTrace();
-            thongBao("Lỗi khi thanh toán: " + e.getMessage(), Alert.AlertType.ERROR);
+            hienThongBao("Lỗi khi thanh toán!", Alert.AlertType.ERROR);
         }
     }
 
-
-    /* ================== UTIL ================== */
-    private String formatTien(BigDecimal t) {
-        return new DecimalFormat("#,###").format(t);
-    }
-
-    private void thongBao(String msg, Alert.AlertType type) {
-        new Alert(type, msg).showAndWait();
-    }
+    private void hienThongBao(String msg, Alert.AlertType type) { new Alert(type, msg).showAndWait(); }
 }

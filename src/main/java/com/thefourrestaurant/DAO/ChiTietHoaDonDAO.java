@@ -45,21 +45,49 @@ public class ChiTietHoaDonDAO {
     }
 
     public boolean themChiTietHD(String maHD, String maMonAn, int soLuong, BigDecimal donGia) {
-        String sql = "INSERT INTO ChiTietHD (maHD, maMonAn, soLuong, donGia) VALUES (?, ?, ?, ?)";
+
+        String sql = """
+        IF EXISTS (
+            SELECT 1 FROM ChiTietHD
+            WHERE maHD = ? AND maMonAn = ?
+        )
+        BEGIN
+            UPDATE ChiTietHD
+            SET soLuong = soLuong + ?
+            WHERE maHD = ? AND maMonAn = ?
+        END
+        ELSE
+        BEGIN
+            INSERT INTO ChiTietHD (maHD, maMonAn, soLuong, donGia)
+            VALUES (?, ?, ?, ?)
+        END
+        """;
 
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
+            // check tồn tại
             ps.setString(1, maHD);
             ps.setString(2, maMonAn);
-            ps.setInt(3, soLuong);
-            ps.setBigDecimal(4, donGia);
 
-            return ps.executeUpdate() > 0;
+            // update
+            ps.setInt(3, soLuong);
+            ps.setString(4, maHD);
+            ps.setString(5, maMonAn);
+
+            // insert
+            ps.setString(6, maHD);
+            ps.setString(7, maMonAn);
+            ps.setInt(8, soLuong);
+            ps.setBigDecimal(9, donGia);
+
+            ps.executeUpdate();
+            return true;
 
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
 }
