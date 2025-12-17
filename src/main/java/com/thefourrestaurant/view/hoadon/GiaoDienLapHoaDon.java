@@ -21,7 +21,6 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 
 public class GiaoDienLapHoaDon extends VBox {
-
     /* ================== STATE ================== */
     private final Stage stage;
     private PhieuDatBan phieuDatBan;
@@ -335,7 +334,6 @@ public class GiaoDienLapHoaDon extends VBox {
                 thongBao("Không thể cập nhật trạng thái bàn!",
                         Alert.AlertType.WARNING);
             }
-
 
 
             thongBao("Thanh toán thành công!", Alert.AlertType.INFORMATION);

@@ -123,7 +123,7 @@ GO
 CREATE TABLE Ban (
     maBan CHAR(8) PRIMARY KEY CHECK (maBan LIKE 'BA%' AND LEN(maBan) = 8),
     tenBan NVARCHAR(50) NOT NULL UNIQUE,
-    trangThai NVARCHAR(20) CHECK(trangThai IN (N'Trống', N'Đang phục vụ', N'Đặt trước', N'Bảo trì')) DEFAULT N'Trống',
+    trangThai NVARCHAR(20) CHECK(trangThai IN (N'Trống', N'Đang phục vụ', N'Bảo trì')) DEFAULT N'Trống',
     toaDoX INT CHECK(toaDoX >= 0),
     toaDoY INT CHECK(toaDoY >= 0),
     maTang CHAR(8) NOT NULL,
@@ -196,6 +196,7 @@ CREATE TABLE MonAn (
     soLuong INT DEFAULT 0 NOT NULL,
     daBan INT DEFAULT 0 NOT NULL,
     isDeleted BIT DEFAULT 0,
+    isVisible BIT NOT NULL DEFAULT 1
     maKM CHAR(8) NULL,
     CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon),
     CONSTRAINT FK_MonAn_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)

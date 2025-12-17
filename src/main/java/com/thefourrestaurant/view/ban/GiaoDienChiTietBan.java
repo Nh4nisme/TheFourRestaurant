@@ -2,6 +2,8 @@ package com.thefourrestaurant.view.ban;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
 import com.thefourrestaurant.controller.CountdownController;
@@ -72,7 +74,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 		HBox.setHgrow(dayCach, Priority.ALWAYS);
 		Button nutTinhTien = new ButtonSample2("Tính tiền", Variant.YELLOW, 120);
 		nutTinhTien.setOnAction(e -> {
-		    new ThanhToanController().moManThanhToan(pdb);
+		    new ThanhToanController().moManThanhToanTheoMaBan(ban.getMaBan());
 		});
 
 		footer.getChildren().addAll(nutQuayLai, dayCach, nutTinhTien);
@@ -201,13 +203,30 @@ public class GiaoDienChiTietBan extends BorderPane {
 
 		double tongTien = 0;
 		if (pdb != null) {
-			// Load chi tiết từ DAO
 			ChiTietPDBDAO ctDAO = new ChiTietPDBDAO();
 			List<ChiTietPDB> chiTietList = ctDAO.layTheoPhieu(pdb.getMaPDB());
 
-			int stt = 1;
+			Map<String, ChiTietPDB> aggregated = new LinkedHashMap<>();
 			for (ChiTietPDB ct : chiTietList) {
-				String tenMon = ct.getMonAn().getTenMon();
+				String key = ct.getMonAn() != null ? ct.getMonAn().getMaMonAn() : ct.getMaCT();
+				if (!aggregated.containsKey(key)) {
+					ChiTietPDB copy = new ChiTietPDB(ct.getMaCT(), ct.getPhieuDatBan(), ct.getMonAn(), ct.getSoLuong(), ct.getDonGia(), ct.getGhiChu());
+					aggregated.put(key, copy);
+				} else {
+					ChiTietPDB exist = aggregated.get(key);
+					exist.setSoLuong(exist.getSoLuong() + ct.getSoLuong());
+					String existingNote = exist.getGhiChu() != null ? exist.getGhiChu() : "";
+					String newNote = ct.getGhiChu() != null ? ct.getGhiChu() : "";
+					if (!existingNote.contains(newNote) && !newNote.isEmpty()) {
+						if (existingNote.isEmpty()) exist.setGhiChu(newNote);
+						else exist.setGhiChu(existingNote + "; " + newNote);
+					}
+				}
+			}
+
+			int stt = 1;
+			for (ChiTietPDB ct : aggregated.values()) {
+				String tenMon = ct.getMonAn() != null ? ct.getMonAn().getTenMon() : "";
 				double thanhTienSo = ct.getDonGia() * ct.getSoLuong();
 				tongTien += thanhTienSo;
 				String donGia = String.format("%,.0f VND", ct.getDonGia());
