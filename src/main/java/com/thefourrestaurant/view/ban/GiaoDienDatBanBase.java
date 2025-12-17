@@ -6,7 +6,6 @@ import com.thefourrestaurant.DAO.*;
 import com.thefourrestaurant.model.*;
 import com.thefourrestaurant.view.khachhang.GiaoDienThemKhachHang;
 
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
