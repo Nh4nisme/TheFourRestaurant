@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 public class GiaoDienLapHoaDon extends VBox {
@@ -242,7 +243,11 @@ public class GiaoDienLapHoaDon extends VBox {
         NhanVien nv = nhanVienController.layNhanVienTheoMaTK(tk.getMaTK());
         lblNhanVien.setText(nv.getHoTen());
 
-        tblMon.getItems().setAll(pdb.getChiTietPDB());
+        List<ChiTietPDB> danhSachDaGop =
+                hoaDonController.layChiTietHienThi(pdb.getMaPDB());
+
+        tblMon.getItems().clear();
+        tblMon.getItems().setAll(danhSachDaGop);
         lblTienCoc.setText(dinhDangTien(
                 pdb.getTienCoc() == null ? BigDecimal.ZERO : pdb.getTienCoc()) + " đ");
 
