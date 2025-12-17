@@ -1,72 +1,111 @@
 package com.thefourrestaurant.view;
 
+import java.util.Objects;
+import com.thefourrestaurant.DAO.ThongKeDAO;
+import com.thefourrestaurant.util.Session;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
+
 import java.math.BigDecimal;
 
 public class GiaoDienKetCa {
-    private Stage stage;
-    private BigDecimal loiNhuan;
 
-    public GiaoDienKetCa() {}
+   private static final String COLOR_TEAL = "#1E424D";
+   private static final String COLOR_CARD = "#FFFFFF33";
+   private static final String COLOR_CARD_INNER = "#B0BAC366";
+   private static final String COLOR_GOLD = "#DDB248";
 
-    public void show(Stage stage) {
-        this.stage = stage;
-        VBox root = new VBox(30);
-        root.setPadding(new Insets(40));
-        root.setAlignment(Pos.CENTER);
-        root.setStyle("-fx-background-color: #fff; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10,0,0,2);");
-        root.setMaxWidth(500);
+   private Font montserratSemibold;
+   private Font montserratExtrabold;
 
-        Label lblTitle = new Label("Kết ca - Thu ngân");
-        lblTitle.setStyle("-fx-font-size: 22px; -fx-font-weight: bold;");
+   public void show(Stage stage) {
+       montserratSemibold = Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 18);
+       montserratExtrabold = Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-ExtraBold.ttf"), 20);
 
-        // Tính lợi nhuận cuối ca (giả lập, cần thay bằng truy vấn thực tế)
-        loiNhuan = tinhLoiNhuanCuoiCa();
-        Label lblLoiNhuan = new Label("Lợi nhuận cuối ca: " + loiNhuan + " VND");
-        lblLoiNhuan.setStyle("-fx-font-size: 18px; -fx-text-fill: #4CAF50;");
+       BorderPane root = new BorderPane();
+       root.setStyle("-fx-background-color: " + COLOR_TEAL + ";");
 
-        Button btnXacNhan = new Button("Xác nhận kết ca");
-        btnXacNhan.setPrefHeight(50);
-        btnXacNhan.setPrefWidth(250);
-        btnXacNhan.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 16px; -fx-background-radius: 10;");
-        btnXacNhan.setOnAction(e -> {
-            com.thefourrestaurant.util.Session.setCurrentUser(null);
-            new GiaoDienDangNhap().show(stage);
-        });
+       VBox card = new VBox(20);
+       card.setPadding(new Insets(30));
+       card.setAlignment(Pos.CENTER);
+       card.setMaxWidth(640);
+       card.setStyle(
+           "-fx-background-color: " + COLOR_CARD + ";" +
+           "-fx-background-radius: 12;" +
+           "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 10, 0, 0, 4);"
+       );
 
-        root.getChildren().addAll(lblTitle, lblLoiNhuan, btnXacNhan);
-        Scene scene = new Scene(root, 500, 300);
-        stage.setScene(scene);
-        stage.show();
-    }
+       Label title = new Label("KẾT CA");
+       title.setFont(montserratExtrabold);
+       title.setTextFill(Color.web(COLOR_GOLD));
 
-    private BigDecimal tinhLoiNhuanCuoiCa() {
-        com.thefourrestaurant.DAO.HoaDonDAO hoaDonDAO = new com.thefourrestaurant.DAO.HoaDonDAO();
-        java.util.List<com.thefourrestaurant.model.HoaDon> ds = hoaDonDAO.layDanhSachHoaDon();
-        com.thefourrestaurant.model.TaiKhoan user = com.thefourrestaurant.util.Session.getCurrentUser();
-        java.time.LocalDateTime start = com.thefourrestaurant.util.Session.getLoginTime();
-        java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        BigDecimal sum = BigDecimal.ZERO;
-        for (com.thefourrestaurant.model.HoaDon hd : ds) {
-            if (hd.getNgayLap() != null &&
-                !hd.isDeleted() &&
-                hd.getNhanVien() != null &&
-                user != null &&
-                hd.getNhanVien().getMaNV() != null &&
-                user.getMaTK() != null &&
-                hd.getNgayLap().isAfter(start.minusSeconds(1)) && hd.getNgayLap().isBefore(now.plusSeconds(1))) {
-                if (hd.getPhuongThucThanhToan() != null &&
-                    hd.getPhuongThucThanhToan().getLoaiPTTT() == com.thefourrestaurant.model.PhuongThucThanhToan.LoaiPTTT.TIEN_MAT) {
-                    sum = sum.add(hd.getTienKhachDua() != null ? hd.getTienKhachDua() : BigDecimal.ZERO);
-                }
-            }
-        }
-        return sum;
-    }
+       // calculate stats
+       BigDecimal doanhThu = tinhDoanhThuCa();
+       int soHoaDon = tinhSoHoaDonCa();
+
+       Label lblDoanhThu = new Label("Doanh thu (tiền mặt): " + doanhThu + " VND");
+       lblDoanhThu.setFont(montserratSemibold);
+       lblDoanhThu.setTextFill(Color.WHITE);
+
+       Label lblSoHD = new Label("Số hóa đơn: " + soHoaDon);
+       lblSoHD.setFont(montserratSemibold);
+       lblSoHD.setTextFill(Color.WHITE);
+
+       Button btnXacNhan = new Button("Xác nhận kết ca");
+       btnXacNhan.setFont(montserratExtrabold);
+       btnXacNhan.setPrefHeight(48);
+       btnXacNhan.setPrefWidth(260);
+       btnXacNhan.setStyle("-fx-background-color: " + COLOR_GOLD + "; -fx-text-fill: #1E424D; -fx-background-radius: 8;");
+       btnXacNhan.setOnAction(e -> {
+           Session.setCurrentUser(null);
+           Session.setLoginTime(null);
+           new GiaoDienDangNhap().show(stage);
+       });
+
+       card.getChildren().addAll(title, lblDoanhThu, lblSoHD, btnXacNhan);
+
+       StackPane center = new StackPane();
+       center.getChildren().add(card);
+       root.setCenter(center);
+
+       Scene scene = new Scene(root, 900, 560);
+       stage.setScene(scene);
+       stage.setTitle("Kết ca - The Four");
+       stage.show();
+   }
+
+   private BigDecimal tinhDoanhThuCa() {
+       ThongKeDAO tk = new ThongKeDAO();
+       java.time.LocalDate start = java.time.LocalDate.now();
+       java.time.LocalDate end = java.time.LocalDate.now();
+       BigDecimal val = tk.getTongDoanhThu(start, end);
+       return val != null ? val : BigDecimal.ZERO;
+   }
+
+   private int tinhSoHoaDonCa() {
+       ThongKeDAO tk = new ThongKeDAO();
+       java.time.LocalDate start = java.time.LocalDate.now();
+       java.time.LocalDate end = java.time.LocalDate.now();
+       return tk.getSoHoaDon(start, end);
+   }
+
 }

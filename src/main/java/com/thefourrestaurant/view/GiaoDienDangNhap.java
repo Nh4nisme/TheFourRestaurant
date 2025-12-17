@@ -143,8 +143,8 @@ public class GiaoDienDangNhap {
                 "ThuNgan".equalsIgnoreCase(taiKhoan.getVaiTro().getTenVaiTro()) ||
                 "Thu Ngan".equalsIgnoreCase(taiKhoan.getVaiTro().getTenVaiTro()) ||
                 "Thu ngân".equalsIgnoreCase(taiKhoan.getVaiTro().getTenVaiTro()))) {
-               GiaoDienNhapTien giaoDienNhapTien = new GiaoDienNhapTien(stage);
-               giaoDienNhapTien.hienThi(() -> {
+               GiaoDienNhapTien giaoDienNhapTien = new GiaoDienNhapTien();
+               giaoDienNhapTien.hienThi(stage, () -> {
                    new GiaoDienChinh().show(stage);
                    stage.setFullScreen(true);
                });
