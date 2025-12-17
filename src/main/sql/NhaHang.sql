@@ -10,9 +10,9 @@ GO
 -- Bảng VaiTro
 -- ================================
 CREATE TABLE VaiTro (
-    maVT CHAR(8) PRIMARY KEY CHECK(maVT LIKE 'VT%' AND LEN(maVT) = 8),
-    tenVaiTro NVARCHAR(20) NOT NULL UNIQUE,
-    isDeleted BIT DEFAULT 0
+                        maVT CHAR(8) PRIMARY KEY CHECK(maVT LIKE 'VT%' AND LEN(maVT) = 8),
+                        tenVaiTro NVARCHAR(20) NOT NULL UNIQUE,
+                        isDeleted BIT DEFAULT 0
 );
 GO
 
@@ -20,12 +20,12 @@ GO
 -- Bảng TaiKhoan
 -- ================================
 CREATE TABLE TaiKhoan (
-    maTK CHAR(8) PRIMARY KEY CHECK (maTK LIKE 'TK%' AND LEN(maTK) = 8),
-    tenDangNhap VARCHAR(50) NOT NULL UNIQUE CHECK(LEN(tenDangNhap) >= 6),
-    matKhau VARCHAR(50) NOT NULL CHECK(LEN(matKhau) >= 6),
-    maVT CHAR(8) NOT NULL,
-    isDeleted BIT DEFAULT 0,
-    CONSTRAINT FK_TaiKhoan_VaiTro FOREIGN KEY (maVT) REFERENCES VaiTro(maVT)
+                          maTK CHAR(8) PRIMARY KEY CHECK (maTK LIKE 'TK%' AND LEN(maTK) = 8),
+                          tenDangNhap VARCHAR(50) NOT NULL UNIQUE CHECK(LEN(tenDangNhap) >= 6),
+                          matKhau VARCHAR(50) NOT NULL CHECK(LEN(matKhau) >= 6),
+                          maVT CHAR(8) NOT NULL,
+                          isDeleted BIT DEFAULT 0,
+                          CONSTRAINT FK_TaiKhoan_VaiTro FOREIGN KEY (maVT) REFERENCES VaiTro(maVT)
 );
 GO
 
@@ -33,10 +33,10 @@ GO
 -- Bảng CaLamViec
 -- ================================
 CREATE TABLE CaLamViec (
-    maCa CHAR(8) PRIMARY KEY CHECK (maCa LIKE 'CA%' AND LEN(maCa) = 8),
-    tenCa NVARCHAR(50) NOT NULL,
-    gioBatDau TIME NOT NULL,
-    gioKetThuc TIME NOT NULL
+                           maCa CHAR(8) PRIMARY KEY CHECK (maCa LIKE 'CA%' AND LEN(maCa) = 8),
+                           tenCa NVARCHAR(50) NOT NULL,
+                           gioBatDau TIME NOT NULL,
+                           gioKetThuc TIME NOT NULL
 );
 GO
 
@@ -44,16 +44,16 @@ GO
 -- Bảng NhanVien
 -- ================================
 CREATE TABLE NhanVien (
-    maNV CHAR(8) PRIMARY KEY CHECK (maNV LIKE 'NV%' AND LEN(maNV) = 8),
-    hoTen NVARCHAR(50) NOT NULL,
-    ngaySinh DATETIME CHECK(ngaySinh < GETDATE()),
-    gioiTinh VARCHAR(5) CHECK(gioiTinh IN ('Nam','Nu')),
-    soDienThoai VARCHAR(15) UNIQUE,
-    luong DECIMAL(12,2) CHECK(luong >= 0),
-    maTK CHAR(8) NOT NULL UNIQUE,
-    hinhAnh NVARCHAR(255) NULL,
-    isDeleted BIT DEFAULT 0,
-    CONSTRAINT FK_NhanVien_TaiKhoan FOREIGN KEY (maTK) REFERENCES TaiKhoan(maTK)
+                          maNV CHAR(8) PRIMARY KEY CHECK (maNV LIKE 'NV%' AND LEN(maNV) = 8),
+                          hoTen NVARCHAR(50) NOT NULL,
+                          ngaySinh DATETIME CHECK(ngaySinh < GETDATE()),
+                          gioiTinh VARCHAR(5) CHECK(gioiTinh IN ('Nam','Nu')),
+                          soDienThoai VARCHAR(15) UNIQUE,
+                          luong DECIMAL(12,2) CHECK(luong >= 0),
+                          maTK CHAR(8) NOT NULL UNIQUE,
+                          hinhAnh NVARCHAR(255) NULL,
+                          isDeleted BIT DEFAULT 0,
+                          CONSTRAINT FK_NhanVien_TaiKhoan FOREIGN KEY (maTK) REFERENCES TaiKhoan(maTK)
 );
 GO
 
@@ -61,12 +61,12 @@ GO
 -- Bảng PhanCongCa
 -- ================================
 CREATE TABLE PhanCongCa (
-    maNV CHAR(8) NOT NULL,
-    maCa CHAR(8) NOT NULL,
-    ngay DATETIME NOT NULL CHECK (ngay >= '2000-01-01'),
-    PRIMARY KEY(maNV, maCa, ngay),
-    CONSTRAINT FK_PhanCongCa_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
-    CONSTRAINT FK_PhanCongCa_CaLamViec FOREIGN KEY (maCa) REFERENCES CaLamViec(maCa)
+                            maNV CHAR(8) NOT NULL,
+                            maCa CHAR(8) NOT NULL,
+                            ngay DATETIME NOT NULL CHECK (ngay >= '2000-01-01'),
+                            PRIMARY KEY(maNV, maCa, ngay),
+                            CONSTRAINT FK_PhanCongCa_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
+                            CONSTRAINT FK_PhanCongCa_CaLamViec FOREIGN KEY (maCa) REFERENCES CaLamViec(maCa)
 );
 GO
 
@@ -74,8 +74,8 @@ GO
 -- Bảng LoaiKhachHang
 -- ================================
 CREATE TABLE LoaiKhachHang (
-    maLoaiKH CHAR(8) PRIMARY KEY CHECK (maLoaiKH LIKE 'LKH%' AND LEN(maLoaiKH) = 8),
-    tenLoaiKH NVARCHAR(20) NOT NULL UNIQUE
+                               maLoaiKH CHAR(8) PRIMARY KEY CHECK (maLoaiKH LIKE 'LKH%' AND LEN(maLoaiKH) = 8),
+                               tenLoaiKH NVARCHAR(20) NOT NULL UNIQUE
 );
 GO
 
@@ -83,14 +83,14 @@ GO
 -- Bảng KhachHang
 -- ================================
 CREATE TABLE KhachHang (
-    maKH CHAR(8) PRIMARY KEY CHECK (maKH LIKE 'KH%' AND LEN(maKH) = 8),
-    hoTen NVARCHAR(50) NOT NULL,
-    ngaySinh DATETIME CHECK(ngaySinh < GETDATE()),
-    gioiTinh VARCHAR(5) CHECK(gioiTinh IN ('Nam','Nu')),
-    soDT VARCHAR(15) UNIQUE,
-    maLoaiKH CHAR(8) NOT NULL,
-    isDeleted BIT DEFAULT 0,
-    CONSTRAINT FK_KhachHang_LoaiKH FOREIGN KEY (maLoaiKH) REFERENCES LoaiKhachHang(maLoaiKH)
+                           maKH CHAR(8) PRIMARY KEY CHECK (maKH LIKE 'KH%' AND LEN(maKH) = 8),
+                           hoTen NVARCHAR(50) NOT NULL,
+                           ngaySinh DATETIME CHECK(ngaySinh < GETDATE()),
+                           gioiTinh VARCHAR(5) CHECK(gioiTinh IN ('Nam','Nu')),
+                           soDT VARCHAR(15) UNIQUE,
+                           maLoaiKH CHAR(8) NOT NULL,
+                           isDeleted BIT DEFAULT 0,
+                           CONSTRAINT FK_KhachHang_LoaiKH FOREIGN KEY (maLoaiKH) REFERENCES LoaiKhachHang(maLoaiKH)
 );
 GO
 
@@ -98,10 +98,10 @@ GO
 -- Bảng Tang
 -- ================================
 CREATE TABLE Tang (
-    maTang CHAR(8) PRIMARY KEY CHECK (maTang LIKE 'TG%' AND LEN(maTang) = 8),
-    tenTang NVARCHAR(50) NOT NULL UNIQUE,
-    moTa NVARCHAR(200) NULL,
-    isDeleted BIT DEFAULT 0
+                      maTang CHAR(8) PRIMARY KEY CHECK (maTang LIKE 'TG%' AND LEN(maTang) = 8),
+                      tenTang NVARCHAR(50) NOT NULL UNIQUE,
+                      moTa NVARCHAR(200) NULL,
+                      isDeleted BIT DEFAULT 0
 );
 GO
 
@@ -109,11 +109,11 @@ GO
 -- Bảng LoaiBan
 -- ================================
 CREATE TABLE LoaiBan (
-    maLoaiBan CHAR(8) PRIMARY KEY CHECK (maLoaiBan LIKE 'LB%' AND LEN(maLoaiBan) = 8),
-    tenLoaiBan NVARCHAR(50) NOT NULL,
-    giaTien DECIMAL(10, 2) NOT NULL CHECK (giaTien >= 0),
-    soChoNgoi INT NOT NULL CHECK(soChoNgoi > 0),
-    moTa NVARCHAR(200) NULL
+                         maLoaiBan CHAR(8) PRIMARY KEY CHECK (maLoaiBan LIKE 'LB%' AND LEN(maLoaiBan) = 8),
+                         tenLoaiBan NVARCHAR(50) NOT NULL,
+                         giaTien DECIMAL(10, 2) NOT NULL CHECK (giaTien >= 0),
+                         soChoNgoi INT NOT NULL CHECK(soChoNgoi > 0),
+                         moTa NVARCHAR(200) NULL
 );
 GO
 
@@ -121,17 +121,17 @@ GO
 -- Bảng Ban
 -- ================================
 CREATE TABLE Ban (
-    maBan CHAR(8) PRIMARY KEY CHECK (maBan LIKE 'BA%' AND LEN(maBan) = 8),
-    tenBan NVARCHAR(50) NOT NULL UNIQUE,
-    trangThai NVARCHAR(20) CHECK(trangThai IN (N'Trống', N'Đang phục vụ', N'Bảo trì')) DEFAULT N'Trống',
-    toaDoX INT CHECK(toaDoX >= 0),
-    toaDoY INT CHECK(toaDoY >= 0),
-    maTang CHAR(8) NOT NULL,
-    maLoaiBan CHAR(8) NOT NULL,
-    anhBan NVARCHAR(255),
-    isDeleted BIT DEFAULT 0,
-    CONSTRAINT FK_Ban_Tang FOREIGN KEY (maTang) REFERENCES Tang(maTang),
-    CONSTRAINT FK_Ban_LoaiBan FOREIGN KEY (maLoaiBan) REFERENCES LoaiBan(maLoaiBan)
+                     maBan CHAR(8) PRIMARY KEY CHECK (maBan LIKE 'BA%' AND LEN(maBan) = 8),
+                     tenBan NVARCHAR(50) NOT NULL UNIQUE,
+                     trangThai NVARCHAR(20) CHECK(trangThai IN (N'Trống', N'Đang phục vụ', N'Bảo trì')) DEFAULT N'Trống',
+                     toaDoX INT CHECK(toaDoX >= 0),
+                     toaDoY INT CHECK(toaDoY >= 0),
+                     maTang CHAR(8) NOT NULL,
+                     maLoaiBan CHAR(8) NOT NULL,
+                     anhBan NVARCHAR(255),
+                     isDeleted BIT DEFAULT 0,
+                     CONSTRAINT FK_Ban_Tang FOREIGN KEY (maTang) REFERENCES Tang(maTang),
+                     CONSTRAINT FK_Ban_LoaiBan FOREIGN KEY (maLoaiBan) REFERENCES LoaiBan(maLoaiBan)
 );
 GO
 
@@ -139,9 +139,9 @@ GO
 -- Bảng LoaiMonAn
 -- ================================
 CREATE TABLE LoaiMonAn (
-    maLoaiMon CHAR(8) PRIMARY KEY CHECK (maLoaiMon LIKE 'LM%' AND LEN(maLoaiMon) = 8),
-    tenLoaiMon NVARCHAR(50) NOT NULL UNIQUE,
-    hinhAnh NVARCHAR(255) NULL
+                           maLoaiMon CHAR(8) PRIMARY KEY CHECK (maLoaiMon LIKE 'LM%' AND LEN(maLoaiMon) = 8),
+                           tenLoaiMon NVARCHAR(50) NOT NULL UNIQUE,
+                           hinhAnh NVARCHAR(255) NULL
 );
 GO
 
@@ -149,8 +149,8 @@ GO
 -- Bảng LoaiKhuyenMai (DI CHUYỂN LÊN TRƯỚC)
 -- ================================
 CREATE TABLE LoaiKhuyenMai (
-    maLoaiKM CHAR(8) PRIMARY KEY CHECK (maLoaiKM LIKE 'LKM%' AND LEN(maLoaiKM) = 8),
-    tenLoaiKM NVARCHAR(50) NOT NULL UNIQUE
+                               maLoaiKM CHAR(8) PRIMARY KEY CHECK (maLoaiKM LIKE 'LKM%' AND LEN(maLoaiKM) = 8),
+                               tenLoaiKM NVARCHAR(50) NOT NULL UNIQUE
 );
 GO
 
@@ -158,28 +158,28 @@ GO
 -- Bảng KhuyenMai (DI CHUYỂN LÊN TRƯỚC)
 -- ================================
 CREATE TABLE KhuyenMai (
-    maKM CHAR(8) PRIMARY KEY CHECK (maKM LIKE 'KM%' AND LEN(maKM) = 8),
-    maLoaiKM CHAR(8) NOT NULL,
-    tenKM NVARCHAR(100) NOT NULL DEFAULT N'',
-    kieuKM NVARCHAR(20) NOT NULL DEFAULT N'SuKien' CHECK(kieuKM IN (N'SuKien', N'MaGiamGia')),
-    maCode VARCHAR(50) NULL,
-    soLuotSuDung INT NULL CHECK(soLuotSuDung IS NULL OR soLuotSuDung >= 0),
-    tyLe DECIMAL(5,2) NULL CHECK(tyLe >= 0 AND tyLe <= 100),
-    soTien DECIMAL(12,2) NULL CHECK(soTien >= 0),
-    ngayBatDau DATETIME NULL,
-    ngayKetThuc DATETIME NULL,
-    moTa NVARCHAR(200) NULL,
-    CONSTRAINT FK_KM_LoaiKM FOREIGN KEY (maLoaiKM) REFERENCES LoaiKhuyenMai(maLoaiKM),
-    CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau)),
-    CHECK (
-        (tyLe IS NOT NULL AND soTien IS NULL) OR
-        (tyLe IS NULL AND soTien IS NOT NULL) OR
-        (tyLe IS NULL AND soTien IS NULL)
-    ),
-    CHECK (
-        (kieuKM = N'SuKien') OR
-        (kieuKM = N'MaGiamGia' AND maCode IS NOT NULL AND LEN(maCode) >= 3)
-    )
+                           maKM CHAR(8) PRIMARY KEY CHECK (maKM LIKE 'KM%' AND LEN(maKM) = 8),
+                           maLoaiKM CHAR(8) NOT NULL,
+                           tenKM NVARCHAR(100) NOT NULL DEFAULT N'',
+                           kieuKM NVARCHAR(20) NOT NULL DEFAULT N'SuKien' CHECK(kieuKM IN (N'SuKien', N'MaGiamGia')),
+                           maCode VARCHAR(50) NULL,
+                           soLuotSuDung INT NULL CHECK(soLuotSuDung IS NULL OR soLuotSuDung >= 0),
+                           tyLe DECIMAL(5,2) NULL CHECK(tyLe >= 0 AND tyLe <= 100),
+                           soTien DECIMAL(12,2) NULL CHECK(soTien >= 0),
+                           ngayBatDau DATETIME NULL,
+                           ngayKetThuc DATETIME NULL,
+                           moTa NVARCHAR(200) NULL,
+                           CONSTRAINT FK_KM_LoaiKM FOREIGN KEY (maLoaiKM) REFERENCES LoaiKhuyenMai(maLoaiKM),
+                           CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau)),
+                           CHECK (
+                               (tyLe IS NOT NULL AND soTien IS NULL) OR
+                               (tyLe IS NULL AND soTien IS NOT NULL) OR
+                               (tyLe IS NULL AND soTien IS NULL)
+                               ),
+                           CHECK (
+                               (kieuKM = N'SuKien') OR
+                               (kieuKM = N'MaGiamGia' AND maCode IS NOT NULL AND LEN(maCode) >= 3)
+                               )
 );
 GO
 
@@ -187,19 +187,19 @@ GO
 -- Bảng MonAn (BÂY GIỜ CÓ THỂ THAM CHIẾU KhuyenMai)
 -- ================================
 CREATE TABLE MonAn (
-    maMonAn CHAR(8) PRIMARY KEY CHECK (maMonAn LIKE 'MA%' AND LEN(maMonAn) = 8),
-    tenMon NVARCHAR(50) NOT NULL,
-    donGia DECIMAL(12,2) CHECK (donGia >= 0),
-    trangThai NVARCHAR(10) CHECK (trangThai IN (N'Còn', N'Hết')),
-    maLoaiMon CHAR(8) NOT NULL,
-    hinhAnh NVARCHAR(255) NULL,
-    soLuong INT DEFAULT 0 NOT NULL,
-    daBan INT DEFAULT 0 NOT NULL,
-    isDeleted BIT DEFAULT 0,
-    isVisible BIT NOT NULL DEFAULT 1
-    maKM CHAR(8) NULL,
-    CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon),
-    CONSTRAINT FK_MonAn_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
+                       maMonAn CHAR(8) PRIMARY KEY CHECK (maMonAn LIKE 'MA%' AND LEN(maMonAn) = 8),
+                       tenMon NVARCHAR(50) NOT NULL,
+                       donGia DECIMAL(12,2) CHECK (donGia >= 0),
+                       trangThai NVARCHAR(10) CHECK (trangThai IN (N'Còn', N'Hết')),
+                       maLoaiMon CHAR(8) NOT NULL,
+                       hinhAnh NVARCHAR(255) NULL,
+                       soLuong INT DEFAULT 0 NOT NULL,
+                       daBan INT DEFAULT 0 NOT NULL,
+                       isDeleted BIT DEFAULT 0,
+                       isVisible BIT NOT NULL DEFAULT 1,
+                       maKM CHAR(8) NULL,
+                       CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon),
+                       CONSTRAINT FK_MonAn_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
 );
 GO
 
@@ -207,8 +207,8 @@ GO
 -- Bảng ThucDon
 -- ================================
 CREATE TABLE ThucDon (
-    maTD CHAR(8) PRIMARY KEY CHECK(maTD LIKE 'TD%' AND LEN(maTD) = 8),
-    tenTD NVARCHAR(10) NOT NULL UNIQUE CHECK(tenTD IN (N'Sáng', N'Trưa', N'Chiều', N'Tối'))
+                         maTD CHAR(8) PRIMARY KEY CHECK(maTD LIKE 'TD%' AND LEN(maTD) = 8),
+                         tenTD NVARCHAR(10) NOT NULL UNIQUE CHECK(tenTD IN (N'Sáng', N'Trưa', N'Chiều', N'Tối'))
 );
 GO
 
@@ -216,11 +216,11 @@ GO
 -- Bảng ChiTietThucDon
 -- ================================
 CREATE TABLE ChiTietThucDon (
-    maLoaiMon CHAR(8) NOT NULL,
-    maTD CHAR(8) NOT NULL,
-    PRIMARY KEY (maLoaiMon, maTD),
-    CONSTRAINT FK_ChiTietThucDon_LoaiMonAn FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon),
-    CONSTRAINT FK_ChiTietThucDon_ThucDon FOREIGN KEY (maTD) REFERENCES ThucDon(maTD)
+                                maLoaiMon CHAR(8) NOT NULL,
+                                maTD CHAR(8) NOT NULL,
+                                PRIMARY KEY (maLoaiMon, maTD),
+                                CONSTRAINT FK_ChiTietThucDon_LoaiMonAn FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon),
+                                CONSTRAINT FK_ChiTietThucDon_ThucDon FOREIGN KEY (maTD) REFERENCES ThucDon(maTD)
 );
 GO
 
@@ -228,17 +228,17 @@ GO
 -- Bảng PhieuDatBan
 -- ================================
 CREATE TABLE PhieuDatBan (
-    maPDB CHAR(8) PRIMARY KEY CHECK (maPDB LIKE 'PD%' AND LEN(maPDB) = 8),
-    ngayTao DATETIME DEFAULT GETDATE(),
-    ngayDat DATETIME CHECK(ngayDat >= CAST(GETDATE() AS DATE)),
-    soNguoi INT CHECK(soNguoi > 0),
-    maKH CHAR(8) NOT NULL,
-    maNV CHAR(8) NOT NULL,
-    trangThai NVARCHAR(50) DEFAULT N'Đang phục vụ' CHECK (trangThai IN (N'Đang phục vụ', N'Đặt trước', N'Đã thanh toán', N'Đã hủy')),
-    tienCoc DECIMAL(18, 2) NOT NULL CHECK (tienCoc >= 0),
-    isDeleted BIT DEFAULT 0,
-    CONSTRAINT FK_PDB_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
-    CONSTRAINT FK_PDB_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
+                             maPDB CHAR(8) PRIMARY KEY CHECK (maPDB LIKE 'PD%' AND LEN(maPDB) = 8),
+                             ngayTao DATETIME DEFAULT GETDATE(),
+                             ngayDat DATETIME CHECK(ngayDat >= CAST(GETDATE() AS DATE)),
+                             soNguoi INT CHECK(soNguoi > 0),
+                             maKH CHAR(8) NOT NULL,
+                             maNV CHAR(8) NOT NULL,
+                             trangThai NVARCHAR(50) DEFAULT N'Đang phục vụ' CHECK (trangThai IN (N'Đang phục vụ', N'Đặt trước', N'Đã thanh toán', N'Đã hủy')),
+                             tienCoc DECIMAL(18, 2) NOT NULL CHECK (tienCoc >= 0),
+                             isDeleted BIT DEFAULT 0,
+                             CONSTRAINT FK_PDB_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
+                             CONSTRAINT FK_PDB_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
 );
 GO
 
@@ -246,14 +246,14 @@ GO
 -- Bảng ChiTietPDB
 -- ================================
 CREATE TABLE ChiTietPDB (
-    maCT CHAR(8) PRIMARY KEY CHECK(maCT LIKE 'CTP%' AND LEN(maCT) = 8),
-    maPDB CHAR(8) NOT NULL,
-    maMonAn CHAR(8) NULL,
-    soLuong INT CHECK(soLuong > 0),
-    donGia DECIMAL(12,2) CHECK(donGia >= 0),
-    ghiChu NVARCHAR(255) NULL,
-    CONSTRAINT FK_ChiTietPDB_PDB FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB),
-    CONSTRAINT FK_ChiTietPDB_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)
+                            maCT CHAR(8) PRIMARY KEY CHECK(maCT LIKE 'CTP%' AND LEN(maCT) = 8),
+                            maPDB CHAR(8) NOT NULL,
+                            maMonAn CHAR(8) NULL,
+                            soLuong INT CHECK(soLuong > 0),
+                            donGia DECIMAL(12,2) CHECK(donGia >= 0),
+                            ghiChu NVARCHAR(255) NULL,
+                            CONSTRAINT FK_ChiTietPDB_PDB FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB),
+                            CONSTRAINT FK_ChiTietPDB_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)
 );
 GO
 
@@ -261,11 +261,11 @@ GO
 -- Bảng PhieuDatBan_Ban
 -- ================================
 CREATE TABLE PhieuDatBan_Ban (
-    maPDB CHAR(8) NOT NULL,
-    maBan CHAR(8) NOT NULL,
-    PRIMARY KEY (maPDB, maBan),
-    CONSTRAINT FK_PDBB_PDB FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT FK_PDBB_Ban FOREIGN KEY (maBan) REFERENCES Ban(maBan) ON DELETE CASCADE ON UPDATE CASCADE
+                                 maPDB CHAR(8) NOT NULL,
+                                 maBan CHAR(8) NOT NULL,
+                                 PRIMARY KEY (maPDB, maBan),
+                                 CONSTRAINT FK_PDBB_PDB FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB) ON DELETE CASCADE ON UPDATE CASCADE,
+                                 CONSTRAINT FK_PDBB_Ban FOREIGN KEY (maBan) REFERENCES Ban(maBan) ON DELETE CASCADE ON UPDATE CASCADE
 );
 GO
 
@@ -273,8 +273,8 @@ GO
 -- Bảng LoaiThue
 -- ================================
 CREATE TABLE LoaiThue (
-    maLoaiThue CHAR(8) PRIMARY KEY CHECK (maLoaiThue LIKE 'LT%' AND LEN(maLoaiThue) = 8),
-    tenLoaiThue NVARCHAR(50) NOT NULL UNIQUE
+                          maLoaiThue CHAR(8) PRIMARY KEY CHECK (maLoaiThue LIKE 'LT%' AND LEN(maLoaiThue) = 8),
+                          tenLoaiThue NVARCHAR(50) NOT NULL UNIQUE
 );
 GO
 
@@ -282,11 +282,11 @@ GO
 -- Bảng Thue
 -- ================================
 CREATE TABLE Thue (
-    maThue CHAR(8) PRIMARY KEY CHECK (maThue LIKE 'TH%' AND LEN(maThue) = 8),
-    tyLe DECIMAL(5,2) CHECK(tyLe >= 0 AND tyLe <= 100),
-    ghiChu NVARCHAR(200) NULL,
-    maLoaiThue CHAR(8) NOT NULL,
-    CONSTRAINT FK_Thue_LoaiThue FOREIGN KEY (maLoaiThue) REFERENCES LoaiThue(maLoaiThue)
+                      maThue CHAR(8) PRIMARY KEY CHECK (maThue LIKE 'TH%' AND LEN(maThue) = 8),
+                      tyLe DECIMAL(5,2) CHECK(tyLe >= 0 AND tyLe <= 100),
+                      ghiChu NVARCHAR(200) NULL,
+                      maLoaiThue CHAR(8) NOT NULL,
+                      CONSTRAINT FK_Thue_LoaiThue FOREIGN KEY (maLoaiThue) REFERENCES LoaiThue(maLoaiThue)
 );
 GO
 
@@ -294,16 +294,16 @@ GO
 -- Bảng ChiTietKhuyenMai
 -- ================================
 CREATE TABLE ChiTietKhuyenMai (
-    maCTKM CHAR(8) PRIMARY KEY CHECK (maCTKM LIKE 'CTKM%' AND LEN(maCTKM) = 8),
-    maKM CHAR(8) NOT NULL,
-    maMonApDung CHAR(8) NOT NULL,
-    maMonTang CHAR(8) NULL,
-    tyLeGiam DECIMAL(5,2) NULL CHECK(tyLeGiam >= 0 AND tyLeGiam <= 100),
-    soTienGiam DECIMAL(12,2) NULL CHECK(soTienGiam >= 0),
-    soLuongTang INT NULL CHECK(soLuongTang >= 0),
-    CONSTRAINT FK_CTKM_KM FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
-    CONSTRAINT FK_CTKM_MonApDung FOREIGN KEY (maMonApDung) REFERENCES MonAn(maMonAn),
-    CONSTRAINT FK_CTKM_MonTang FOREIGN KEY (maMonTang) REFERENCES MonAn(maMonAn)
+                                  maCTKM CHAR(8) PRIMARY KEY CHECK (maCTKM LIKE 'CTKM%' AND LEN(maCTKM) = 8),
+                                  maKM CHAR(8) NOT NULL,
+                                  maMonApDung CHAR(8) NOT NULL,
+                                  maMonTang CHAR(8) NULL,
+                                  tyLeGiam DECIMAL(5,2) NULL CHECK(tyLeGiam >= 0 AND tyLeGiam <= 100),
+                                  soTienGiam DECIMAL(12,2) NULL CHECK(soTienGiam >= 0),
+                                  soLuongTang INT NULL CHECK(soLuongTang >= 0),
+                                  CONSTRAINT FK_CTKM_KM FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
+                                  CONSTRAINT FK_CTKM_MonApDung FOREIGN KEY (maMonApDung) REFERENCES MonAn(maMonAn),
+                                  CONSTRAINT FK_CTKM_MonTang FOREIGN KEY (maMonTang) REFERENCES MonAn(maMonAn)
 );
 GO
 
@@ -311,11 +311,11 @@ GO
 -- Bảng KhungGio
 -- ================================
 CREATE TABLE KhungGio (
-    maTG CHAR(8) PRIMARY KEY CHECK(maTG LIKE 'TG%' AND LEN(maTG) = 8),
-    gioBatDau TIME NOT NULL,
-    gioKetThuc TIME NOT NULL,
-    lapLaiHangNgay BIT DEFAULT 0,
-    CHECK (gioKetThuc > gioBatDau)
+                          maTG CHAR(8) PRIMARY KEY CHECK(maTG LIKE 'TG%' AND LEN(maTG) = 8),
+                          gioBatDau TIME NOT NULL,
+                          gioKetThuc TIME NOT NULL,
+                          lapLaiHangNgay BIT DEFAULT 0,
+                          CHECK (gioKetThuc > gioBatDau)
 );
 GO
 
@@ -323,11 +323,11 @@ GO
 -- Bảng KhungGio_KM
 -- ================================
 CREATE TABLE KhungGio_KM (
-    maTG CHAR(8) NOT NULL,
-    maKM CHAR(8) NOT NULL,
-    PRIMARY KEY(maTG, maKM),
-    CONSTRAINT FK_KGKM_KhungGio FOREIGN KEY (maTG) REFERENCES KhungGio(maTG),
-    CONSTRAINT FK_KGKM_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
+                             maTG CHAR(8) NOT NULL,
+                             maKM CHAR(8) NOT NULL,
+                             PRIMARY KEY(maTG, maKM),
+                             CONSTRAINT FK_KGKM_KhungGio FOREIGN KEY (maTG) REFERENCES KhungGio(maTG),
+                             CONSTRAINT FK_KGKM_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
 );
 GO
 
@@ -335,9 +335,9 @@ GO
 -- Bảng PhuongThucThanhToan
 -- ================================
 CREATE TABLE PhuongThucThanhToan (
-    maPTTT CHAR(8) PRIMARY KEY CHECK (maPTTT LIKE 'PT%' AND LEN(maPTTT) = 8),
-    tenPTTT NVARCHAR(50) NOT NULL UNIQUE CHECK(tenPTTT IN (N'Tiền mặt', N'Chuyển khoản')),
-    moTa NVARCHAR(200) NULL
+                                     maPTTT CHAR(8) PRIMARY KEY CHECK (maPTTT LIKE 'PT%' AND LEN(maPTTT) = 8),
+                                     tenPTTT NVARCHAR(50) NOT NULL UNIQUE CHECK(tenPTTT IN (N'Tiền mặt', N'Chuyển khoản')),
+                                     moTa NVARCHAR(200) NULL
 );
 GO
 
@@ -345,23 +345,23 @@ GO
 -- Bảng HoaDon
 -- ================================
 CREATE TABLE HoaDon (
-    maHD CHAR(8) PRIMARY KEY CHECK (maHD LIKE 'HD%' AND LEN(maHD) = 8),
-    ngayLap DATETIME NOT NULL,
-    maNV CHAR(8) NOT NULL,
-    maKH CHAR(8) NULL,
-    maPDB CHAR(8) NULL,
-    maKM CHAR(8) NULL,
-    maThue CHAR(8) NULL,
-    tienKhachDua DECIMAL(12,2) NOT NULL CHECK(tienKhachDua >= 0),
-    tienThua DECIMAL(12,2) NOT NULL CHECK(tienThua >= 0),
-    maPTTT CHAR(8) NOT NULL DEFAULT 'PT000001',
-    isDeleted BIT DEFAULT 0,
-    CONSTRAINT FK_HD_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
-    CONSTRAINT FK_HD_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
-    CONSTRAINT FK_HD_PhieuDatBan FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB),
-    CONSTRAINT FK_HD_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
-    CONSTRAINT FK_HD_Thue FOREIGN KEY (maThue) REFERENCES Thue(maThue),
-    CONSTRAINT FK_HD_PhuongThucThanhToan FOREIGN KEY (maPTTT) REFERENCES PhuongThucThanhToan(maPTTT)
+                        maHD CHAR(8) PRIMARY KEY CHECK (maHD LIKE 'HD%' AND LEN(maHD) = 8),
+                        ngayLap DATETIME NOT NULL,
+                        maNV CHAR(8) NOT NULL,
+                        maKH CHAR(8) NULL,
+                        maPDB CHAR(8) NULL,
+                        maKM CHAR(8) NULL,
+                        maThue CHAR(8) NULL,
+                        tienKhachDua DECIMAL(12,2) NOT NULL CHECK(tienKhachDua >= 0),
+                        tienThua DECIMAL(12,2) NOT NULL CHECK(tienThua >= 0),
+                        maPTTT CHAR(8) NOT NULL DEFAULT 'PT000001',
+                        isDeleted BIT DEFAULT 0,
+                        CONSTRAINT FK_HD_NhanVien FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
+                        CONSTRAINT FK_HD_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
+                        CONSTRAINT FK_HD_PhieuDatBan FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB),
+                        CONSTRAINT FK_HD_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
+                        CONSTRAINT FK_HD_Thue FOREIGN KEY (maThue) REFERENCES Thue(maThue),
+                        CONSTRAINT FK_HD_PhuongThucThanhToan FOREIGN KEY (maPTTT) REFERENCES PhuongThucThanhToan(maPTTT)
 );
 GO
 
@@ -369,13 +369,13 @@ GO
 -- Bảng ChiTietHD
 -- ================================
 CREATE TABLE ChiTietHD (
-    maHD CHAR(8) NOT NULL,
-    maMonAn CHAR(8) NOT NULL,
-    soLuong INT CHECK(soLuong > 0),
-    donGia DECIMAL(12,2) CHECK(donGia >= 0),
-    PRIMARY KEY(maHD, maMonAn),
-    CONSTRAINT FK_CTHD_HoaDon FOREIGN KEY (maHD) REFERENCES HoaDon(maHD),
-    CONSTRAINT FK_CTHD_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)
+                           maHD CHAR(8) NOT NULL,
+                           maMonAn CHAR(8) NOT NULL,
+                           soLuong INT CHECK(soLuong > 0),
+                           donGia DECIMAL(12,2) CHECK(donGia >= 0),
+                           PRIMARY KEY(maHD, maMonAn),
+                           CONSTRAINT FK_CTHD_HoaDon FOREIGN KEY (maHD) REFERENCES HoaDon(maHD),
+                           CONSTRAINT FK_CTHD_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn)
 );
 GO
 
@@ -422,8 +422,8 @@ INSERT INTO LoaiKhachHang (maLoaiKH, tenLoaiKH) VALUES
 
 -- Khách hàng
 INSERT INTO KhachHang (maKH, hoTen, ngaySinh, gioiTinh, soDT, maLoaiKH) VALUES
-('KH000001', N'Nguyễn Văn F', '1990-06-06', 'Nam', '0956789012', 'LKH00001'),
-('KH000002', N'Trần Thị G', '1991-07-07', 'Nu', '0967890123', 'LKH00002');
+                                                                            ('KH000001', N'Nguyễn Văn F', '1990-06-06', 'Nam', '0956789012', 'LKH00001'),
+                                                                            ('KH000002', N'Trần Thị G', '1991-07-07', 'Nu', '0967890123', 'LKH00002');
 GO
 
 -- Tầng
@@ -559,12 +559,12 @@ INSERT INTO ChiTietThucDon(maLoaiMon, maTD) VALUES
 
 -- Loại món LM000002 (Món chính) chỉ xuất hiện trong Chiều
 INSERT INTO ChiTietThucDon(maLoaiMon, maTD) VALUES
-('LM000002', 'TD000003'); -- Chiều
+    ('LM000002', 'TD000003'); -- Chiều
 
 -- Loại món LM000003 (Tráng miệng) xuất hiện trong Trưa và Tối
 INSERT INTO ChiTietThucDon(maLoaiMon, maTD) VALUES
-('LM000003', 'TD000002'), -- Trưa
-('LM000003', 'TD000004'); -- Tối
+                                                ('LM000003', 'TD000002'), -- Trưa
+                                                ('LM000003', 'TD000004'); -- Tối
 GO
 
 -- Dữ liệu Phiếu đặt bàn
@@ -647,8 +647,8 @@ VALUES
 
 -- Hóa đơn
 INSERT INTO HoaDon (maHD, ngayLap, maNV, maKH, maPDB, maKM, maThue, tienKhachDua, tienThua, maPTTT) VALUES
-('HD000001','2025-10-20','NV000001','KH000001','PD000001','KM000001','TH000001',200000,10000,'PT000001'),
-('HD000002','2025-10-21','NV000002','KH000002','PD000002','KM000002','TH000002',180000,5000,'PT000002');
+                                                                                                        ('HD000001','2025-10-20','NV000001','KH000001','PD000001','KM000001','TH000001',200000,10000,'PT000001'),
+                                                                                                        ('HD000002','2025-10-21','NV000002','KH000002','PD000002','KM000002','TH000002',180000,5000,'PT000002');
 GO
 
 -- Chi tiết hóa đơn
@@ -660,4 +660,4 @@ INSERT INTO ChiTietHD (maHD, maMonAn, soLuong, donGia) VALUES
 GO
 
 ALTER TABLE KhuyenMai
-ADD isDeleted BIT NOT NULL DEFAULT 0;
+    ADD isDeleted BIT NOT NULL DEFAULT 0;
