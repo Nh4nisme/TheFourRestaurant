@@ -24,6 +24,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 
 public class QuanLiBan extends VBox {
 
@@ -38,6 +39,13 @@ public class QuanLiBan extends VBox {
 	private final List<Ban> dsBanDangChon = new ArrayList<>();
 	private static final Map<String, Image> cacheAnhBan = new HashMap<>();
 	private final Map<String, PhieuDatBan> mapDangPhucVuToanBo = new HashMap<>();
+	private final Map<String, Color> mapMauChoPhieu = new HashMap<>();
+	private final List<Color> danhSachMau = List.of(
+	    Color.RED, Color.BLUE, Color.GREEN, Color.ORANGE, Color.PURPLE, Color.BROWN, Color.PINK
+	);
+	private int indexMau = 0;
+
+	private String maTangHienTai = "TG000001";
 
 	public QuanLiBan(StackPane mainContent, String context) {
 		this.mainContent = mainContent;
@@ -77,15 +85,16 @@ public class QuanLiBan extends VBox {
 		khuVucBan.setStyle("-fx-background-color: #F5F5F5;");
 		VBox.setVgrow(khuVucBan, Priority.ALWAYS);
 
-		// === Gắn vào layout ===
 		this.getChildren().addAll(thanhTren, khuVucBan);
 	}
 
 	// Hiển thị bàn theo tầng
 	public void hienThiBanTheoTang(String maTang) {
+		this.maTangHienTai = maTang;
 
 		Map<String, PhieuDatBan> mapDatTruoc = pdbDAO.layTatCaPhieuDatTruocTheoTang();
 		Map<String, PhieuDatBan> mapDangPhucVu = pdbDAO.layTatCaPhieuDangPhucVuTheoTang();
+
 		mapDangPhucVuToanBo.clear();
 		mapDangPhucVuToanBo.putAll(mapDangPhucVu);
 
@@ -93,26 +102,19 @@ public class QuanLiBan extends VBox {
 
 		lblBreadcrumb.setText("Trang chủ / Quản lý bàn / Tầng " + maTang.replace("TG00000", ""));
 
-		Platform.runLater(() -> {
-			if (khuVucBan.getWidth() > 0 && khuVucBan.getHeight() > 0) {
-				setBackgroundTheoTang(maTang);
-			} else {
-				khuVucBan.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> setBackgroundTheoTang(maTang));
-			}
-		});
+		Platform.runLater(() -> setBackgroundTheoTang(maTang));
 
 		List<Ban> dsBan = banDAO.layTheoTang(maTang);
-
-		if (dsBan.isEmpty()) {
-			Label lblThongBao = new Label("Không có bàn nào trong tầng này.");
-			lblThongBao.setStyle("-fx-font-size: 18px; -fx-text-fill: #666;");
-			khuVucBan.getChildren().add(lblThongBao);
+		if (dsBan.isEmpty())
 			return;
-		}
 
 		for (Ban b : dsBan) {
 			taoBan(khuVucBan, b, mapDangPhucVu, mapDatTruoc);
 		}
+	}
+
+	public void refresh() {
+		Platform.runLater(() -> hienThiBanTheoTang(maTangHienTai));
 	}
 
 	// 🔹 Đặt background theo tầng
@@ -129,22 +131,13 @@ public class QuanLiBan extends VBox {
 		};
 
 		try {
-			Image anhNen = new Image(getClass().getResource(path).toExternalForm());
-
-			Runnable updateBackground = () -> {
-				BackgroundSize bgs = new BackgroundSize(khuVucBan.getWidth(), khuVucBan.getHeight(), false, false,
-						false, false);
-				BackgroundImage bgImg = new BackgroundImage(anhNen, BackgroundRepeat.NO_REPEAT,
-						BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, bgs);
-				khuVucBan.setBackground(new Background(bgImg));
-			};
-
-			updateBackground.run();
-			khuVucBan.widthProperty().addListener((obs, oldVal, newVal) -> updateBackground.run());
-			khuVucBan.heightProperty().addListener((obs, oldVal, newVal) -> updateBackground.run());
-
+			Image img = new Image(getClass().getResource(path).toExternalForm());
+			BackgroundSize bgs = new BackgroundSize(khuVucBan.getWidth(), khuVucBan.getHeight(), false, false, false,
+					false);
+			BackgroundImage bgImg = new BackgroundImage(img, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+					BackgroundPosition.CENTER, bgs);
+			khuVucBan.setBackground(new Background(bgImg));
 		} catch (Exception e) {
-			e.printStackTrace();
 			khuVucBan.setStyle("-fx-background-color: lightgray;");
 		}
 	}
@@ -215,18 +208,14 @@ public class QuanLiBan extends VBox {
 				} else if ("DAT_BAN".equals(context)) {
 					PhieuDatBan pdbDayDu = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
 
-				    if (pdbDayDu == null) {
-				        Alert alert = new Alert(
-				            Alert.AlertType.INFORMATION,
-				            "Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động."
-				        );
-				        alert.show();
-				        return;
-				    }
+					if (pdbDayDu == null) {
+						Alert alert = new Alert(Alert.AlertType.INFORMATION,
+								"Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
+						alert.show();
+						return;
+					}
 
-				    mainContent.getChildren().setAll(
-				        new GiaoDienChiTietBan(mainContent, ban, pdbDayDu)
-				    );
+					mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban, pdbDayDu));
 				}
 			}
 		});
@@ -235,21 +224,19 @@ public class QuanLiBan extends VBox {
 		khungBan.setUserData(ban.getMaBan());
 
 		if ("Đang phục vụ".equals(ban.getTrangThai())) {
+		    PhieuDatBan pdb = mapDangPhucVu.get(ban.getMaBan());
+		    if (pdb != null) {
+		        themMarkerChoPhieu(khungBan, pdb);
 
-			PhieuDatBan pdb = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
-
-			if (pdb != null) {
-
-				Label lblCountDown = new Label();
-				lblCountDown.setStyle("-fx-font-size: 14px;" + "-fx-font-weight: bold;" + "-fx-text-fill: white;"
-						+ "-fx-background-color: rgba(0,0,0,0.6);" + "-fx-padding: 2 8;" + "-fx-background-radius: 6;");
-
-				StackPane.setAlignment(lblCountDown, Pos.TOP_CENTER);
-				StackPane.setMargin(lblCountDown, new Insets(-35, 0, 0, 0));
-				khungBan.getChildren().add(lblCountDown);
-
-				CountdownController.getInstance().startDangPhucVu(pdb, lblCountDown);
-			}
+		        Label lblCountDown = new Label();
+		        lblCountDown.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;" +
+		            "-fx-text-fill: white; -fx-background-color: rgba(0,0,0,0.6);" +
+		            "-fx-padding: 2 8; -fx-background-radius: 6;");
+		        StackPane.setAlignment(lblCountDown, Pos.TOP_CENTER);
+		        StackPane.setMargin(lblCountDown, new Insets(-35, 0, 0, 0));
+		        khungBan.getChildren().add(lblCountDown);
+		        CountdownController.getInstance().startDangPhucVu(pdb, lblCountDown);
+		    }
 		}
 	}
 
@@ -375,5 +362,23 @@ public class QuanLiBan extends VBox {
 		}
 		return null;
 	}
+	
+	private void themMarkerChoPhieu(StackPane khungBan, PhieuDatBan pdb) {
+	    if (pdb == null) return;
+
+	    Color color = mapMauChoPhieu.computeIfAbsent(pdb.getMaPDB(), k -> {
+	        Color c = danhSachMau.get(indexMau % danhSachMau.size());
+	        indexMau++;
+	        return c;
+	    });
+
+	    Circle marker = new Circle(8, color);
+	    StackPane.setAlignment(marker, Pos.TOP_RIGHT);
+	    marker.setTranslateX(-5);
+	    marker.setTranslateY(5);
+
+	    khungBan.getChildren().add(marker);
+	}
+
 
 }

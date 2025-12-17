@@ -213,23 +213,15 @@ public class PhieuDatBanDAO {
 			if ("DAT_TRUOC".equals(context)) {
 				trangThaiPhieu = "Đặt trước";
 			}
-
-			BigDecimal tienCoc = BigDecimal.ZERO;
-
+			
 			//Tiền cọc
-			if ("Đặt trước".equals(trangThaiPhieu)) {
-
-			    if (danhSachBan != null && !danhSachBan.isEmpty()) {
-
-			        // Lấy bàn đầu tiên làm bàn chính
-			        Ban ban = banDAO.layTheoMa(danhSachBan.get(0).getMaBan());
-
-			        if (ban != null && ban.getLoaiBan() != null) {
-			            tienCoc = ban.getLoaiBan().getGiaTien();
-			        }
-			    }
-			}
-
+			BigDecimal tienCoc = BigDecimal.ZERO;
+			if ("Đặt trước".equals(trangThaiPhieu) && danhSachBan != null && !danhSachBan.isEmpty()) {
+	            Ban ban = banDAO.layTheoMa(danhSachBan.get(0).getMaBan());
+	            if (ban != null && ban.getLoaiBan() != null) {
+	                tienCoc = ban.getLoaiBan().getGiaTien();
+	            }
+	        }
 
 			ps.setString(1, maMoi);
 			ps.setTimestamp(2, Timestamp.valueOf(pdb.getNgayDat() != null ? pdb.getNgayDat() : LocalDateTime.now()));
@@ -243,13 +235,11 @@ public class PhieuDatBanDAO {
 			if (rows > 0) {
 
 				if (danhSachBan != null && !danhSachBan.isEmpty()) {
-			        new PhieuDatBan_BanDAO().themBanVaoPhieu(maMoi, danhSachBan);
+					new PhieuDatBan_BanDAO().themBanVaoPhieu(maMoi, danhSachBan);
 
 			        // CHỈ đặt bàn ngay mới đổi trạng thái bàn
 			        if ("DAT_NGAY".equals(context)) {
-			            for (Ban ban : danhSachBan) {
-			                banDAO.capNhatTrangThai(ban.getMaBan(), "Đang phục vụ");
-			            }
+			            banDAO.capNhatTrangThaiDanhSach(danhSachBan, trangThaiPhieu);
 			        }
 			    }
 
