@@ -6,6 +6,7 @@ import com.thefourrestaurant.controller.*;
 import com.thefourrestaurant.model.*;
 import com.thefourrestaurant.util.Session;
 import com.thefourrestaurant.view.ban.GiaoDienDatBan;
+import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.beans.property.*;
 import javafx.geometry.*;
 import javafx.scene.*;
@@ -17,8 +18,10 @@ import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class GiaoDienLapHoaDon extends VBox {
@@ -69,6 +72,7 @@ public class GiaoDienLapHoaDon extends VBox {
         this.stage = stage;
         this.mainContent = mainContent;
         khoiTaoUI();
+        getStyleClass().add("hoa-don-root");
     }
 
     // ================== INIT ==================
@@ -81,26 +85,42 @@ public class GiaoDienLapHoaDon extends VBox {
         khoiTaoQR();
 
         getChildren().addAll(
+                taoTitle(),
                 taoHeader(),
                 taoBangMon(),
                 taoThanhToan(),
                 taoFooter()
         );
 
-        stage.setScene(new Scene(new StackPane(this, qrOverlay), 900, 780));
+        Scene scene = new Scene(new StackPane(this, qrOverlay), 1000, 780);
+        scene.getStylesheets().add(
+                Objects.requireNonNull(
+                        getClass().getResource("/com/thefourrestaurant/css/Application.css")
+                ).toExternalForm()
+        );
+
+        stage.setScene(scene);
         stage.setTitle("Lập hóa đơn");
         stage.show();
+    }
+
+    private Node taoTitle() {
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER);
+        hBox.setSpacing(10);
+
+        Label title = new Label("LẬP HÓA ĐƠN THANH TOÁN");
+        title.getStyleClass().add("hoa-don-title");
+        hBox.getChildren().add(title);
+
+        return hBox;
     }
 
     // ================== HEADER ==================
     private Node taoHeader() {
         GridPane grid = new GridPane();
-        grid.setHgap(20);
-        grid.setVgap(8);
-
-        Label title = new Label("LẬP HÓA ĐƠN THANH TOÁN");
-        title.setStyle("-fx-font-size:22;-fx-font-weight:bold;");
-        grid.add(title, 0, 0, 4, 1);
+        grid.getStyleClass().add("hoa-don-header");
+        grid.setHgap(5);
 
         grid.addRow(1, new Label("Mã HD:"), lblMaHD, new Label("Nhân viên:"), lblNhanVien);
         grid.addRow(2, new Label("Mã PĐB:"), lblMaPDB, new Label("Ngày:"), lblNgayNhan);
@@ -114,29 +134,39 @@ public class GiaoDienLapHoaDon extends VBox {
         TableColumn<ChiTietPDB, String> colTen = new TableColumn<>("Món ăn");
         colTen.setCellValueFactory(c ->
                 new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
-        colTen.setPrefWidth(300);
 
         TableColumn<ChiTietPDB, Integer> colSL = new TableColumn<>("SL");
         colSL.setCellValueFactory(c ->
                 new SimpleIntegerProperty(c.getValue().getSoLuong()).asObject());
-        colSL.setPrefWidth(80);
 
         TableColumn<ChiTietPDB, BigDecimal> colTien = new TableColumn<>("Thành tiền");
         colTien.setCellValueFactory(c ->
                 new SimpleObjectProperty<>(tinhThanhTienMon(c.getValue())));
-        colTien.setPrefWidth(150);
+        colTien.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%,.0f VND", item.doubleValue()));
+                }
+            }
+        });
 
+        tblMon.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tblMon.getColumns().setAll(colTen, colSL, colTien);
         tblMon.setPrefHeight(260);
+        tblMon.getStyleClass().add("hoa-don-table");
 
         return tblMon;
     }
 
+
     // ================== PAYMENT ==================
     private Node taoThanhToan() {
         GridPane grid = new GridPane();
-        grid.setHgap(15);
-        grid.setVgap(10);
+        grid.getStyleClass().add("hoa-don-payment");
 
         txtTienKhachDua.textProperty().addListener((o, a, b) -> capNhatTienThua());
 
@@ -155,32 +185,63 @@ public class GiaoDienLapHoaDon extends VBox {
 
     // ================== FOOTER ==================
     private Node taoFooter() {
-        Button btnBack = new Button("⬅ Quay lại");
+        ButtonSample btnBack = new ButtonSample("Quay lại", "", 45, 16, 3);
         btnBack.setOnAction(e -> stage.close());
 
-        Button btnOk = new Button("✔ Xác nhận");
-        btnOk.setOnAction(e -> xuLyXacNhanThanhToan());
+        ButtonSample btnOK = new  ButtonSample("Xác nhận thanh toán", "", 45, 16, 3);
+        btnOK.setOnAction(e -> xuLyXacNhanThanhToan());
 
-        HBox box = new HBox(15, btnBack, btnOk);
+        HBox box = new HBox(15, btnBack, btnOK);
         box.setAlignment(Pos.CENTER_RIGHT);
         return box;
     }
 
     // ================== QR ==================
     private void khoiTaoQR() {
+        // Overlay nền mờ
         qrOverlay.setVisible(false);
-        qrOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.5)");
+        qrOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.6);");
 
-        ImageView qr = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/thefourrestaurant/images/QR.png"))));
+        // QR image
+        ImageView qr = new ImageView(
+                new Image(Objects.requireNonNull(
+                        getClass().getResourceAsStream("/com/thefourrestaurant/images/QR.png")
+                ))
+        );
         qr.setFitWidth(260);
         qr.setPreserveRatio(true);
 
-        VBox box = new VBox(10, qr, new Label("Quét mã để thanh toán"));
-        box.setAlignment(Pos.CENTER);
-        box.setStyle("-fx-background-color:white;-fx-padding:20");
+        Label lbl = new Label("Quét mã để thanh toán");
+        lbl.setStyle("-fx-text-fill: white; -fx-font-size: 14;");
 
-        qrOverlay.getChildren().add(box);
+        // ===== BUTTONS =====
+        ButtonSample btnXacNhan = new ButtonSample(
+                "Xác nhận", "", 40, 14, 3
+        );
+        btnXacNhan.setOnAction(e -> xuLyXacNhanThanhToan());
+
+        ButtonSample btnQuayLai = new ButtonSample(
+                "Quay lại", "", 40, 14, 3
+        );
+        btnQuayLai.setOnAction(e -> qrOverlay.setVisible(false));
+
+        HBox boxBtn = new HBox(12, btnQuayLai, btnXacNhan);
+        boxBtn.setAlignment(Pos.CENTER);
+
+        // ===== CONTENT =====
+        VBox content = new VBox(15, qr, lbl, boxBtn);
+        content.setAlignment(Pos.CENTER);
+        content.setPadding(new Insets(25));
+        content.setStyle("""
+        -fx-background-color: rgba(255,255,255,0.15);
+        -fx-background-radius: 12;
+        -fx-border-color: rgba(255,255,255,0.4);
+        -fx-border-radius: 12;
+    """);
+
+        qrOverlay.getChildren().add(content);
     }
+
 
     private void khoiTaoComboPTTT() {
         cboPTTT.getItems().setAll(ptttController.layPhuongThucThanhToan());
