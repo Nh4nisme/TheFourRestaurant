@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.hoadon;
 
 import com.thefourrestaurant.DAO.BanDAO;
+import com.thefourrestaurant.DAO.PhieuDatBan_BanDAO;
 import com.thefourrestaurant.controller.*;
 import com.thefourrestaurant.model.*;
 import com.thefourrestaurant.util.Session;

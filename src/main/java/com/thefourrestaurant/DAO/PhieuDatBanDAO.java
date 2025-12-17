@@ -375,14 +375,23 @@ public class PhieuDatBanDAO {
 				// Chi tiết phiếu
 				String maChiTiet = rs.getString("maCT");
 				if (maChiTiet != null && !mapChiTiet.containsKey(maChiTiet)) {
-					ChiTietPDB ct = new ChiTietPDB();
-					ct.setMaCT(maChiTiet);
-					ct.setMonAn(new MonAn(rs.getString("tenMon")));
-					ct.setSoLuong(rs.getInt("soLuong"));
-					ct.setDonGia(rs.getDouble("donGia")); 
-					pdb.getChiTietPDB().add(ct);
-					mapChiTiet.put(maChiTiet, ct);
+				    ChiTietPDB ct = new ChiTietPDB();
+				    ct.setMaCT(maChiTiet);
+
+				    MonAn mon = new MonAn();
+				    mon.setMaMonAn(rs.getString("maMonAn"));
+				    mon.setTenMon(rs.getString("tenMon"));
+				    mon.setDonGia(rs.getBigDecimal("donGia"));
+				    ct.setMonAn(mon);
+
+				    ct.setSoLuong(rs.getInt("soLuong"));
+				    ct.setDonGia(rs.getDouble("donGia")); 
+				    ct.setGhiChu(rs.getString("ghiChu"));
+
+				    pdb.getChiTietPDB().add(ct);
+				    mapChiTiet.put(maChiTiet, ct);
 				}
+
 			}
 
 			return pdb;
