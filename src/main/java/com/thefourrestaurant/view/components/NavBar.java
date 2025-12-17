@@ -107,7 +107,7 @@ public class NavBar extends HBox {
         javafx.scene.control.ContextMenu menuTaiKhoan = new javafx.scene.control.ContextMenu();
         javafx.scene.control.Label lblKetCa = new javafx.scene.control.Label("Kết ca");
         lblKetCa.setPadding(new Insets(10));
-        lblKetCa.setStyle("-fx-text-fill: #1E424D; -fx-alignment: center-left; -fx-font-size: 14px;");
+        lblKetCa.setStyle("-fx-text-fill: #E5D595; -fx-font-weight: bold; -fx-font-size: 16px; -fx-alignment: center-left;");
         lblKetCa.setOnMouseClicked(ev -> { xuLyKetCa(); menuTaiKhoan.hide(); });
         javafx.scene.layout.VBox box = new javafx.scene.layout.VBox(lblKetCa);
         // ensure the menu content is as wide as the button

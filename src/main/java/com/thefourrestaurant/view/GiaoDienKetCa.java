@@ -2,14 +2,18 @@ package com.thefourrestaurant.view;
 
 import com.thefourrestaurant.DAO.ThongKeDAO;
 import com.thefourrestaurant.util.Session;
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -53,14 +57,31 @@ public class GiaoDienKetCa extends BorderPane {
 
         String gioLam = computeShiftDurationString();
 
-        topCards.getChildren().addAll(createCard("Doanh thu", doanhThuStr, "#27AE60"), createCard("Giờ làm", gioLam, "#2980B9"));
+        int soHoaDonTop = tk.getSoHoaDon(startDate, endDate);
+        BigDecimal trungBinhHD = tk.getDoanhThuTrungBinhHD(startDate, endDate);
+        String trungBinhStr = formatCurrency(trungBinhHD != null ? trungBinhHD : BigDecimal.ZERO);
 
-        VBox contentCard = new VBox(18);
+        topCards.getChildren().addAll(
+            createCard("Doanh thu", doanhThuStr, "#27AE60"),
+            createCard("Giờ làm", gioLam, "#2980B9"),
+            createCard("Số hóa đơn", String.valueOf(soHoaDonTop), "#8E44AD"),
+            createCard("Trung bình/Hóa đơn", trungBinhStr, "#16A085")
+        );
+
+        VBox contentCard = new VBox(20);
         contentCard.setPadding(new Insets(18));
         contentCard.setStyle("-fx-background-color: " + COLOR_CARD + "; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 8, 0, 0, 3);");
 
-        HBox form = new HBox(30);
+        GridPane form = new GridPane();
+        form.setHgap(40);
+        form.setVgap(12);
         form.setPadding(new Insets(10));
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(50);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(50);
+        form.getColumnConstraints().addAll(col1, col2);
 
         VBox leftCol = new VBox(12);
         Label lblTienDauCa = new Label("Tiền đầu ca:");
@@ -104,7 +125,12 @@ public class GiaoDienKetCa extends BorderPane {
 
         rightCol.getChildren().addAll(lblTienMat, txtTienMat, lblChuyenKhoan, txtChuyenKhoan, lblTienCuoi, txtTienCuoi);
 
+        GridPane.setConstraints(leftCol, 0, 0);
+        GridPane.setConstraints(rightCol, 1, 0);
         form.getChildren().addAll(leftCol, rightCol);
+        GridPane.setHgrow(leftCol, Priority.ALWAYS);
+        GridPane.setHgrow(rightCol, Priority.ALWAYS);
+        rightCol.setAlignment(Pos.TOP_RIGHT);
 
         Button btnXacNhan = new Button("Xác nhận kết ca");
         btnXacNhan.setFont(montserratExtrabold);
@@ -125,8 +151,18 @@ public class GiaoDienKetCa extends BorderPane {
 
         contentCard.getChildren().addAll(form);
 
+        VBox centerWrapper = new VBox();
+        centerWrapper.setAlignment(Pos.TOP_CENTER);
+        centerWrapper.getChildren().add(contentCard);
+        contentCard.maxWidthProperty().bind(this.widthProperty().multiply(0.8));
+        centerWrapper.paddingProperty().bind(Bindings.createObjectBinding(
+            () -> new Insets(0, this.getWidth() * 0.1, this.getHeight() * 0.05, this.getWidth() * 0.1),
+            this.widthProperty(), this.heightProperty()
+        ));
+
+        this.setStyle("-fx-background-color: #F5F5F5;");
         this.setTop(topCards);
-        this.setCenter(contentCard);
+        this.setCenter(centerWrapper);
         this.setBottom(bottomBar);
     }
 
@@ -155,7 +191,8 @@ public class GiaoDienKetCa extends BorderPane {
     private TextField createValueField() {
         TextField f = new TextField();
         f.setEditable(false);
-        f.setPrefWidth(300);
+        f.setMaxWidth(Double.MAX_VALUE);
+        f.setPrefWidth(Region.USE_COMPUTED_SIZE);
         f.setStyle("-fx-background-color: " + COLOR_CARD_INNER + "; -fx-background-radius: 6; -fx-text-fill: white; -fx-padding: 8 10 8 10;");
         return f;
     }
