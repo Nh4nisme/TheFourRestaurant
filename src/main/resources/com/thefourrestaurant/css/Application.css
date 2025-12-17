@@ -1,6 +1,7 @@
 .root {
     -fx-font-family: "Montserrat Regular";
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
 }
 
 .button_sampleGamboge{
@@ -367,4 +368,66 @@
 .axis-label {
     -fx-font-size: 12px;
     -fx-text-fill: #666666;
+}
+
+/* ================= ROOT ================= */
+.hoa-don-root {
+    -fx-background-color: #1E424D;
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* ================= HEADER ================= */
+.hoa-don-header > .label {
+    -fx-padding: 10;
+    -fx-text-fill: white;
+}
+
+.hoa-don-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #DDB248;
+}
+
+/* ================= TABLE ================= */
+.hoa-don-table {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+/* header bảng */
+.table-column-header {
+    -fx-background-color: #1E424D;
+}
+
+.table-column-header .label {
+    -fx-text-fill: #DDB248;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* ================= PAYMENT ================= */
+.hoa-don-payment {
+    -fx-background-color: white;
+    -fx-padding: 15;
+    -fx-spacing: 5;
+    -fx-background-radius: 10;
+}
+
+/* ================= INPUT ================= */
+.combo-box-hoaDon {
+    -fx-background-color: white;
+    -fx-border-color: #1E424D;
+    -fx-border-radius: 10;
+    -fx-text-fill: #1E424D;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* ================= QR ================= */
+.qr-overlay {
+    -fx-background-color: rgba(0,0,0,0.5);
 }

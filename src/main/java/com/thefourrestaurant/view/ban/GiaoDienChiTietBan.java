@@ -32,8 +32,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 	private Ban ban;
 	private PhieuDatBan pdb;
 	private Label lblConLai;
-	private final CountdownController countdownController =
-	        CountdownController.getInstance();
+	private final CountdownController countdownController = CountdownController.getInstance();
 
 	public GiaoDienChiTietBan(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
 		this.mainContent = mainContent;
