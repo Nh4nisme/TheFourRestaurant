@@ -10,6 +10,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 public abstract class GiaoDienThucThe extends VBox {
@@ -17,38 +18,35 @@ public abstract class GiaoDienThucThe extends VBox {
     protected TableView<?> tableChinh;
     protected Node chiTietNode;
     protected Label lblTieuDe;
-    protected ButtonSample btnTimKiem, btnLamMoi;
+
+    protected HBox khuVucBoLoc;
     protected TextField txtTimKiem;
+    protected DatePicker dpNgayCuThe, dpTuNgay, dpDenNgay;
+    protected ButtonSample btnTimKiem, btnLamMoi;
+
     private final String tieuDe;
 
     public GiaoDienThucThe(String tieuDe, Node chiTietNode) {
         this.tieuDe = tieuDe;
         this.chiTietNode = chiTietNode;
-        this.getStyleClass().add("giao-dien-co-chi-tiet");
+
+        getStyleClass().add("giao-dien-co-chi-tiet");
         setVgrow(this, Priority.ALWAYS);
-
-        getStylesheets().add(getClass().getResource("/com/thefourrestaurant/css/Application.css").toExternalForm());
-        this.getStyleClass().add("giaodienthucthe");
-    }
-
-    public Node getChiTietNode() {
-        return chiTietNode;
+        getStylesheets().add(
+                getClass().getResource("/com/thefourrestaurant/css/Application.css").toExternalForm()
+        );
     }
 
     protected void khoiTaoGiaoDien() {
-        // === Toolbar ===
-        HBox toolbar = taoToolbar(tieuDe);
-
-        // === SplitPane ===
+        HBox toolbar = taoToolbar();
         SplitPane splitPane = taoSplitPane();
 
         VBox.setVgrow(splitPane, Priority.ALWAYS);
         getChildren().addAll(toolbar, splitPane);
     }
 
-    /** Tạo Toolbar chung */
-    private HBox taoToolbar(String tieuDe) {
-        HBox toolbar = new HBox();
+    private HBox taoToolbar() {
+        HBox toolbar = new HBox(10);
         toolbar.getStyleClass().add("toolbar");
         toolbar.setAlignment(Pos.CENTER_LEFT);
         toolbar.setPadding(new Insets(10));
@@ -59,64 +57,72 @@ public abstract class GiaoDienThucThe extends VBox {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox thanhTimKiem = new HBox(10);
-        thanhTimKiem.setAlignment(Pos.CENTER_LEFT);
-        thanhTimKiem.setPadding(new Insets(0,10,0,10));
+        khuVucBoLoc = new HBox(10);
+        khuVucBoLoc.setAlignment(Pos.CENTER_RIGHT);
+
+        toolbar.getChildren().addAll(lblTieuDe, spacer, khuVucBoLoc);
+        return toolbar;
+    }
+
+    private SplitPane taoSplitPane() {
+        SplitPane splitPane = new SplitPane();
+        splitPane.setDividerPositions(0.6);
+
+        tableChinh = taoBangChinh();
+        VBox bang = new VBox(tableChinh);
+        VBox.setVgrow(tableChinh, Priority.ALWAYS);
+
+        VBox chiTiet = new VBox(chiTietNode);
+        VBox.setVgrow(chiTiet, Priority.ALWAYS);
+
+        splitPane.getItems().addAll(bang, chiTiet);
+        return splitPane;
+    }
+
+
+    // Tìm kiếm theo từ khóa
+    protected void khoiTaoBoLocTimKiem() {
         txtTimKiem = new TextField();
-        txtTimKiem.setPromptText("Nhập từ khóa tìm kiếm...");
-        txtTimKiem.setStyle("-fx-font-size: 16; -fx-background-radius: 8;");
+        txtTimKiem.setPromptText("Tìm kiếm...");
+        txtTimKiem.setPrefWidth(220);
 
-        btnTimKiem = new ButtonSample("Tìm kiếm", 35, 16, 3);
+        btnTimKiem = new ButtonSample("Tìm", 32, 14, 3);
+        btnLamMoi = new ButtonSample("Làm mới", 32, 14, 3);
 
-        thanhTimKiem.getChildren().addAll(txtTimKiem, btnTimKiem);
-
-        btnLamMoi = new ButtonSample("Làm mới",35,16,3);
-
-        toolbar.getChildren().addAll(lblTieuDe, spacer, thanhTimKiem,btnLamMoi);
-
-        // === Gắn sự kiện cho nút ===
-        btnTimKiem.setOnAction(e -> {
-            String tuKhoa = txtTimKiem.getText() == null ? "" : txtTimKiem.getText().trim();
-            thucHienTimKiem(tuKhoa);
-        });
+        btnTimKiem.setOnAction(e ->
+                thucHienTimKiem(txtTimKiem.getText().trim())
+        );
 
         btnLamMoi.setOnAction(e -> {
             txtTimKiem.clear();
             lamMoiDuLieu();
         });
 
-        return toolbar;
-
+        khuVucBoLoc.getChildren().addAll(txtTimKiem, btnTimKiem, btnLamMoi);
     }
 
-    /** Tạo SplitPane chứa bảng và chi tiết */
-    private SplitPane taoSplitPane() {
-        SplitPane splitPane = new SplitPane();
-        splitPane.setPadding(new Insets(10));
-        splitPane.setDividerPositions(0.6);
-        splitPane.getStyleClass().add("split-pane");
+    // Lọc theo ngày cụ thể
+    protected void khoiTaoBoLocNgayCuThe() {
+        dpNgayCuThe = new DatePicker();
+        dpNgayCuThe.setPromptText("Chọn ngày");
 
-        // Bảng chính
-        VBox bangDuLieu = new VBox();
-        tableChinh = taoBangChinh();
-        VBox.setVgrow(tableChinh, Priority.ALWAYS);
-        bangDuLieu.getChildren().add(tableChinh);
+        ButtonSample btnLoc = new ButtonSample("Lọc", 32, 14, 3);
+        btnLoc.setOnAction(e ->
+                locTheoNgay(dpNgayCuThe.getValue(), dpNgayCuThe.getValue())
+        );
+        Label ten = new Label("Ngày:");
+        ten.setStyle("-fx-font-weight: bold; -fx-text-fill: #DDB248");
 
-        // Chi tiết
-        VBox bangChiTiet = new VBox();
-        bangChiTiet.getChildren().add(chiTietNode);
-        VBox.setVgrow(bangChiTiet, Priority.ALWAYS);
-
-        splitPane.getItems().addAll(bangDuLieu, bangChiTiet);
-        return splitPane;
+        khuVucBoLoc.getChildren().addAll(ten    , dpNgayCuThe, btnLoc
+        );
     }
 
-    /** Hiển thị thông báo dạng Alert đơn giản */
+    /* ================= HỖ TRỢ ================= */
+
     protected void hienThongBao(Stage stage, String noiDung) {
         hienThongBao(stage, noiDung, Alert.AlertType.INFORMATION);
     }
 
-    /** Hiển thị thông báo với loại Alert tùy chọn */
     protected void hienThongBao(Stage stage, String noiDung, Alert.AlertType loai) {
         Alert alert = new Alert(loai);
         alert.setTitle("Thông báo");
@@ -126,26 +132,30 @@ public abstract class GiaoDienThucThe extends VBox {
         alert.show();
     }
 
-    /** Hiển thị hộp thoại xác nhận, trả về true nếu người dùng chọn OK */
     protected boolean xacNhan(Stage stage, String noiDung) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Xác nhận xóa");
+        confirm.setTitle("Xác nhận");
         confirm.setHeaderText(null);
         confirm.setContentText(noiDung);
-
         confirm.initOwner(stage);
 
-
-        Optional<ButtonType> result = confirm.showAndWait();
-        return result.isPresent() && result.get() == ButtonType.OK;
+        Optional<ButtonType> rs = confirm.showAndWait();
+        return rs.isPresent() && rs.get() == ButtonType.OK;
     }
 
-    /* Hàm con cần override để tạo bảng tương ứng */
+    /* ================= ABSTRACT ================= */
+
     protected abstract TableView<?> taoBangChinh();
 
-    /** Hàm con định nghĩa cách lọc dữ liệu trong bảng */
-    protected abstract void thucHienTimKiem(String tuKhoa);
+    protected void thucHienTimKiem(String tuKhoa) {}
 
-    /** Hàm con định nghĩa cách làm mới dữ liệu trong bảng */
+    protected void locTheoNgay(LocalDate tuNgay, LocalDate denNgay) {}
+
     protected abstract void lamMoiDuLieu();
+
+    public Node getChiTietNode() {
+        return chiTietNode;
+    }
 }
+
+
