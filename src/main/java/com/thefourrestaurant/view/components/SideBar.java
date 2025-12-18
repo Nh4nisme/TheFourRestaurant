@@ -1,4 +1,4 @@
-package com.thefourrestaurant.view.components.sidebar;
+package com.thefourrestaurant.view.components;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import com.thefourrestaurant.util.ClockText;
 
-import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -16,7 +15,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
 
 public class SideBar extends VBox {
 

@@ -46,18 +46,6 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
     }
 
     private void themBoLocLoaiMon() {
-//        cboLoaiMonFilter.setPromptText("Lọc theo loại");
-//        LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
-//        List<String> tenLoaiMon = loaiMonDAO.layTatCaLoaiMon().stream()
-//                .map(LoaiMon::getTenLoaiMon)
-//                .collect(Collectors.toList());
-//        cboLoaiMonFilter.getItems().add("Tất cả");
-//        cboLoaiMonFilter.getItems().addAll(tenLoaiMon);
-//        cboLoaiMonFilter.setValue("Tất cả");
-//        cboLoaiMonFilter.setOnAction(e -> locVaCapNhatMonAn());
-//
-//        thanhTrai.getChildren().add(cboLoaiMonFilter);
-
         LinkedHashMap<String, String> dsLoaiMon = new LinkedHashMap<>();
         dsLoaiMon.put("Tất cả", null);
         loaiMonAnController.layTatCaLoaiMonAn()
@@ -150,16 +138,6 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
     }
 
     private void locVaCapNhatMonAn() {
-//        String loaiMonFilter = cboLoaiMonFilter.getValue();
-//
-//        if (loaiMonFilter != null && !loaiMonFilter.equals("Tất cả")) {
-//            danhSachMonAnHienThi = danhSachMonAnGoc.stream()
-//                    .filter(monAn -> monAn.getLoaiMon() != null && monAn.getLoaiMon().getTenLoaiMon().equals(loaiMonFilter))
-//                    .collect(Collectors.toList());
-//        } else {
-//            danhSachMonAnHienThi = danhSachMonAnGoc;
-//        }
-//        capNhatBang();
 
         String maLoaiDuocChon = btnLoaiMon.getSelectedValue();
 

@@ -3,7 +3,7 @@ package com.thefourrestaurant.view;
 import java.util.Objects;
 
 import com.thefourrestaurant.view.components.NavBar;
-import com.thefourrestaurant.view.components.sidebar.SideBar;
+import com.thefourrestaurant.view.components.SideBar;
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
