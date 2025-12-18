@@ -35,7 +35,7 @@ public class GiaoDienKhuyenMai extends VBox {
     private KhuyenMaiGrid gridView;
     private Node listView;
     private final Label lblItemCount = new Label();
-    private final ComboBox<String> hopLocKieu = new ComboBox<>();
+        private final ComboBox<String> hopLocKieu = new ComboBox<>();
 
     public GiaoDienKhuyenMai() {
         this.boDieuKhien = new KhuyenMaiController();

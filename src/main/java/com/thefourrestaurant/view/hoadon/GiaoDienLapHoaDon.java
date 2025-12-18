@@ -353,7 +353,7 @@ public class GiaoDienLapHoaDon extends VBox {
     }
 
 
-    // ================== LOGIC (GIỮ NGUYÊN) ==================
+    // ================== LOGIC ==================
     private BigDecimal tinhThanhTienMon(ChiTietPDB ct) {
         return ct.getMonAn().getDonGia().multiply(BigDecimal.valueOf(ct.getSoLuong()));
     }
