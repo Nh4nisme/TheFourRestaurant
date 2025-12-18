@@ -135,7 +135,14 @@ public class GiaoDienKhuyenMai extends VBox {
 
         hopLocKieu.setItems(FXCollections.observableArrayList("Tất cả", "Sự kiện (Tự động)", "Mã giảm giá (Nhập mã)"));
         hopLocKieu.setValue("Tất cả");
-        hopLocKieu.setStyle("-fx-background-color: white; -fx-background-radius: 5;");
+        hopLocKieu.setStyle("-fx-background-color: #DDB248;\n" +
+                "    -fx-border-color: #DDB248;\n" +
+                "    -fx-text-fill: #1E424D;\n" +
+                "    -fx-border-radius: 5;\n" +
+                "    -fx-background-radius: 7;\n" +
+                "    -fx-border-width: 2;\n" +
+                "    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 10, 0, 0, 4);\n" +
+                "    -fx-background-insets: 0;");
         hopLocKieu.setOnAction(e -> locTheoKieu());
 
         Region space = new Region();
