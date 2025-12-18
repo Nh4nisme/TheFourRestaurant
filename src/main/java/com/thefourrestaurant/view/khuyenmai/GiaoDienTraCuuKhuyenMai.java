@@ -125,21 +125,6 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
             return new SimpleStringProperty(tenLoaiKM);
         });
 
-        TableColumn<KhuyenMai, String> tyLeCol = new TableColumn<>("Tỷ lệ");
-        tyLeCol.setCellValueFactory(cellData -> {
-            BigDecimal tyLe = cellData.getValue().getKhuyenMaiDieuKien().getTyLeGiam();
-            return new SimpleStringProperty(tyLe != null && tyLe.compareTo(BigDecimal.ZERO) > 0
-                    ? tyLe.stripTrailingZeros().toPlainString() + "%" : "");
-        });
-
-        TableColumn<KhuyenMai, String> soTienCol = new TableColumn<>("Số tiền");
-        soTienCol.setCellValueFactory(cellData -> {
-            BigDecimal soTien = cellData.getValue().getKhuyenMaiDieuKien().getSoTienGiam();
-            NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-            return new SimpleStringProperty(soTien != null && soTien.compareTo(BigDecimal.ZERO) > 0
-                    ? currencyFormatter.format(soTien) : "");
-        });
-
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         TableColumn<KhuyenMai, String> ngayBDCol = new TableColumn<>("Ngày bắt đầu");
         ngayBDCol.setCellValueFactory(cellData -> {
@@ -170,7 +155,7 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
             return new SimpleStringProperty(status);
         });
 
-        table.getColumns().addAll(maKMCol, tenKMCol, kieuKMCol, loaiKMCol, tyLeCol, soTienCol, ngayBDCol, ngayKTCol, trangThaiCol);
+        table.getColumns().addAll(maKMCol, tenKMCol, kieuKMCol, loaiKMCol, ngayBDCol, ngayKTCol, trangThaiCol);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         table.setRowFactory(tv -> {
