@@ -13,117 +13,126 @@ import com.thefourrestaurant.model.*;
 
 public class PhieuDatBanDAO {
 	private BanDAO banDAO = new BanDAO();
-	private List<Ban> danhSachBan = new ArrayList<Ban>();
 
-	private PhieuDatBan mapResultSetToPhieuDatBan(ResultSet rs, Map<String, Ban> mapBan,
-			Map<String, ChiTietPDB> mapChiTiet) throws SQLException {
-		PhieuDatBan pdb = new PhieuDatBan();
-		pdb.setMaPDB(rs.getString("maPDB"));
-		Timestamp tsNgayTao = rs.getTimestamp("ngayTao");
-		if (tsNgayTao != null)
-			pdb.setNgayTao(tsNgayTao.toLocalDateTime());
-		Timestamp tsNgayDat = rs.getTimestamp("ngayDat");
-		if (tsNgayDat != null)
-			pdb.setNgayDat(tsNgayDat.toLocalDateTime());
-		pdb.setSoNguoi(rs.getInt("soNguoi"));
-		pdb.setTrangThai(rs.getString("trangThai"));
-		pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
-		pdb.setDeleted(rs.getBoolean("isDeleted"));
-		pdb.setDanhSachBan(new ArrayList<>());
-		pdb.setChiTietPDB(new ArrayList<>());
+	private void mapResultSetToPhieuDatBan(ResultSet rs, PhieuDatBan pdb) throws SQLException {
 
-		// Khách hàng
-		String maKH = rs.getString("maKH");
-		if (maKH != null) {
-			KhachHang kh = new KhachHang();
-			kh.setMaKH(maKH);
-			kh.setHoTen(rs.getString("tenKH"));
-			kh.setSoDT(rs.getString("soDT"));
-			pdb.setKhachHang(kh);
-		}
-
-		// Nhân viên
-		String maNV = rs.getString("maNV");
-		if (maNV != null) {
-			NhanVien nv = new NhanVien();
-			nv.setMaNV(maNV);
-			nv.setHoTen(rs.getString("tenNV"));
-			pdb.setNhanVien(nv);
-		}
-
-		// Bàn
+		// ===== BÀN =====
 		String maBan = rs.getString("maBan");
-		if (maBan != null && !mapBan.containsKey(maBan)) {
-			Ban ban = new Ban();
-			ban.setMaBan(maBan);
-			ban.setTenBan(rs.getString("tenBan"));
-			ban.setToaDoX(rs.getInt("toaDoX"));
-			ban.setToaDoY(rs.getInt("toaDoY"));
-			ban.setTrangThai(rs.getString("trangThaiBan"));
+		if (maBan != null) {
+			boolean daCo = pdb.getDanhSachBan().stream().anyMatch(b -> b.getMaBan().equals(maBan));
 
-			String maLoaiBan = rs.getString("maLoaiBan");
-			if (maLoaiBan != null) {
-				LoaiBan lb = new LoaiBan();
-				lb.setMaLoaiBan(maLoaiBan);
-				lb.setTenLoaiBan(rs.getString("tenLoai"));
-				lb.setSoChoNgoi(rs.getInt("soChoNgoi"));
-				lb.setGiaTien(rs.getBigDecimal("giaTien"));
-				ban.setLoaiBan(lb);
+			if (!daCo) {
+				Ban ban = new Ban();
+				ban.setMaBan(maBan);
+				ban.setTenBan(rs.getString("tenBan"));
+				ban.setToaDoX(rs.getInt("toaDoX"));
+				ban.setToaDoY(rs.getInt("toaDoY"));
+				ban.setTrangThai(rs.getString("trangThaiBan"));
+
+				String maLoaiBan = rs.getString("maLoaiBan");
+				if (maLoaiBan != null) {
+					LoaiBan lb = new LoaiBan();
+					lb.setMaLoaiBan(maLoaiBan);
+					lb.setTenLoaiBan(rs.getString("tenLoai"));
+					lb.setSoChoNgoi(rs.getInt("soChoNgoi"));
+					lb.setGiaTien(rs.getBigDecimal("giaTien"));
+					ban.setLoaiBan(lb);
+				}
+
+				pdb.getDanhSachBan().add(ban);
 			}
-
-			pdb.getDanhSachBan().add(ban);
-			mapBan.put(maBan, ban);
 		}
 
-		// Chi tiết phiếu
-		String maChiTiet = rs.getString("maCT");
-		if (maChiTiet != null && !mapChiTiet.containsKey(maChiTiet)) {
-			ChiTietPDB ct = new ChiTietPDB();
-			ct.setMaCT(maChiTiet);
-			MonAn mon = new MonAn();
-			mon.setMaMonAn(rs.getString("maMonAn"));
-			mon.setTenMon(rs.getString("tenMon"));
-			ct.setMonAn(mon);
-			ct.setSoLuong(rs.getInt("soLuong"));
-			ct.setDonGia(rs.getDouble("donGia"));
-			ct.setGhiChu(rs.getString("ghiChu"));
-			pdb.getChiTietPDB().add(ct);
-			mapChiTiet.put(maChiTiet, ct);
-		}
+		// ===== CHI TIẾT PHIẾU =====
+		String maCT = rs.getString("maCT");
+		if (maCT != null) {
+			boolean daCoCT = pdb.getChiTietPDB().stream().anyMatch(ct -> ct.getMaCT().equals(maCT));
 
-		return pdb;
+			if (!daCoCT) {
+				ChiTietPDB ct = new ChiTietPDB();
+				ct.setMaCT(maCT);
+
+				MonAn mon = new MonAn();
+				mon.setMaMonAn(rs.getString("maMonAn"));
+				mon.setTenMon(rs.getString("tenMon"));
+				mon.setDonGia(rs.getBigDecimal("donGia"));
+
+				ct.setMonAn(mon);
+				ct.setSoLuong(rs.getInt("soLuong"));
+				ct.setDonGia(rs.getDouble("donGia"));
+				ct.setGhiChu(rs.getString("ghiChu"));
+
+				pdb.getChiTietPDB().add(ct);
+			}
+		}
 	}
 
 	// 🔹 Lấy tất cả phiếu chưa xóa
 	private List<PhieuDatBan> layPhieuTheoQuery(String sql, Object... params) {
-		List<PhieuDatBan> danhSach = new ArrayList<>();
+		Map<String, PhieuDatBan> mapPhieu = new HashMap<>();
+
 		try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-			for (int i = 0; i < params.length; i++)
+			for (int i = 0; i < params.length; i++) {
 				ps.setObject(i + 1, params[i]);
-			ResultSet rs = ps.executeQuery();
+			}
 
-			Map<String, PhieuDatBan> mapPhieu = new HashMap<>();
-			Map<String, Ban> mapBan = new HashMap<>();
-			Map<String, ChiTietPDB> mapChiTiet = new HashMap<>();
+			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) {
 				String maPDB = rs.getString("maPDB");
 				PhieuDatBan pdb = mapPhieu.get(maPDB);
+
 				if (pdb == null) {
-					pdb = mapResultSetToPhieuDatBan(rs, mapBan, mapChiTiet);
+					pdb = new PhieuDatBan();
+					pdb.setMaPDB(maPDB);
+
+					Timestamp tsNgayTao = rs.getTimestamp("ngayTao");
+					if (tsNgayTao != null)
+						pdb.setNgayTao(tsNgayTao.toLocalDateTime());
+
+					Timestamp tsNgayDat = rs.getTimestamp("ngayDat");
+					if (tsNgayDat != null)
+						pdb.setNgayDat(tsNgayDat.toLocalDateTime());
+
+					pdb.setSoNguoi(rs.getInt("soNguoi"));
+					pdb.setTrangThai(rs.getString("trangThai"));
+					pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
+					pdb.setDeleted(rs.getBoolean("isDeleted"));
+					pdb.setDanhSachBan(new ArrayList<>());
+					pdb.setChiTietPDB(new ArrayList<>());
+
+					// Khách hàng
+					String maKH = rs.getString("maKH");
+					if (maKH != null) {
+						KhachHang kh = new KhachHang();
+						kh.setMaKH(maKH);
+						kh.setHoTen(rs.getString("tenKH"));
+						kh.setSoDT(rs.getString("soDT"));
+						pdb.setKhachHang(kh);
+					}
+
+					// Nhân viên
+					String maNV = rs.getString("maNV");
+					if (maNV != null) {
+						NhanVien nv = new NhanVien();
+						nv.setMaNV(maNV);
+						nv.setHoTen(rs.getString("tenNV"));
+						pdb.setNhanVien(nv);
+					}
+
 					mapPhieu.put(maPDB, pdb);
-				} else {
-					// Update bàn và chi tiết nếu có
-					mapResultSetToPhieuDatBan(rs, mapBan, mapChiTiet);
 				}
+
+				// map bàn & chi tiết cho pdb hiện tại
+				mapResultSetToPhieuDatBan(rs, pdb);
 			}
 
-			danhSach.addAll(mapPhieu.values());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return danhSach;
+
+		return new ArrayList<>(mapPhieu.values());
 	}
 
 	public List<PhieuDatBan> layTatCaPhieu() {
@@ -502,65 +511,30 @@ public class PhieuDatBanDAO {
 		return false; // không trùng
 	}
 
-	public Map<String, PhieuDatBan> layTatCaPhieuDangPhucVuTheoTang() {
+	public Map<String, PhieuDatBan> layTatCaPhieuDatTruoc() {
 		Map<String, PhieuDatBan> map = new HashMap<>();
 
-		String sql = """
-				    SELECT pdb.*, pdbb.maBan
-				    FROM PhieuDatBan pdb
-				    JOIN PhieuDatBan_Ban pdbb ON pdb.maPDB = pdbb.maPDB
-				    WHERE pdb.trangThai = N'Đang phục vụ' AND pdb.isDeleted = 0
-				""";
+		List<PhieuDatBan> ds = layPhieuTheoTrangThai("Đặt trước");
 
-		try (Connection conn = ConnectSQL.getConnection();
-				Statement st = conn.createStatement();
-				ResultSet rs = st.executeQuery(sql)) {
-
-			while (rs.next()) {
-				String maBan = rs.getString("maBan");
-
-				PhieuDatBan pdb = new PhieuDatBan();
-				pdb.setMaPDB(rs.getString("maPDB"));
-				pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
-				pdb.setTrangThai("Đang phục vụ");
-
-				map.put(maBan, pdb);
+		for (PhieuDatBan pdb : ds) {
+			for (Ban ban : pdb.getDanhSachBan()) {
+				map.put(ban.getMaBan(), pdb);
 			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-
 		return map;
 	}
 
-	public Map<String, PhieuDatBan> layTatCaPhieuDatTruocTheoTang() {
+	public Map<String, PhieuDatBan> layTatCaPhieuDangPhucVu() {
 		Map<String, PhieuDatBan> map = new HashMap<>();
 
-		String sql = """
-				    SELECT pdb.*, pdbb.maBan
-				    FROM PhieuDatBan pdb
-				    JOIN PhieuDatBan_Ban pdbb ON pdb.maPDB = pdbb.maPDB
-				    WHERE pdb.trangThai = N'Đặt trước' AND pdb.isDeleted = 0
-				""";
+		List<PhieuDatBan> ds = layPhieuTheoTrangThai("Đang phục vụ");
 
-		try (Connection conn = ConnectSQL.getConnection();
-				Statement st = conn.createStatement();
-				ResultSet rs = st.executeQuery(sql)) {
-
-			while (rs.next()) {
-				String maBan = rs.getString("maBan");
-
-				PhieuDatBan pdb = new PhieuDatBan();
-				pdb.setMaPDB(rs.getString("maPDB"));
-				pdb.setNgayDat(rs.getTimestamp("ngayDat").toLocalDateTime());
-				pdb.setTrangThai("Đặt trước");
-
-				map.put(maBan, pdb);
+		for (PhieuDatBan pdb : ds) {
+			if (pdb.getDanhSachBan() != null) {
+				for (Ban ban : pdb.getDanhSachBan()) {
+					map.put(ban.getMaBan(), pdb);
+				}
 			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 
 		return map;

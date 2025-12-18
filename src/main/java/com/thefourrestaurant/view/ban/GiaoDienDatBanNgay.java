@@ -47,9 +47,13 @@ class GiaoDienDatBanNgay extends GiaoDienDatBanBase {
             pdb.setNhanVien(assigned);
 
             PhieuDatBanDAO dao = new PhieuDatBanDAO();
-            boolean ok = dao.themPhieu(pdb,"DAT_NGAY", dsBan);
+            boolean ok = dao.themPhieu(pdb, "DAT_NGAY", dsBan);
 
-            xuLySauKhiLuu(ok, pdb, quanLiBan.getDsBanDangChon(), true);
+            if (ok) {
+                showDatBanThanhCong(dsBan);
+            } else {
+                showDatBanLoi("Đặt bàn thất bại. Vui lòng thử lại!");
+            }
         } catch(Exception ex){ lblTenKhachDat.setText("Có lỗi khi lưu"); ex.printStackTrace();}
     }
 }

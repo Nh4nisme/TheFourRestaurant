@@ -75,18 +75,22 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
 
     // Kiểm tra trùng giờ
     private void checkTrungGio() {
-        if(dsBan.isEmpty()) return;
-        Ban ban = dsBan.get(0);
+        if (dsBan == null || dsBan.isEmpty()) return;
+
         LocalDate ngay = dtpNgayNhanBan.getValue();
         LocalTime gio = getGioNhanBan();
-        if(ngay==null || gio==null) return;
+        if (ngay == null || gio == null) return;
 
         LocalDateTime ngayGioMoi = LocalDateTime.of(ngay, gio);
-        boolean trung = phieuDatBanDAO.kiemTraTrungGioDatTruoc(ban.getMaBan(), ngayGioMoi);
-        if(trung) {
-            lblTenKhachDat.setText("Bàn " + ban.getTenBan() + " đã có người đặt vào giờ này!");
-        } else {
-            lblTenKhachDat.setText(""); // xóa thông báo nếu OK
+
+        for (Ban ban : dsBan) {
+            if (phieuDatBanDAO.kiemTraTrungGioDatTruoc(ban.getMaBan(), ngayGioMoi)) {
+                showDatBanLoi(
+                    "Bàn " + ban.getTenBan() +
+                    " đã có người đặt vào " + gio + " ngày " + ngay
+                );
+                return; // ❗ chỉ cần 1 bàn trùng là dừng
+            }
         }
     }
 
@@ -146,14 +150,12 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
             pdb.setNhanVien(assigned);
 
             boolean ok = phieuDatBanDAO.themPhieu(pdb, "DAT_TRUOC", dsBan);
-            
-            if (ok) {
-                quanLiBan.hienThiBanTheoTang(
-                    banChinh.getTang().getMaTang()
-                );
-            }
 
-            xuLySauKhiLuu(ok, pdb, dsBan, false);
+            if (ok) {
+                showDatBanThanhCong(dsBan);
+            } else {
+                showDatBanLoi("Đặt bàn trước thất bại. Vui lòng thử lại!");
+            }
 
         } catch (Exception ex) {
             showDatBanLoi("Có lỗi khi lưu!");
