@@ -28,8 +28,6 @@ public class KhuyenMaiDialog extends Stage {
 
     private static final String TEN_KM_REGEX = "^[a-zA-Z0-9]{1,100}$";
     private static final String MO_TA_REGEX = "^.{1,255}$";
-    private static final String TY_LE_REGEX = "^(\\d{1,2}|100)$";
-    private static final String SO_TIEN_REGEX = "^[1-9]\\d*$";
     private static final String MA_CODE_REGEX = "^[A-Z0-9]{3,50}$";
     private static final String SO_LUOT_REGEX = "^[1-9]\\d*$";
 
@@ -96,6 +94,10 @@ public class KhuyenMaiDialog extends Stage {
         }
 
         Scene khungCanh = new Scene(layoutChinh, 550, 550);
+        URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
+        if (urlCSS != null) {
+            khungCanh.getStylesheets().add(urlCSS.toExternalForm());
+        }
         this.setScene(khungCanh);
     }
 
