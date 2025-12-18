@@ -43,8 +43,6 @@ public class KhuyenMaiDialog extends Stage {
     private final ComboBox<String> hopChonKieuKM = new ComboBox<>();
     private final TextField truongMaCode = new TextField();
     private final TextField truongSoLuotSuDung = new TextField();
-    private final TextField truongTyLe = new TextField();
-    private final TextField truongSoTien = new TextField();
     private final DatePicker boChonNgayBatDau = new DatePicker();
     private final DatePicker boChonNgayKetThuc = new DatePicker();
 
@@ -93,13 +91,8 @@ public class KhuyenMaiDialog extends Stage {
             dienDuLieuHienCo();
         }
 
-        Scene khungCanh = new Scene(layoutChinh, 550, 650);
-        URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
-        if (urlCSS != null) {
-            khungCanh.getStylesheets().add(urlCSS.toExternalForm());
-        }
+        Scene khungCanh = new Scene(layoutChinh, 550, 550);
         this.setScene(khungCanh);
-        this.setHeight(650);
     }
 
     private GridPane taoFormChinh(List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai, String kieuFontStyle, String maKhuyenMaiMoi) {
@@ -110,41 +103,25 @@ public class KhuyenMaiDialog extends Stage {
         String kieuTruongNhap = kieuFontStyle + "-fx-text-fill: #1E424D; -fx-background-radius: 8; -fx-border-color: #CFCFCF; -fx-border-radius: 8;";
 
         truongMaKM.setStyle(kieuTruongNhap);
-        truongMaKM.getStyleClass().add("text-field");
         truongMaKM.setEditable(false);
         truongMaKM.setText(laCheDoChinhSua ? khuyenMaiHienTai.getMaKM() : maKhuyenMaiMoi);
 
         truongTenKM.setStyle(kieuTruongNhap);
-        truongTenKM.getStyleClass().add("text-field");
-
         truongMoTa.setStyle(kieuTruongNhap);
-        truongMoTa.getStyleClass().add("text-field");
 
         hopChonKieuKM.setStyle(kieuTruongNhap);
-        hopChonKieuKM.getStyleClass().add("combo-box");
         hopChonKieuKM.setItems(FXCollections.observableArrayList("Sự kiện (Tự động áp)", "Mã giảm giá (Nhập mã)"));
         hopChonKieuKM.setValue("Sự kiện (Tự động áp)");
 
         truongMaCode.setStyle(kieuTruongNhap);
-        truongMaCode.getStyleClass().add("text-field");
         truongMaCode.setPromptText("VD: GIAM10K");
 
         truongSoLuotSuDung.setStyle(kieuTruongNhap);
-        truongSoLuotSuDung.getStyleClass().add("text-field");
         truongSoLuotSuDung.setPromptText("Để trống = Không giới hạn");
 
         hopChonLoaiKhuyenMai.setStyle(kieuTruongNhap);
-        hopChonLoaiKhuyenMai.getStyleClass().add("combo-box");
-        truongTyLe.setStyle(kieuTruongNhap);
-        truongTyLe.getStyleClass().add("text-field");
-        truongTyLe.setDisable(true);
-        truongSoTien.setStyle(kieuTruongNhap);
-        truongSoTien.getStyleClass().add("text-field");
-        truongSoTien.setDisable(true);
         boChonNgayBatDau.setStyle(kieuTruongNhap);
-        boChonNgayBatDau.getStyleClass().add("date-picker");
         boChonNgayKetThuc.setStyle(kieuTruongNhap);
-        boChonNgayKetThuc.getStyleClass().add("date-picker");
 
         int row = 0;
         luoiForm.add(new Label("Mã KM:"), 0, row);
@@ -168,7 +145,6 @@ public class KhuyenMaiDialog extends Stage {
         luoiForm.add(truongSoLuotSuDung, 1, row++);
 
         capNhatHienThiTheoKieuKM();
-
         hopChonKieuKM.setOnAction(e -> capNhatHienThiTheoKieuKM());
 
         luoiForm.add(new Label("Loại KM:"), 0, row);
@@ -184,49 +160,7 @@ public class KhuyenMaiDialog extends Stage {
                 return null;
             }
         });
-
-        hopChonLoaiKhuyenMai.getSelectionModel().selectedItemProperty().addListener((options, oldValue, newValue) -> {
-            if (newValue == null) {
-                truongTyLe.setDisable(true);
-                truongSoTien.setDisable(true);
-                truongTyLe.clear();
-                truongSoTien.clear();
-                return;
-            }
-            String tenLoaiKM = newValue.getTenLoaiKM();
-            switch (tenLoaiKM) {
-                case "Giảm giá theo tỷ lệ":
-                    truongTyLe.setDisable(false);
-                    truongSoTien.setDisable(true);
-                    truongSoTien.clear();
-                    break;
-                case "Giảm giá theo số tiền":
-                    truongTyLe.setDisable(true);
-                    truongTyLe.clear();
-                    truongSoTien.setDisable(false);
-                    break;
-                case "Tặng món":
-                    truongTyLe.setDisable(true);
-                    truongSoTien.setDisable(true);
-                    truongTyLe.clear();
-                    truongSoTien.clear();
-                    break;
-                default:
-                    truongTyLe.setDisable(false);
-                    truongSoTien.setDisable(false);
-                    truongTyLe.clear();
-                    truongSoTien.clear();
-                    break;
-            }
-        });
-
         luoiForm.add(hopChonLoaiKhuyenMai, 1, row++);
-
-        luoiForm.add(new Label("Tỷ lệ (%):"), 0, row);
-        luoiForm.add(truongTyLe, 1, row++);
-
-        luoiForm.add(new Label("Số tiền:"), 0, row);
-        luoiForm.add(truongSoTien, 1, row++);
 
         luoiForm.add(new Label("Ngày BĐ:"), 0, row);
         luoiForm.add(boChonNgayBatDau, 1, row++);
@@ -264,21 +198,21 @@ public class KhuyenMaiDialog extends Stage {
         hopChanTrang.getChildren().addAll(nutLuu, nutHuy);
 
         if (laCheDoChinhSua) {
+            ButtonSample nutQuanLyDieuKien = new ButtonSample("Quản lý Điều kiện", 35, 14, 2);
+            nutQuanLyDieuKien.setOnAction(e -> {
+                DieuKienKhuyenMaiManagerDialog dieuKienDialog = new DieuKienKhuyenMaiManagerDialog(khuyenMaiHienTai, boDieuKhien);
+                dieuKienDialog.initOwner(this);
+                dieuKienDialog.showAndWait();
+            });
+            hopChanTrang.getChildren().add(0, nutQuanLyDieuKien);
+
             ButtonSample nutQuanLyKhungGio = new ButtonSample("Quản lý khung giờ", 35, 14, 2);
             nutQuanLyKhungGio.setOnAction(e -> {
                 KhungGioManagerDialog khungGioDialog = new KhungGioManagerDialog(khuyenMaiHienTai.getMaKM());
                 khungGioDialog.initOwner(this);
                 khungGioDialog.showAndWait();
             });
-            hopChanTrang.getChildren().add(0, nutQuanLyKhungGio);
-
-            ButtonSample nutQuanLyChiTiet = new ButtonSample("Quản lý chi tiết", 35, 14, 2);
-            nutQuanLyChiTiet.setOnAction(e -> {
-                ChiTietKhuyenMaiManagerDialog chiTietDialog = new ChiTietKhuyenMaiManagerDialog(khuyenMaiHienTai, boDieuKhien);
-                chiTietDialog.initOwner(this);
-                chiTietDialog.showAndWait();
-            });
-            hopChanTrang.getChildren().add(1, nutQuanLyChiTiet);
+            hopChanTrang.getChildren().add(1, nutQuanLyKhungGio);
         }
 
         nutHuy.setOnAction(e -> this.close());
@@ -306,12 +240,7 @@ public class KhuyenMaiDialog extends Stage {
         }
 
         hopChonLoaiKhuyenMai.setValue(khuyenMaiHienTai.getLoaiKhuyenMai());
-        if (khuyenMaiHienTai.getTyLe() != null) {
-            truongTyLe.setText(khuyenMaiHienTai.getTyLe().stripTrailingZeros().toPlainString());
-        }
-        if (khuyenMaiHienTai.getSoTien() != null) {
-            truongSoTien.setText(khuyenMaiHienTai.getSoTien().stripTrailingZeros().toPlainString());
-        }
+        
         if (khuyenMaiHienTai.getNgayBatDau() != null) {
             boChonNgayBatDau.setValue(khuyenMaiHienTai.getNgayBatDau().toLocalDate());
         }
@@ -359,43 +288,7 @@ public class KhuyenMaiDialog extends Stage {
         }
 
         LoaiKhuyenMai loaiKM = hopChonLoaiKhuyenMai.getValue();
-        String tenLoaiKM = loaiKM.getTenLoaiKM();
-        BigDecimal tyLe = null;
-        BigDecimal soTien = null;
-
-        switch (tenLoaiKM) {
-            case "Giảm giá theo tỷ lệ":
-                if (truongTyLe.getText().trim().isEmpty() || !truongTyLe.getText().trim().matches(TY_LE_REGEX)) {
-                    showAlert(Alert.AlertType.WARNING, "Tỷ lệ phải là một số hợp lệ từ 0 đến 100.");
-                    return;
-                }
-                try {
-                    tyLe = new BigDecimal(truongTyLe.getText().trim());
-                } catch (NumberFormatException e) {
-                    showAlert(Alert.AlertType.WARNING, "Tỷ lệ phải là một số hợp lệ từ 0 đến 100.");
-                    return;
-                }
-                break;
-
-            case "Giảm giá theo giá trị":
-            case "Giảm giá theo số tiền":
-                if (truongSoTien.getText().trim().isEmpty() || !truongSoTien.getText().trim().matches(SO_TIEN_REGEX)) {
-                    showAlert(Alert.AlertType.WARNING, "Số tiền phải là một số hợp lệ và lớn hơn 0.");
-                    return;
-                }
-                try {
-                    soTien = new BigDecimal(truongSoTien.getText().trim());
-                } catch (NumberFormatException e) {
-                    showAlert(Alert.AlertType.WARNING, "Số tiền phải là một số hợp lệ và lớn hơn 0.");
-                    return;
-                }
-                break;
-
-            case "Tặng món":
-            case "Tặng món ăn":
-                break;
-        }
-
+        
         LocalDate ngayBD_localDate = boChonNgayBatDau.getValue();
         LocalDate ngayKT_localDate = boChonNgayKetThuc.getValue();
 
@@ -420,8 +313,6 @@ public class KhuyenMaiDialog extends Stage {
         ketQua.setMaCode(maCode);
         ketQua.setSoLuotSuDung(soLuotSuDung);
         ketQua.setLoaiKhuyenMai(loaiKM);
-        ketQua.setTyLe(tyLe);
-        ketQua.setSoTien(soTien);
         ketQua.setNgayBatDau(ngayBD);
         ketQua.setNgayKetThuc(ngayKT);
 

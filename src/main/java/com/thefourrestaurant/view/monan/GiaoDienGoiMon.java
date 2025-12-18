@@ -4,13 +4,13 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ComboBox;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.text.NumberFormat;
 
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
-import com.thefourrestaurant.DAO.ChiTietKhuyenMaiDAO;
-import com.thefourrestaurant.model.ChiTietKhuyenMai;
-import com.thefourrestaurant.DAO.KhuyenMaiDAO;
-import com.thefourrestaurant.model.KhuyenMai;
+import com.thefourrestaurant.controller.KhuyenMaiController;
+import com.thefourrestaurant.model.KhuyenMaiApDung;
 import com.thefourrestaurant.DAO.MonAnDAO;
 import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.model.Ban;
@@ -44,14 +44,14 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 
 public class GiaoDienGoiMon extends BorderPane {
     private ButtonSample btnTim, btnLamMoi;
     private StackPane mainContent;
     private MonAnDAO monAnDAO = new MonAnDAO();
     private LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
-    private ChiTietKhuyenMaiDAO chiTietKhuyenMaiDAO = new ChiTietKhuyenMaiDAO();
-    private KhuyenMaiDAO khuyenMaiDAO = new KhuyenMaiDAO();
+    private KhuyenMaiController khuyenMaiController = new KhuyenMaiController();
     private Ban ban;
     private ComboBox<LoaiMon> cboLoaiMon;
     private List<MonAn> allMonAn = new java.util.ArrayList<>();
@@ -112,11 +112,9 @@ public class GiaoDienGoiMon extends BorderPane {
         lblLoaiMon.setTextFill(Color.web("#D4A84A"));
         lblLoaiMon.setFont(Font.font("System", FontWeight.BOLD, 14));
 
-        // ComboBox chọn loại món để lọc
         cboLoaiMon = new ComboBox<>();
         cboLoaiMon.setPromptText("Chọn loại món...");
         cboLoaiMon.setPrefWidth(200);
-        // Nạp dữ liệu loại món (thêm tùy chọn Tất cả)
         LoaiMon allItem = new LoaiMon("ALL", "Tất cả", null);
         List<LoaiMon> loaiList = loaiMonDAO.layTatCaLoaiMon();
         cboLoaiMon.getItems().add(allItem);
@@ -148,7 +146,6 @@ public class GiaoDienGoiMon extends BorderPane {
         container.setAlignment(Pos.CENTER);
         container.setPadding(new Insets(10));
 
-        // GridPane chứa các món ăn (dùng lại để refresh khi lọc)
         gridMon = new GridPane();
         gridMon.setHgap(15);
         gridMon.setVgap(15);
@@ -161,25 +158,22 @@ public class GiaoDienGoiMon extends BorderPane {
             gridMon.getColumnConstraints().add(cc);
         }
 
-        // Lấy danh sách món ăn (chỉ những món HIỂN THỊ) từ DB và hiển thị
-        allMonAn = monAnDAO.layTatCaMonAnHienThi();
+        allMonAn = monAnDAO.layTatCaMonAn();
         populateGrid(allMonAn);
 
-        // ScrollPane bọc GridPane
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(gridMon);
         scrollPane.setFitToWidth(true);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setPrefHeight(500); // bạn có thể chỉnh chiều cao scrollPane
+        scrollPane.setPrefHeight(500);
 
-        // Thanh phân trang (nếu muốn sử dụng)
         HBox phanTrang = new HBox(10);
         phanTrang.setAlignment(Pos.CENTER);
         phanTrang.setPadding(new Insets(10));
 
         container.getChildren().addAll(scrollPane, phanTrang);
-        VBox.setVgrow(scrollPane, Priority.ALWAYS); // ScrollPane mở rộng theo VBox
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
         return container;
     }
@@ -264,7 +258,6 @@ public class GiaoDienGoiMon extends BorderPane {
 
                 btnXoa.setOnAction(e -> {
                     ChiTietPDB chiTiet = getTableView().getItems().get(getIndex());
-                    // Trả lại số lượng cho món (client-side)
                     MonAn mon = chiTiet.getMonAn();
                     if (mon != null) {
                         mon.setSoLuong(mon.getSoLuong() + chiTiet.getSoLuong());
@@ -279,32 +272,35 @@ public class GiaoDienGoiMon extends BorderPane {
 	        @Override
 	        protected void updateItem(Void item, boolean empty) {
 	            super.updateItem(item, empty);
-	            if (empty) {
-	                setGraphic(null);
-	            } else {
-	                setGraphic(btnXoa);
-	                setAlignment(Pos.CENTER);
-	            }
+	            setGraphic(empty ? null : btnXoa);
+	            setAlignment(Pos.CENTER);
 	        }
 	    });
 	    
-        ghiChuCol.setCellValueFactory(c ->
-            new SimpleStringProperty(c.getValue().getGhiChu() != null ? c.getValue().getGhiChu() : "")
-        );
+        ghiChuCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getGhiChu() != null ? c.getValue().getGhiChu() : ""));
 	    ghiChuCol.setCellFactory(TextFieldTableCell.forTableColumn());
 	    ghiChuCol.setOnEditCommit(e -> e.getRowValue().setGhiChu(e.getNewValue()));
 	
-            tenMonCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
-            donGiaCol.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f", c.getValue().getDonGia())));
+        tenMonCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
+        donGiaCol.setCellValueFactory(c -> new SimpleStringProperty(String.format("%,.0f", c.getValue().getDonGia())));
+        soLuongCol.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getSoLuong())));
 
-            khuyenMaiCol.setCellValueFactory(c -> new SimpleStringProperty(getTenKhuyenMaiTotNhat(c.getValue())));
-            giaKhuyenMaiCol.setCellValueFactory(c -> new SimpleStringProperty(formatCurrency(getGiaKhuyenMaiTotNhat(c.getValue()))));
+        khuyenMaiCol.setCellValueFactory(c -> {
+            KhuyenMaiApDung promo = c.getValue().getKhuyenMaiApDung();
+            return new SimpleStringProperty(promo != null ? promo.getTenKhuyenMai() : "");
+        });
 
-            soLuongCol.setCellValueFactory(c -> new SimpleStringProperty(String.valueOf(c.getValue().getSoLuong())));
+        giaKhuyenMaiCol.setCellValueFactory(c -> {
+            KhuyenMaiApDung promo = c.getValue().getKhuyenMaiApDung();
+            double finalPrice = (promo != null) ? promo.getGiaSauGiam().doubleValue() : c.getValue().getDonGia();
+            return new SimpleStringProperty(formatCurrency(finalPrice));
+        });
 
-            thanhTienCol.setCellValueFactory(c -> new SimpleStringProperty(
-                String.format("%,.0f", getGiaKhuyenMaiTotNhat(c.getValue()) * c.getValue().getSoLuong())
-            ));
+        thanhTienCol.setCellValueFactory(c -> {
+            KhuyenMaiApDung promo = c.getValue().getKhuyenMaiApDung();
+            double finalPrice = (promo != null) ? promo.getGiaSauGiam().doubleValue() : c.getValue().getDonGia();
+            return new SimpleStringProperty(String.format("%,.0f", finalPrice * c.getValue().getSoLuong()));
+        });
 	
         bangPhieu.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, khuyenMaiCol, giaKhuyenMaiCol, soLuongCol, thanhTienCol, ghiChuCol, xoaCol);
@@ -326,26 +322,18 @@ public class GiaoDienGoiMon extends BorderPane {
 	}
 
     private void themMonVaoPhieu(MonAn mon) {
-        // Không cho đặt nếu hiện tại số lượng bằng 0 (client-side)
         if (mon.getSoLuong() <= 0) {
-            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-                javafx.scene.control.Alert.AlertType.WARNING,
-                "Món " + mon.getTenMon() + " hiện đã hết."
-            );
-            alert.showAndWait();
+            new Alert(Alert.AlertType.WARNING, "Món " + mon.getTenMon() + " hiện đã hết.").showAndWait();
             return;
         }
 
-        // Trừ 1 ở client-side và cập nhật hiển thị số lượng trên box
         mon.setSoLuong(Math.max(0, mon.getSoLuong() - 1));
         MonAnBox box = monBoxMap.get(mon.getMaMonAn());
         if (box != null) box.updateSoLuong(mon.getSoLuong());
 
-        // Kiểm tra xem món đã có trong danh sách chưa; nếu có tăng số lượng, nếu chưa thêm mới
         for (ChiTietPDB ct : danhSachChiTiet) {
             if (ct.getMonAn().getMaMonAn().equals(mon.getMaMonAn())) {
                 ct.setSoLuong(ct.getSoLuong() + 1);
-                bangPhieu.refresh();
                 capNhatTongTien();
                 return;
             }
@@ -361,132 +349,27 @@ public class GiaoDienGoiMon extends BorderPane {
     }
     
     private void capNhatTongTien() {
+        khuyenMaiController.tinhGiaSauKhuyenMai(danhSachChiTiet);
+        
+        bangPhieu.refresh();
+
         double tong = 0;
         for (ChiTietPDB ct : danhSachChiTiet) {
-            double giaApDung = getGiaKhuyenMaiTotNhat(ct);
+            KhuyenMaiApDung promo = ct.getKhuyenMaiApDung();
+            double giaApDung = (promo != null) ? promo.getGiaSauGiam().doubleValue() : ct.getDonGia();
             tong += giaApDung * ct.getSoLuong();
         }
         lblTongTien.setText(String.format("Tổng tiền: %,.0f VND", tong));
     }
 
     private String formatCurrency(double value) {
-        try {
-            java.text.NumberFormat nf = java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("vi", "VN"));
-            return nf.format(Math.max(0, value));
-        } catch (Exception e) {
-            return String.format("%,.0f VND", value);
-        }
-    }
-
-    private double getGiaKhuyenMaiTotNhat(ChiTietPDB ct) {
-        if (ct == null || ct.getMonAn() == null) return ct != null ? ct.getDonGia() : 0.0;
-        double base = ct.getDonGia();
-        try {
-            List<ChiTietKhuyenMai> promos = chiTietKhuyenMaiDAO.layActiveTheoMonApDung(ct.getMonAn().getMaMonAn());
-            List<KhuyenMai> globalPromos = khuyenMaiDAO.layDanhSachKhuyenMaiSuKienHieuLuc();
-            java.math.BigDecimal baseBD = java.math.BigDecimal.valueOf(base);
-            java.math.BigDecimal best = baseBD;
-            if (promos != null) {
-                for (ChiTietKhuyenMai p : promos) {
-                    java.math.BigDecimal candidate = baseBD;
-                    if (p.getTyLeGiam() != null && p.getTyLeGiam().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        candidate = baseBD.multiply(java.math.BigDecimal.ONE.subtract(p.getTyLeGiam().divide(java.math.BigDecimal.valueOf(100))));
-                    } else if (p.getSoTienGiam() != null && p.getSoTienGiam().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        candidate = baseBD.subtract(p.getSoTienGiam());
-                    } else if (p.getSoLuongTang() != null && p.getSoLuongTang() > 0) {
-                        candidate = baseBD; 
-                    }
-                    if (candidate.compareTo(best) < 0) best = candidate;
-                }
-            }
-            if (globalPromos != null) {
-                for (KhuyenMai g : globalPromos) {
-                    java.math.BigDecimal candidate = baseBD;
-                    if (g.getTyLe() != null && g.getTyLe().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        candidate = baseBD.multiply(java.math.BigDecimal.ONE.subtract(g.getTyLe().divide(java.math.BigDecimal.valueOf(100))));
-                    } else if (g.getSoTien() != null && g.getSoTien().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        candidate = baseBD.subtract(g.getSoTien());
-                    }
-                    if (candidate.compareTo(best) < 0) best = candidate;
-                }
-            }
-            double result = best.doubleValue();
-            return result < 0 ? 0.0 : result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return base;
-        }
-    }
-
-    private String getTenKhuyenMaiTotNhat(ChiTietPDB ct) {
-        if (ct == null || ct.getMonAn() == null) return "";
-        try {
-            List<ChiTietKhuyenMai> promos = chiTietKhuyenMaiDAO.layActiveTheoMonApDung(ct.getMonAn().getMaMonAn());
-            List<KhuyenMai> globalPromos = khuyenMaiDAO.layDanhSachKhuyenMaiSuKienHieuLuc();
-            double base = ct.getDonGia();
-            double bestPrice = base;
-            ChiTietKhuyenMai bestPromo = null;
-            KhuyenMai bestGlobal = null;
-            if (promos != null) {
-                for (ChiTietKhuyenMai p : promos) {
-                    double candidate = base;
-                    if (p.getTyLeGiam() != null && p.getTyLeGiam().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        candidate = base * (1 - p.getTyLeGiam().doubleValue() / 100.0);
-                    } else if (p.getSoTienGiam() != null && p.getSoTienGiam().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        candidate = base - p.getSoTienGiam().doubleValue();
-                    } else if (p.getSoLuongTang() != null && p.getSoLuongTang() > 0) {
-                        candidate = base;
-                    }
-                    if (candidate < bestPrice || bestPromo == null) {
-                        bestPrice = candidate;
-                        bestPromo = p;
-                    }
-                }
-            }
-            if (globalPromos != null) {
-                for (KhuyenMai g : globalPromos) {
-                    double candidate = base;
-                    if (g.getTyLe() != null && g.getTyLe().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        candidate = base * (1 - g.getTyLe().doubleValue() / 100.0);
-                    } else if (g.getSoTien() != null && g.getSoTien().compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        candidate = base - g.getSoTien().doubleValue();
-                    }
-                    if (candidate < bestPrice) {
-                        bestPrice = candidate;
-                        bestGlobal = g;
-                        bestPromo = null;
-                    }
-                }
-            }
-            if (bestPromo != null && bestPromo.getKhuyenMai() != null) {
-                String name = bestPromo.getKhuyenMai().getTenKM();
-                if (name == null || name.isBlank()) name = bestPromo.getKhuyenMai().getMaKM();
-                if ((bestPromo.getTyLeGiam() == null || bestPromo.getTyLeGiam().compareTo(java.math.BigDecimal.ZERO) == 0)
-                        && (bestPromo.getSoTienGiam() == null || bestPromo.getSoTienGiam().compareTo(java.math.BigDecimal.ZERO) == 0)
-                        && bestPromo.getSoLuongTang() != null && bestPromo.getSoLuongTang() > 0) {
-                    return name + " (Tặng món)";
-                }
-                return name;
-            }
-            if (bestGlobal != null) {
-                String name = bestGlobal.getTenKM();
-                return name != null ? name : bestGlobal.getMaKM();
-            }
-            return "";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
+        return NumberFormat.getCurrencyInstance(Locale.of("vi", "VN")).format(Math.max(0, value));
     }
     
     private void xuLyGuiBep() {
 	    try {
 	        if (danhSachChiTiet.isEmpty()) {
-	            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-	                javafx.scene.control.Alert.AlertType.WARNING, 
-	                "Chưa có món nào trong phiếu!"
-	            );
-	            alert.showAndWait();
+	            new Alert(Alert.AlertType.WARNING, "Chưa có món nào trong phiếu!").showAndWait();
 	            return;
 	        }
 	
@@ -497,11 +380,7 @@ public class GiaoDienGoiMon extends BorderPane {
 	            chiTietDAO.them(ct);
 	        }
 	
-	        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-	            javafx.scene.control.Alert.AlertType.INFORMATION,
-	            "Đã gửi bếp thành công!"
-	        );
-	        alert.showAndWait();
+	        new Alert(Alert.AlertType.INFORMATION, "Đã gửi bếp thành công!").showAndWait();
 	
 	        danhSachChiTiet.clear();
 	        bangPhieu.refresh();
@@ -512,13 +391,7 @@ public class GiaoDienGoiMon extends BorderPane {
 	
 	    } catch (Exception ex) {
 	        ex.printStackTrace();
-	        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-	            javafx.scene.control.Alert.AlertType.ERROR,
-	            "Lỗi khi gửi bếp: " + ex.getMessage()
-	        );
-	        alert.showAndWait();
+	        new Alert(Alert.AlertType.ERROR, "Lỗi khi gửi bếp: " + ex.getMessage()).showAndWait();
 	    }
 	}
-
-
 }

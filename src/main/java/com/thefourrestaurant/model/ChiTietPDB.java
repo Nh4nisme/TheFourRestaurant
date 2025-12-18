@@ -7,6 +7,7 @@ public class ChiTietPDB {
     private int soLuong;
     private double donGia;
     private String ghiChu;
+    private KhuyenMaiApDung khuyenMaiApDung;// thêm sau cập nhật Khuyến Mãi mới
 
     public ChiTietPDB() {}
 
@@ -37,4 +38,12 @@ public class ChiTietPDB {
 
     public String getGhiChu() { return ghiChu; }
     public void setGhiChu(String ghiChu) { this.ghiChu = ghiChu; }
+
+    public KhuyenMaiApDung getKhuyenMaiApDung() {
+        return khuyenMaiApDung;
+    }
+
+    public void setKhuyenMaiApDung(KhuyenMaiApDung khuyenMaiApDung) {
+        this.khuyenMaiApDung = khuyenMaiApDung;
+    }
 }
