@@ -17,6 +17,7 @@ public class KhuyenMai {
     private LocalDateTime ngayKetThuc;
     private String moTa;
     private Boolean isDeleted;
+    private KhuyenMai_DieuKien khuyenMaiDieuKien;
 
     public KhuyenMai() {
         this.kieuKM = KIEU_SU_KIEN;
@@ -115,6 +116,14 @@ public class KhuyenMai {
 
     public void setDeleted(Boolean deleted) {
         isDeleted = deleted;
+    }
+
+    public KhuyenMai_DieuKien getKhuyenMaiDieuKien() {
+        return khuyenMaiDieuKien;
+    }
+
+    public void setKhuyenMaiDieuKien(KhuyenMai_DieuKien khuyenMaiDieuKien) {
+        this.khuyenMaiDieuKien = khuyenMaiDieuKien;
     }
 
     @Override

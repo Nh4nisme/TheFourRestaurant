@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.hoadon;
 
 import com.thefourrestaurant.DAO.BanDAO;
+import com.thefourrestaurant.DAO.KhuyenMai_DieuKienDAO;
 import com.thefourrestaurant.DAO.PhieuDatBan_BanDAO;
 import com.thefourrestaurant.controller.*;
 import com.thefourrestaurant.model.*;
@@ -17,11 +18,10 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class GiaoDienLapHoaDon extends VBox {
@@ -280,10 +280,23 @@ public class GiaoDienLapHoaDon extends VBox {
         cboKhuyenMai.setButtonCell(cboKhuyenMai.getCellFactory().call(null));
         cboKhuyenMai.setPromptText("Áp dụng khuyến mãi");
         cboKhuyenMai.valueProperty().addListener((obs, oldVal, newVal) -> {
-            khuyenMaiHienTai = newVal;
+            if (newVal == null) {
+                khuyenMaiHienTai = null;
+            } else {
+                // Lấy danh sách điều kiện từ DB
+                List<KhuyenMai_DieuKien> dsDieuKien = new KhuyenMai_DieuKienDAO()
+                        .layDieuKienTheoMaKM(newVal.getMaKM());
+
+                // Lấy điều kiện đầu tiên (hoặc xử lý theo nhu cầu)
+                newVal.setKhuyenMaiDieuKien(dsDieuKien.isEmpty() ? null : dsDieuKien.get(0));
+
+                khuyenMaiHienTai = newVal;
+            }
+
             capNhatHienThiKhuyenMai();
             capNhatSoTienThanhToan();
         });
+
     }
 
 
@@ -321,13 +334,18 @@ public class GiaoDienLapHoaDon extends VBox {
             return;
         }
 
-        if (khuyenMaiHienTai.getTyLe() != null) {
-            lblChietKhau.setText(khuyenMaiHienTai.getTyLe() + "%");
+        KhuyenMai_DieuKien dk = khuyenMaiHienTai.getKhuyenMaiDieuKien();
+
+        if (dk == null) {
+            lblChietKhau.setText("0");
+            return;
         }
-        else if (khuyenMaiHienTai.getSoTien() != null) {
-            lblChietKhau.setText(
-                    dinhDangTien(khuyenMaiHienTai.getSoTien()) + " đ"
-            );
+
+        if (dk.getTyLeGiam() != null) {
+            lblChietKhau.setText(dk.getTyLeGiam() + "%");
+        }
+        else if (dk.getSoTienGiam() != null) {
+            lblChietKhau.setText(dinhDangTien(dk.getSoTienGiam()) + " đ");
         }
         else {
             lblChietKhau.setText("0");
@@ -347,12 +365,25 @@ public class GiaoDienLapHoaDon extends VBox {
     }
 
     private BigDecimal tinhTienSauKhuyenMai(BigDecimal tong) {
-        if (khuyenMaiHienTai == null) return tong;
-        if (khuyenMaiHienTai.getTyLe() != null)
-            return tong.subtract(tong.multiply(khuyenMaiHienTai.getTyLe()).divide(BigDecimal.valueOf(100)));
-        if (khuyenMaiHienTai.getSoTien() != null)
-            return tong.subtract(khuyenMaiHienTai.getSoTien());
-        return tong;
+        if (khuyenMaiHienTai == null || khuyenMaiHienTai.getKhuyenMaiDieuKien() == null) {
+            return tong;
+        }
+
+        KhuyenMai_DieuKien dk = khuyenMaiHienTai.getKhuyenMaiDieuKien();
+        String loaiApDung = dk.getLoaiApDung();
+
+        if ("GIAM_TRUC_TIEP".equalsIgnoreCase(loaiApDung)) {
+            // Giảm theo tỷ lệ %
+            if (dk.getTyLeGiam() != null) {
+                BigDecimal tyLeKM = dk.getTyLeGiam().divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
+                return tong.subtract(tong.multiply(tyLeKM));
+            }
+            // Giảm theo số tiền
+            if (dk.getSoTienGiam() != null) {
+                return tong.subtract(dk.getSoTienGiam());
+            }
+        }
+        return tong.max(BigDecimal.ZERO);
     }
 
     private BigDecimal tinhTienThanhToan() {

@@ -32,109 +32,97 @@ public class HoaDonDAO {
 
     private String truyVanHoaDon() {
         return """
-                SELECT
-                        hd.maHD,
-                        hd.ngayLap,
-                        hd.tienKhachDua,
-                        hd.tienThua,
-                        hd.isDeleted,
+        SELECT
+            -- Hóa đơn
+            hd.maHD,
+            hd.ngayLap,
+            hd.tienKhachDua,
+            hd.tienThua,
+            hd.isDeleted,
 
-                        -- Nhân viên
-                        nv.maNV,
-                        nv.hoTen AS tenNhanVien,
+            -- Nhân viên
+            nv.maNV,
+            nv.hoTen AS tenNhanVien,
 
-                        -- Khách hàng
-                        kh.maKH,
-                        kh.hoTen AS tenKhachHang,
-                        kh.soDT AS soDienThoaiKH,
+            -- Khách hàng
+            kh.maKH,
+            kh.hoTen AS tenKhachHang,
+            kh.soDT AS soDienThoaiKH,
 
-                        -- Phiếu đặt bàn
-                        pdb.maPDB,
-                        pdb.trangThai AS trangThaiPDB,
-                        pdb.tienCoc,
+            -- Phiếu đặt bàn
+            pdb.maPDB,
+            pdb.trangThai AS trangThaiPDB,
+            pdb.tienCoc,
 
-                        -- Khuyến mãi
-                        km.maKM,
-                        km.tenKM,
-                        km.tyLe,
-                        km.soTien,
-                        lkm.tenLoaiKM,  -- loại khuyến mãi
+            -- Khuyến mãi
+            km.maKM,
+            km.tenKM,
+            km.kieuKM,
+            km.maCode,
+            lkm.tenLoaiKM,
 
-                        -- Thuế
-                        t.maThue,
-                        t.tyLe AS thueSuat,
+            -- Điều kiện khuyến mãi (1–1)
+            dk.loaiApDung,
+            dk.tyLeGiam,
+            dk.soTienGiam,
+            dk.soLuongTang,
 
-                        -- Phương thức thanh toán
-                        pttt.maPTTT,
-                        pttt.tenPTTT,
+            -- Thuế
+            t.maThue,
+            t.tyLe AS thueSuat,
 
-                        -- Chi tiết hóa đơn
-                        cthd.maMonAn,
-                        cthd.soLuong,
-                        cthd.donGia,
-                        m.tenMon
+            -- Phương thức thanh toán
+            pttt.maPTTT,
+            pttt.tenPTTT,
 
-                    FROM HoaDon hd
-                    -- Nhân viên
-                    LEFT JOIN NhanVien nv ON hd.maNV = nv.maNV AND nv.isDeleted = 0
-                    -- Khách hàng
-                    LEFT JOIN KhachHang kh ON hd.maKH = kh.maKH AND kh.isDeleted = 0
-                    -- Phiếu đặt bàn
-                    LEFT JOIN PhieuDatBan pdb ON hd.maPDB = pdb.maPDB AND pdb.isDeleted = 0
-                    -- Khuyến mãi
-                    LEFT JOIN KhuyenMai km ON hd.maKM = km.maKM
-                    LEFT JOIN LoaiKhuyenMai lkm ON km.maLoaiKM = lkm.maLoaiKM
-                    -- Thuế
-                    LEFT JOIN Thue t ON hd.maThue = t.maThue
-                    -- Phương thức thanh toán
-                    INNER JOIN PhuongThucThanhToan pttt ON hd.maPTTT = pttt.maPTTT
-                    -- Chi tiết hóa đơn
-                    LEFT JOIN ChiTietHD cthd ON hd.maHD = cthd.maHD
-                    LEFT JOIN MonAn m ON cthd.maMonAn = m.maMonAn
+            -- Chi tiết hóa đơn
+            cthd.maMonAn,
+            cthd.soLuong,
+            cthd.donGia,
+            m.tenMon
+        FROM HoaDon hd
 
-                    WHERE hd.isDeleted = 0
-                    ORDER BY hd.ngayLap DESC;
-            """;
+        LEFT JOIN NhanVien nv
+            ON hd.maNV = nv.maNV
+           AND nv.isDeleted = 0
+
+        LEFT JOIN KhachHang kh
+            ON hd.maKH = kh.maKH
+           AND kh.isDeleted = 0
+
+        LEFT JOIN PhieuDatBan pdb
+            ON hd.maPDB = pdb.maPDB
+           AND pdb.isDeleted = 0
+
+        LEFT JOIN KhuyenMai km
+            ON hd.maKM = km.maKM
+           AND km.isDeleted = 0
+
+        LEFT JOIN LoaiKhuyenMai lkm
+            ON km.maLoaiKM = lkm.maLoaiKM
+
+        LEFT JOIN KhuyenMai_DieuKien dk
+            ON km.maKM = dk.maKM
+
+        LEFT JOIN Thue t
+            ON hd.maThue = t.maThue
+
+        INNER JOIN PhuongThucThanhToan pttt
+            ON hd.maPTTT = pttt.maPTTT
+
+        LEFT JOIN ChiTietHD cthd
+            ON hd.maHD = cthd.maHD
+
+        LEFT JOIN MonAn m
+            ON cthd.maMonAn = m.maMonAn
+
+        WHERE hd.isDeleted = 0
+        ORDER BY hd.ngayLap DESC;
+        """;
     }
 
-//     Lấy tất cả hóa đơn
-//    public List<HoaDon> layDanhSachHoaDon() {
-//        List<HoaDon> dsHoaDon = new ArrayList<>();
-//        String sql = "select * from HoaDon where isDeleted = 0;";
-//
-//        try (Connection conn = ConnectSQL.getConnection();
-//             PreparedStatement ps = conn.prepareStatement(sql);
-//             ResultSet rs = ps.executeQuery()) {
-//
-//            while (rs.next()) {
-//                HoaDon hd = new HoaDon(
-//                        rs.getString("maHD"),
-//                        rs.getTimestamp("ngayLap").toLocalDateTime(),
-//                        nhanVienDAO.layNhanVienTheoMa(rs.getString("maNV")),
-//                        khachHangDAO.layKhachHangTheoMa(rs.getString("maKH")),
-//                        phieuDatBanDAO.layPhieuTheoMa(rs.getString("maPDB")),
-//                        khuyenMaiDAO.layKhuyenMaiTheoMa(rs.getString("maKM")),
-//                        thueDAO.layThueTheoMa(rs.getString("maThue")),
-//                        rs.getBigDecimal("tienKhachDua"),
-//                        rs.getBigDecimal("tienThua"),
-//                        phuongThucThanhToanDAO.layPTTTTheoMa(rs.getString("maPTTT")),
-//                        rs.getBoolean("isDeleted")
-//                );
-//                hd.setChiTietHoaDon(chiTietHoaDonDAO.layCTHDTheoMa(hd.getMaHD()));
-//                dsHoaDon.add(hd);
-//            }
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return dsHoaDon;
-//    }
-
-
     public List<HoaDon> layDanhSachHoaDon() {
-        List<HoaDon> danhSach = new ArrayList<>();
         Map<String, HoaDon> mapHoaDon = new LinkedHashMap<>();
-
         String sql = truyVanHoaDon();
 
         try (Connection con = ConnectSQL.getConnection();
@@ -146,20 +134,22 @@ public class HoaDonDAO {
                 HoaDon hd = mapHoaDon.get(maHD);
 
                 if (hd == null) {
-                    // ========== HÓA ĐƠN ==========
                     hd = new HoaDon();
                     hd.setMaHD(maHD);
                     hd.setNgayLap(rs.getTimestamp("ngayLap").toLocalDateTime());
                     hd.setTienKhachDua(rs.getBigDecimal("tienKhachDua"));
                     hd.setTienThua(rs.getBigDecimal("tienThua"));
+                    hd.setChiTietHoaDon(new ArrayList<>());
 
-                    // ========== NHÂN VIÊN ==========
-                    NhanVien nv = new NhanVien();
-                    nv.setMaNV(rs.getString("maNV"));
-                    nv.setHoTen(rs.getString("tenNhanVien"));
-                    hd.setNhanVien(nv);
+                    // Nhân viên
+                    if (rs.getString("maNV") != null) {
+                        NhanVien nv = new NhanVien();
+                        nv.setMaNV(rs.getString("maNV"));
+                        nv.setHoTen(rs.getString("tenNhanVien"));
+                        hd.setNhanVien(nv);
+                    }
 
-                    // ========== KHÁCH HÀNG ==========
+                    // Khách hàng
                     if (rs.getString("maKH") != null) {
                         KhachHang kh = new KhachHang();
                         kh.setMaKH(rs.getString("maKH"));
@@ -168,31 +158,35 @@ public class HoaDonDAO {
                         hd.setKhachHang(kh);
                     }
 
-                    // ========== PHIẾU ĐẶT BÀN ==========
+                    // Phiếu đặt bàn
                     if (rs.getString("maPDB") != null) {
                         PhieuDatBan pdb = new PhieuDatBan();
                         pdb.setMaPDB(rs.getString("maPDB"));
                         pdb.setTrangThai(rs.getString("trangThaiPDB"));
-                        BigDecimal tienCoc = rs.getBigDecimal("tienCoc") != null ? rs.getBigDecimal("tienCoc") : BigDecimal.ZERO;
-                        pdb.setTienCoc(tienCoc);
+                        pdb.setTienCoc(rs.getBigDecimal("tienCoc"));
                         hd.setPhieuDatBan(pdb);
                     }
 
-                    // ========== KHUYẾN MÃI ==========
+                    // Khuyến mãi
                     if (rs.getString("maKM") != null) {
                         KhuyenMai km = new KhuyenMai();
                         km.setMaKM(rs.getString("maKM"));
                         km.setTenKM(rs.getString("tenKM"));
-                        km.setTyLe(rs.getBigDecimal("tyLe"));
-                        km.setSoTien(rs.getBigDecimal("soTien"));
+                        km.setKieuKM(rs.getString("kieuKM"));
+                        km.setMaCode(rs.getString("maCode"));
 
                         LoaiKhuyenMai loaiKM = new LoaiKhuyenMai();
                         loaiKM.setTenLoaiKM(rs.getString("tenLoaiKM"));
                         km.setLoaiKhuyenMai(loaiKM);
+
+                        // Lấy danh sách điều kiện
+                        List<KhuyenMai_DieuKien> dsDieuKien = new KhuyenMai_DieuKienDAO().layDieuKienTheoMaKM(km.getMaKM());
+                        km.setKhuyenMaiDieuKien(dsDieuKien.isEmpty() ? null : dsDieuKien.get(0)); // null-safe
+
                         hd.setKhuyenMai(km);
                     }
 
-                    // ========== THUẾ ==========
+                    // Thuế
                     if (rs.getString("maThue") != null) {
                         Thue thue = new Thue();
                         thue.setMaThue(rs.getString("maThue"));
@@ -200,47 +194,41 @@ public class HoaDonDAO {
                         hd.setThue(thue);
                     }
 
-                    // ========== PTTT ==========
+                    // Phương thức thanh toán
                     String tenPTTT = rs.getString("tenPTTT");
-                    PhuongThucThanhToan.LoaiPTTT loai = null;
-                    if ("Tiền mặt".equalsIgnoreCase(tenPTTT)) {
-                        loai = PhuongThucThanhToan.LoaiPTTT.TIEN_MAT;
-                    } else if ("Chuyển khoản".equalsIgnoreCase(tenPTTT)) {
-                        loai = PhuongThucThanhToan.LoaiPTTT.CHUYEN_KHOAN;
-                    }
-                    PhuongThucThanhToan pttt = new PhuongThucThanhToan(rs.getString("maPTTT"), loai);
+                    PhuongThucThanhToan.LoaiPTTT loaiPTTT =
+                            "Tiền mặt".equalsIgnoreCase(tenPTTT)
+                                    ? PhuongThucThanhToan.LoaiPTTT.TIEN_MAT
+                                    : PhuongThucThanhToan.LoaiPTTT.CHUYEN_KHOAN;
+                    PhuongThucThanhToan pttt = new PhuongThucThanhToan(rs.getString("maPTTT"), loaiPTTT);
                     hd.setPhuongThucThanhToan(pttt);
-
-                    // ========== CHI TIẾT ==========
-                    hd.setChiTietHoaDon(new ArrayList<>());
 
                     mapHoaDon.put(maHD, hd);
                 }
 
-                // ========== CHI TIẾT HÓA ĐƠN ==========
-                String maMonAn = rs.getString("maMonAn");
-                if (maMonAn != null) {
+                // Chi tiết hóa đơn
+                if (rs.getString("maMonAn") != null) {
                     ChiTietHoaDon ct = new ChiTietHoaDon();
                     ct.setSoLuong(rs.getInt("soLuong"));
                     ct.setDonGia(rs.getBigDecimal("donGia"));
 
                     MonAn mon = new MonAn();
-                    mon.setMaMonAn(maMonAn);
+                    mon.setMaMonAn(rs.getString("maMonAn"));
                     mon.setTenMon(rs.getString("tenMon"));
                     mon.setDonGia(rs.getBigDecimal("donGia"));
-                    ct.setMonAn(mon);
 
+                    ct.setMonAn(mon);
                     hd.getChiTietHoaDon().add(ct);
                 }
             }
-            danhSach.addAll(mapHoaDon.values());
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return danhSach;
+        return new ArrayList<>(mapHoaDon.values());
     }
+
 
     public String taoMaHDMoi() {
         String newId = "HD000001";
