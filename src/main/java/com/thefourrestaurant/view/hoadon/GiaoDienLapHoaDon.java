@@ -262,7 +262,7 @@ public class GiaoDienLapHoaDon extends VBox {
 
     private void khoiTaoComboKhuyenMai() {
         // Lấy danh sách khuyến mãi
-        cboKhuyenMai.getItems().setAll(khuyenMaiController.layDanhSachKhuyenMai());
+        cboKhuyenMai.getItems().setAll(khuyenMaiController.layDanhSachKhuyenMaiTheoKieu("MaGiamGia"));
 
         // Hiển thị tên khuyến mãi trong ComboBox
         cboKhuyenMai.setCellFactory(lv -> new ListCell<>() {
