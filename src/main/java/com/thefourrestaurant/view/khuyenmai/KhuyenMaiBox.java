@@ -14,11 +14,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Objects;
 
 public class KhuyenMaiBox extends BaseBox {
@@ -58,21 +55,13 @@ public class KhuyenMaiBox extends BaseBox {
         lblTenKM.setMaxWidth(190);
         lblTenKM.setStyle("-fx-text-fill: #CC3333;");
 
-        // Giam gia
-        String giamGiaStr = "";
-        if (khuyenMai.getTyLe() != null && khuyenMai.getTyLe().compareTo(BigDecimal.ZERO) > 0) {
-            giamGiaStr = khuyenMai.getTyLe().stripTrailingZeros().toPlainString() + "%";
-        } else if (khuyenMai.getSoTien() != null && khuyenMai.getSoTien().compareTo(BigDecimal.ZERO) > 0) {
-            NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-            giamGiaStr = currencyFormatter.format(khuyenMai.getSoTien());
-        } else {
-            giamGiaStr = "Tặng món";
-        }
-        Label lblGiamGia = new Label(giamGiaStr);
-        lblGiamGia.setFont(Font.font("System", FontWeight.BOLD, 20));
-        lblGiamGia.setWrapText(true);
-        lblGiamGia.setTextAlignment(TextAlignment.CENTER);
-        lblGiamGia.setStyle("-fx-text-fill: #FF6600;");
+        // Loai Khuyen Mai
+        String loaiKMStr = khuyenMai.getLoaiKhuyenMai() != null ? khuyenMai.getLoaiKhuyenMai().getTenLoaiKM() : "Khuyến mãi chung";
+        Label lblLoaiKM = new Label(loaiKMStr);
+        lblLoaiKM.setFont(Font.font("System", FontWeight.BOLD, 20));
+        lblLoaiKM.setWrapText(true);
+        lblLoaiKM.setTextAlignment(TextAlignment.CENTER);
+        lblLoaiKM.setStyle("-fx-text-fill: #FF6600;");
 
         // Thoi gian ap dung
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yy");
@@ -106,7 +95,7 @@ public class KhuyenMaiBox extends BaseBox {
 
         contentBox.getChildren().addAll(
                 lblTenKM,
-                lblGiamGia,
+                lblLoaiKM,
                 lblThoiGian,
                 lblTrangThai
         );

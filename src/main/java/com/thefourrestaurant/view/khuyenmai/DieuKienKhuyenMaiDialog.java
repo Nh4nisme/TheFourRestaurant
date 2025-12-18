@@ -191,27 +191,10 @@ public class DieuKienKhuyenMaiDialog extends Stage {
             txtTyLeGiam.setDisable(!isGiamGiaTyLe);
             txtSoTienGiam.setDisable(!isGiamGiaSoTien);
             
-            if (!isTangMon) {
-                 txtSoLuongTang.setDisable(true);
-                 if (rowMonTang instanceof HBox) {
-                     ((HBox) rowMonTang).getChildren().forEach(node -> node.setDisable(true));
-                 }
-            } else {
-                 txtSoLuongTang.setDisable(false);
-                 if (rowMonTang instanceof HBox) {
-                     ((HBox) rowMonTang).getChildren().forEach(node -> node.setDisable(false));
-                 }
-                 txtTyLeGiam.setDisable(true);
-                 txtSoTienGiam.setDisable(true);
-            }
-
-            if (!isEditMode) {
-                if (isGiamGiaTyLe && khuyenMaiCha.getTyLe() != null) {
-                    txtTyLeGiam.setText(khuyenMaiCha.getTyLe().stripTrailingZeros().toPlainString());
-                }
-                if (isGiamGiaSoTien && khuyenMaiCha.getSoTien() != null) {
-                    txtSoTienGiam.setText(khuyenMaiCha.getSoTien().stripTrailingZeros().toPlainString());
-                }
+            boolean monTangEnabled = isTangMon && rowMonTang.isVisible();
+            txtSoLuongTang.setDisable(!monTangEnabled);
+            if (rowMonTang instanceof HBox) {
+                ((HBox) rowMonTang).getChildren().forEach(node -> node.setDisable(!monTangEnabled));
             }
         }
     }
