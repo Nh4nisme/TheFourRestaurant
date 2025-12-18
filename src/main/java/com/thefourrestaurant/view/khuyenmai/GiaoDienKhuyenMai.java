@@ -204,21 +204,6 @@ public class GiaoDienKhuyenMai extends VBox {
         });
         loaiKMCol.setPrefWidth(120);
 
-        TableColumn<KhuyenMai, String> tyLeCol = new TableColumn<>("Tỷ lệ");
-        tyLeCol.setCellValueFactory(cellData -> {
-            BigDecimal tyLe = cellData.getValue().getTyLe();
-            return new SimpleStringProperty(tyLe != null && tyLe.compareTo(BigDecimal.ZERO) > 0 ? tyLe.stripTrailingZeros().toPlainString() + "%" : "");
-        });
-        tyLeCol.setPrefWidth(60);
-
-        TableColumn<KhuyenMai, String> soTienCol = new TableColumn<>("Số tiền");
-        soTienCol.setCellValueFactory(cellData -> {
-            BigDecimal soTien = cellData.getValue().getSoTien();
-            NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
-            return new SimpleStringProperty(soTien != null && soTien.compareTo(BigDecimal.ZERO) > 0 ? currencyFormatter.format(soTien) : "");
-        });
-        soTienCol.setPrefWidth(100);
-
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         TableColumn<KhuyenMai, String> ngayBDCol = new TableColumn<>("Ngày BĐ");
         ngayBDCol.setCellValueFactory(cellData -> {
@@ -252,7 +237,7 @@ public class GiaoDienKhuyenMai extends VBox {
         });
         trangThaiCol.setPrefWidth(90);
 
-        bangKhuyenMai.getColumns().addAll(maKMCol, tenKMCol, kieuKMCol, maCodeCol, soLuotCol, loaiKMCol, tyLeCol, soTienCol, ngayBDCol, ngayKTCol, trangThaiCol);
+        bangKhuyenMai.getColumns().addAll(maKMCol, tenKMCol, kieuKMCol, maCodeCol, soLuotCol, loaiKMCol, ngayBDCol, ngayKTCol, trangThaiCol);
         bangKhuyenMai.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         bangKhuyenMai.setRowFactory(tv -> {

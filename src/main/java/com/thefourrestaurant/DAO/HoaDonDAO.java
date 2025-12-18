@@ -38,42 +38,42 @@ public class HoaDonDAO {
                         hd.tienKhachDua,
                         hd.tienThua,
                         hd.isDeleted,
-                
+
                         -- Nhân viên
                         nv.maNV,
                         nv.hoTen AS tenNhanVien,
-                
+
                         -- Khách hàng
                         kh.maKH,
                         kh.hoTen AS tenKhachHang,
                         kh.soDT AS soDienThoaiKH,
-                
+
                         -- Phiếu đặt bàn
                         pdb.maPDB,
                         pdb.trangThai AS trangThaiPDB,
                         pdb.tienCoc,
-                
+
                         -- Khuyến mãi
                         km.maKM,
                         km.tenKM,
                         km.tyLe,
                         km.soTien,
                         lkm.tenLoaiKM,  -- loại khuyến mãi
-                
+
                         -- Thuế
                         t.maThue,
                         t.tyLe AS thueSuat,
-                
+
                         -- Phương thức thanh toán
                         pttt.maPTTT,
                         pttt.tenPTTT,
-                
+
                         -- Chi tiết hóa đơn
                         cthd.maMonAn,
                         cthd.soLuong,
                         cthd.donGia,
                         m.tenMon
-                
+
                     FROM HoaDon hd
                     -- Nhân viên
                     LEFT JOIN NhanVien nv ON hd.maNV = nv.maNV AND nv.isDeleted = 0
@@ -91,7 +91,7 @@ public class HoaDonDAO {
                     -- Chi tiết hóa đơn
                     LEFT JOIN ChiTietHD cthd ON hd.maHD = cthd.maHD
                     LEFT JOIN MonAn m ON cthd.maMonAn = m.maMonAn
-                
+
                     WHERE hd.isDeleted = 0
                     ORDER BY hd.ngayLap DESC;
             """;

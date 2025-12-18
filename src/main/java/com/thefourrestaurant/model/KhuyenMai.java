@@ -13,8 +13,6 @@ public class KhuyenMai {
     private String kieuKM;
     private String maCode;
     private Integer soLuotSuDung;
-    private BigDecimal tyLe;
-    private BigDecimal soTien;
     private LocalDateTime ngayBatDau;
     private LocalDateTime ngayKetThuc;
     private String moTa;
@@ -24,21 +22,15 @@ public class KhuyenMai {
         this.kieuKM = KIEU_SU_KIEN;
     }
 
-    public KhuyenMai(String maKM, LoaiKhuyenMai loaiKhuyenMai, String tenKM, BigDecimal tyLe, BigDecimal soTien,
+    public KhuyenMai(String maKM, LoaiKhuyenMai loaiKhuyenMai, String tenKM,
                      LocalDateTime ngayBatDau, LocalDateTime ngayKetThuc, String moTa) {
         this.maKM = maKM;
         this.loaiKhuyenMai = loaiKhuyenMai;
         setTenKM(tenKM);
         this.kieuKM = KIEU_SU_KIEN;
-        this.tyLe = tyLe;
-        this.soTien = soTien;
         this.ngayBatDau = ngayBatDau;
         this.ngayKetThuc = ngayKetThuc;
         this.moTa = moTa;
-    }
-
-    public KhuyenMai(String maKM, String tenKM, BigDecimal kmTyLe, BigDecimal kmSoTien) {
-        this.kieuKM = KIEU_SU_KIEN;
     }
 
     public String getMaKM() {
@@ -91,22 +83,6 @@ public class KhuyenMai {
 
     public boolean laKieuMaGiamGia() {
         return KIEU_MA_GIAM_GIA.equals(kieuKM);
-    }
-
-    public BigDecimal getTyLe() {
-        return tyLe;
-    }
-
-    public void setTyLe(BigDecimal tyLe) {
-        this.tyLe = tyLe;
-    }
-
-    public BigDecimal getSoTien() {
-        return soTien;
-    }
-
-    public void setSoTien(BigDecimal soTien) {
-        this.soTien = soTien;
     }
 
     public LocalDateTime getNgayBatDau() {
