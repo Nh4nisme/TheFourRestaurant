@@ -43,6 +43,7 @@ import javafx.stage.Stage;
 
 public class GiaoDienGoiMon extends BorderPane {
     private ButtonSample btnTim, btnLamMoi;
+    private ButtonSample btnSortName, btnSortQuantity;
     private StackPane mainContent;
     private MonAnDAO monAnDAO = new MonAnDAO();
     private LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
@@ -57,6 +58,8 @@ public class GiaoDienGoiMon extends BorderPane {
     private ObservableList<ChiTietPDB> danhSachChiTiet = FXCollections.observableArrayList();
     private PhieuDatBan pdb;
     private Map<String, MonAnBox> monBoxMap = new HashMap<>();
+    private int sortMode = 0;
+    private boolean sortAsc = true;
 
 
 	public GiaoDienGoiMon(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
@@ -133,8 +136,37 @@ public class GiaoDienGoiMon extends BorderPane {
 
         btnTim = new ButtonSample("Tìm kiếm", "", 35, 14,3);
         btnLamMoi = new ButtonSample("Làm mới", "", 35, 14,3);
+        btnSortName = new ButtonSample("A→Z", "", 35, 14, 3);
+        btnSortQuantity = new ButtonSample("Số lượng ↑", "", 35, 14, 3);
 
-        thanhTren.getChildren().addAll(menuThucDon, lblLoaiMon, cboLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi);
+        // (A->Z / Z->A)
+        btnSortName.setOnAction(evt -> {
+            if (sortMode == 0) {
+                sortAsc = !sortAsc;
+            } else {
+                sortMode = 0;
+                sortAsc = true;
+            }
+            updateSortButtonLabels();
+            LoaiMon sel = cboLoaiMon.getValue();
+            if (sel == null || "ALL".equals(sel.getMaLoaiMon())) refreshMonGrid(null);
+            else refreshMonGrid(sel.getMaLoaiMon());
+        });
+
+        btnSortQuantity.setOnAction(evt -> {
+            if (sortMode == 1) {
+                sortAsc = !sortAsc;
+            } else {
+                sortMode = 1;
+                sortAsc = false; // sort cao -> thap
+            }
+            updateSortButtonLabels();
+            LoaiMon sel = cboLoaiMon.getValue();
+            if (sel == null || "ALL".equals(sel.getMaLoaiMon())) refreshMonGrid(null);
+            else refreshMonGrid(sel.getMaLoaiMon());
+        });
+
+        thanhTren.getChildren().addAll(menuThucDon, lblLoaiMon, cboLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi, btnSortName, btnSortQuantity);
         return thanhTren;
     }
 
@@ -155,9 +187,9 @@ public class GiaoDienGoiMon extends BorderPane {
             gridMon.getColumnConstraints().add(cc);
         }
 
-        // Lấy danh sách món ăn (chỉ những món HIỂN THỊ) từ DB và hiển thị
         allMonAn = monAnDAO.layTatCaMonAnHienThi();
-        populateGrid(allMonAn);
+        sortMode = 0; sortAsc = true;
+        populateGrid(getFilteredAndSortedList(null));
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(gridMon);
@@ -202,15 +234,45 @@ public class GiaoDienGoiMon extends BorderPane {
     }
 
     private void refreshMonGrid(String maLoai) {
-        if (maLoai == null || maLoai.isEmpty()) {
-            populateGrid(allMonAn);
-            return;
-        }
+        populateGrid(getFilteredAndSortedList(maLoai));
+    }
+
+    private List<MonAn> getFilteredAndSortedList(String maLoai) {
         List<MonAn> filtered = new java.util.ArrayList<>();
+        if (allMonAn == null) return filtered;
         for (MonAn m : allMonAn) {
-            if (m.getLoaiMon() != null && maLoai.equals(m.getLoaiMon().getMaLoaiMon())) filtered.add(m);
+            if (m.getSoLuong() <= 0) continue;
+            if (maLoai == null || maLoai.isEmpty()) {
+                filtered.add(m);
+            } else {
+                if (m.getLoaiMon() != null && maLoai.equals(m.getLoaiMon().getMaLoaiMon())) filtered.add(m);
+            }
         }
-        populateGrid(filtered);
+
+        java.util.Comparator<MonAn> comp;
+        if (sortMode == 0) {
+            comp = (a, b) -> {
+                String an = a.getTenMon() == null ? "" : a.getTenMon();
+                String bn = b.getTenMon() == null ? "" : b.getTenMon();
+                return an.compareToIgnoreCase(bn);
+            };
+        } else {
+            comp = java.util.Comparator.comparingInt(MonAn::getSoLuong);
+        }
+
+        filtered.sort(comp);
+        if (!sortAsc) java.util.Collections.reverse(filtered);
+        return filtered;
+    }
+
+    private void updateSortButtonLabels() {
+        if (sortMode == 0) {
+            btnSortName.setText(sortAsc ? "A→Z" : "Z→A");
+            btnSortQuantity.setText("Số lượng");
+        } else {
+            btnSortQuantity.setText(sortAsc ? "Số lượng ↑" : "Số lượng ↓");
+            btnSortName.setText("A→Z");
+        }
     }
 
     @SuppressWarnings({ "unchecked", "deprecation" })
