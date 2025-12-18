@@ -5,6 +5,7 @@ import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiKhuyenMai;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -21,6 +22,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class KhuyenMaiDialog extends Stage {
 
@@ -48,11 +50,13 @@ public class KhuyenMaiDialog extends Stage {
 
     private Label nhanMaCode;
     private Label nhanSoLuotSuDung;
+    private List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai;
 
     public KhuyenMaiDialog(KhuyenMai khuyenMai, List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai, String maKhuyenMaiMoi, KhuyenMaiController boDieuKhien) {
         this.khuyenMaiHienTai = khuyenMai;
         this.laCheDoChinhSua = (khuyenMai != null);
         this.boDieuKhien = boDieuKhien;
+        this.danhSachTatCaLoaiKhuyenMai = danhSachTatCaLoaiKhuyenMai;
 
         this.initModality(Modality.APPLICATION_MODAL);
         this.setTitle(laCheDoChinhSua ? "Tùy Chỉnh Khuyến Mãi" : "Thêm Khuyến Mãi Mới");
@@ -77,7 +81,7 @@ public class KhuyenMaiDialog extends Stage {
         hopTieuDe.setPadding(new Insets(15));
         hopTieuDe.setStyle("-fx-background-color: #1E424D;");
 
-        GridPane luoiFormChinh = taoFormChinh(danhSachTatCaLoaiKhuyenMai, kieuFontStyle, maKhuyenMaiMoi);
+        GridPane luoiFormChinh = taoFormChinh(kieuFontStyle, maKhuyenMaiMoi);
         VBox hopGiua = new VBox(20, luoiFormChinh);
         hopGiua.setPadding(new Insets(20));
 
@@ -95,7 +99,7 @@ public class KhuyenMaiDialog extends Stage {
         this.setScene(khungCanh);
     }
 
-    private GridPane taoFormChinh(List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai, String kieuFontStyle, String maKhuyenMaiMoi) {
+    private GridPane taoFormChinh(String kieuFontStyle, String maKhuyenMaiMoi) {
         GridPane luoiForm = new GridPane();
         luoiForm.setVgap(12);
         luoiForm.setHgap(15);
@@ -148,7 +152,6 @@ public class KhuyenMaiDialog extends Stage {
         hopChonKieuKM.setOnAction(e -> capNhatHienThiTheoKieuKM());
 
         luoiForm.add(new Label("Loại KM:"), 0, row);
-        hopChonLoaiKhuyenMai.setItems(FXCollections.observableArrayList(danhSachTatCaLoaiKhuyenMai));
         hopChonLoaiKhuyenMai.setConverter(new StringConverter<>() {
             @Override
             public String toString(LoaiKhuyenMai object) {
@@ -183,6 +186,16 @@ public class KhuyenMaiDialog extends Stage {
         if (!laMaGiamGia) {
             truongMaCode.clear();
             truongSoLuotSuDung.clear();
+        }
+        
+        // Lọc danh sách loại khuyến mãi
+        if (laMaGiamGia) {
+            List<LoaiKhuyenMai> filteredList = danhSachTatCaLoaiKhuyenMai.stream()
+                .filter(lkm -> !"Tặng món".equalsIgnoreCase(lkm.getTenLoaiKM()))
+                .collect(Collectors.toList());
+            hopChonLoaiKhuyenMai.setItems(FXCollections.observableArrayList(filteredList));
+        } else {
+            hopChonLoaiKhuyenMai.setItems(FXCollections.observableArrayList(danhSachTatCaLoaiKhuyenMai));
         }
     }
 

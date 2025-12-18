@@ -72,9 +72,13 @@ public class DieuKienKhuyenMaiDialog extends Stage {
             dienDuLieuHienCo();
         }
         
-        if (!isEditMode) {
+        if (khuyenMaiCha.laKieuMaGiamGia()) {
+            cboLoaiApDung.setValue("GIAM_TRUC_TIEP");
+            cboLoaiApDung.setDisable(true);
+        } else if (!isEditMode) {
             cboLoaiApDung.getSelectionModel().selectFirst();
         }
+        
         capNhatFormTheoLoai();
         apDungRangBuocKhuyenMaiCha();
 
@@ -92,7 +96,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         cboLoaiApDung.valueProperty().addListener((obs, oldVal, newVal) -> capNhatFormTheoLoai());
 
         txtMoTa = new TextField();
-        txtMonMua = taoTruongChiDoc("Chọn món mua/áp dụng...");
+        txtMonMua = taoTruongChiDoc("Chọn món mua/áp dụng (để trống nếu áp dụng toàn hóa đơn)");
         txtMonNhanGiam = taoTruongChiDoc("Chọn món được giảm giá...");
         txtMonTang = taoTruongChiDoc("Chọn món được tặng...");
         txtTyLeGiam = new TextField();
@@ -265,6 +269,13 @@ public class DieuKienKhuyenMaiDialog extends Stage {
     private void luuDieuKien() {
         if (cboLoaiApDung.getValue() == null || txtMoTa.getText().trim().isEmpty()) {
             hienThiThongBao(Alert.AlertType.WARNING, "Vui lòng chọn Loại áp dụng và nhập Mô tả.");
+            return;
+        }
+
+        // For MaGiamGia, it's okay to have no items selected (applies to whole bill)
+        // For other types, at least one item must be selected.
+        if (!khuyenMaiCha.laKieuMaGiamGia() && dsMonMuaChon.isEmpty()) {
+            hienThiThongBao(Alert.AlertType.WARNING, "Vui lòng chọn ít nhất một món áp dụng cho loại khuyến mãi này.");
             return;
         }
 
