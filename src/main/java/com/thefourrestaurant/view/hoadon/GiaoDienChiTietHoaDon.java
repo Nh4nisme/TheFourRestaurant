@@ -116,17 +116,19 @@ public class GiaoDienChiTietHoaDon extends VBox {
 
         // Các dòng tổng kết
         BigDecimal tongTien = hd.getTongTien();
-        thongTinPhu.get("Mã giảm giá:").setText(hd.getKhuyenMai() != null ? hd.getKhuyenMai().getMaKM() : "");
+        thongTinPhu.get("Mã giảm giá:").setText(hd.getKhuyenMai() != null ? hd.getKhuyenMai().getTenKM() : "Không áp dụng");
         if (hd.getKhuyenMai() != null && hd.getKhuyenMai().getKhuyenMaiDieuKien() != null) {
             KhuyenMai_DieuKien dk = hd.getKhuyenMai().getKhuyenMaiDieuKien();
             String loai = dk.getLoaiApDung();
 
             switch (loai.toUpperCase()) {
                 case "GIAM_TRUC_TIEP":
-                    if (dk.getLoaiApDung() != null) {
-                        thongTinPhu.get("Chiết khấu:").setText(dk.getTyLeGiam() + "%");
+                    if (dk.getTyLeGiam() != null) {
+                        thongTinPhu.get("Chiết khấu:")
+                                .setText(dk.getTyLeGiam() + "%");
                     } else if (dk.getSoTienGiam() != null) {
-                        thongTinPhu.get("Chiết khấu:").setText(String.format("%,.0f đ", dk.getSoTienGiam()));
+                        thongTinPhu.get("Chiết khấu:")
+                                .setText(String.format("%,.0f đ", dk.getSoTienGiam()));
                     } else {
                         thongTinPhu.get("Chiết khấu:").setText("0 đ");
                     }
