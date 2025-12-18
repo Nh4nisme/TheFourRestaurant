@@ -210,7 +210,10 @@ public class GiaoDienDatBan extends BorderPane {
 		VBox thanhDieuHuong = taoThanhDieuHuong();
 
 		quanLiBan = new QuanLiBan(mainContent, "DAT_BAN");
-		quanLiBan.hienThiBanTheoTang("TG000001");
+		Tang tangMacDinh = cboSoTang.getValue();
+		if (tangMacDinh != null) {
+		    quanLiBan.hienThiBanTheoTang(tangMacDinh.getMaTang());
+		}
 
 		Pane khuVucBan = quanLiBan.getKhuVucBan();
 		VBox.setVgrow(khuVucBan, Priority.ALWAYS);
@@ -363,11 +366,13 @@ public class GiaoDienDatBan extends BorderPane {
 	}
 
 	private void datBanNgay() {
-		List<Ban> dsChon = layDsBanDangChonHoacThongBao();
-		if (dsChon == null || dsChon.isEmpty())
+		List<Ban> dsChonGoc = layDsBanDangChonHoacThongBao();
+		if (dsChonGoc == null || dsChonGoc.isEmpty())
 			return;
 
-		// Kiểm tra trạng thái bàn
+		// ✅ CLONE LIST – CỰC KỲ QUAN TRỌNG
+		List<Ban> dsChon = new ArrayList<>(dsChonGoc);
+
 		for (Ban ban : dsChon) {
 			PhieuDatBan pdbDangSuDung = phieuDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
 			if (pdbDangSuDung != null) {
@@ -380,29 +385,34 @@ public class GiaoDienDatBan extends BorderPane {
 			}
 		}
 
-		String tenBanStr = dsChon.stream().map(Ban::getTenBan).reduce((a, b) -> a + ", " + b).orElse("");
-
 		Stage st = new Stage();
-		st.initOwner(getScene() != null ? getScene().getWindow() : null);
+		st.initOwner(getScene().getWindow());
 		st.initModality(Modality.APPLICATION_MODAL);
-		st.setTitle("Đặt bàn ngay - " + tenBanStr);
 		st.setScene(new Scene(new GiaoDienDatBanNgay(dsChon, mainContent, quanLiBan)));
+		st.setOnHidden(e -> {
+	        quanLiBan.clearBanDangChon();
+	        quanLiBan.refresh();
+	    });
 		st.showAndWait();
 	}
 
 	private void datBanTruoc() {
-		List<Ban> dsChon = layDsBanDangChonHoacThongBao();
-		if (dsChon == null || dsChon.isEmpty())
-			return;
+	    List<Ban> dsChonGoc = layDsBanDangChonHoacThongBao();
+	    if (dsChonGoc == null || dsChonGoc.isEmpty())
+	        return;
 
-		String tenBanStr = dsChon.stream().map(Ban::getTenBan).reduce((a, b) -> a + ", " + b).orElse("");
+	    List<Ban> dsChon = new ArrayList<>(dsChonGoc);
 
-		Stage st = new Stage();
-		st.initOwner(getScene() != null ? getScene().getWindow() : null);
-		st.initModality(Modality.APPLICATION_MODAL);
-		st.setTitle("Đặt bàn trước - " + tenBanStr);
-		st.setScene(new Scene(new GiaoDienDatBanTruoc(dsChon, mainContent, quanLiBan)));
-		st.showAndWait();
+	    Stage st = new Stage();
+	    st.initOwner(getScene().getWindow());
+	    st.initModality(Modality.APPLICATION_MODAL);
+	    st.setScene(new Scene(new GiaoDienDatBanTruoc(dsChon, mainContent, quanLiBan)));
+	    
+	    st.setOnHidden(e -> {
+	        quanLiBan.clearBanDangChon();
+	        quanLiBan.refresh();
+	    });
+	    st.showAndWait();
 	}
 
 	private void nhanBan() {
@@ -565,7 +575,7 @@ public class GiaoDienDatBan extends BorderPane {
 
 		// Hiển thị chỉ bàn này
 		quanLiBan.clearAllBan();
-		quanLiBan.taoBan(quanLiBan.getKhuVucBan(), ban, new HashMap<>(), new HashMap<>());
+		quanLiBan.taoBan(quanLiBan.getKhuVucBan(), ban, new HashMap<>());
 
 	}
 

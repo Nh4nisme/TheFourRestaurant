@@ -273,42 +273,21 @@ public abstract class GiaoDienDatBanBase extends VBox {
         });
     }
     
-    protected void xuLySauKhiLuu(boolean ok, PhieuDatBan pdb, List<Ban> dsBan, boolean isDatNgay) {
-        if (!ok) {
-            showMessage("Lỗi khi lưu phiếu!", Alert.AlertType.ERROR);
-            return;
-        }
-
-        showMessage("Đặt bàn thành công!", Alert.AlertType.INFORMATION);
-
-        if (isDatNgay && quanLiBan != null && dsBan != null && !dsBan.isEmpty()) {
-            Ban banChinh = dsBan.get(0);
-
-            quanLiBan.hienThiBanTheoTang(banChinh.getTang().getMaTang());
-        }
-
-        parentPane.getChildren().remove(this);
-    }
-    
     protected void showDatBanThanhCong(List<Ban> dsBan) {
         showMessage("Đã đặt bàn thành công!", Alert.AlertType.INFORMATION);
 
-        if(dsBan == null || dsBan.isEmpty()) return;
+        if (dsBan == null || dsBan.isEmpty()) return;
+
         try {
-            if(quanLiBan != null){
-                banDAO.capNhatTrangThaiDanhSach(dsBan, "Đang phục vụ");
-                quanLiBan.hienThiBanTheoTang(dsBan.get(0).getTang().getMaTang());
+            if (quanLiBan != null) {
+                quanLiBan.refresh();
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        if(parentPane != null){
-            parentPane.getChildren().remove(this);
-        }
-        if(btnDatBan != null){
-            btnDatBan.setDisable(true);
-        }
+        Stage stage = (Stage) this.getScene().getWindow();
+        if (stage != null) stage.close();
     }
 
 //     Hiển thị thông báo lỗi.

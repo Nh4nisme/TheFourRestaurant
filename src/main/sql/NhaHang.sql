@@ -686,13 +686,6 @@ INSERT INTO ChiTietHD (maHD, maMonAn, soLuong, donGia) VALUES
 ('HD000002','MA000004',1,30000);
 GO
 
-ALTER TABLE KhuyenMai
-    ADD isDeleted BIT NOT NULL DEFAULT 0;
-GO
-
-
-
-
 -- Thêm món ăn
 INSERT INTO MonAn
 (maMonAn, tenMon, donGia, trangThai, maLoaiMon, hinhAnh, soLuong, daBan, isDeleted, isVisible)

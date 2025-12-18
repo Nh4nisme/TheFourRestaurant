@@ -17,183 +17,194 @@ import javafx.stage.Stage;
 
 public class GiaoDienNhanBan extends BorderPane {
 
-    // ===== MÀU =====
-    private static final String COLOR_BG_MAIN = "#f0f0f0";
-    private static final String COLOR_BG_HEADER = "#1E424D";
-    private static final String COLOR_TEXT_GOLD = "#DDB248";
+	// ===== MÀU =====
+	private static final String COLOR_BG_MAIN = "#f0f0f0";
+	private static final String COLOR_BG_HEADER = "#1E424D";
+	private static final String COLOR_TEXT_GOLD = "#DDB248";
 
-    private final PhieuDatBanDAO phieuDAO = new PhieuDatBanDAO();
-    private final BanDAO banDAO = new BanDAO();
-    private final QuanLiBan quanLiBan;
+	private final PhieuDatBanDAO phieuDAO = new PhieuDatBanDAO();
+	private final BanDAO banDAO = new BanDAO();
+	private final QuanLiBan quanLiBan;
 
-    private TableView<PhieuDatBan> table;
-    private TextField txtSoDT;
+	private TableView<PhieuDatBan> table;
+	private TextField txtSoDT;
 
-    private GiaoDienChiTietPhieuDatBan chiTietPane;
-    private PhieuDatBan phieuDangChon;
+	private GiaoDienChiTietPhieuDatBan chiTietPane;
+	private PhieuDatBan phieuDangChon;
 
-    public GiaoDienNhanBan(QuanLiBan quanLiBan) {
-        this.quanLiBan = quanLiBan;
+	private ObservableList<PhieuDatBan> masterList;
+	private FilteredList<PhieuDatBan> filtered;
 
-        setStyle("-fx-background-color: " + COLOR_BG_MAIN + ";");
+	public GiaoDienNhanBan(QuanLiBan quanLiBan) {
+		this.quanLiBan = quanLiBan;
 
-        setTop(taoHeader());
-        setCenter(taoNoiDungChinh());
-    }
+		setStyle("-fx-background-color: " + COLOR_BG_MAIN + ";");
 
-    // ================= HEADER =================
-    private VBox taoHeader() {
-        VBox header = new VBox(10);
-        header.setPadding(new Insets(15));
-        header.setStyle("-fx-background-color: " + COLOR_BG_HEADER + ";");
+		setTop(taoHeader());
+		setCenter(taoNoiDungChinh());
+	}
 
-        Label lblTitle = new Label("NHẬN BÀN – PHIẾU ĐẶT TRƯỚC");
-        lblTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + COLOR_TEXT_GOLD);
+	// ================= HEADER =================
+	private VBox taoHeader() {
+		VBox header = new VBox(10);
+		header.setPadding(new Insets(15));
+		header.setStyle("-fx-background-color: " + COLOR_BG_HEADER + ";");
 
-        ClockText clock = ClockText.getInstance();
-        clock.setStyle("-fx-fill: " + COLOR_TEXT_GOLD + "; -fx-font-size: 14px; -fx-font-weight: bold;");
+		Label lblTitle = new Label("NHẬN BÀN – PHIẾU ĐẶT TRƯỚC");
+		lblTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: " + COLOR_TEXT_GOLD);
 
-        HBox searchBox = new HBox(10);
-        searchBox.setAlignment(Pos.CENTER_LEFT);
+		ClockText clock = ClockText.getInstance();
+		clock.setStyle("-fx-fill: " + COLOR_TEXT_GOLD + "; -fx-font-size: 14px; -fx-font-weight: bold;");
 
-        Label lblSoDT = new Label("SĐT khách hàng:");
-        lblSoDT.setStyle("-fx-text-fill: " + COLOR_TEXT_GOLD + "; -fx-font-weight: bold;");
+		HBox searchBox = new HBox(10);
+		searchBox.setAlignment(Pos.CENTER_LEFT);
 
-        txtSoDT = new TextField();
-        txtSoDT.setPromptText("Nhập số điện thoại...");
-        txtSoDT.setPrefWidth(250);
+		Label lblSoDT = new Label("SĐT khách hàng:");
+		lblSoDT.setStyle("-fx-text-fill: " + COLOR_TEXT_GOLD + "; -fx-font-weight: bold;");
 
-        searchBox.getChildren().addAll(lblSoDT, txtSoDT);
-        header.getChildren().addAll(lblTitle, clock, searchBox);
+		txtSoDT = new TextField();
+		txtSoDT.setPromptText("Nhập số điện thoại...");
+		txtSoDT.setPrefWidth(250);
 
-        return header;
-    }
+		searchBox.getChildren().addAll(lblSoDT, txtSoDT);
+		header.getChildren().addAll(lblTitle, clock, searchBox);
 
-    // ================= NỘI DUNG CHÍNH =================
-    private SplitPane taoNoiDungChinh() {
-        SplitPane split = new SplitPane();
-        split.setDividerPositions(0.45);
+		return header;
+	}
 
-        VBox bangPhieu = taoBangPhieu();
+	// ================= NỘI DUNG CHÍNH =================
+	private SplitPane taoNoiDungChinh() {
+	    SplitPane split = new SplitPane();
+	    split.setDividerPositions(0.45);
 
-        chiTietPane = new GiaoDienChiTietPhieuDatBan();
-        VBox rightBox = new VBox(10, chiTietPane, taoNutHanhDong());
-        rightBox.setPadding(new Insets(10));
+	    chiTietPane = new GiaoDienChiTietPhieuDatBan();
 
-        split.getItems().addAll(bangPhieu, rightBox);
-        return split;
-    }
+	    VBox bangPhieu = taoBangPhieu();
 
-    // ================= TABLE PHIẾU =================
-    private VBox taoBangPhieu() {
-        table = new TableView<>();
-        table.setPrefHeight(500);
+	    VBox rightBox = new VBox(10, chiTietPane, taoNutHanhDong());
+	    rightBox.setPadding(new Insets(10));
 
-        TableColumn<PhieuDatBan, String> colMa = new TableColumn<>("Mã PĐB");
-        colMa.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getMaPDB()));
+	    split.getItems().addAll(bangPhieu, rightBox);
+	    return split;
+	}
 
-        TableColumn<PhieuDatBan, String> colKH = new TableColumn<>("Khách hàng");
-        colKH.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
-                c.getValue().getKhachHang() != null ? c.getValue().getKhachHang().getHoTen() : ""
-        ));
+	// ================= TABLE PHIẾU =================
+	private VBox taoBangPhieu() {
+		table = new TableView<>();
+		table.setPrefHeight(500);
 
-        TableColumn<PhieuDatBan, String> colSDT = new TableColumn<>("SĐT");
-        colSDT.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
-                c.getValue().getKhachHang() != null ? c.getValue().getKhachHang().getSoDT() : ""
-        ));
+		TableColumn<PhieuDatBan, String> colMa = new TableColumn<>("Mã PĐB");
+		colMa.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().getMaPDB()));
 
-        TableColumn<PhieuDatBan, String> colNgay = new TableColumn<>("Giờ đặt");
-        colNgay.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
-                c.getValue().getNgayDat() != null ? c.getValue().getNgayDat().toString() : ""
-        ));
+		TableColumn<PhieuDatBan, String> colKH = new TableColumn<>("Khách hàng");
+		colKH.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
+				c.getValue().getKhachHang() != null ? c.getValue().getKhachHang().getHoTen() : ""));
 
-        TableColumn<PhieuDatBan, String> colBan = new TableColumn<>("Bàn");
-        colBan.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
-                c.getValue().getDanhSachBan().stream()
-                        .map(Ban::getTenBan)
-                        .reduce((a, b) -> a + ", " + b)
-                        .orElse("")
-        ));
+		TableColumn<PhieuDatBan, String> colSDT = new TableColumn<>("SĐT");
+		colSDT.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
+				c.getValue().getKhachHang() != null ? c.getValue().getKhachHang().getSoDT() : ""));
 
-        table.getColumns().addAll(colMa, colKH, colSDT, colNgay, colBan);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+		TableColumn<PhieuDatBan, String> colNgay = new TableColumn<>("Giờ đặt");
+		colNgay.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
+				c.getValue().getNgayDat() != null ? c.getValue().getNgayDat().toString() : ""));
 
-        refreshTable();
+		TableColumn<PhieuDatBan, String> colBan = new TableColumn<>("Bàn");
+		colBan.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(
+				c.getValue().getDanhSachBan().stream().map(Ban::getTenBan).reduce((a, b) -> a + ", " + b).orElse("")));
 
-        table.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
-            phieuDangChon = selected;
-            if (selected != null) {
-                chiTietPane.hienThiThongTin(selected);
-            }
-        });
+		table.getColumns().addAll(colMa, colKH, colSDT, colNgay, colBan);
+		table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        VBox box = new VBox(table);
-        box.setPadding(new Insets(10));
-        return box;
-    }
+		refreshTable();
 
-    // ================= NÚT HÀNH ĐỘNG =================
-    private HBox taoNutHanhDong() {
-        ButtonSample2 btnNhanBan = new ButtonSample2("Nhận bàn", ButtonSample2.Variant.YELLOW, 150, 45);
-        ButtonSample2 btnHuyPhieu = new ButtonSample2("Hủy phiếu", ButtonSample2.Variant.YELLOW, 150, 45);
+		table.getSelectionModel().selectedItemProperty().addListener((obs, old, selected) -> {
+			phieuDangChon = selected;
+			if (selected != null) {
+				chiTietPane.hienThiThongTin(selected);
+			}
+		});
 
-        btnNhanBan.setOnAction(e -> xuLyNhanBan());
-        btnHuyPhieu.setOnAction(e -> xuLyHuyPhieu());
+		VBox box = new VBox(table);
+		box.setPadding(new Insets(10));
+		return box;
+	}
 
-        HBox box = new HBox(15, btnHuyPhieu, btnNhanBan);
-        box.setAlignment(Pos.CENTER_RIGHT);
-        return box;
-    }
+	private HBox taoNutHanhDong() {
+		ButtonSample2 btnNhanBan = new ButtonSample2("Nhận bàn", ButtonSample2.Variant.YELLOW, 150, 45);
+		ButtonSample2 btnHuyPhieu = new ButtonSample2("Hủy phiếu", ButtonSample2.Variant.YELLOW, 150, 45);
 
-    // ================= LOGIC =================
-    private void xuLyNhanBan() {
-        if (phieuDangChon == null) {
-            new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu!").showAndWait();
-            return;
-        }
+		btnNhanBan.setOnAction(e -> xuLyNhanBan());
+		btnHuyPhieu.setOnAction(e -> xuLyHuyPhieu());
 
-        phieuDAO.capNhatTrangThai(phieuDangChon.getMaPDB(), "Đang phục vụ");
-        banDAO.capNhatTrangThaiDanhSach(phieuDangChon.getDanhSachBan(), "Đang phục vụ");
+		HBox box = new HBox(15, btnHuyPhieu, btnNhanBan);
+		box.setAlignment(Pos.CENTER_RIGHT);
+		return box;
+	}
 
-        refreshTable();
-        quanLiBan.refresh();
+	// ================= LOGIC =================
+	private void xuLyNhanBan() {
+		if (phieuDangChon == null) {
+			new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu!").showAndWait();
+			return;
+		}
 
-        new Alert(Alert.AlertType.INFORMATION, "Nhận bàn thành công!").showAndWait();
-    }
+		phieuDAO.capNhatTrangThai(phieuDangChon.getMaPDB(), "Đang phục vụ");
+		banDAO.capNhatTrangThaiDanhSach(phieuDangChon.getDanhSachBan(), "Đang phục vụ");
 
-    private void xuLyHuyPhieu() {
-        if (phieuDangChon == null) return;
+		refreshTable();
+		quanLiBan.refresh();
+		phieuDangChon = null;
 
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Bạn có chắc muốn hủy phiếu này?",
-                ButtonType.YES, ButtonType.NO);
+		new Alert(Alert.AlertType.INFORMATION, "Nhận bàn thành công!").showAndWait();
+	}
 
-        if (confirm.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
-            phieuDAO.capNhatTrangThai(phieuDangChon.getMaPDB(), "Đã hủy");
-            banDAO.capNhatTrangThaiDanhSach(phieuDangChon.getDanhSachBan(), "Trống");
+	private void xuLyHuyPhieu() {
+		if (phieuDangChon == null) {
+			new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu!").showAndWait();
+			return;
+		}
 
-            refreshTable();
-            quanLiBan.refresh();
-            phieuDangChon = null;
-        }
-    }
+		Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+				"Bạn có chắc chắn muốn HỦY phiếu này?\nHành động này không thể hoàn tác.", ButtonType.YES,
+				ButtonType.NO);
 
-    private void refreshTable() {
-        ObservableList<PhieuDatBan> dsPhieu =
-                FXCollections.observableArrayList(
-                        phieuDAO.layPhieuTheoTrangThai("Đặt trước")
-                );
+		if (confirm.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
+			phieuDAO.capNhatTrangThai(phieuDangChon.getMaPDB(), "Hủy");
 
-        FilteredList<PhieuDatBan> filtered = new FilteredList<>(dsPhieu, p -> true);
-        txtSoDT.textProperty().addListener((obs, old, val) -> {
-            filtered.setPredicate(pdb -> {
-                if (val == null || val.isBlank()) return true;
-                return pdb.getKhachHang() != null
-                        && pdb.getKhachHang().getSoDT() != null
-                        && pdb.getKhachHang().getSoDT().contains(val.trim());
-            });
-        });
+			refreshTable();
+			quanLiBan.refresh();
+			phieuDangChon = null;
 
-        table.setItems(filtered);
-    }
+			new Alert(Alert.AlertType.INFORMATION, "Hủy phiếu thành công!").showAndWait();
+		}
+	}
+
+	private void refreshTable() {
+
+	    if (masterList == null) {
+	        masterList = FXCollections.observableArrayList();
+	        filtered = new FilteredList<>(masterList, p -> true);
+
+	        txtSoDT.textProperty().addListener((obs, old, val) -> {
+	            filtered.setPredicate(pdb -> {
+	                if (val == null || val.isBlank())
+	                    return true;
+	                return pdb.getKhachHang() != null
+	                        && pdb.getKhachHang().getSoDT() != null
+	                        && pdb.getKhachHang().getSoDT().contains(val.trim());
+	            });
+	        });
+
+	        table.setItems(filtered);
+	    }
+
+	    masterList.setAll(phieuDAO.layPhieuTheoTrangThai("Đặt trước"));
+
+	    table.getSelectionModel().clearSelection();
+	    phieuDangChon = null;
+
+//	    chiTietPane.clearThongTin(); // ✅ GIỮ UI – CLEAR DATA
+	}
+
+
 }

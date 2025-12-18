@@ -87,5 +87,16 @@ public class CountdownController {
         if (t != null) t.stop();
         labels.remove(maPDB);
     }
+    
+    public void unregisterLabel(String maPDB, Label lbl) {
+        List<Label> list = labels.get(maPDB);
+        if (list != null) {
+            list.remove(lbl);
+            if (list.isEmpty()) {
+                labels.remove(maPDB);
+            }
+        }
+    }
+
 }
 
