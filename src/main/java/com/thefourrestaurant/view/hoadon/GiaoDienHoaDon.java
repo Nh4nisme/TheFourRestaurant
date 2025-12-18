@@ -77,35 +77,7 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
         });
         colTongTien.setStyle("-fx-alignment: CENTER-RIGHT;");
 
-        TableColumn<HoaDon, Void> colHanhDong = new TableColumn<>("Hành động");
-        colHanhDong.setCellFactory(col -> new TableCell<>() {
-            private final Button btnXoa = new Button("🗑");
-            {
-                btnXoa.setOnAction(event -> {
-                    HoaDon hd = getTableView().getItems().get(getIndex());
-                    Stage stage = (Stage) btnXoa.getScene().getWindow();
-
-                    if (xacNhan(stage, "Bạn có chắc muốn xóa hóa đơn: " + hd.getMaHD() + " ?")) {
-                        boolean ok = controller.xoaHoaDon(hd.getMaHD()); // Gọi controller/DAO xóa hóa đơn
-
-                        if (ok) {
-                            getTableView().getItems().remove(hd);
-                            hienThongBao(stage,"Đã xóa hóa đơn!");
-                        } else {
-                            hienThongBao(stage,"Không thể xóa hóa đơn này!", Alert.AlertType.ERROR);
-                        }
-                    }
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : btnXoa);
-            }
-        });
-
-        table.getColumns().addAll(colMaHD, colNgayLap, colSoDT, colPTTT, colTongTien, colHanhDong);
+        table.getColumns().addAll(colMaHD, colNgayLap, colSoDT, colPTTT, colTongTien);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // ===== Lấy dữ liệu từ Controller =====

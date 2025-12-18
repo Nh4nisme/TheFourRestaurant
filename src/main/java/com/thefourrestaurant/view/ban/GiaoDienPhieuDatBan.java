@@ -17,17 +17,21 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
+
     private final PhieuDatBanController controller;
     private final GiaoDienChiTietPhieuDatBan gdChiTietPhieuDatBan;
+
     private TableView<PhieuDatBan> table;
     private ObservableList<PhieuDatBan> danhSachGoc;
-    private ObservableList<PhieuDatBan> danhSachHienThi;
 
     public GiaoDienPhieuDatBan() {
         super("Phiếu đặt bàn", new GiaoDienChiTietPhieuDatBan());
+
         controller = new PhieuDatBanController();
         gdChiTietPhieuDatBan = (GiaoDienChiTietPhieuDatBan) getChiTietNode();
         khoiTaoGiaoDien();
+        khoiTaoBoLocNgayCuThe();
+        khoiTaoBoLocTimKiem();
         lamMoiDuLieu();
     }
 
@@ -36,50 +40,84 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
         table = new TableView<>();
 
         TableColumn<PhieuDatBan, String> colMaPDB = new TableColumn<>("Mã PDB");
-        colMaPDB.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getMaPDB()));
+        colMaPDB.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getMaPDB())
+        );
 
-        TableColumn<PhieuDatBan, String> colNgayTao = new TableColumn<>("Ngày tạo phiếu");
-        colNgayTao.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getNgayTao() == null ? "" : cell.getValue().getNgayTao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        TableColumn<PhieuDatBan, String> colNgayDat = new TableColumn<>("Ngày đặt bàn");
-        colNgayDat.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getNgayDat() == null ? "" : cell.getValue().getNgayDat().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+        TableColumn<PhieuDatBan, String> colNgayTao = new TableColumn<>("Ngày tạo");
+        colNgayTao.setCellValueFactory(c ->
+                new SimpleStringProperty(
+                        c.getValue().getNgayTao() == null ? "" :
+                                c.getValue().getNgayTao().format(fmt))
+        );
 
-        TableColumn<PhieuDatBan, String> colTenKH = new TableColumn<>("Tên khách đặt bàn");
-        colTenKH.setCellValueFactory(cell -> {
-            KhachHang kh = cell.getValue().getKhachHang();
+        TableColumn<PhieuDatBan, String> colNgayDat = new TableColumn<>("Ngày đặt");
+        colNgayDat.setCellValueFactory(c ->
+                new SimpleStringProperty(
+                        c.getValue().getNgayDat() == null ? "" :
+                                c.getValue().getNgayDat().format(fmt))
+        );
+
+        TableColumn<PhieuDatBan, String> colTenKH = new TableColumn<>("Khách hàng");
+        colTenKH.setCellValueFactory(c -> {
+            KhachHang kh = c.getValue().getKhachHang();
             return new SimpleStringProperty(kh == null ? "" : kh.getHoTen());
         });
 
-        TableColumn<PhieuDatBan, String> colTenNV = new TableColumn<>("Tên nhân viên");
-        colTenNV.setCellValueFactory(cell ->{
-            NhanVien nv = cell.getValue().getNhanVien();
+        TableColumn<PhieuDatBan, String> colTenNV = new TableColumn<>("Nhân viên");
+        colTenNV.setCellValueFactory(c -> {
+            NhanVien nv = c.getValue().getNhanVien();
             return new SimpleStringProperty(nv == null ? "" : nv.getHoTen());
         });
 
         TableColumn<PhieuDatBan, String> colTrangThai = new TableColumn<>("Trạng thái");
-        colTrangThai.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTrangThai()));
+        colTrangThai.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getTrangThai())
+        );
 
-        TableColumn<PhieuDatBan, Void> colHanhDong = new TableColumn<>("Hành động");
-        colHanhDong.setCellFactory(col -> new TableCell<>() {
+        TableColumn<PhieuDatBan, Void> colHanhDong = taoCotXoa();
+
+        table.getColumns().addAll(
+                colMaPDB, colNgayTao, colNgayDat,
+                colTenKH, colTenNV, colTrangThai, colHanhDong
+        );
+
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        table.setRowFactory(t -> {
+            TableRow<PhieuDatBan> row = new TableRow<>();
+            row.setOnMouseClicked(e -> {
+                if (!row.isEmpty()) {
+                    hienThiChiTiet(row.getItem());
+                }
+            });
+            return row;
+        });
+
+        return table;
+    }
+
+    private TableColumn<PhieuDatBan, Void> taoCotXoa() {
+        TableColumn<PhieuDatBan, Void> col = new TableColumn<>("Hành động");
+
+        col.setCellFactory(c -> new TableCell<>() {
             private final Button btnXoa = new Button("🗑");
 
             {
-                btnXoa.setOnAction(event -> {
+                btnXoa.setOnAction(e -> {
                     PhieuDatBan pdb = getTableView().getItems().get(getIndex());
                     Stage stage = (Stage) btnXoa.getScene().getWindow();
 
-                    // Hộp thoại xác nhận
-                    if (xacNhan(stage, "Bạn có chắc muốn xóa phiếu đặt bàn: " + pdb.getMaPDB() + " ?")) {
-
-                        boolean ok = controller.xoaPhieuDatBan(pdb.getMaPDB()); // gọi DAO/controller xóa
-
-                        if (ok) {
-                            getTableView().getItems().remove(pdb);
-                            hienThongBao(stage,"Đã xóa phiếu đặt bàn!");
+                    if (xacNhan(stage, "Xóa phiếu " + pdb.getMaPDB() + "?")) {
+                        if (controller.xoaPhieuDatBan(pdb.getMaPDB())) {
+                            table.getItems().remove(pdb);
+                            hienThongBao(stage, "Đã xóa phiếu đặt bàn");
                         } else {
-                            hienThongBao(stage,"Không thể xóa phiếu đặt bàn này!", Alert.AlertType.ERROR);
+                            hienThongBao(stage,
+                                    "Không thể xóa phiếu này",
+                                    Alert.AlertType.ERROR);
                         }
                     }
                 });
@@ -92,82 +130,66 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
             }
         });
 
-        table.getColumns().addAll(colMaPDB, colNgayTao, colNgayDat, colTenKH, colTenNV, colTrangThai, colHanhDong);
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        List<PhieuDatBan> dsPDB = controller.layDanhSachPDB();
-        table.getItems().addAll(dsPDB);
-
-        table.setRowFactory(t -> {
-            TableRow<PhieuDatBan> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if(!row.isEmpty()){
-                    PhieuDatBan ds = row.getItem();
-                    hienThiChiTiet(ds);
-                }
-            });
-            return row;
-        });
-        return table;
+        return col;
     }
 
     @Override
     protected void thucHienTimKiem(String tuKhoa) {
-        if (danhSachGoc == null || danhSachGoc.isEmpty()) return;
-        if (tuKhoa.isEmpty()) {
+        if (danhSachGoc == null) return;
+
+        if (tuKhoa == null || tuKhoa.isBlank()) {
             table.setItems(danhSachGoc);
             return;
         }
 
-        String lowerKey = tuKhoa.toLowerCase().trim();
+        String key = tuKhoa.toLowerCase().trim();
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate ngayTimKiem = null;
 
+        LocalDate ngayTim = null;
         try {
-            ngayTimKiem = LocalDate.parse(tuKhoa, fmt);
-        } catch (DateTimeParseException ignored) {
-            // không làm gì, có thể người dùng đang tìm bằng text
-        }
+            ngayTim = LocalDate.parse(key, fmt);
+        } catch (Exception ignored) {}
 
-        LocalDate finalNgayTimKiem = ngayTimKiem;
-        ObservableList<PhieuDatBan> ketQua = danhSachGoc.filtered(pdb -> {
-            boolean match = false;
+        LocalDate finalNgayTim = ngayTim;
 
-            // So sánh theo chuỗi text
-            if(pdb.getMaPDB() != null && pdb.getMaPDB().toLowerCase().contains(lowerKey))
-                match = true;
-            if(pdb.getKhachHang().getHoTen() != null && pdb.getKhachHang().getHoTen().toLowerCase().contains(lowerKey))
-                match = true;
-            if(pdb.getNhanVien().getHoTen()  != null && pdb.getNhanVien().getHoTen().toLowerCase().contains(lowerKey))
-                match = true;
-            if(pdb.getTrangThai() != null && pdb.getTrangThai().toLowerCase().contains(lowerKey))
-                match = true;
+        table.setItems(danhSachGoc.filtered(pdb -> {
 
-            // So sánh theo ngày
-            LocalDateTime ngayDat = pdb.getNgayDat();
-            if (ngayDat != null) {
-                // Nếu người dùng nhập đúng ngày dd/MM/yyyy
-                if (ngayDat.equals(finalNgayTimKiem))
-                    match = true;
+            if (pdb.getMaPDB() != null &&
+                    pdb.getMaPDB().toLowerCase().contains(key))
+                return true;
 
-                // Hoặc nếu chuỗi ngày chứa text tìm kiếm (ví dụ: 10/2025)
-                String ngayStr = ngayDat.format(fmt).toLowerCase();
-                if (ngayStr.contains(lowerKey))
-                    match = true;
-            }
+            if (pdb.getTrangThai() != null &&
+                    pdb.getTrangThai().toLowerCase().contains(key))
+                return true;
 
-            return match;
-        });
+            KhachHang kh = pdb.getKhachHang();
+            if (kh != null && kh.getHoTen() != null &&
+                    kh.getHoTen().toLowerCase().contains(key))
+                return true;
 
-        table.setItems(ketQua);
+            NhanVien nv = pdb.getNhanVien();
+            if (nv != null && nv.getHoTen() != null &&
+                    nv.getHoTen().toLowerCase().contains(key))
+                return true;
+
+            if (finalNgayTim != null && pdb.getNgayDat() != null &&
+                    pdb.getNgayDat().toLocalDate().equals(finalNgayTim))
+                return true;
+
+            return false;
+        }));
     }
 
     @Override
     protected void lamMoiDuLieu() {
-        danhSachGoc = FXCollections.observableArrayList(new PhieuDatBanController().layDanhSachPDB());
-        danhSachHienThi = FXCollections.observableArrayList(danhSachGoc);
-        table.setItems(danhSachHienThi);
+        danhSachGoc = FXCollections.observableArrayList(
+                controller.layDanhSachPDB()
+        );
+        table.setItems(danhSachGoc);
     }
 
-    public void hienThiChiTiet(PhieuDatBan pdb){gdChiTietPhieuDatBan.hienThiThongTin(pdb);}
+    private void hienThiChiTiet(PhieuDatBan pdb) {
+        gdChiTietPhieuDatBan.hienThiThongTin(pdb);
+    }
 }
+
