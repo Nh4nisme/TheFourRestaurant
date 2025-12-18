@@ -17,6 +17,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -83,6 +84,10 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         apDungRangBuocKhuyenMaiCha();
 
         Scene scene = new Scene(layoutChinh, 650, 500);
+        URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
+        if (urlCSS != null) {
+            scene.getStylesheets().add(urlCSS.toExternalForm());
+        }
         this.setScene(scene);
     }
 
@@ -272,8 +277,6 @@ public class DieuKienKhuyenMaiDialog extends Stage {
             return;
         }
 
-        // For MaGiamGia, it's okay to have no items selected (applies to whole bill)
-        // For other types, at least one item must be selected.
         if (!khuyenMaiCha.laKieuMaGiamGia() && dsMonMuaChon.isEmpty()) {
             hienThiThongBao(Alert.AlertType.WARNING, "Vui lòng chọn ít nhất một món áp dụng cho loại khuyến mãi này.");
             return;
