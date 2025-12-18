@@ -9,6 +9,10 @@ import java.util.Map;
 import java.text.NumberFormat;
 
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
+import com.thefourrestaurant.DAO.ThucDonDAO;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 import com.thefourrestaurant.controller.KhuyenMaiController;
 import com.thefourrestaurant.model.KhuyenMaiApDung;
 import com.thefourrestaurant.DAO.MonAnDAO;
@@ -97,14 +101,66 @@ public class GiaoDienGoiMon extends BorderPane {
         thanhTren.setAlignment(Pos.CENTER_LEFT);
         thanhTren.setStyle("-fx-background-color: #1E424D;");
 
+        ThucDonDAO thucDonDAO = new ThucDonDAO();
+        var tdList = thucDonDAO.layTatCaThucDonGomLoai();
+        List<String> menuOptions = new java.util.ArrayList<>();
+        menuOptions.add("Tất cả Thực Đơn");
+        if (tdList != null) {
+            for (var td : tdList) menuOptions.add(td.tenTD);
+        }
+
         DropDownButton menuThucDon = new DropDownButton(
                 "Thực đơn  ▼",
-                List.of("Buổi Sáng  ▼","Buổi Trưa  ▼","Buổi Tối  ▼","Khai Vị  ▼"),
+                menuOptions,
                 null,
                 45,
                 16,
                 3
         );
+
+        menuThucDon.setOnItemSelected(selected -> {
+            if (selected == null) return;
+            if (selected.equals("Tất cả Thực Đơn")) {
+                populateGrid(getFilteredAndSortedList(null));
+                return;
+            }
+
+            // Lấy danh sách tên loại món từ DAO theo tên thực đơn
+            List<String> tenLoai = thucDonDAO.layLoaiMonTheoThucDon(selected);
+            if (tenLoai == null || tenLoai.isEmpty()) {
+                populateGrid(java.util.Collections.emptyList());
+                return;
+            }
+
+            // Build mapping tên loại -> mã loại
+            List<com.thefourrestaurant.model.LoaiMon> allLoai = loaiMonDAO.layTatCaLoaiMon();
+            Map<String, String> nameToMa = allLoai.stream()
+                    .filter(l -> l.getTenLoaiMon() != null)
+                    .collect(Collectors.toMap(com.thefourrestaurant.model.LoaiMon::getTenLoaiMon, com.thefourrestaurant.model.LoaiMon::getMaLoaiMon));
+
+            Set<String> maLoaiSet = new HashSet<>();
+            for (String nl : tenLoai) {
+                String ma = nameToMa.get(nl);
+                if (ma != null) maLoaiSet.add(ma);
+            }
+
+            // Lọc allMonAn theo maLoaiSet
+            List<MonAn> filtered = new java.util.ArrayList<>();
+            for (MonAn m : allMonAn) {
+                if (m.getLoaiMon() != null && maLoaiSet.contains(m.getLoaiMon().getMaLoaiMon())) filtered.add(m);
+            }
+
+            java.util.List<MonAn> finalList = filtered.stream()
+                    .filter(m -> m.getSoLuong() > 0)
+                    .collect(Collectors.toList());
+            java.util.Comparator<MonAn> comp = (sortMode == 0)
+                    ? ((a, b) -> (a.getTenMon() == null ? "" : a.getTenMon()).compareToIgnoreCase(b.getTenMon() == null ? "" : b.getTenMon()))
+                    : java.util.Comparator.comparingInt(MonAn::getSoLuong);
+            finalList.sort(comp);
+            if (!sortAsc) java.util.Collections.reverse(finalList);
+
+            populateGrid(finalList);
+        });
 
         Label lblLoaiMon = new Label("Loại món:");
         lblLoaiMon.setTextFill(Color.web("#D4A84A"));
