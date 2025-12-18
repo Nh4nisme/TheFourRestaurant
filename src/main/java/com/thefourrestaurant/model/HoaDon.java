@@ -64,19 +64,23 @@ public class HoaDon {
             tong = tong.add(c.getThanhTien());
         }
 
-        if (khuyenMai != null && khuyenMai.getLoaiKhuyenMai() != null) {
-            String loaiKM = khuyenMai.getLoaiKhuyenMai().getTenLoaiKM();
+        if (khuyenMai != null && khuyenMai.getKhuyenMaiDieuKien() != null) {
+            KhuyenMai_DieuKien dk = khuyenMai.getKhuyenMaiDieuKien();
+            String loaiApDung = dk.getLoaiApDung();
 
-            if (loaiKM.equalsIgnoreCase("Giảm giá theo tỷ lệ") && khuyenMai.getTyLe() != null) {
-                BigDecimal tyLeKM = khuyenMai.getTyLe().divide(BigDecimal.valueOf(100));
+            if ("GIAM_TRUC_TIEP".equalsIgnoreCase(loaiApDung) && dk.getTyLeGiam() != null) {
+                // Giảm theo tỷ lệ %
+                BigDecimal tyLeKM = dk.getTyLeGiam().divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
                 tong = tong.subtract(tong.multiply(tyLeKM));
 
-            } else if (loaiKM.equalsIgnoreCase("Giảm giá theo số tiền") && khuyenMai.getSoTien() != null) {
-                tong = tong.subtract(khuyenMai.getSoTien());
+            } else if ("GIAM_TRUC_TIEP".equalsIgnoreCase(loaiApDung) && dk.getSoTienGiam() != null) {
+                // Giảm theo số tiền
+                tong = tong.subtract(dk.getSoTienGiam());
 
-            } else if (loaiKM.equalsIgnoreCase("Tặng món")) {
-                // Không trừ tiền, chỉ hiển thị bên UI
+            } else if ("TANG_MON".equalsIgnoreCase(loaiApDung)) {
+                // Không trừ tiền, chỉ hiển thị món tặng
             }
+            // Các loại khác có thể mở rộng
         }
 
         if (thue != null) {

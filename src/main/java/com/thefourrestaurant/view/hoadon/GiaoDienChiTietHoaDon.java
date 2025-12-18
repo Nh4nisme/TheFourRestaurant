@@ -1,7 +1,9 @@
 package com.thefourrestaurant.view.hoadon;
 
 import com.thefourrestaurant.model.ChiTietHoaDon;
+import com.thefourrestaurant.model.DieuKien_MonTang;
 import com.thefourrestaurant.model.HoaDon;
+import com.thefourrestaurant.model.KhuyenMai_DieuKien;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,7 +17,9 @@ import javafx.scene.layout.VBox;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GiaoDienChiTietHoaDon extends VBox {
 
@@ -113,15 +117,23 @@ public class GiaoDienChiTietHoaDon extends VBox {
         // Các dòng tổng kết
         BigDecimal tongTien = hd.getTongTien();
         thongTinPhu.get("Mã giảm giá:").setText(hd.getKhuyenMai() != null ? hd.getKhuyenMai().getMaKM() : "");
-        if (hd.getKhuyenMai() != null && hd.getKhuyenMai().getLoaiKhuyenMai() != null) {
-            String loai = hd.getKhuyenMai().getLoaiKhuyenMai().getTenLoaiKM();
+        if (hd.getKhuyenMai() != null && hd.getKhuyenMai().getKhuyenMaiDieuKien() != null) {
+            KhuyenMai_DieuKien dk = hd.getKhuyenMai().getKhuyenMaiDieuKien();
+            String loai = dk.getLoaiApDung();
 
-            if (loai.equalsIgnoreCase("Giảm giá theo tỷ lệ")) {
-                thongTinPhu.get("Chiết khấu:").setText(hd.getKhuyenMai().getTyLe() + "%");
-            } else if (loai.equalsIgnoreCase("Giảm giá theo số tiền")) {
-                thongTinPhu.get("Chiết khấu:").setText(String.format("%,.0f đ", hd.getKhuyenMai().getSoTien()));
-            } else if (loai.equalsIgnoreCase("Tặng món")) {
-                thongTinPhu.get("Chiết khấu:").setText("🎁 Tặng món: " + hd.getKhuyenMai().getTenKM());
+            switch (loai.toUpperCase()) {
+                case "GIAM_TRUC_TIEP":
+                    if (dk.getLoaiApDung() != null) {
+                        thongTinPhu.get("Chiết khấu:").setText(dk.getTyLeGiam() + "%");
+                    } else if (dk.getSoTienGiam() != null) {
+                        thongTinPhu.get("Chiết khấu:").setText(String.format("%,.0f đ", dk.getSoTienGiam()));
+                    } else {
+                        thongTinPhu.get("Chiết khấu:").setText("0 đ");
+                    }
+                    break;
+
+                default:
+                    thongTinPhu.get("Chiết khấu:").setText("Không áp dụng");
             }
         } else {
             thongTinPhu.get("Chiết khấu:").setText("Không áp dụng");
