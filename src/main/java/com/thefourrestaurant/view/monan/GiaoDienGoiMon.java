@@ -305,8 +305,71 @@ public class GiaoDienGoiMon extends BorderPane {
         TableColumn<ChiTietPDB, String> giaKhuyenMaiCol = new TableColumn<>("Giá khuyến mãi");
         TableColumn<ChiTietPDB, String> soLuongCol = new TableColumn<>("Số lượng");
         TableColumn<ChiTietPDB, String> thanhTienCol = new TableColumn<>("Thành tiền");
-	    TableColumn<ChiTietPDB, String> ghiChuCol = new TableColumn<>("Ghi chú");
-	    TableColumn<ChiTietPDB, Void> xoaCol = new TableColumn<>("Xóa");
+        TableColumn<ChiTietPDB, String> ghiChuCol = new TableColumn<>("Ghi chú");
+        TableColumn<ChiTietPDB, Void> hanhDongCol = new TableColumn<>("Hành động");
+        hanhDongCol.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
+            private final Button btnPlus = new Button("+");
+            private final Button btnMinus = new Button("-");
+            private final HBox box = new HBox(6, btnMinus, btnPlus);
+
+            // Hành động thêm/giảm món
+            {
+                btnPlus.setStyle("-fx-background-color: #D4A84A; -fx-text-fill: white; -fx-font-weight: bold;");
+                btnMinus.setStyle("-fx-background-color: #E07A5F; -fx-text-fill: white; -fx-font-weight: bold;");
+
+                btnPlus.setOnAction(e -> {
+                    ChiTietPDB ct = getTableView().getItems().get(getIndex());
+                    if (ct == null) return;
+                    MonAn mon = ct.getMonAn();
+                    if (mon != null && mon.getSoLuong() > 0) {
+                        ct.setSoLuong(ct.getSoLuong() + 1);
+                        mon.setSoLuong(mon.getSoLuong() - 1);
+                        MonAnBox boxMon = monBoxMap.get(mon.getMaMonAn());
+                        if (boxMon != null) boxMon.updateSoLuong(mon.getSoLuong());
+                        bangPhieu.refresh();
+                        capNhatTongTien();
+                    } else {
+                    }
+                });
+
+                btnMinus.setOnAction(e -> {
+                    ChiTietPDB ct = getTableView().getItems().get(getIndex());
+                    if (ct == null) return;
+                    MonAn mon = ct.getMonAn();
+                    int newQty = ct.getSoLuong() - 1;
+                    if (newQty <= 0) {
+                        if (mon != null) {
+                            mon.setSoLuong(mon.getSoLuong() + ct.getSoLuong());
+                            MonAnBox boxMon = monBoxMap.get(mon.getMaMonAn());
+                            if (boxMon != null) boxMon.updateSoLuong(mon.getSoLuong());
+                        }
+                        danhSachChiTiet.remove(ct);
+                    } else {
+                        ct.setSoLuong(newQty);
+                        if (mon != null) {
+                            mon.setSoLuong(mon.getSoLuong() + 1);
+                            MonAnBox boxMon = monBoxMap.get(mon.getMaMonAn());
+                            if (boxMon != null) boxMon.updateSoLuong(mon.getSoLuong());
+                        }
+                    }
+                    bangPhieu.refresh();
+                    capNhatTongTien();
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(box);
+                    setAlignment(Pos.CENTER);
+                }
+            }
+        });
+
+        TableColumn<ChiTietPDB, Void> xoaCol = new TableColumn<>("Xóa");
 	    xoaCol.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
 	        private final Button btnXoa = new Button("❌");
 
@@ -370,7 +433,8 @@ public class GiaoDienGoiMon extends BorderPane {
         });
 	
         bangPhieu.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, khuyenMaiCol, giaKhuyenMaiCol, soLuongCol, thanhTienCol, ghiChuCol, xoaCol);
+        // Sắp xếp cột: thêm cột hành động trước cột xóa
+        bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, khuyenMaiCol, giaKhuyenMaiCol, soLuongCol, thanhTienCol, ghiChuCol, hanhDongCol, xoaCol);
 	
 	    lblTongTien = new Label("Tổng tiền: 0 VND");
 	    lblTongTien.setFont(Font.font("System", FontWeight.BOLD, 16));
