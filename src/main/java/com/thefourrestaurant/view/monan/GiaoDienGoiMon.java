@@ -112,9 +112,11 @@ public class GiaoDienGoiMon extends BorderPane {
         lblLoaiMon.setTextFill(Color.web("#D4A84A"));
         lblLoaiMon.setFont(Font.font("System", FontWeight.BOLD, 14));
 
+        // ComboBox chọn loại món để lọc
         cboLoaiMon = new ComboBox<>();
         cboLoaiMon.setPromptText("Chọn loại món...");
         cboLoaiMon.setPrefWidth(200);
+        // Nạp dữ liệu loại món (thêm tùy chọn Tất cả)
         LoaiMon allItem = new LoaiMon("ALL", "Tất cả", null);
         List<LoaiMon> loaiList = loaiMonDAO.layTatCaLoaiMon();
         cboLoaiMon.getItems().add(allItem);
@@ -145,7 +147,7 @@ public class GiaoDienGoiMon extends BorderPane {
         VBox container = new VBox(10);
         container.setAlignment(Pos.CENTER);
         container.setPadding(new Insets(10));
-
+        // GridPane chứa các món ăn (dùng lại để refresh khi lọc)
         gridMon = new GridPane();
         gridMon.setHgap(15);
         gridMon.setVgap(15);
@@ -158,7 +160,8 @@ public class GiaoDienGoiMon extends BorderPane {
             gridMon.getColumnConstraints().add(cc);
         }
 
-        allMonAn = monAnDAO.layTatCaMonAn();
+        // Lấy danh sách món ăn (chỉ những món HIỂN THỊ) từ DB và hiển thị
+        allMonAn = monAnDAO.layTatCaMonAnHienThi();
         populateGrid(allMonAn);
 
         ScrollPane scrollPane = new ScrollPane();
@@ -258,6 +261,7 @@ public class GiaoDienGoiMon extends BorderPane {
 
                 btnXoa.setOnAction(e -> {
                     ChiTietPDB chiTiet = getTableView().getItems().get(getIndex());
+                    // Trả lại số lượng cho món (client-side)
                     MonAn mon = chiTiet.getMonAn();
                     if (mon != null) {
                         mon.setSoLuong(mon.getSoLuong() + chiTiet.getSoLuong());
@@ -272,13 +276,19 @@ public class GiaoDienGoiMon extends BorderPane {
 	        @Override
 	        protected void updateItem(Void item, boolean empty) {
 	            super.updateItem(item, empty);
-	            setGraphic(empty ? null : btnXoa);
-	            setAlignment(Pos.CENTER);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(btnXoa);
+                    setAlignment(Pos.CENTER);
+                }
 	        }
 	    });
-	    
-        ghiChuCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getGhiChu() != null ? c.getValue().getGhiChu() : ""));
-	    ghiChuCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        ghiChuCol.setCellValueFactory(c ->
+                new SimpleStringProperty(c.getValue().getGhiChu() != null ? c.getValue().getGhiChu() : "")
+        );
+        ghiChuCol.setCellFactory(TextFieldTableCell.forTableColumn());
 	    ghiChuCol.setOnEditCommit(e -> e.getRowValue().setGhiChu(e.getNewValue()));
 	
         tenMonCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getMonAn().getTenMon()));
