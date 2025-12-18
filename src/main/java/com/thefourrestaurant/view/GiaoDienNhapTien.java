@@ -1,23 +1,14 @@
 package com.thefourrestaurant.view;
 
 import java.util.Objects;
-
-import com.thefourrestaurant.DAO.TaiKhoanDAO;
-import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.util.Session;
-import java.time.LocalDateTime;
-
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
@@ -30,29 +21,31 @@ import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import java.math.BigDecimal;
 
-public class GiaoDienDangNhap {
+public class GiaoDienNhapTien {
 
    private static final String COLOR_TEAL = "#1E424D";
-   private static final String COLOR_CARD = "#FFFFFF33"; // #2A4C5A
-   private static final String COLOR_CARD_INNER = "#B0BAC366"; // #2A4C5A
+   private static final String COLOR_CARD = "#FFFFFF33";
+   private static final String COLOR_CARD_INNER = "#B0BAC366";
    private static final String COLOR_GOLD = "#DDB248";
 
    private Font montserratSemibold;
    private Font montserratExtrabold;
 
-   public void show(Stage stage) {
-       BorderPane root = new BorderPane();
-       root.setStyle("-fx-background-color: " + COLOR_TEAL + ";");
-
+   public void hienThi(Stage stage, Runnable onSuccess) {
        montserratSemibold = Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 20);
        montserratExtrabold = Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-ExtraBold.ttf"), 20);
+
+       BorderPane root = new BorderPane();
+       root.setStyle("-fx-background-color: " + COLOR_TEAL + ";");
 
        VBox centerContent = new VBox(20);
        centerContent.setAlignment(Pos.CENTER);
@@ -63,101 +56,43 @@ public class GiaoDienDangNhap {
        logo.setPreserveRatio(true);
        logo.setFitWidth(350);
 
-       VBox cardDangNhap = new VBox(20);
-       cardDangNhap.setPadding(new Insets(30));
-       cardDangNhap.setAlignment(Pos.CENTER);
-       cardDangNhap.setMaxWidth(500);
-       cardDangNhap.setStyle(
+       VBox card = new VBox(20);
+       card.setPadding(new Insets(30));
+       card.setAlignment(Pos.CENTER);
+       card.setMaxWidth(500);
+       card.setStyle(
            "-fx-background-color: " + COLOR_CARD + ";" +
            "-fx-background-radius: 50;" +
            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 4);"
        );
 
-       StackPane txtTenDangNhapContainer = createFloatingLabelField("Tài Khoản", false);
-       TextField txtTenDangNhap = (TextField) ((StackPane) txtTenDangNhapContainer.getChildren().get(1)).getChildren().get(0);
-       VBox.setMargin(txtTenDangNhapContainer, new Insets(15, 0, 0, 0));
+       StackPane fieldContainer = createFloatingLabelField("Số tiền trong két", false);
+       TextField txtSoTien = (TextField) ((StackPane) fieldContainer.getChildren().get(1)).getChildren().get(0);
 
-       StackPane txtMatKhauContainer = createFloatingLabelField("Mật Khẩu", true);
-       PasswordField txtMatKhau = (PasswordField) ((StackPane) txtMatKhauContainer.getChildren().get(1)).getChildren().get(0);
-
-       Button btnDangNhap = new Button("Đăng Nhập");
-       btnDangNhap.setFont(montserratExtrabold);
-       btnDangNhap.setPrefHeight(50);
-       btnDangNhap.setPrefWidth(250);
-       btnDangNhap.setStyle(
+       Button btnXacNhan = new Button("Xác nhận");
+       btnXacNhan.setFont(montserratExtrabold);
+       btnXacNhan.setPrefHeight(50);
+       btnXacNhan.setPrefWidth(250);
+       btnXacNhan.setStyle(
            "-fx-background-color: " + COLOR_GOLD + ";" +
            "-fx-background-radius: 10;" +
            "-fx-text-fill: #1E424D;"
        );
 
-       addHoverAnimation(txtTenDangNhapContainer);
-       addHoverAnimation(txtMatKhauContainer);
+       addHoverAnimation(fieldContainer);
 
-       ScaleTransition btnDangNhapTransitionUp = new ScaleTransition(Duration.millis(150), btnDangNhap);
-       btnDangNhapTransitionUp.setToX(1.05);
-       btnDangNhapTransitionUp.setToY(1.05);
-
-       ScaleTransition btnDangNhapTransitionDown = new ScaleTransition(Duration.millis(150), btnDangNhap);
-       btnDangNhapTransitionDown.setToX(1);
-       btnDangNhapTransitionDown.setToY(1);
-
-       btnDangNhap.setOnMouseEntered(e -> {
-           btnDangNhap.setCursor(Cursor.HAND);
-           btnDangNhapTransitionUp.playFromStart();
+       btnXacNhan.setOnAction(e -> {
+           try {
+               double soTien = Double.parseDouble(txtSoTien.getText().trim());
+               Session.setStartingCash(BigDecimal.valueOf(soTien));
+               if (onSuccess != null) onSuccess.run();
+           } catch (NumberFormatException ex) {
+               txtSoTien.setStyle("-fx-border-color: red;");
+           }
        });
 
-       btnDangNhap.setOnMouseExited(e -> {
-           btnDangNhapTransitionDown.playFromStart();
-       });
-
-
-       Runnable tryLogin = () -> {
-           String user = txtTenDangNhap.getText().trim();
-           String pass = txtMatKhau.getText().trim();
-           if (user.isEmpty() || pass.isEmpty()) {
-               Alert a = new Alert(Alert.AlertType.WARNING, "Vui lòng nhập đầy đủ Tài Khoản và Mật Khẩu.", ButtonType.OK);
-               a.initOwner(stage);
-               a.showAndWait();
-               return;
-           }
-           if (user.length() < 6 || pass.length() < 6) {
-               Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu.", ButtonType.OK);
-               a.initOwner(stage);
-               a.showAndWait();
-               return;
-           }
-           TaiKhoan taiKhoan = TaiKhoanDAO.dangNhap(user, pass);
-           if (taiKhoan == null) {
-               Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu.", ButtonType.OK);
-               a.initOwner(stage);
-               a.showAndWait();
-               return;
-           }
-           Session.setCurrentUser(taiKhoan);
-           LocalDateTime now = LocalDateTime.now();
-           Session.setLoginTime(now);
-           System.out.println("[LOGIN] User: " + taiKhoan.getTenDN() + " (Role: " + taiKhoan.getVaiTro() + ") at " + now);
-
-           if (taiKhoan.getVaiTro() != null &&
-               ("VT000002".equals(taiKhoan.getVaiTro().getMaVT()) ||
-                "ThuNgan".equalsIgnoreCase(taiKhoan.getVaiTro().getTenVaiTro()) ||
-                "Thu Ngan".equalsIgnoreCase(taiKhoan.getVaiTro().getTenVaiTro()) ||
-                "Thu ngân".equalsIgnoreCase(taiKhoan.getVaiTro().getTenVaiTro()))) {
-               GiaoDienNhapTien giaoDienNhapTien = new GiaoDienNhapTien();
-               giaoDienNhapTien.hienThi(stage, () -> {
-                   new GiaoDienChinh().show(stage);
-                   stage.setFullScreen(true);
-               });
-           } else {
-               new GiaoDienChinh().show(stage);
-               stage.setFullScreen(true);
-           }
-       };
-       btnDangNhap.setOnAction(e -> tryLogin.run());
-       txtMatKhau.setOnAction(e -> tryLogin.run());
-
-       cardDangNhap.getChildren().addAll(txtTenDangNhapContainer, txtMatKhauContainer, btnDangNhap);
-       centerContent.getChildren().addAll(logo, cardDangNhap);
+       card.getChildren().addAll(fieldContainer, btnXacNhan);
+       centerContent.getChildren().addAll(logo, card);
 
        StackPane rightPane = new StackPane();
        Image anhNenDangNhap = getImage("/com/thefourrestaurant/images/AnhNenDangNhap.png");
@@ -179,7 +114,7 @@ public class GiaoDienDangNhap {
        root.setCenter(mainContainer);
 
        Scene scene = new Scene(root, 1024, 768);
-       stage.setTitle("The Four - Đăng Nhập");
+       stage.setTitle("The Four - Nhập tiền két");
        stage.setScene(scene);
        stage.show();
 
@@ -192,18 +127,13 @@ public class GiaoDienDangNhap {
        container.setPrefWidth(480);
        container.setPrefHeight(55);
 
-       Label floatingLabel = new Label(labelText);
+       javafx.scene.control.Label floatingLabel = new javafx.scene.control.Label(labelText);
        floatingLabel.setFont(Font.font(montserratSemibold.getFamily(), 14));
        floatingLabel.setTextFill(Color.web(COLOR_GOLD));
        floatingLabel.setMouseTransparent(true);
 
        StackPane fieldWrapper = new StackPane();
-       TextInputControl field;
-       if (isPassword) {
-           field = new PasswordField();
-       } else {
-           field = new TextField();
-       }
+       TextInputControl field = new TextField();
 
        field.setPrefHeight(45);
        field.setPrefWidth(480);
@@ -265,4 +195,5 @@ public class GiaoDienDangNhap {
        Image img = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
        return img;
    }
+
 }
