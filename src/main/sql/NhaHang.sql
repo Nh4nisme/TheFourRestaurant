@@ -164,18 +164,12 @@ CREATE TABLE KhuyenMai (
                            kieuKM NVARCHAR(20) NOT NULL DEFAULT N'SuKien' CHECK(kieuKM IN (N'SuKien', N'MaGiamGia')),
                            maCode VARCHAR(50) NULL,
                            soLuotSuDung INT NULL CHECK(soLuotSuDung IS NULL OR soLuotSuDung >= 0),
-                           tyLe DECIMAL(5,2) NULL CHECK(tyLe >= 0 AND tyLe <= 100),
-                           soTien DECIMAL(12,2) NULL CHECK(soTien >= 0),
                            ngayBatDau DATETIME NULL,
                            ngayKetThuc DATETIME NULL,
                            moTa NVARCHAR(200) NULL,
+                           isDeleted BIT NOT NULL DEFAULT 0,
                            CONSTRAINT FK_KM_LoaiKM FOREIGN KEY (maLoaiKM) REFERENCES LoaiKhuyenMai(maLoaiKM),
                            CHECK ((ngayBatDau IS NULL AND ngayKetThuc IS NULL) OR (ngayKetThuc >= ngayBatDau)),
-                           CHECK (
-                               (tyLe IS NOT NULL AND soTien IS NULL) OR
-                               (tyLe IS NULL AND soTien IS NOT NULL) OR
-                               (tyLe IS NULL AND soTien IS NULL)
-                               ),
                            CHECK (
                                (kieuKM = N'SuKien') OR
                                (kieuKM = N'MaGiamGia' AND maCode IS NOT NULL AND LEN(maCode) >= 3)
@@ -197,9 +191,7 @@ CREATE TABLE MonAn (
                        daBan INT DEFAULT 0 NOT NULL,
                        isDeleted BIT DEFAULT 0,
                        isVisible BIT NOT NULL DEFAULT 1,
-                       maKM CHAR(8) NULL,
-                       CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon),
-                       CONSTRAINT FK_MonAn_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
+                       CONSTRAINT FK_MonAn_LoaiMon FOREIGN KEY (maLoaiMon) REFERENCES LoaiMonAn(maLoaiMon)
 );
 GO
 
@@ -290,22 +282,42 @@ CREATE TABLE Thue (
 );
 GO
 
--- ================================
--- Bảng ChiTietKhuyenMai
--- ================================
-CREATE TABLE ChiTietKhuyenMai (
-                                  maCTKM CHAR(8) PRIMARY KEY CHECK (maCTKM LIKE 'CTKM%' AND LEN(maCTKM) = 8),
-                                  maKM CHAR(8) NOT NULL,
-                                  maMonApDung CHAR(8) NOT NULL,
-                                  maMonTang CHAR(8) NULL,
-                                  tyLeGiam DECIMAL(5,2) NULL CHECK(tyLeGiam >= 0 AND tyLeGiam <= 100),
-                                  soTienGiam DECIMAL(12,2) NULL CHECK(soTienGiam >= 0),
-                                  soLuongTang INT NULL CHECK(soLuongTang >= 0),
-                                  CONSTRAINT FK_CTKM_KM FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
-                                  CONSTRAINT FK_CTKM_MonApDung FOREIGN KEY (maMonApDung) REFERENCES MonAn(maMonAn),
-                                  CONSTRAINT FK_CTKM_MonTang FOREIGN KEY (maMonTang) REFERENCES MonAn(maMonAn)
+-- CẤU TRÚC KHUYẾN MÃI MỚI
+-- 1. Bảng KhuyenMai_DieuKien (Bảng Điều Kiện)
+CREATE TABLE KhuyenMai_DieuKien (
+    maDieuKien CHAR(8) PRIMARY KEY CHECK (maDieuKien LIKE 'DK%' AND LEN(maDieuKien) = 8),
+    maKM CHAR(8) NOT NULL,
+    loaiApDung VARCHAR(20) NOT NULL CHECK (loaiApDung IN ('GIAM_TRUC_TIEP', 'THEO_COMBO', 'MUA_X_GIAM_Y')),
+    tyLeGiam DECIMAL(5,2) NULL CHECK(tyLeGiam >= 0 AND tyLeGiam <= 100),
+    soTienGiam DECIMAL(12,2) NULL CHECK(soTienGiam >= 0),
+    soLuongTang INT NULL CHECK(soLuongTang >= 0),
+    moTaDieuKien NVARCHAR(255) NULL,
+    CONSTRAINT FK_DieuKien_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM) ON DELETE CASCADE
 );
 GO
+
+-- 2. Bảng DieuKien_Mon (Chi tiết các món trong điều kiện)
+CREATE TABLE DieuKien_Mon (
+    maDieuKien CHAR(8) NOT NULL,
+    maMonAn CHAR(8) NOT NULL,
+    soLuong INT NOT NULL DEFAULT 1 CHECK(soLuong > 0),
+    vaiTro VARCHAR(20) NOT NULL CHECK (vaiTro IN ('GIAM_TRUC_TIEP', 'MUA', 'NHAN_GIAM')),
+    PRIMARY KEY (maDieuKien, maMonAn, vaiTro),
+    CONSTRAINT FK_DKMon_DieuKien FOREIGN KEY (maDieuKien) REFERENCES KhuyenMai_DieuKien(maDieuKien) ON DELETE CASCADE,
+    CONSTRAINT FK_DKMon_MonAn FOREIGN KEY (maMonAn) REFERENCES MonAn(maMonAn) ON DELETE CASCADE
+);
+GO
+
+-- 3. Bảng DieuKien_MonTang (Chi tiết các món được tặng)
+CREATE TABLE DieuKien_MonTang (
+    maDieuKien CHAR(8) NOT NULL,
+    maMonAnTang CHAR(8) NOT NULL,
+    PRIMARY KEY (maDieuKien, maMonAnTang),
+    CONSTRAINT FK_DKMonTang_DieuKien FOREIGN KEY (maDieuKien) REFERENCES KhuyenMai_DieuKien(maDieuKien) ON DELETE CASCADE,
+    CONSTRAINT FK_DKMonTang_MonAn FOREIGN KEY (maMonAnTang) REFERENCES MonAn(maMonAn) ON DELETE CASCADE
+);
+GO
+
 
 -- ================================
 -- Bảng KhungGio
@@ -612,18 +624,33 @@ INSERT INTO LoaiKhuyenMai (maLoaiKM, tenLoaiKM) VALUES
 GO
 
 -- Khuyến mãi
-INSERT INTO KhuyenMai (maKM, maLoaiKM, tenKM, kieuKM, maCode, soLuotSuDung, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa) VALUES
-('KM000001', 'LKM00001', N'Giảm 10% hóa đơn', N'SuKien', NULL, NULL, 10, NULL, '2025-10-01', '2025-10-31', N'Áp dụng cho tất cả đơn hàng trong tháng 10'),
-('KM000002', 'LKM00002', N'Mua cà phê tặng nước cam', N'SuKien', NULL, NULL, NULL, NULL, '2025-10-10', '2025-10-31', N'Chương trình khuyến mãi đặc biệt cho khách hàng thân thiết'),
-('KM000003', 'LKM00003', N'Giảm 15.000đ cho bún bò Huế', N'MaGiamGia', 'BUNBO15K', 100, NULL, 15000, '2025-11-01', '2025-11-30', N'Áp dụng cho món bún bò Huế tại tất cả chi nhánh');
+INSERT INTO KhuyenMai (maKM, maLoaiKM, tenKM, kieuKM, maCode, soLuotSuDung, ngayBatDau, ngayKetThuc, moTa) VALUES
+('KM000001', 'LKM00001', N'Giảm 10% hóa đơn', N'SuKien', NULL, NULL, '2025-10-01', '2025-10-31', N'Áp dụng cho tất cả đơn hàng trong tháng 10'),
+('KM000002', 'LKM00002', N'Mua cà phê tặng nước cam', N'SuKien', NULL, NULL, '2025-10-10', '2025-10-31', N'Chương trình khuyến mãi đặc biệt cho khách hàng thân thiết'),
+('KM000003', 'LKM00003', N'Giảm 15.000đ cho bún bò Huế', N'MaGiamGia', 'BUNBO15K', 100, '2025-11-01', '2025-11-30', N'Áp dụng cho món bún bò Huế tại tất cả chi nhánh');
 GO
 
--- Chi tiết khuyến mãi
-INSERT INTO ChiTietKhuyenMai (maCTKM, maKM, maMonApDung, maMonTang, tyLeGiam, soTienGiam, soLuongTang)  VALUES
-('CTKM0001', 'KM000001', 'MA000001', NULL, 10, NULL, NULL),         -- Giảm 10% cho món MA000001
-('CTKM0002', 'KM000002', 'MA000002', 'MA000003', NULL, NULL, 1),    -- Mua cà phê đá (MA000002) tặng nước cam ép (MA000003)
-('CTKM0003', 'KM000003', 'MA000004', NULL, NULL, 15000, NULL);      -- Giảm 15k cho món bún bò Huế (MA000004)
+-- Dữ liệu mẫu cho cấu trúc khuyến mãi mới
+-- Ví dụ 1: Giảm 10% cho Cơm tấm và Cơm gà
+INSERT INTO KhuyenMai_DieuKien (maDieuKien, maKM, loaiApDung, tyLeGiam, moTaDieuKien) VALUES
+('DK000001', 'KM000001', 'GIAM_TRUC_TIEP', 10.00, N'Giảm 10% cho các món cơm');
 GO
+INSERT INTO DieuKien_Mon (maDieuKien, maMonAn, vaiTro) VALUES
+('DK000001', 'MA000001', 'GIAM_TRUC_TIEP'),
+('DK000001', 'MA000002', 'GIAM_TRUC_TIEP');
+GO
+
+-- Ví dụ 2: Mua 1 Lẩu thái, tặng 1 Nước cam
+INSERT INTO KhuyenMai_DieuKien (maDieuKien, maKM, loaiApDung, soLuongTang, moTaDieuKien) VALUES
+('DK000002', 'KM000002', 'MUA_X_GIAM_Y', 1, N'Mua Lẩu Thái tặng Nước Cam');
+GO
+INSERT INTO DieuKien_Mon (maDieuKien, maMonAn, vaiTro) VALUES
+('DK000002', 'MA000006', 'MUA'); -- Món điều kiện
+GO
+INSERT INTO DieuKien_MonTang (maDieuKien, maMonAnTang) VALUES
+('DK000002', 'MA000003'); -- Món được tặng
+GO
+
 
 -- Khung giờ chung
 INSERT INTO KhungGio (maTG, gioBatDau, gioKetThuc, lapLaiHangNgay) VALUES

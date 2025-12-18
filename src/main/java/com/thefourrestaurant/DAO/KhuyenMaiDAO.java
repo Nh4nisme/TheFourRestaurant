@@ -21,8 +21,6 @@ public class KhuyenMaiDAO {
             int soLuot = rs.getInt("soLuotSuDung");
             km.setSoLuotSuDung(rs.wasNull() ? null : soLuot);
         } catch (SQLException ignored) {}
-        try { km.setTyLe(rs.getBigDecimal("tyLe")); } catch (SQLException ignored) {}
-        try { km.setSoTien(rs.getBigDecimal("soTien")); } catch (SQLException ignored) {}
         try {
             Timestamp ngayBDTimestamp = rs.getTimestamp("ngayBatDau");
             if (ngayBDTimestamp != null) km.setNgayBatDau(ngayBDTimestamp.toLocalDateTime());
@@ -124,8 +122,8 @@ public class KhuyenMaiDAO {
     }
 
     public boolean themKhuyenMai(KhuyenMai km) {
-        String sql = "INSERT INTO KhuyenMai (maKM, tenKM, maLoaiKM, kieuKM, maCode, soLuotSuDung, tyLe, soTien, ngayBatDau, ngayKetThuc, moTa, isDeleted) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO KhuyenMai (maKM, tenKM, maLoaiKM, kieuKM, maCode, soLuotSuDung, ngayBatDau, ngayKetThuc, moTa, isDeleted) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -139,12 +137,10 @@ public class KhuyenMaiDAO {
             } else {
                 ps.setNull(6, Types.INTEGER);
             }
-            ps.setBigDecimal(7, km.getTyLe());
-            ps.setBigDecimal(8, km.getSoTien());
-            ps.setObject(9, km.getNgayBatDau());
-            ps.setObject(10, km.getNgayKetThuc());
-            ps.setString(11, km.getMoTa());
-            ps.setBoolean(12, false);
+            ps.setObject(7, km.getNgayBatDau());
+            ps.setObject(8, km.getNgayKetThuc());
+            ps.setString(9, km.getMoTa());
+            ps.setBoolean(10, false);
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -154,7 +150,7 @@ public class KhuyenMaiDAO {
     }
 
     public boolean capNhatKhuyenMai(KhuyenMai km) {
-        String sql = "UPDATE KhuyenMai SET tenKM = ?, maLoaiKM = ?, kieuKM = ?, maCode = ?, soLuotSuDung = ?, tyLe = ?, soTien = ?, " +
+        String sql = "UPDATE KhuyenMai SET tenKM = ?, maLoaiKM = ?, kieuKM = ?, maCode = ?, soLuotSuDung = ?, " +
                      "ngayBatDau = ?, ngayKetThuc = ?, moTa = ? WHERE maKM = ? AND isDeleted = 0";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -168,12 +164,10 @@ public class KhuyenMaiDAO {
             } else {
                 ps.setNull(5, Types.INTEGER);
             }
-            ps.setBigDecimal(6, km.getTyLe());
-            ps.setBigDecimal(7, km.getSoTien());
-            ps.setObject(8, km.getNgayBatDau());
-            ps.setObject(9, km.getNgayKetThuc());
-            ps.setString(10, km.getMoTa());
-            ps.setString(11, km.getMaKM());
+            ps.setObject(6, km.getNgayBatDau());
+            ps.setObject(7, km.getNgayKetThuc());
+            ps.setString(8, km.getMoTa());
+            ps.setString(9, km.getMaKM());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
