@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.monan;
 
 import com.thefourrestaurant.DAO.LoaiMonDAO;
+import com.thefourrestaurant.controller.LoaiMonAnController;
 import com.thefourrestaurant.controller.MonAnController;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
@@ -38,6 +39,7 @@ public class GiaoDienMonAn extends VBox {
     private final String maLoaiMon;
     private final String tenLoaiMon;
     private final MonAnController controller;
+    private final LoaiMonAnController loaiMonAnController;
 
     private List<MonAn> danhSachMonAnGoc; // Danh sách món ăn gốc, không bị lọc
     private List<MonAn> danhSachMonAnHienThi; // Danh sách món ăn đang hiển thị (đã lọc/sắp xếp)
@@ -47,14 +49,15 @@ public class GiaoDienMonAn extends VBox {
     private final TableView<MonAn> listViewPane = new TableView<>();
     private final int soCotMoiHang = 8;
     private final Label lblItemCount = new Label(); // Nhãn đếm số lượng mục
-    private final ComboBox<String> cboLoaiMonFilter = new ComboBox<>();
     private final TextField txtTimKiem = new TextField();
     private MonAnBox hopThemMoiBox;
+    private DropDownButtonMap<String> btnLoaiMon;
 
     public GiaoDienMonAn(String maLoaiMon, String tenLoaiMon) {
         this.maLoaiMon = maLoaiMon;
         this.tenLoaiMon = tenLoaiMon;
         this.controller = new MonAnController();
+        this.loaiMonAnController = new LoaiMonAnController();
 
         this.setAlignment(Pos.TOP_CENTER);
 
@@ -100,15 +103,13 @@ public class GiaoDienMonAn extends VBox {
         khungGiua.setAlignment(Pos.CENTER_LEFT);
         khungGiua.setStyle("-fx-background-color: #1E424D;");
 
-        cboLoaiMonFilter.setPromptText("Lọc theo loại");
-        LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
-        List<String> tenLoaiMon = loaiMonDAO.layTatCaLoaiMon().stream()
-                .map(LoaiMon::getTenLoaiMon)
-                .collect(Collectors.toList());
-        cboLoaiMonFilter.getItems().add("Tất cả");
-        cboLoaiMonFilter.getItems().addAll(tenLoaiMon);
-        cboLoaiMonFilter.setValue("Tất cả");
-        cboLoaiMonFilter.setOnAction(e -> locVaCapNhatMonAn());
+        LinkedHashMap<String, String> dsLoaiMon = new LinkedHashMap<>();
+        dsLoaiMon.put("Tất cả", null);
+        loaiMonAnController.layTatCaLoaiMonAn().forEach(loaiMon -> {
+            dsLoaiMon.put(loaiMon.getTenLoaiMon(), loaiMon.getTenLoaiMon());
+        });
+        btnLoaiMon = new DropDownButtonMap<>("Lọc theo loại", dsLoaiMon, null, 35, 16, 3);
+        btnLoaiMon.setOnItemSelected(maLoaiMon -> locVaCapNhatMonAn());
 
         ImageView iconList = new ImageView(getClass().getResource("/com/thefourrestaurant/images/icon/List.png").toExternalForm());
         ImageView iconGrid = new ImageView(getClass().getResource("/com/thefourrestaurant/images/icon/Grid.png").toExternalForm());
@@ -207,7 +208,7 @@ public class GiaoDienMonAn extends VBox {
         btnTim.setOnAction(event -> locVaCapNhatMonAn());
         txtTimKiem.setOnAction(event -> locVaCapNhatMonAn());
 
-        khungGiua.getChildren().addAll(cboLoaiMonFilter, btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnTheoNgay, btnTheoDaBan, space, txtTimKiem, btnTim, btnKhoiPhuc);
+        khungGiua.getChildren().addAll(btnLoaiMon, btnList, btnGrid, lblSapXep, btnTheoChuCai, btnTheoGia, btnTheoNgay, btnTheoDaBan, space, txtTimKiem, btnTim, btnKhoiPhuc);
         return khungGiua;
     }
 
@@ -321,7 +322,7 @@ public class GiaoDienMonAn extends VBox {
 
     private void locVaCapNhatMonAn() {
         String tuKhoa = txtTimKiem.getText();
-        String loaiMonFilter = cboLoaiMonFilter.getValue();
+        String loaiMonFilter = btnLoaiMon.getSelectedValue();
 
         List<MonAn> filteredList = new ArrayList<>(danhSachMonAnGoc);
 
