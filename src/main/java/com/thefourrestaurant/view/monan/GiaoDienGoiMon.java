@@ -32,19 +32,14 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
+import javafx.stage.Stage;
 
 public class GiaoDienGoiMon extends BorderPane {
     private ButtonSample btnTim, btnLamMoi;
@@ -321,13 +316,20 @@ public class GiaoDienGoiMon extends BorderPane {
 	
 	    HBox tongTienBox = new HBox(lblTongTien);
 	    tongTienBox.setAlignment(Pos.CENTER_RIGHT);
-	
+
+        ButtonSample btnQuayLai = new ButtonSample("Quay lại", 45, 20, 3);
 	    ButtonSample btnGuiBep = new ButtonSample("Gửi bếp", 40, 20, 3);
-	    VBox boxDuoi = new VBox(10, tongTienBox, btnGuiBep);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+	    HBox boxDuoi = new HBox(10,btnQuayLai, spacer, tongTienBox, btnGuiBep);
 	    boxDuoi.setAlignment(Pos.CENTER_RIGHT);
 	
 	    panel.getChildren().addAll(lblTieuDe, lblBan, bangPhieu, boxDuoi);
 	    btnGuiBep.setOnAction(e -> xuLyGuiBep());
+        btnQuayLai.setOnAction(e -> {
+            mainContent.getChildren().setAll(new GiaoDienDatBan(mainContent));
+
+        });
 	    return panel;
 	}
 

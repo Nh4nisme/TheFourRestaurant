@@ -42,6 +42,10 @@ public class KhuyenMaiController {
         return khuyenMaiDAO.layDanhSachKhuyenMai();
     }
 
+    public List<KhuyenMai> layDanhSachKhuyenMaiTheoKieu(String kieuKM) {
+        return khuyenMaiDAO.layDanhSachKhuyenMaiTheoKieu(kieuKM);
+    }
+
     public String taoMaKhuyenMaiMoi() {
         return khuyenMaiDAO.taoMaKhuyenMaiMoi();
     }
