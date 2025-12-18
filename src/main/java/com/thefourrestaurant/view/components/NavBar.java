@@ -53,7 +53,6 @@ public class NavBar extends HBox {
         HT_TRANG_CHU,
         HT_TRO_GIUP,
         HT_THOAT,
-        HT_DANG_XUAT,
 
         THONG_KE
     }
@@ -203,7 +202,6 @@ public class NavBar extends HBox {
         map.put("Trang chủ", MapDieuHuong.HT_TRANG_CHU);
         map.put("Trợ giúp", MapDieuHuong.HT_TRO_GIUP);
         map.put("Thoát", MapDieuHuong.HT_THOAT);
-        map.put("Đăng xuất", MapDieuHuong.HT_DANG_XUAT);
         return map;
     }
 
@@ -276,7 +274,6 @@ public class NavBar extends HBox {
                 ((Stage) getScene().getWindow()).close();
                 yield null;
             }
-            case HT_DANG_XUAT -> null;
             case THONG_KE -> new ThongKeGiaoDienChinh();
         };
 

@@ -7,6 +7,10 @@ import java.util.Optional;
 
 import com.thefourrestaurant.DAO.ThucDonDAO;
 import com.thefourrestaurant.DAO.LoaiMonDAO;
+import com.thefourrestaurant.DAO.MonAnDAO;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -27,6 +31,10 @@ public class GiaoDienThucDon extends VBox {
     private final ComboBox<String> cbLoaiMonAn;
     private final VBox boxChonThucAn;
     private final List<FoodItem> selectedFoods = new ArrayList<>();
+    private final LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
+    private final MonAnDAO monAnDAO = new MonAnDAO();
+    // map tenLoai -> maLoai for quick lookup
+    private final Map<String, String> loaiNameToMa = new HashMap<>();
 
     public GiaoDienThucDon() {
         setAlignment(Pos.TOP_CENTER);
@@ -111,13 +119,21 @@ public class GiaoDienThucDon extends VBox {
         cbLoaiMonAn.setOnAction(e -> {
             String selected = cbLoaiMonAn.getValue();
             if (selected != null) {
+                // Lấy maLoai từ tên để đếm số món thuộc loại
+                String maLoai = loaiNameToMa.get(selected);
+                int qty = 0;
+                if (maLoai != null) {
+                    var list = monAnDAO.layMonAnTheoLoai(maLoai);
+                    qty = list == null ? 0 : list.size();
+                }
                 Optional<FoodItem> existing = selectedFoods.stream()
                         .filter(f -> f.name.equals(selected))
                         .findFirst();
                 if (existing.isPresent()) {
-                    existing.get().quantity++;
+                    // không tăng khi chọn lại, chỉ cập nhật số lượng bằng số món thực tế
+                    existing.get().quantity = qty;
                 } else {
-                    selectedFoods.add(new FoodItem(selected, getFoodIcon(selected), 1));
+                    selectedFoods.add(new FoodItem(selected, getFoodIcon(selected), qty));
                 }
                 capNhatBoxChonThucAn();
                 Platform.runLater(() -> cbLoaiMonAn.getSelectionModel().clearSelection());
@@ -138,8 +154,9 @@ public class GiaoDienThucDon extends VBox {
                 showAlert(Alert.AlertType.WARNING, "Vui lòng chọn ít nhất một loại món ăn.");
                 return;
             }
-            List<String> loai = selectedFoods.stream().map(f -> f.name).distinct().toList();
+            List<String> loai = selectedFoods.stream().map(f -> f.name).distinct().collect(Collectors.toList());
 
+            // Gọi DAO để lưu (DAO sẽ tạo mới hoặc cập nhật nếu tên đã tồn tại)
             boolean ok = new ThucDonDAO().luuThucDonTheoLoaiMon(ten, loai);
             if (ok) {
                 showAlert(Alert.AlertType.INFORMATION, "Đã lưu thực đơn.");
@@ -168,6 +185,8 @@ public class GiaoDienThucDon extends VBox {
         getChildren().addAll(khungDuongDan, mainContent);
         // Tải dữ liệu lúc mở màn hình
         napBangThucDon();
+        // Thiết lập hành vi khi chọn thực đơn bên trái
+        setupTableSelectionBehavior();
     }
 
     // ==== HÀM CẬP NHẬT DANH SÁCH MÓN ĂN ====
@@ -259,6 +278,28 @@ public class GiaoDienThucDon extends VBox {
         tableThucDon.setItems(javafx.collections.FXCollections.observableArrayList(list));
     }
 
+    private void setupTableSelectionBehavior() {
+        // Khi chọn 1 thực đơn bên trái, điền chi tiết sang bên phải
+        tableThucDon.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+            if (newV == null) return;
+            txtTenThucDon.setText(newV.tenTD);
+            List<String> loai = new ThucDonDAO().layLoaiMonTheoThucDon(newV.tenTD);
+            selectedFoods.clear();
+            if (loai != null) {
+                for (String tenLoai : loai) {
+                    String ma = loaiNameToMa.get(tenLoai);
+                    int qty = 0;
+                    if (ma != null) {
+                        var listMon = monAnDAO.layMonAnTheoLoai(ma);
+                        qty = listMon == null ? 0 : listMon.size();
+                    }
+                    selectedFoods.add(new FoodItem(tenLoai, getFoodIcon(tenLoai), qty));
+                }
+            }
+            capNhatBoxChonThucAn();
+        });
+    }
+
     private void showAlert(Alert.AlertType type, String message) {
         Alert a = new Alert(type, message);
         a.showAndWait();
@@ -267,11 +308,13 @@ public class GiaoDienThucDon extends VBox {
     // Đồng bộ danh sách loại món ăn với DB (bảng LoaiMonAn.tenLoaiMon)
     private void loadLoaiMonAnFromDB() {
         try {
-            var ds = new LoaiMonDAO().layTatCaLoaiMon();
+            var ds = loaiMonDAO.layTatCaLoaiMon();
             cbLoaiMonAn.getItems().clear();
+            loaiNameToMa.clear();
             for (var lm : ds) {
                 if (lm != null && lm.getTenLoaiMon() != null && !lm.getTenLoaiMon().isBlank()) {
                     cbLoaiMonAn.getItems().add(lm.getTenLoaiMon());
+                    loaiNameToMa.put(lm.getTenLoaiMon(), lm.getMaLoaiMon());
                 }
             }
         } catch (Exception ex) {

@@ -200,7 +200,7 @@ GO
 -- ================================
 CREATE TABLE ThucDon (
                          maTD CHAR(8) PRIMARY KEY CHECK(maTD LIKE 'TD%' AND LEN(maTD) = 8),
-                         tenTD NVARCHAR(10) NOT NULL UNIQUE CHECK(tenTD IN (N'Sáng', N'Trưa', N'Chiều', N'Tối'))
+                         tenTD NVARCHAR(50) NOT NULL UNIQUE
 );
 GO
 

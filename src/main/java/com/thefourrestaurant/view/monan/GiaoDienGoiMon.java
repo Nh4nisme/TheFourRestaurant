@@ -9,6 +9,10 @@ import java.util.Map;
 import java.text.NumberFormat;
 
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
+import com.thefourrestaurant.DAO.ThucDonDAO;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 import com.thefourrestaurant.controller.KhuyenMaiController;
 import com.thefourrestaurant.model.KhuyenMaiApDung;
 import com.thefourrestaurant.DAO.MonAnDAO;
@@ -43,6 +47,7 @@ import javafx.stage.Stage;
 
 public class GiaoDienGoiMon extends BorderPane {
     private ButtonSample btnTim, btnLamMoi;
+    private ButtonSample btnSortName, btnSortQuantity;
     private StackPane mainContent;
     private MonAnDAO monAnDAO = new MonAnDAO();
     private LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
@@ -57,6 +62,8 @@ public class GiaoDienGoiMon extends BorderPane {
     private ObservableList<ChiTietPDB> danhSachChiTiet = FXCollections.observableArrayList();
     private PhieuDatBan pdb;
     private Map<String, MonAnBox> monBoxMap = new HashMap<>();
+    private int sortMode = 0;
+    private boolean sortAsc = true;
 
 
 	public GiaoDienGoiMon(StackPane mainContent, Ban ban, PhieuDatBan pdb) {
@@ -94,14 +101,66 @@ public class GiaoDienGoiMon extends BorderPane {
         thanhTren.setAlignment(Pos.CENTER_LEFT);
         thanhTren.setStyle("-fx-background-color: #1E424D;");
 
+        ThucDonDAO thucDonDAO = new ThucDonDAO();
+        var tdList = thucDonDAO.layTatCaThucDonGomLoai();
+        List<String> menuOptions = new java.util.ArrayList<>();
+        menuOptions.add("Tất cả Thực Đơn");
+        if (tdList != null) {
+            for (var td : tdList) menuOptions.add(td.tenTD);
+        }
+
         DropDownButton menuThucDon = new DropDownButton(
                 "Thực đơn  ▼",
-                List.of("Buổi Sáng  ▼","Buổi Trưa  ▼","Buổi Tối  ▼","Khai Vị  ▼"),
+                menuOptions,
                 null,
                 45,
                 16,
                 3
         );
+
+        menuThucDon.setOnItemSelected(selected -> {
+            if (selected == null) return;
+            if (selected.equals("Tất cả Thực Đơn")) {
+                populateGrid(getFilteredAndSortedList(null));
+                return;
+            }
+
+            // Lấy danh sách tên loại món từ DAO theo tên thực đơn
+            List<String> tenLoai = thucDonDAO.layLoaiMonTheoThucDon(selected);
+            if (tenLoai == null || tenLoai.isEmpty()) {
+                populateGrid(java.util.Collections.emptyList());
+                return;
+            }
+
+            // Build mapping tên loại -> mã loại
+            List<com.thefourrestaurant.model.LoaiMon> allLoai = loaiMonDAO.layTatCaLoaiMon();
+            Map<String, String> nameToMa = allLoai.stream()
+                    .filter(l -> l.getTenLoaiMon() != null)
+                    .collect(Collectors.toMap(com.thefourrestaurant.model.LoaiMon::getTenLoaiMon, com.thefourrestaurant.model.LoaiMon::getMaLoaiMon));
+
+            Set<String> maLoaiSet = new HashSet<>();
+            for (String nl : tenLoai) {
+                String ma = nameToMa.get(nl);
+                if (ma != null) maLoaiSet.add(ma);
+            }
+
+            // Lọc allMonAn theo maLoaiSet
+            List<MonAn> filtered = new java.util.ArrayList<>();
+            for (MonAn m : allMonAn) {
+                if (m.getLoaiMon() != null && maLoaiSet.contains(m.getLoaiMon().getMaLoaiMon())) filtered.add(m);
+            }
+
+            java.util.List<MonAn> finalList = filtered.stream()
+                    .filter(m -> m.getSoLuong() > 0)
+                    .collect(Collectors.toList());
+            java.util.Comparator<MonAn> comp = (sortMode == 0)
+                    ? ((a, b) -> (a.getTenMon() == null ? "" : a.getTenMon()).compareToIgnoreCase(b.getTenMon() == null ? "" : b.getTenMon()))
+                    : java.util.Comparator.comparingInt(MonAn::getSoLuong);
+            finalList.sort(comp);
+            if (!sortAsc) java.util.Collections.reverse(finalList);
+
+            populateGrid(finalList);
+        });
 
         Label lblLoaiMon = new Label("Loại món:");
         lblLoaiMon.setTextFill(Color.web("#D4A84A"));
@@ -133,8 +192,37 @@ public class GiaoDienGoiMon extends BorderPane {
 
         btnTim = new ButtonSample("Tìm kiếm", "", 35, 14,3);
         btnLamMoi = new ButtonSample("Làm mới", "", 35, 14,3);
+        btnSortName = new ButtonSample("A→Z", "", 35, 14, 3);
+        btnSortQuantity = new ButtonSample("Số lượng ↑", "", 35, 14, 3);
 
-        thanhTren.getChildren().addAll(menuThucDon, lblLoaiMon, cboLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi);
+        // (A->Z / Z->A)
+        btnSortName.setOnAction(evt -> {
+            if (sortMode == 0) {
+                sortAsc = !sortAsc;
+            } else {
+                sortMode = 0;
+                sortAsc = true;
+            }
+            updateSortButtonLabels();
+            LoaiMon sel = cboLoaiMon.getValue();
+            if (sel == null || "ALL".equals(sel.getMaLoaiMon())) refreshMonGrid(null);
+            else refreshMonGrid(sel.getMaLoaiMon());
+        });
+
+        btnSortQuantity.setOnAction(evt -> {
+            if (sortMode == 1) {
+                sortAsc = !sortAsc;
+            } else {
+                sortMode = 1;
+                sortAsc = false; // sort cao -> thap
+            }
+            updateSortButtonLabels();
+            LoaiMon sel = cboLoaiMon.getValue();
+            if (sel == null || "ALL".equals(sel.getMaLoaiMon())) refreshMonGrid(null);
+            else refreshMonGrid(sel.getMaLoaiMon());
+        });
+
+        thanhTren.getChildren().addAll(menuThucDon, lblLoaiMon, cboLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi, btnSortName, btnSortQuantity);
         return thanhTren;
     }
 
@@ -155,9 +243,9 @@ public class GiaoDienGoiMon extends BorderPane {
             gridMon.getColumnConstraints().add(cc);
         }
 
-        // Lấy danh sách món ăn (chỉ những món HIỂN THỊ) từ DB và hiển thị
         allMonAn = monAnDAO.layTatCaMonAnHienThi();
-        populateGrid(allMonAn);
+        sortMode = 0; sortAsc = true;
+        populateGrid(getFilteredAndSortedList(null));
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setContent(gridMon);
@@ -202,15 +290,45 @@ public class GiaoDienGoiMon extends BorderPane {
     }
 
     private void refreshMonGrid(String maLoai) {
-        if (maLoai == null || maLoai.isEmpty()) {
-            populateGrid(allMonAn);
-            return;
-        }
+        populateGrid(getFilteredAndSortedList(maLoai));
+    }
+
+    private List<MonAn> getFilteredAndSortedList(String maLoai) {
         List<MonAn> filtered = new java.util.ArrayList<>();
+        if (allMonAn == null) return filtered;
         for (MonAn m : allMonAn) {
-            if (m.getLoaiMon() != null && maLoai.equals(m.getLoaiMon().getMaLoaiMon())) filtered.add(m);
+            if (m.getSoLuong() <= 0) continue;
+            if (maLoai == null || maLoai.isEmpty()) {
+                filtered.add(m);
+            } else {
+                if (m.getLoaiMon() != null && maLoai.equals(m.getLoaiMon().getMaLoaiMon())) filtered.add(m);
+            }
         }
-        populateGrid(filtered);
+
+        java.util.Comparator<MonAn> comp;
+        if (sortMode == 0) {
+            comp = (a, b) -> {
+                String an = a.getTenMon() == null ? "" : a.getTenMon();
+                String bn = b.getTenMon() == null ? "" : b.getTenMon();
+                return an.compareToIgnoreCase(bn);
+            };
+        } else {
+            comp = java.util.Comparator.comparingInt(MonAn::getSoLuong);
+        }
+
+        filtered.sort(comp);
+        if (!sortAsc) java.util.Collections.reverse(filtered);
+        return filtered;
+    }
+
+    private void updateSortButtonLabels() {
+        if (sortMode == 0) {
+            btnSortName.setText(sortAsc ? "A→Z" : "Z→A");
+            btnSortQuantity.setText("Số lượng");
+        } else {
+            btnSortQuantity.setText(sortAsc ? "Số lượng ↑" : "Số lượng ↓");
+            btnSortName.setText("A→Z");
+        }
     }
 
     @SuppressWarnings({ "unchecked", "deprecation" })
@@ -243,8 +361,71 @@ public class GiaoDienGoiMon extends BorderPane {
         TableColumn<ChiTietPDB, String> giaKhuyenMaiCol = new TableColumn<>("Giá khuyến mãi");
         TableColumn<ChiTietPDB, String> soLuongCol = new TableColumn<>("Số lượng");
         TableColumn<ChiTietPDB, String> thanhTienCol = new TableColumn<>("Thành tiền");
-	    TableColumn<ChiTietPDB, String> ghiChuCol = new TableColumn<>("Ghi chú");
-	    TableColumn<ChiTietPDB, Void> xoaCol = new TableColumn<>("Xóa");
+        TableColumn<ChiTietPDB, String> ghiChuCol = new TableColumn<>("Ghi chú");
+        TableColumn<ChiTietPDB, Void> hanhDongCol = new TableColumn<>("Hành động");
+        hanhDongCol.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
+            private final Button btnPlus = new Button("+");
+            private final Button btnMinus = new Button("-");
+            private final HBox box = new HBox(6, btnMinus, btnPlus);
+
+            // Hành động thêm/giảm món
+            {
+                btnPlus.setStyle("-fx-background-color: #D4A84A; -fx-text-fill: white; -fx-font-weight: bold;");
+                btnMinus.setStyle("-fx-background-color: #E07A5F; -fx-text-fill: white; -fx-font-weight: bold;");
+
+                btnPlus.setOnAction(e -> {
+                    ChiTietPDB ct = getTableView().getItems().get(getIndex());
+                    if (ct == null) return;
+                    MonAn mon = ct.getMonAn();
+                    if (mon != null && mon.getSoLuong() > 0) {
+                        ct.setSoLuong(ct.getSoLuong() + 1);
+                        mon.setSoLuong(mon.getSoLuong() - 1);
+                        MonAnBox boxMon = monBoxMap.get(mon.getMaMonAn());
+                        if (boxMon != null) boxMon.updateSoLuong(mon.getSoLuong());
+                        bangPhieu.refresh();
+                        capNhatTongTien();
+                    } else {
+                    }
+                });
+
+                btnMinus.setOnAction(e -> {
+                    ChiTietPDB ct = getTableView().getItems().get(getIndex());
+                    if (ct == null) return;
+                    MonAn mon = ct.getMonAn();
+                    int newQty = ct.getSoLuong() - 1;
+                    if (newQty <= 0) {
+                        if (mon != null) {
+                            mon.setSoLuong(mon.getSoLuong() + ct.getSoLuong());
+                            MonAnBox boxMon = monBoxMap.get(mon.getMaMonAn());
+                            if (boxMon != null) boxMon.updateSoLuong(mon.getSoLuong());
+                        }
+                        danhSachChiTiet.remove(ct);
+                    } else {
+                        ct.setSoLuong(newQty);
+                        if (mon != null) {
+                            mon.setSoLuong(mon.getSoLuong() + 1);
+                            MonAnBox boxMon = monBoxMap.get(mon.getMaMonAn());
+                            if (boxMon != null) boxMon.updateSoLuong(mon.getSoLuong());
+                        }
+                    }
+                    bangPhieu.refresh();
+                    capNhatTongTien();
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(box);
+                    setAlignment(Pos.CENTER);
+                }
+            }
+        });
+
+        TableColumn<ChiTietPDB, Void> xoaCol = new TableColumn<>("Xóa");
 	    xoaCol.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
 	        private final Button btnXoa = new Button("❌");
 
@@ -308,7 +489,8 @@ public class GiaoDienGoiMon extends BorderPane {
         });
 	
         bangPhieu.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, khuyenMaiCol, giaKhuyenMaiCol, soLuongCol, thanhTienCol, ghiChuCol, xoaCol);
+        // Sắp xếp cột: thêm cột hành động trước cột xóa
+        bangPhieu.getColumns().addAll(tenMonCol, donGiaCol, khuyenMaiCol, giaKhuyenMaiCol, soLuongCol, thanhTienCol, ghiChuCol, hanhDongCol, xoaCol);
 	
 	    lblTongTien = new Label("Tổng tiền: 0 VND");
 	    lblTongTien.setFont(Font.font("System", FontWeight.BOLD, 16));

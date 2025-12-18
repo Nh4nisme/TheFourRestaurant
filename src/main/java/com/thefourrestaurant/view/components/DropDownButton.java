@@ -110,14 +110,34 @@ public class DropDownButton extends Button {
     }
 
     private void capNhatDoRongMenu() {
-        double doRongNoiDung = layDoRongNoiDungButton();
+        double maxPref = 0;
+        for (MenuItem item : contextMenu.getItems()) {
+            if (item instanceof CustomMenuItem custom) {
+                Node node = custom.getContent();
+                if (node instanceof Label label) {
+                    label.applyCss();
+                    double pref = label.prefWidth(-1);
+                    if (pref > maxPref) maxPref = pref;
+                }
+            }
+        }
+
+        double extra = 20;
+        double contentWidth = maxPref + extra;
+
+        Insets padding = getPadding();
+        double targetButtonWidth = contentWidth + padding.getLeft() + padding.getRight();
+
+        if (getWidth() < targetButtonWidth) {
+            setPrefWidth(targetButtonWidth);
+        }
 
         for (MenuItem item : contextMenu.getItems()) {
             if (item instanceof CustomMenuItem custom) {
                 Node node = custom.getContent();
                 if (node instanceof Label label) {
-                    label.setPrefWidth(doRongNoiDung);
-                    label.setMaxWidth(doRongNoiDung);
+                    label.setPrefWidth(contentWidth);
+                    label.setMaxWidth(contentWidth);
                 }
             }
         }
@@ -125,7 +145,7 @@ public class DropDownButton extends Button {
 
     private double layDoRongNoiDungButton() {
         Insets padding = getPadding();
-        return getWidth() - padding.getLeft();
+        return Math.max(0, getWidth() - padding.getLeft() - padding.getRight());
     }
 
     private void chonGiaTri(String value) {
