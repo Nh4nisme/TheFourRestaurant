@@ -376,6 +376,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 String tenDN = txtTenDN.getText().trim();
                 String mk = txtMatKhau.getText();
                 String mk2 = txtMatKhau2.getText();
+
                 if (tenDN.isEmpty()) {
                     Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Tài khoản' không được để trống.");
                     a.showAndWait();
@@ -392,8 +393,37 @@ public class GiaoDienChiTietNhanVien extends VBox {
                     return;
                 }
 
+                // Kiểm tra trùng số điện thoại
+                String sdtCheck = txtSDT.getText().trim();
+                if (!sdtCheck.isEmpty()) {
+                    try {
+                        if (nhanVienDAO.layNhanVienTheoSDT(sdtCheck) != null) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Số điện thoại đã tồn tại trong hệ thống.");
+                            a.showAndWait();
+                            return;
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                // Kiểm tra tên đăng nhập đã tồn tại
+                try {
+                    if (TaiKhoanDAO.layTaiKhoanTheoTenDangNhap(tenDN) != null) {
+                        Alert a = new Alert(Alert.AlertType.ERROR, "Tài khoản đã tồn tại. Vui lòng chọn tên khác.");
+                        a.showAndWait();
+                        return;
+                    }
+                } catch (Exception ex) { ex.printStackTrace(); }
+
                 TaiKhoan tk = new TaiKhoan(maTK, tenDN, mk, selectedRole, false);
                 boolean tkOk = TaiKhoanDAO.themTaiKhoan(tk);
+
+                if (!tkOk) {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Tạo tài khoản thất bại. Vui lòng thử lại.");
+                    a.showAndWait();
+                    return;
+                }
 
                 java.sql.Date sqlDate = java.sql.Date.valueOf(ngaySinh);
                 BigDecimal luong = null;
@@ -407,7 +437,11 @@ public class GiaoDienChiTietNhanVien extends VBox {
                     a.showAndWait();
                     hienThi(null);
                 } else {
-                    Alert a = new Alert(Alert.AlertType.ERROR, "Thêm thất bại. Vui lòng thử lại.");
+                    try {
+                        TaiKhoanDAO.xoaTaiKhoan(maTK);
+                    } catch (Exception ex) { ex.printStackTrace(); }
+
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Thêm thất bại. Tài khoản đã bị xóa để tránh dữ liệu không nhất quán.");
                     a.showAndWait();
                 }
             }
