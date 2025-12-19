@@ -2,22 +2,25 @@ package com.thefourrestaurant.view.thucdon;
 
 import com.thefourrestaurant.DAO.ThucDonDAO;
 import com.thefourrestaurant.view.components.CuaSoKhoiPhuc;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class KhoiPhucThucDon extends CuaSoKhoiPhuc<ThucDonDAO.ThucDonView> {
 
-    private FlowPane flowPane;
+    private TableView<ThucDonDAO.ThucDonView> table;
 
     public KhoiPhucThucDon(List<ThucDonDAO.ThucDonView> danhSachDaXoa) {
         super(danhSachDaXoa, "Khôi phục thực đơn đã xóa", "thực đơn");
@@ -25,10 +28,36 @@ public class KhoiPhucThucDon extends CuaSoKhoiPhuc<ThucDonDAO.ThucDonView> {
 
     @Override
     protected Pane createViewPane() {
-        flowPane = new FlowPane(15, 15);
-        flowPane.setPadding(new Insets(15));
-        flowPane.setAlignment(Pos.TOP_LEFT);
-        return flowPane;
+        table = new TableView<>();
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        TableColumn<ThucDonDAO.ThucDonView, String> maCol = new TableColumn<>();
+        javafx.scene.control.Label maHeader = new javafx.scene.control.Label("Mã TD");
+        maHeader.setStyle("-fx-text-fill: black; -fx-font-size: 14px; -fx-font-weight: bold;");
+        maCol.setGraphic(maHeader);
+        maCol.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
+            cell.getValue() == null ? "" : (cell.getValue().maTD == null ? "" : cell.getValue().maTD)));
+
+        TableColumn<ThucDonDAO.ThucDonView, String> tenCol = new TableColumn<>();
+        javafx.scene.control.Label tenHeader = new javafx.scene.control.Label("Tên thực đơn");
+        tenHeader.setStyle("-fx-text-fill: black; -fx-font-size: 14px; -fx-font-weight: bold;");
+        tenCol.setGraphic(tenHeader);
+        tenCol.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
+            cell.getValue() == null ? "" : (cell.getValue().tenTD == null ? "" : cell.getValue().tenTD)));
+
+        TableColumn<ThucDonDAO.ThucDonView, String> loaiCol = new TableColumn<>();
+        javafx.scene.control.Label loaiHeader = new javafx.scene.control.Label("Các loại món");
+        loaiHeader.setStyle("-fx-text-fill: black; -fx-font-size: 14px; -fx-font-weight: bold;");
+        loaiCol.setGraphic(loaiHeader);
+        loaiCol.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
+            cell.getValue() == null ? "" : (cell.getValue().loaiMon == null ? "" : cell.getValue().loaiMon)));
+
+        table.getColumns().addAll(maCol, tenCol, loaiCol);
+        table.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
+
+        VBox wrapper = new VBox(table);
+        wrapper.setPadding(new Insets(12));
+        return wrapper;
     }
 
     @Override
@@ -61,22 +90,14 @@ public class KhoiPhucThucDon extends CuaSoKhoiPhuc<ThucDonDAO.ThucDonView> {
 
     @Override
     protected void capNhatView() {
-        flowPane.getChildren().clear();
-        for (ThucDonDAO.ThucDonView v : danhSachHienThi) {
-            VBox box = new VBox(6);
-            box.setPrefWidth(220);
-            box.setPadding(new Insets(10));
-            Label lblTen = new Label(v.tenTD != null ? v.tenTD : "(không tên)");
-            lblTen.setStyle("-fx-font-weight: bold; -fx-text-fill: #673E1F;");
-            Label lblLoai = new Label(v.loaiMon == null ? "" : v.loaiMon);
-            box.getChildren().addAll(lblTen, lblLoai);
-            flowPane.getChildren().add(createItemWrapper(box, v, "thực đơn"));
-        }
+        ObservableList<ThucDonDAO.ThucDonView> items = FXCollections.observableArrayList(danhSachHienThi);
+        table.setItems(items);
         int count = danhSachHienThi.size();
         lblItemCount.setText("Hiển thị " + count + " thực đơn đã xóa");
     }
 
     public java.util.Set<ThucDonDAO.ThucDonView> getCacThucDonDaChon() {
-        return getCacItemDaChon();
+        if (table == null) return new HashSet<>();
+        return new HashSet<>(table.getSelectionModel().getSelectedItems());
     }
 }
