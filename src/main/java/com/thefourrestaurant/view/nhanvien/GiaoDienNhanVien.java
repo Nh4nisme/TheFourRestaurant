@@ -7,9 +7,8 @@ import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,6 +16,7 @@ import java.util.List;
 public class GiaoDienNhanVien extends GiaoDienThucThe {
 
     private final NhanVienController controller = new NhanVienController();
+    private final com.thefourrestaurant.DAO.NhanVienDAO nhanVienDAO = new com.thefourrestaurant.DAO.NhanVienDAO();
     private final GiaoDienChiTietNhanVien gdChiTiet;
     private TableView<NhanVien> table;
     private ObservableList<NhanVien> danhSachGoc;
@@ -88,7 +88,78 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
             cd.getValue().getMaTK() != null ? cd.getValue().getMaTK().getMaTK() : ""
         ));
 
-        table.getColumns().addAll(colMa, colHoTen, colNgaySinh, colGioiTinh, colSDT, colLuong, colVaiTro, colMaTK);
+        TableColumn<NhanVien, Void> colAction = new TableColumn<>("Hành động");
+        colAction.setCellFactory(tc -> new TableCell<>() {
+            private final HBox box = new HBox(6);
+            private final com.thefourrestaurant.view.components.ButtonSample btnSua = new com.thefourrestaurant.view.components.ButtonSample("Sửa", 36, 14, 1);
+            private final com.thefourrestaurant.view.components.ButtonSample btnXoa = new com.thefourrestaurant.view.components.ButtonSample("Xóa", 36, 14, 2);
+            private final com.thefourrestaurant.view.components.ButtonSample btnAdd = new com.thefourrestaurant.view.components.ButtonSample("Thêm nhân viên", 36, 16, 1);
+
+            {
+                btnSua.setOnAction(e -> {
+                    NhanVien nv = getTableView().getItems().get(getIndex());
+                    if (nv != null) {
+                        ((GiaoDienChiTietNhanVien) getChiTietNode()).hienThi(nv);
+                        getTableView().getSelectionModel().select(nv);
+                    }
+                });
+
+                btnXoa.setOnAction(e -> {
+                    NhanVien nv = getTableView().getItems().get(getIndex());
+                    if (nv == null || nv.getMaNV() == null || nv.getMaNV().trim().isEmpty()) return;
+                    Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Bạn có chắc muốn xóa nhân viên này?", ButtonType.YES, ButtonType.NO);
+                    a.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
+                    a.showAndWait().ifPresent(bt -> {
+                        if (bt == ButtonType.YES) {
+                            try {
+                                nv.setDeleted(true);
+                                boolean ok = controller.capNhatNhanVien(nv, null);
+                                if (ok) {
+                                    getTableView().getItems().remove(nv);
+                                } else {
+                                    Alert err = new Alert(Alert.AlertType.ERROR, "Xóa thất bại.");
+                                    err.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
+                                    err.showAndWait();
+                                }
+                            } catch (Exception ex) { ex.printStackTrace(); }
+                        }
+                    });
+                });
+
+                btnAdd.setOnAction(e -> {
+                    GiaoDienChiTietNhanVien chiTiet = (GiaoDienChiTietNhanVien) getChiTietNode();
+                    chiTiet.hienThi(null);
+                    try {
+                        chiTiet.getTxtMaNV().setText(nhanVienDAO.taoMaNhanVienMoi());
+                        chiTiet.getTxtMaTK().setText(com.thefourrestaurant.DAO.TaiKhoanDAO.taoMaTaiKhoanMoi());
+                    } catch (Exception ex) { }
+                    getTableView().getSelectionModel().clearSelection();
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                box.getChildren().clear();
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+                NhanVien nv = getTableView().getItems().get(getIndex());
+                if (nv == null || nv.getMaNV() == null || nv.getMaNV().trim().isEmpty()) {
+                    btnAdd.setPrefWidth(180);
+                    box.getChildren().add(btnAdd);
+                } else {
+                    btnSua.setPrefWidth(80);
+                    btnXoa.setPrefWidth(80);
+                    box.getChildren().addAll(btnSua, btnXoa);
+                }
+                setGraphic(box);
+            }
+        });
+        colAction.setPrefWidth(200);
+
+        table.getColumns().addAll(colMa, colHoTen, colNgaySinh, colGioiTinh, colSDT, colLuong, colVaiTro, colMaTK, colAction);
         return table;
     }
 
@@ -97,6 +168,9 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
         List<NhanVien> ds = controller.layDanhSachNhanVien();
         danhSachGoc = FXCollections.observableArrayList(ds);
         danhSachHienThi = FXCollections.observableArrayList(ds);
+        NhanVien addRow = new NhanVien();
+        addRow.setMaNV(null);
+        danhSachHienThi.add(addRow);
         table.setItems(danhSachHienThi);
     }
 
