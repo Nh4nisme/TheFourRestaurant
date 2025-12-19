@@ -19,6 +19,7 @@ import com.thefourrestaurant.view.taikhoan.GiaoDienTaiKhoan;
 import com.thefourrestaurant.view.thongke.ThongKeGiaoDienChinh;
 import com.thefourrestaurant.view.nhanvien.GiaoDienNhanVien;
 import com.thefourrestaurant.view.khuyenmai.GiaoDienTraCuuKhuyenMai;
+import com.thefourrestaurant.view.thucdon.GiaoDienThucDon;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;

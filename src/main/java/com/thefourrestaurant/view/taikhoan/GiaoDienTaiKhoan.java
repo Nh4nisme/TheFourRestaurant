@@ -5,14 +5,19 @@ import com.thefourrestaurant.controller.TaiKhoanController;
 import com.thefourrestaurant.model.HoaDon;
 import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.model.VaiTro;
+import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class GiaoDienTaiKhoan extends GiaoDienThucThe {
@@ -59,29 +64,72 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
 
         TableColumn<TaiKhoan, Void> colHanhDong = new TableColumn<>("Hành động");
         colHanhDong.setCellFactory(col -> new TableCell<>() {
-            private final Button btnXoa = new Button("🗑");
+            private final HBox box = new HBox(6);
+            {
+                box.setAlignment(javafx.geometry.Pos.CENTER);
+            }
+            private final ButtonSample btnSua = new ButtonSample("Sửa", 36, 14, 1);
+            private final ButtonSample btnXoa = new ButtonSample("Xóa", 36, 14, 2);
+            private final ButtonSample btnAdd = new ButtonSample("Thêm tài khoản", 36, 16, 1);
 
             {
-                btnXoa.setOnAction(event -> {
+                btnSua.setOnAction(e -> {
                     TaiKhoan tk = getTableView().getItems().get(getIndex());
-                    Stage stage = (Stage) btnXoa.getScene().getWindow();
-
-                    if (xacNhan(stage, "Bạn có chắc muốn xóa tài khoản: " + tk.getTenDN() + " ?")) {
-                        boolean ok = controller.xoaTaiKhoan(tk.getMaTK());
-                        if (ok) {
-                            getTableView().getItems().remove(tk);
-                            hienThongBao(stage,"Đã xóa tài khoản!");
-                        } else {
-                            hienThongBao(stage,"Không thể xóa tài khoản này!", Alert.AlertType.ERROR);
-                        }
+                    if (tk != null) {
+                        hienThiChiTiet(tk);
+                        getTableView().getSelectionModel().select(tk);
                     }
+                });
+
+                btnXoa.setOnAction(e -> {
+                    TaiKhoan tk = getTableView().getItems().get(getIndex());
+                    if (tk == null || tk.getMaTK() == null || tk.getMaTK().trim().isEmpty()) return;
+                    Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+                    a.setTitle("Xác nhận");
+                    a.setHeaderText("Xác nhận");
+                    a.setContentText("Bạn có chắc muốn xóa tài khoản: " + tk.getTenDN() + " ?");
+                    a.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
+                    a.showAndWait().ifPresent(bt -> {
+                        if (bt == ButtonType.OK) {
+                            try {
+                                boolean ok = controller.xoaTaiKhoan(tk.getMaTK());
+                                if (ok) {
+                                    refreshBangChinh();
+                                } else {
+                                    Alert err = new Alert(Alert.AlertType.ERROR, "Xóa thất bại.");
+                                    err.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
+                                    err.showAndWait();
+                                }
+                            } catch (Exception ex) { ex.printStackTrace(); }
+                        }
+                    });
+                });
+
+                btnAdd.setOnAction(e -> {
+                    table.getSelectionModel().clearSelection();
+                    gdChiTietTK.Clear();
+                    try {
+                        gdChiTietTK.getTxtMaTK().setText(com.thefourrestaurant.DAO.TaiKhoanDAO.taoMaTaiKhoanMoi());
+                    } catch (Exception ex) { }
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : btnXoa);
+                box.getChildren().clear();
+                if (empty) { setGraphic(null); return; }
+                TaiKhoan tk = getTableView().getItems().get(getIndex());
+                if (tk == null || tk.getMaTK() == null || tk.getMaTK().trim().isEmpty()) {
+                    btnAdd.setPrefWidth(180);
+                    box.getChildren().add(btnAdd);
+                } else {
+                    btnSua.setPrefWidth(80);
+                    btnXoa.setPrefWidth(80);
+                    box.getChildren().addAll(btnSua, btnXoa);
+                }
+                setGraphic(box);
+                setAlignment(javafx.geometry.Pos.CENTER);
             }
         });
 
@@ -90,7 +138,24 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
 
         // View gọi Controller để lấy danh sách dữ liệu từ DAO
         List<TaiKhoan> dsTaiKhoan = controller.layDanhSachTaiKhoan();
-        table.getItems().setAll(dsTaiKhoan);
+        var source = FXCollections.observableArrayList(dsTaiKhoan);
+        TaiKhoan placeholder = new TaiKhoan();
+        source.add(placeholder);
+
+        table.setItems(source);
+        table.comparatorProperty().addListener((obs, old, nw) -> {
+            Comparator<TaiKhoan> comp = nw;
+            javafx.application.Platform.runLater(() -> {
+                if (comp != null) {
+                    javafx.collections.FXCollections.sort(source, (a, b) -> {
+                        if (a == placeholder && b == placeholder) return 0;
+                        if (a == placeholder) return 1;
+                        if (b == placeholder) return -1;
+                        return comp.compare(a, b);
+                    });
+                }
+            });
+        });
 
         //Sự kiện chọn dòng
         table.setRowFactory(t ->{
@@ -138,32 +203,29 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
 
     @Override
     protected void lamMoiDuLieu() {
-        danhSachGoc = FXCollections.observableArrayList(new TaiKhoanController().layDanhSachTaiKhoan());
-        danhSachHienThi = FXCollections.observableArrayList(danhSachGoc);
-        table.setItems(danhSachHienThi);
+        List<TaiKhoan> ds = controller.layDanhSachTaiKhoan();
+        danhSachGoc = FXCollections.observableArrayList(ds);
+
+        var source = FXCollections.observableArrayList(ds);
+        TaiKhoan placeholder = new TaiKhoan();
+        source.add(placeholder);
+        table.setItems(source);
+        table.comparatorProperty().addListener((obs, old, nw) -> {
+            Comparator<TaiKhoan> comp = nw;
+            javafx.application.Platform.runLater(() -> {
+                if (comp != null) {
+                    javafx.collections.FXCollections.sort(source, (a, b) -> {
+                        if (a == placeholder && b == placeholder) return 0;
+                        if (a == placeholder) return 1;
+                        if (b == placeholder) return -1;
+                        return comp.compare(a, b);
+                    });
+                }
+            });
+        });
     }
 
     private void khoiTaoSuKien() {
-        // ==== Tạo mới tài khoản ====
-//        gdChiTietTK.getBtnTaoMoi().setOnAction(e -> {
-//            String maTK = gdChiTietTK.getTxtMaTK().getText().trim();
-//            String tenDN = gdChiTietTK.getTxtTenDangNhap().getText().trim();
-//            String matKhau = gdChiTietTK.getTxtMatKhau().getText().trim();
-//            VaiTro vt = gdChiTietTK.getCboVaiTro().getValue();
-//
-//            String result = controller.taoTaiKhoan(maTK, tenDN, matKhau, vt);
-//            Stage  stage = (Stage) gdChiTietTK.getScene().getWindow();
-//
-//            if (result.equals("OK")) {
-//                gdChiTietTK.Clear(); // chỉ xóa form khi tạo mới thành công
-//                refreshBangChinh();
-//                hienThongBao(stage,"Tạo tài khoản thành công!", Alert.AlertType.INFORMATION);
-//            } else {
-//                hienThongBao(stage,result, Alert.AlertType.WARNING);
-//            }
-//        });
-
-        // ==== Cập nhật tài khoản ====
         gdChiTietTK.getBtnLuu().setOnAction(e -> {
             String maTK = gdChiTietTK.getTxtMaTK().getText().trim();
             String tenDN = gdChiTietTK.getTxtTenDangNhap().getText().trim();
@@ -193,7 +255,7 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
 
     private void refreshBangChinh() {
         if (table != null) {
-            table.getItems().setAll(controller.layDanhSachTaiKhoan());
+            lamMoiDuLieu();
         }
     }
 }

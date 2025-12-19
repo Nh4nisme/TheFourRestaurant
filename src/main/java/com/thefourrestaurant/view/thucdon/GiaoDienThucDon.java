@@ -1,4 +1,4 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.thucdon;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -10,10 +10,13 @@ import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.DAO.MonAnDAO;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+
+import java.util.Comparator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -23,6 +26,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.control.ButtonType;
 
 public class GiaoDienThucDon extends VBox {
 
@@ -35,6 +39,14 @@ public class GiaoDienThucDon extends VBox {
     private final MonAnDAO monAnDAO = new MonAnDAO();
     // map tenLoai -> maLoai for quick lookup
     private final Map<String, String> loaiNameToMa = new HashMap<>();
+    // store recently deleted menus (in-session) for row-based restore
+    private final java.util.List<DeletedThucDon> recentlyDeleted = new java.util.ArrayList<>();
+
+    private static class DeletedThucDon {
+        final ThucDonDAO.ThucDonView view;
+        final java.util.List<String> loai;
+        DeletedThucDon(ThucDonDAO.ThucDonView v, java.util.List<String> l) { this.view = v; this.loai = l == null ? java.util.Collections.emptyList() : new java.util.ArrayList<>(l); }
+    }
 
     public GiaoDienThucDon() {
         setAlignment(Pos.TOP_CENTER);
@@ -59,7 +71,10 @@ public class GiaoDienThucDon extends VBox {
         VBox leftPane = new VBox(16);
         leftPane.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4,0,0,2);");
         leftPane.setPadding(new Insets(20));
-        leftPane.setPrefWidth(450);
+        leftPane.setPrefWidth(600);
+        // keep left pane width stable to avoid table shifting when right pane content changes
+        leftPane.setMinWidth(600);
+        leftPane.setMaxWidth(600);
 
         Label lblDanhSach = new Label("Danh sách Thực Đơn");
         lblDanhSach.setFont(Font.font("System", FontWeight.BOLD, 18));
@@ -68,7 +83,8 @@ public class GiaoDienThucDon extends VBox {
         HBox thanhCongCu = new HBox(10);
         thanhCongCu.setAlignment(Pos.CENTER_LEFT);
         ButtonSample btnTaiLai = new ButtonSample("Tải lại", 35, 14, 3);
-    thanhCongCu.getChildren().add(btnTaiLai);
+        ButtonSample btnKhoiPhuc = new ButtonSample("Khôi phục", 35, 14, 3);
+    thanhCongCu.getChildren().addAll(btnTaiLai, btnKhoiPhuc);
 
     tableThucDon = new TableView<>();
         tableThucDon.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -78,7 +94,85 @@ public class GiaoDienThucDon extends VBox {
     loaiMonAnCol.setCellValueFactory(d -> new SimpleStringProperty(
         d.getValue().loaiMon == null ? "" : d.getValue().loaiMon
     ));
-    tableThucDon.getColumns().addAll(tenCol, loaiMonAnCol);
+
+    TableColumn<ThucDonDAO.ThucDonView, Void> colAction = new TableColumn<>("Hành động");
+    colAction.setCellFactory(tc -> new TableCell<>() {
+        private final HBox box = new HBox(6);
+        {
+            box.setAlignment(Pos.CENTER);
+        }
+        private final ButtonSample btnSua = new ButtonSample("Sửa", 36, 14, 1);
+        private final ButtonSample btnXoa = new ButtonSample("Xóa", 36, 14, 2);
+        private final ButtonSample btnAdd = new ButtonSample("Thêm thực đơn", 36, 16, 1);
+
+        {
+            btnSua.setOnAction(e -> {
+                ThucDonDAO.ThucDonView tv = getTableView().getItems().get(getIndex());
+                if (tv != null) {
+                    getTableView().getSelectionModel().select(tv);
+                }
+            });
+
+            btnXoa.setOnAction(e -> {
+                ThucDonDAO.ThucDonView tv = getTableView().getItems().get(getIndex());
+                if (tv == null || tv.maTD == null || tv.maTD.trim().isEmpty()) return;
+                Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+                a.setTitle("Xác nhận");
+                a.setHeaderText("Xác nhận");
+                a.setContentText("Bạn có chắc muốn xóa thực đơn này?");
+                a.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
+                a.showAndWait().ifPresent(bt -> {
+                    if (bt == ButtonType.OK) {
+                        try {
+                            // capture associated loai before deletion so we can restore if needed
+                            ThucDonDAO dao = new ThucDonDAO();
+                            List<String> loai = dao.layLoaiMonTheoThucDon(tv.tenTD);
+                            boolean ok = dao.xoaThucDon(tv.maTD);
+                            if (ok) {
+                                // remember deleted item for in-session restore
+                                recentlyDeleted.add(new DeletedThucDon(tv, loai));
+                                napBangThucDon();
+                            } else {
+                                Alert err = new Alert(Alert.AlertType.ERROR, "Xóa thất bại.");
+                                err.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
+                                err.showAndWait();
+                            }
+                        } catch (Exception ex) { ex.printStackTrace(); }
+                    }
+                });
+            });
+
+            btnAdd.setOnAction(e -> {
+                tableThucDon.getSelectionModel().clearSelection();
+                selectedFoods.clear();
+                capNhatBoxChonThucAn();
+            });
+        }
+
+        @Override
+        protected void updateItem(Void item, boolean empty) {
+            super.updateItem(item, empty);
+            box.getChildren().clear();
+            if (empty) {
+                setGraphic(null);
+                return;
+            }
+            ThucDonDAO.ThucDonView tv = getTableView().getItems().get(getIndex());
+            if (tv == null || tv.maTD == null || tv.maTD.trim().isEmpty()) {
+                btnAdd.setPrefWidth(180);
+                box.getChildren().add(btnAdd);
+            } else {
+                btnSua.setPrefWidth(80);
+                btnXoa.setPrefWidth(80);
+                box.getChildren().addAll(btnSua, btnXoa);
+            }
+            setGraphic(box);
+            setAlignment(Pos.CENTER);
+        }
+    });
+    colAction.setPrefWidth(300);
+
+    tableThucDon.getColumns().addAll(tenCol, loaiMonAnCol, colAction);
         VBox.setVgrow(tableThucDon, Priority.ALWAYS);
 
         leftPane.getChildren().addAll(lblDanhSach, thanhCongCu, tableThucDon);
@@ -166,8 +260,39 @@ public class GiaoDienThucDon extends VBox {
             }
         });
 
-        // Nút Tải lại
         btnTaiLai.setOnAction(e -> napBangThucDon());
+        btnKhoiPhuc.setOnAction(e -> {
+            if (recentlyDeleted.isEmpty()) {
+                showAlert(Alert.AlertType.INFORMATION, "Không có thực đơn nào để khôi phục.");
+                return;
+            }
+
+            List<ThucDonDAO.ThucDonView> toShow = recentlyDeleted.stream().map(d -> d.view).collect(Collectors.toList());
+            KhoiPhucThucDon dialog = new KhoiPhucThucDon(toShow);
+            if (this.getScene() != null) dialog.initOwner(this.getScene().getWindow());
+            dialog.showAndWait();
+
+            var selected = dialog.getCacThucDonDaChon();
+            if (selected == null || selected.isEmpty()) return;
+
+            ThucDonDAO dao = new ThucDonDAO();
+            boolean anyOk = false;
+            for (ThucDonDAO.ThucDonView v : selected) {
+                DeletedThucDon match = null;
+                for (DeletedThucDon d : recentlyDeleted) {
+                    if (v.maTD != null && v.maTD.equals(d.view.maTD) || (v.tenTD != null && v.tenTD.equals(d.view.tenTD))) {
+                        match = d; break;
+                    }
+                }
+                List<String> loai = match != null ? match.loai : (v.loaiMon == null ? List.of() : Arrays.stream(v.loaiMon.split(",")).map(String::trim).collect(Collectors.toList()));
+                boolean ok = dao.luuThucDonTheoLoaiMon(v.tenTD, loai);
+                if (ok) {
+                    anyOk = true;
+                    recentlyDeleted.removeIf(d -> d.view.maTD != null && d.view.maTD.equals(v.maTD));
+                }
+            }
+            if (anyOk) napBangThucDon();
+        });
 
         rightPane.getChildren().addAll(lblTaoMoi, boxTen, lblLoai, cbLoaiMonAn, boxChonThucAn, btnLuu);
 
@@ -275,7 +400,24 @@ public class GiaoDienThucDon extends VBox {
     private void napBangThucDon() {
         ThucDonDAO dao = new ThucDonDAO();
         var list = dao.layTatCaThucDonGomLoai();
-        tableThucDon.setItems(javafx.collections.FXCollections.observableArrayList(list));
+        var source = javafx.collections.FXCollections.observableArrayList(list);
+        ThucDonDAO.ThucDonView placeholder = new ThucDonDAO.ThucDonView(null, "", "");
+        source.add(placeholder);
+
+        tableThucDon.setItems(source);
+        tableThucDon.comparatorProperty().addListener((obs, old, nw) -> {
+            Comparator<ThucDonDAO.ThucDonView> comp = nw;
+            javafx.application.Platform.runLater(() -> {
+                if (comp != null) {
+                    javafx.collections.FXCollections.sort(source, (a, b) -> {
+                        if (a == placeholder && b == placeholder) return 0;
+                        if (a == placeholder) return 1;
+                        if (b == placeholder) return -1;
+                        return comp.compare(a, b);
+                    });
+                }
+            });
+        });
     }
 
     private void setupTableSelectionBehavior() {

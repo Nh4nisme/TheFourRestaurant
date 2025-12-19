@@ -7,6 +7,11 @@ import com.thefourrestaurant.model.LoaiKhachHang;
 import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.util.ValidatorKhachHang;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
+import com.thefourrestaurant.view.components.ButtonSample;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.geometry.Pos;
+import javafx.scene.layout.HBox;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,6 +27,7 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
     private TableView<KhachHang> table;
     private ObservableList<KhachHang> danhSachGoc;
     private ObservableList<KhachHang> danhSachHienThi;
+    private boolean comparatorListenerAdded = false;
 
     public GiaoDienKhachHang() {
         super("Khách hàng", new GiaoDienChiTietKhachHang());
@@ -69,29 +75,64 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
 
         TableColumn<KhachHang, Void> colHanhDong = new TableColumn<>("Hành động");
         colHanhDong.setCellFactory(col -> new TableCell<>() {
-            private final Button btnXoa = new Button("🗑");
+            private final HBox box = new HBox(6);
+            {
+                box.setAlignment(Pos.CENTER);
+            }
+            private final ButtonSample btnSua = new ButtonSample("Sửa", 36, 14, 1);
+            private final ButtonSample btnXoa = new ButtonSample("Xóa", 36, 14, 2);
+            private final ButtonSample btnAdd = new ButtonSample("Thêm khách hàng", 36, 16, 1);
 
             {
+                btnSua.setOnAction(e -> {
+                    KhachHang kh = getTableView().getItems().get(getIndex());
+                    if (kh == null) return;
+                    table.getSelectionModel().select(kh);
+                    hienThiChiTiet(kh);
+                });
+
                 btnXoa.setOnAction(event -> {
                     KhachHang kh = getTableView().getItems().get(getIndex());
                     Stage stage = (Stage) btnXoa.getScene().getWindow();
-
+                    if (kh == null) return;
                     if (xacNhan(stage, "Bạn có chắc muốn xóa khách hàng: " + kh.getHoTen() + " ?")) {
                         boolean ok = controller.xoaKhachHang(kh.getMaKH());
                         if (ok) {
                             getTableView().getItems().remove(kh);
-                            hienThongBao(stage,"Đã xóa khách hàng!");
+                            hienThongBao(stage, "Đã xóa khách hàng!");
                         } else {
-                            hienThongBao(stage,"Không thể xóa khách hàng này!", Alert.AlertType.ERROR);
+                            hienThongBao(stage, "Không thể xóa khách hàng này!", Alert.AlertType.ERROR);
                         }
                     }
+                });
+
+                btnAdd.setOnAction(e -> {
+                    gdChiTietKH.Clear();
+                    String maMoi = new KhachHangDAO().taoMaKHMoi();
+                    try {
+                        gdChiTietKH.getTxtMaKH().setText(maMoi);
+                    } catch (Exception ex) { }
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : btnXoa);
+                if (empty) {
+                    setGraphic(null);
+                    return;
+                }
+                KhachHang kh = getTableView().getItems().get(getIndex());
+                if (kh == null) {
+                    setGraphic(null);
+                    return;
+                }
+                if (kh.getMaKH() == null || kh.getMaKH().isEmpty()) {
+                    setGraphic(btnAdd);
+                } else {
+                    box.getChildren().setAll(btnSua, btnXoa);
+                    setGraphic(box);
+                }
             }
         });
 
@@ -100,7 +141,10 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
 
 
         List<KhachHang> dsKhachHang = controller.layDanhSachKhachHang();
-        table.getItems().setAll(dsKhachHang);
+        var source = FXCollections.observableArrayList(dsKhachHang);
+        KhachHang placeholder = new KhachHang();
+        source.add(placeholder);
+        table.setItems(source);
 
         table.setRowFactory(t -> {
             TableRow<KhachHang> row = new TableRow<>();
@@ -118,9 +162,25 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
 
     @Override
     protected void lamMoiDuLieu() {
-        danhSachGoc = FXCollections.observableArrayList(new KhachHangController().layDanhSachKhachHang());
-        danhSachHienThi = FXCollections.observableArrayList(danhSachGoc);
-        table.setItems(danhSachHienThi);
+        List<KhachHang> ds = controller.layDanhSachKhachHang();
+        danhSachGoc = FXCollections.observableArrayList(ds);
+
+        var source = FXCollections.observableArrayList(ds);
+        KhachHang placeholder = new KhachHang();
+        source.add(placeholder);
+        table.setItems(source);
+
+        if (!comparatorListenerAdded) {
+            comparatorListenerAdded = true;
+            table.comparatorProperty().addListener((obs, old, nw) -> {
+                java.util.Comparator<KhachHang> comp = nw;
+                Platform.runLater(() -> {
+                    if (comp == null) return;
+                    try { source.sort(comp); } catch (Exception ex) {}
+                    if (source.remove(placeholder)) source.add(placeholder);
+                });
+            });
+        }
     }
 
     @Override
@@ -199,7 +259,7 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
 
     private void refreshBangChinh() {
         if (table != null) {
-            table.getItems().setAll(controller.layDanhSachKhachHang());
+            lamMoiDuLieu();
         }
     }
 

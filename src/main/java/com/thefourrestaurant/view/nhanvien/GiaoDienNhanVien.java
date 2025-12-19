@@ -5,11 +5,14 @@ import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Pos;
+import java.util.Comparator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -175,11 +178,25 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
     protected void lamMoiDuLieu() {
         List<NhanVien> ds = controller.layDanhSachNhanVien();
         danhSachGoc = FXCollections.observableArrayList(ds);
-        danhSachHienThi = FXCollections.observableArrayList(ds);
-        NhanVien addRow = new NhanVien();
-        addRow.setMaNV(null);
-        danhSachHienThi.add(addRow);
-        table.setItems(danhSachHienThi);
+
+        var source = FXCollections.observableArrayList(ds);
+        NhanVien placeholder = new NhanVien();
+        source.add(placeholder);
+
+        table.setItems(source);
+        table.comparatorProperty().addListener((obs, old, nw) -> {
+            Comparator<NhanVien> comp = nw;
+            javafx.application.Platform.runLater(() -> {
+                if (comp != null) {
+                    javafx.collections.FXCollections.sort(source, (a, b) -> {
+                        if (a == placeholder && b == placeholder) return 0;
+                        if (a == placeholder) return 1;
+                        if (b == placeholder) return -1;
+                        return comp.compare(a, b);
+                    });
+                }
+            });
+        });
     }
 
     @Override
