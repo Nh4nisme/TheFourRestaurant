@@ -69,10 +69,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
         TableColumn<NhanVien, String> colSDT = new TableColumn<>("SĐT");
         colSDT.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getSoDienThoai()));
 
-        TableColumn<NhanVien, String> colLuong = new TableColumn<>("Lương");
-        colLuong.setCellValueFactory(cd -> new SimpleStringProperty(
-            cd.getValue().getLuong() == null ? "" : cd.getValue().getLuong().toPlainString()
-        ));
+        
 
         TableColumn<NhanVien, String> colVaiTro = new TableColumn<>("Vai trò");
         colVaiTro.setCellValueFactory(cd -> {
@@ -164,7 +161,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
         });
         colAction.setPrefWidth(300);
 
-        table.getColumns().addAll(colMa, colHoTen, colNgaySinh, colGioiTinh, colSDT, colLuong, colVaiTro, colMaTK, colAction);
+        table.getColumns().addAll(colMa, colHoTen, colNgaySinh, colGioiTinh, colSDT, colVaiTro, colMaTK, colAction);
         return table;
     }
 
@@ -226,11 +223,8 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
             java.sql.Date ngay = gdChiTiet.getDtpNgaySinh().getValue() == null ? null : java.sql.Date.valueOf(gdChiTiet.getDtpNgaySinh().getValue());
             String gioiTinh = gdChiTiet.getGioiTinhValue(); 
             String sdt = gdChiTiet.getTxtSDT().getText().trim();
-            BigDecimal luong = null;
-            try {
-                String l = gdChiTiet.getTxtLuong().getText().trim();
-                if (!l.isEmpty()) luong = new BigDecimal(l);
-            } catch (Exception ex) { }
+            BigDecimal luong = selected.getLuong();
+            if (luong == null) luong = BigDecimal.ZERO;
 
             NhanVien nv = new NhanVien(ma, hoTen, ngay, gioiTinh, sdt, luong, selected.getMaTK());
             boolean ok = controller.capNhatNhanVien(nv, gdChiTiet.getSelectedImageFile());

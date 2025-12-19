@@ -37,7 +37,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
     private DatePicker dtpNgaySinh;
     private ComboBox<String> cboGioiTinh;
     private TextField txtSDT;
-    private TextField txtLuong;
+    
     private ComboBox<VaiTro> cboVaiTro;
     private TextField txtMaTK;
     private ImageView imageView;
@@ -60,7 +60,6 @@ public class GiaoDienChiTietNhanVien extends VBox {
     public DatePicker getDtpNgaySinh() { return dtpNgaySinh; }
     public ComboBox<String> getCboGioiTinh() { return cboGioiTinh; }
     public TextField getTxtSDT() { return txtSDT; }
-    public TextField getTxtLuong() { return txtLuong; }
     public TextField getTxtMaTK() { return txtMaTK; }
     public boolean isEditMode() { return isEditMode; }
 
@@ -91,7 +90,6 @@ public class GiaoDienChiTietNhanVien extends VBox {
         cboGioiTinh.getItems().addAll("Nam", "Nữ", "Khác");
         cboGioiTinh.setPrefWidth(300);
         txtSDT = taoTextField("Số điện thoại");
-        txtLuong = taoTextField("Lương");
         cboVaiTro = new ComboBox<>();
         cboVaiTro.setPrefWidth(300);
         try {
@@ -188,12 +186,10 @@ public class GiaoDienChiTietNhanVien extends VBox {
         form.add(cboGioiTinh, 1, 3);
         form.add(new Label("SĐT:"), 0, 4);
         form.add(txtSDT, 1, 4);
-        form.add(new Label("Lương:"), 0, 5);
-        form.add(txtLuong, 1, 5);
-        form.add(new Label("Vai trò:"), 0, 6);
-        form.add(cboVaiTro, 1, 6);
-        form.add(new Label("Mã TK:"), 0, 7);
-        form.add(txtMaTK, 1, 7);
+        form.add(new Label("Vai trò:"), 0, 5);
+        form.add(cboVaiTro, 1, 5);
+        form.add(new Label("Mã TK:"), 0, 6);
+        form.add(txtMaTK, 1, 6);
 
         VBox mainContent = new VBox(8);
         mainContent.setAlignment(Pos.TOP_CENTER);
@@ -207,7 +203,6 @@ public class GiaoDienChiTietNhanVien extends VBox {
         btnXoa.setOnAction(ev -> {
             txtHoTen.clear();
             txtSDT.clear();
-            txtLuong.clear();
             cboGioiTinh.getSelectionModel().clearSelection();
             cboVaiTro.getSelectionModel().clearSelection();
             dtpNgaySinh.setValue(java.time.LocalDate.of(2001, 1, 1));
@@ -426,8 +421,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 }
 
                 java.sql.Date sqlDate = java.sql.Date.valueOf(ngaySinh);
-                BigDecimal luong = null;
-                try { String l = txtLuong.getText().trim(); if (!l.isEmpty()) luong = new BigDecimal(l); } catch (Exception ex) { }
+                BigDecimal luong = BigDecimal.ZERO;
 
                 NhanVien nv = new NhanVien(maNV, hoTen, sqlDate, getGioiTinhValue(), txtSDT.getText().trim(), luong, tk);
                 boolean nvOk = controller.themNhanVien(nv, selectedImageFile);
@@ -436,6 +430,8 @@ public class GiaoDienChiTietNhanVien extends VBox {
                     Alert a = new Alert(Alert.AlertType.INFORMATION, "Thêm nhân viên thành công.");
                     a.showAndWait();
                     hienThi(null);
+                    // Refresh parent list view if present
+                    try { refreshParentList(); } catch (Exception ignored) {}
                 } else {
                     try {
                         TaiKhoanDAO.xoaTaiKhoan(maTK);
@@ -486,7 +482,6 @@ public class GiaoDienChiTietNhanVien extends VBox {
             dtpNgaySinh.setValue(java.time.LocalDate.of(2001, 1, 1));
             cboGioiTinh.getSelectionModel().clearSelection();
             txtSDT.clear();
-            txtLuong.clear();
             txtMaTK.clear();
             cboVaiTro.getSelectionModel().clearSelection();
             imageView.setImage(null);
@@ -509,7 +504,6 @@ public class GiaoDienChiTietNhanVien extends VBox {
         }
 
         txtSDT.setText(nv.getSoDienThoai());
-        if (nv.getLuong() != null) txtLuong.setText(nv.getLuong().toPlainString());
         if (nv.getMaTK() != null) txtMaTK.setText(nv.getMaTK().getMaTK());
         if (nv.getMaTK() != null && nv.getMaTK().getVaiTro() != null) {
             String maVT = nv.getMaTK().getVaiTro().getMaVT();
@@ -565,8 +559,6 @@ public class GiaoDienChiTietNhanVien extends VBox {
             txtMaNV.setStyle("-fx-opacity: 0.6;");
             txtMaTK.setEditable(false);
             txtMaTK.setStyle("-fx-opacity: 0.6;");
-            txtLuong.setEditable(false);
-            txtLuong.setStyle("-fx-opacity: 0.6;");
 
             btnThem.setVisible(false);
             btnThem.setManaged(false);
@@ -579,8 +571,6 @@ public class GiaoDienChiTietNhanVien extends VBox {
             txtMaNV.setStyle("-fx-opacity: 0.6;");
             txtMaTK.setEditable(false);
             txtMaTK.setStyle("-fx-opacity: 0.6;");
-            txtLuong.setEditable(true);
-            txtLuong.setStyle("");
 
             btnThem.setVisible(true);
             btnThem.setManaged(true);
@@ -597,6 +587,19 @@ public class GiaoDienChiTietNhanVien extends VBox {
             return "Nu";
         }
         return selected;
+    }
+
+    private void refreshParentList() {
+        javafx.scene.Parent p = this.getParent();
+        while (p != null) {
+            if (p instanceof GiaoDienNhanVien) {
+                try {
+                    ((GiaoDienNhanVien) p).lamMoiDuLieu();
+                } catch (Exception ignored) {}
+                break;
+            }
+            p = p.getParent();
+        }
     }
 
     public static String formatVaiTro(String vaiTro) {
