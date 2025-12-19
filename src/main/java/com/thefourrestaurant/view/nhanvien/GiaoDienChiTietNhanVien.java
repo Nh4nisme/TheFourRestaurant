@@ -24,7 +24,11 @@ import java.util.Optional;
 import com.thefourrestaurant.controller.NhanVienController;
 import com.thefourrestaurant.DAO.NhanVienDAO;
 import com.thefourrestaurant.DAO.TaiKhoanDAO;
+import com.thefourrestaurant.DAO.VaiTroDAO;
 import com.thefourrestaurant.model.TaiKhoan;
+import com.thefourrestaurant.model.VaiTro;
+import javafx.scene.control.ListCell;
+import javafx.util.StringConverter;
 
 public class GiaoDienChiTietNhanVien extends VBox {
 
@@ -34,6 +38,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
     private ComboBox<String> cboGioiTinh;
     private TextField txtSDT;
     private TextField txtLuong;
+    private ComboBox<VaiTro> cboVaiTro;
     private TextField txtMaTK;
     private ImageView imageView;
     private File selectedImageFile = null;
@@ -60,8 +65,8 @@ public class GiaoDienChiTietNhanVien extends VBox {
     public boolean isEditMode() { return isEditMode; }
 
     public GiaoDienChiTietNhanVien() {
-        setPadding(new Insets(20));
-        setSpacing(15);
+        setPadding(new Insets(12));
+        setSpacing(8);
         setAlignment(Pos.TOP_CENTER);
 
         lblTieuDe = new Label("Thông tin nhân viên");
@@ -87,6 +92,43 @@ public class GiaoDienChiTietNhanVien extends VBox {
         cboGioiTinh.setPrefWidth(300);
         txtSDT = taoTextField("Số điện thoại");
         txtLuong = taoTextField("Lương");
+        cboVaiTro = new ComboBox<>();
+        cboVaiTro.setPrefWidth(300);
+        try {
+            java.util.List<VaiTro> roles = new VaiTroDAO().layDanhSachVaiTro();
+            if (roles != null && !roles.isEmpty()) {
+                cboVaiTro.getItems().addAll(roles);
+            } else {
+                cboVaiTro.getItems().addAll(new VaiTro("VT000001", "QuanLy", false), new VaiTro("VT000002", "ThuNgan", false));
+            }
+        } catch (Exception ex) {
+            cboVaiTro.getItems().addAll(new VaiTro("VT000001", "QuanLy", false), new VaiTro("VT000002", "ThuNgan", false));
+        }
+        cboVaiTro.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(VaiTro item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : formatVaiTro(item.getTenVaiTro()));
+            }
+        });
+        cboVaiTro.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(VaiTro item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : formatVaiTro(item.getTenVaiTro()));
+            }
+        });
+        cboVaiTro.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(VaiTro object) {
+                return object == null ? null : formatVaiTro(object.getTenVaiTro());
+            }
+
+            @Override
+            public VaiTro fromString(String string) {
+                return null;
+            }
+        });
         txtMaTK = taoTextField("Mã TK");
 
         StackPane imagePane = new StackPane();
@@ -94,7 +136,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
         imagePane.setMaxSize(180, 240); 
         imagePane.setMinSize(180, 240); 
         imagePane.setStyle("-fx-background-color: #F5F5F5; -fx-border-color: #E0E0E0; -fx-border-radius: 8; -fx-background-radius: 8;");
-        VBox.setMargin(imagePane, new Insets(0, 0, 15, 0));
+        VBox.setMargin(imagePane, new Insets(0, 0, 8, 0));
         imageView = new ImageView();
         imageView.setFitWidth(180);
         imageView.setFitHeight(240);
@@ -130,11 +172,11 @@ public class GiaoDienChiTietNhanVien extends VBox {
 
         GridPane form = new GridPane();
         form.setHgap(10);
-        form.setVgap(10);
+        form.setVgap(6);
         ColumnConstraints formC0 = new ColumnConstraints();
-        formC0.setMinWidth(120);
+        formC0.setMinWidth(110);
         ColumnConstraints formC1 = new ColumnConstraints();
-        formC1.setMinWidth(250);
+        formC1.setMinWidth(220);
         form.getColumnConstraints().addAll(formC0, formC1);
         form.add(new Label("Mã NV:"), 0, 0);
         form.add(txtMaNV, 1, 0);
@@ -148,10 +190,12 @@ public class GiaoDienChiTietNhanVien extends VBox {
         form.add(txtSDT, 1, 4);
         form.add(new Label("Lương:"), 0, 5);
         form.add(txtLuong, 1, 5);
-        form.add(new Label("Mã TK:"), 0, 6);
-        form.add(txtMaTK, 1, 6);
+        form.add(new Label("Vai trò:"), 0, 6);
+        form.add(cboVaiTro, 1, 6);
+        form.add(new Label("Mã TK:"), 0, 7);
+        form.add(txtMaTK, 1, 7);
 
-        VBox mainContent = new VBox(15);
+        VBox mainContent = new VBox(8);
         mainContent.setAlignment(Pos.TOP_CENTER);
         mainContent.getChildren().addAll(imagePane, form);
 
@@ -165,6 +209,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
             txtSDT.clear();
             txtLuong.clear();
             cboGioiTinh.getSelectionModel().clearSelection();
+            cboVaiTro.getSelectionModel().clearSelection();
             dtpNgaySinh.setValue(java.time.LocalDate.of(2001, 1, 1));
             imageView.setImage(null);
             selectedImageFile = null;
@@ -197,6 +242,12 @@ public class GiaoDienChiTietNhanVien extends VBox {
             }
             if (gioiTinh == null || gioiTinh.isEmpty()) {
                 Alert a = new Alert(Alert.AlertType.ERROR, "Vui lòng chọn giới tính.");
+                a.showAndWait();
+                return;
+            }
+            VaiTro selectedRole = cboVaiTro.getSelectionModel().getSelectedItem();
+            if (selectedRole == null) {
+                Alert a = new Alert(Alert.AlertType.ERROR, "Vui lòng chọn vai trò.");
                 a.showAndWait();
                 return;
             }
@@ -341,7 +392,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
                     return;
                 }
 
-                TaiKhoan tk = new TaiKhoan(maTK, tenDN, mk, null, false);
+                TaiKhoan tk = new TaiKhoan(maTK, tenDN, mk, selectedRole, false);
                 boolean tkOk = TaiKhoanDAO.themTaiKhoan(tk);
 
                 java.sql.Date sqlDate = java.sql.Date.valueOf(ngaySinh);
@@ -403,6 +454,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
             txtSDT.clear();
             txtLuong.clear();
             txtMaTK.clear();
+            cboVaiTro.getSelectionModel().clearSelection();
             imageView.setImage(null);
             selectedImageFile = null;
             hintLabel.setVisible(true);
@@ -425,6 +477,17 @@ public class GiaoDienChiTietNhanVien extends VBox {
         txtSDT.setText(nv.getSoDienThoai());
         if (nv.getLuong() != null) txtLuong.setText(nv.getLuong().toPlainString());
         if (nv.getMaTK() != null) txtMaTK.setText(nv.getMaTK().getMaTK());
+        if (nv.getMaTK() != null && nv.getMaTK().getVaiTro() != null) {
+            String maVT = nv.getMaTK().getVaiTro().getMaVT();
+            for (VaiTro vt : cboVaiTro.getItems()) {
+                if (vt != null && vt.getMaVT() != null && vt.getMaVT().equals(maVT)) {
+                    cboVaiTro.getSelectionModel().select(vt);
+                    break;
+                }
+            }
+        } else {
+            cboVaiTro.getSelectionModel().clearSelection();
+        }
 
         String dbPath = nv.getHinhAnh();
         boolean loaded = false;
