@@ -2,9 +2,11 @@ package com.thefourrestaurant.view.nhanvien;
 
 import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.view.components.ButtonSample;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
@@ -14,6 +16,15 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.Optional;
+
+import com.thefourrestaurant.controller.NhanVienController;
+import com.thefourrestaurant.DAO.NhanVienDAO;
+import com.thefourrestaurant.DAO.TaiKhoanDAO;
+import com.thefourrestaurant.model.TaiKhoan;
 
 public class GiaoDienChiTietNhanVien extends VBox {
 
@@ -32,6 +43,8 @@ public class GiaoDienChiTietNhanVien extends VBox {
     private Label lblTieuDe;
     private Label hintLabel;
     private boolean isEditMode = false;
+    private final NhanVienController controller = new NhanVienController();
+    private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
 
     public File getSelectedImageFile() { return selectedImageFile; }
     public ButtonSample getBtnThem() { return btnThem; }
@@ -58,6 +71,17 @@ public class GiaoDienChiTietNhanVien extends VBox {
         txtHoTen = taoTextField("Họ tên");
         dtpNgaySinh = new DatePicker();
         dtpNgaySinh.setPrefWidth(300);
+        // >= 18
+        LocalDate maxAllowed = LocalDate.now().minusYears(18);
+        dtpNgaySinh.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (empty || date == null) return;
+                setDisable(date.isAfter(maxAllowed));
+            }
+        });
+        dtpNgaySinh.setValue(java.time.LocalDate.of(2001, 1, 1));
         cboGioiTinh = new ComboBox<>();
         cboGioiTinh.getItems().addAll("Nam", "Nữ", "Khác");
         cboGioiTinh.setPrefWidth(300);
@@ -107,6 +131,11 @@ public class GiaoDienChiTietNhanVien extends VBox {
         GridPane form = new GridPane();
         form.setHgap(10);
         form.setVgap(10);
+        ColumnConstraints formC0 = new ColumnConstraints();
+        formC0.setMinWidth(120);
+        ColumnConstraints formC1 = new ColumnConstraints();
+        formC1.setMinWidth(250);
+        form.getColumnConstraints().addAll(formC0, formC1);
         form.add(new Label("Mã NV:"), 0, 0);
         form.add(txtMaNV, 1, 0);
         form.add(new Label("Họ tên:"), 0, 1);
@@ -128,7 +157,210 @@ public class GiaoDienChiTietNhanVien extends VBox {
 
         btnThem = new ButtonSample("Thêm", 36, 16, 1);
         btnLuu = new ButtonSample("Lưu", 36, 16, 1);
-        btnXoa = new ButtonSample("Xóa", 36, 16, 2);
+        btnXoa = new ButtonSample("Xóa trắng", 36, 16, 2);
+
+        // Xóa trắng: xóa các trường nhập trừ Mã NV và Mã TK
+        btnXoa.setOnAction(ev -> {
+            txtHoTen.clear();
+            txtSDT.clear();
+            txtLuong.clear();
+            cboGioiTinh.getSelectionModel().clearSelection();
+            dtpNgaySinh.setValue(java.time.LocalDate.of(2001, 1, 1));
+            imageView.setImage(null);
+            selectedImageFile = null;
+            hintLabel.setVisible(true);
+            setEditMode(false);
+        });
+
+        // tự tạo id
+        txtMaNV.setEditable(false);
+        txtMaTK.setEditable(false);
+        try {
+            txtMaNV.setText(nhanVienDAO.taoMaNhanVienMoi());
+            txtMaTK.setText(TaiKhoanDAO.taoMaTaiKhoanMoi());
+        } catch (Exception ex) { }
+
+        btnThem.setOnAction(e -> {
+            String hoTen = txtHoTen.getText().trim();
+            LocalDate ngaySinh = dtpNgaySinh.getValue();
+            String gioiTinh = cboGioiTinh.getSelectionModel().getSelectedItem();
+
+            if (hoTen.isEmpty()) {
+                Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Họ tên' không được để trống.");
+                a.showAndWait();
+                return;
+            }
+            if (ngaySinh == null) {
+                Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Ngày sinh' không được để trống.");
+                a.showAndWait();
+                return;
+            }
+            if (gioiTinh == null || gioiTinh.isEmpty()) {
+                Alert a = new Alert(Alert.AlertType.ERROR, "Vui lòng chọn giới tính.");
+                a.showAndWait();
+                return;
+            }
+            // Regex
+            String sdtVal = txtSDT.getText().trim();
+            if (!sdtVal.isEmpty()) {
+                if (!sdtVal.matches("^0\\d{9,10}$")) {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Số điện thoại không hợp lệ. Phải bắt đầu bằng 0 và gồm 10 hoặc 11 chữ số.");
+                    a.showAndWait();
+                    return;
+                }
+            }
+
+            String maNV = nhanVienDAO.taoMaNhanVienMoi();
+            String maTK = TaiKhoanDAO.taoMaTaiKhoanMoi();
+            txtMaNV.setText(maNV);
+            txtMaTK.setText(maTK);
+
+            // Tài khoản dialog
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.initOwner(getScene() != null ? getScene().getWindow() : null);
+            dialog.setTitle("Thông tin tài khoản");
+            DialogPane dp = dialog.getDialogPane();
+            dp.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+                Label title = new Label("Thông tin tài khoản");
+                title.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 24px; -fx-font-weight: bold;");
+                title.setMaxWidth(Double.MAX_VALUE);
+                title.setAlignment(Pos.CENTER);
+                VBox.setMargin(title, new Insets(30,0,30,0));
+
+                TextField txtMaTKDlg = new TextField(maTK);
+                txtMaTKDlg.setEditable(false);
+                txtMaTKDlg.setPrefWidth(250);
+                txtMaTKDlg.setStyle("-fx-control-inner-background: #F5F5F5; -fx-opacity: 1;");
+
+                TextField txtTenDN = new TextField();
+                txtTenDN.setPromptText("Tài khoản");
+                txtTenDN.setPrefWidth(250);
+                PasswordField txtMatKhau = new PasswordField();
+                txtMatKhau.setPromptText("Mật khẩu");
+                txtMatKhau.setPrefWidth(250);
+                PasswordField txtMatKhau2 = new PasswordField();
+                txtMatKhau2.setPromptText("Nhập lại mật khẩu");
+                txtMatKhau2.setPrefWidth(250);
+
+                GridPane grid = new GridPane();
+                grid.setHgap(10);
+                grid.setVgap(10);
+                grid.add(new Label("Mã TK:"), 0, 0);
+                grid.add(txtMaTKDlg, 1, 0);
+                grid.add(new Label("Tài khoản:"), 0, 1);
+                grid.add(txtTenDN, 1, 1);
+                grid.add(new Label("Mật khẩu:"), 0, 2);
+                grid.add(txtMatKhau, 1, 2);
+                grid.add(new Label("Nhập lại mật khẩu:"), 0, 3);
+                grid.add(txtMatKhau2, 1, 3);
+                ColumnConstraints c0 = new ColumnConstraints();
+                c0.setMinWidth(140);
+                ColumnConstraints c1 = new ColumnConstraints();
+                c1.setMinWidth(250);
+                grid.getColumnConstraints().addAll(c0, c1);
+
+                VBox content = new VBox(8, title, grid);
+                content.setPrefWidth(700);
+                content.setPrefHeight(500);
+                dp.setContent(content);
+                dp.setPrefSize(450, 500);
+
+                Button okBtn = (Button) dp.lookupButton(ButtonType.OK);
+                if (okBtn != null) {
+                    okBtn.setText("Thêm");
+                    okBtn.getStyleClass().add("button_sampleGamboge");
+                    okBtn.setPrefHeight(36);
+                    okBtn.setPrefWidth(100);
+                    try {
+                        javafx.scene.text.Font mont = javafx.scene.text.Font.loadFont(
+                                getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"),
+                                16);
+                        if (mont != null) okBtn.setFont(mont);
+                    } catch (Exception ignored) {}
+                    // error dialog không đóng account dialog
+                    okBtn.addEventFilter(ActionEvent.ACTION, ev -> {
+                        String tenDNVal = txtTenDN.getText().trim();
+                        String mkVal = txtMatKhau.getText();
+                        String mk2Val = txtMatKhau2.getText();
+                        if (txtMaTKDlg.getText().trim().isEmpty()) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Mã tài khoản bị lỗi. Vui lòng thử lại.");
+                            a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                            a.showAndWait();
+                            ev.consume();
+                            return;
+                        }
+                        if (tenDNVal.isEmpty()) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Tài khoản' không được để trống.");
+                            a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                            a.showAndWait();
+                            ev.consume();
+                            return;
+                        }
+                        if (mkVal.isEmpty() || mk2Val.isEmpty()) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Mật khẩu' và 'Nhập lại mật khẩu' không được để trống.");
+                            a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                            a.showAndWait();
+                            ev.consume();
+                            return;
+                        }
+                        if (!mkVal.equals(mk2Val)) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Mật khẩu nhập lại không khớp.");
+                            a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                            a.showAndWait();
+                            ev.consume();
+                            return;
+                        }
+                        if (mkVal.length() < 6) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Mật khẩu phải có ít nhất 6 ký tự.");
+                            a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                            a.showAndWait();
+                            ev.consume();
+                        }
+                    });
+                }
+
+            Optional<ButtonType> res = dialog.showAndWait();
+            if (res.isPresent() && res.get().getButtonData() == ButtonData.OK_DONE) {
+                String tenDN = txtTenDN.getText().trim();
+                String mk = txtMatKhau.getText();
+                String mk2 = txtMatKhau2.getText();
+                if (tenDN.isEmpty()) {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Tài khoản' không được để trống.");
+                    a.showAndWait();
+                    return;
+                }
+                if (mk.isEmpty()) {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Mật khẩu' không được để trống.");
+                    a.showAndWait();
+                    return;
+                }
+                if (!mk.equals(mk2)) {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Mật khẩu nhập lại không khớp.");
+                    a.showAndWait();
+                    return;
+                }
+
+                TaiKhoan tk = new TaiKhoan(maTK, tenDN, mk, null, false);
+                boolean tkOk = TaiKhoanDAO.themTaiKhoan(tk);
+
+                java.sql.Date sqlDate = java.sql.Date.valueOf(ngaySinh);
+                BigDecimal luong = null;
+                try { String l = txtLuong.getText().trim(); if (!l.isEmpty()) luong = new BigDecimal(l); } catch (Exception ex) { }
+
+                NhanVien nv = new NhanVien(maNV, hoTen, sqlDate, getGioiTinhValue(), txtSDT.getText().trim(), luong, tk);
+                boolean nvOk = controller.themNhanVien(nv, selectedImageFile);
+
+                if (tkOk && nvOk) {
+                    Alert a = new Alert(Alert.AlertType.INFORMATION, "Thêm nhân viên thành công.");
+                    a.showAndWait();
+                    hienThi(null);
+                } else {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Thêm thất bại. Vui lòng thử lại.");
+                    a.showAndWait();
+                }
+            }
+        });
 
         HBox footer = new HBox(10, btnThem, btnLuu, btnXoa);
         footer.setAlignment(Pos.CENTER_RIGHT);
@@ -166,7 +398,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
         if (nv == null) {
             txtMaNV.clear();
             txtHoTen.clear();
-            dtpNgaySinh.setValue(null);
+            dtpNgaySinh.setValue(java.time.LocalDate.of(2001, 1, 1));
             cboGioiTinh.getSelectionModel().clearSelection();
             txtSDT.clear();
             txtLuong.clear();
@@ -246,10 +478,10 @@ public class GiaoDienChiTietNhanVien extends VBox {
             btnXoa.setVisible(true);
             btnXoa.setManaged(true);
         } else {
-            txtMaNV.setEditable(true);
-            txtMaNV.setStyle("");
-            txtMaTK.setEditable(true);
-            txtMaTK.setStyle("");
+            txtMaNV.setEditable(false);
+            txtMaNV.setStyle("-fx-opacity: 0.6;");
+            txtMaTK.setEditable(false);
+            txtMaTK.setStyle("-fx-opacity: 0.6;");
             txtLuong.setEditable(true);
             txtLuong.setStyle("");
 

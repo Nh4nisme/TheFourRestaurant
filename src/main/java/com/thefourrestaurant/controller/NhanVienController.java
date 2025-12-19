@@ -122,4 +122,16 @@ public class NhanVienController {
         return dao.capNhatNhanVien(nv);
     }
 
+    public boolean themNhanVien(com.thefourrestaurant.model.NhanVien nv, java.io.File imageFile) {
+        if (imageFile != null) {
+            try {
+                String savedPath = saoChepHinhAnhVaoProject(imageFile.getAbsolutePath(), nv.getMaNV());
+                if (savedPath != null) nv.setHinhAnh(savedPath);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return dao.themNhanVien(nv);
+    }
+
 }

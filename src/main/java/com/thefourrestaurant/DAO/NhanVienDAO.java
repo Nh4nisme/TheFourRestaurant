@@ -126,4 +126,42 @@ public class NhanVienDAO {
             return false;
         }
     }
+
+    public String taoMaNhanVienMoi() {
+        String sql = "SELECT TOP 1 maNV FROM NhanVien ORDER BY maNV DESC";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                String last = rs.getString(1);
+                int num = Integer.parseInt(last.substring(2)) + 1;
+                return String.format("NV%06d", num);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "NV000001";
+    }
+
+    public boolean themNhanVien(NhanVien nv) {
+        String sql = "INSERT INTO NhanVien (maNV, hoTen, ngaySinh, gioiTinh, soDienThoai, luong, maTK, hinhAnh, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nv.getMaNV());
+            ps.setString(2, nv.getHoTen());
+            ps.setDate(3, nv.getNgaySinh());
+            ps.setString(4, nv.getGioiTinh());
+            ps.setString(5, nv.getSoDienThoai());
+            ps.setBigDecimal(6, nv.getLuong());
+            ps.setString(7, nv.getMaTK() != null ? nv.getMaTK().getMaTK() : null);
+            ps.setString(8, nv.getHinhAnh());
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
