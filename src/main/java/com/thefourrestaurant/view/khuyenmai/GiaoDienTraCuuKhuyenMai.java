@@ -4,24 +4,20 @@ import com.thefourrestaurant.DAO.LoaiKhuyenMaiDAO;
 import com.thefourrestaurant.controller.KhuyenMaiController;
 import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiKhuyenMai;
-import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.DropDownButtonMap;
 import com.thefourrestaurant.view.components.GiaoDienTraCuu;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
@@ -39,8 +35,13 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
         themBoLocChuCai();
         themBoLocLoaiKhuyenMai();
         themBoLocSapXep();
-        themThanhTimKiem("Nhập tên khuyến mãi");
+        themThanhTimKiem("Tìm kiếm khuyến mãi (Tên, Mã, Code)...");
         themButtonLamMoi();
+
+        URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
+        if (urlCSS != null) {
+            this.getStylesheets().add(urlCSS.toExternalForm());
+        }
 
         lamMoiDuLieu();
     }
@@ -69,9 +70,21 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
                 mapNgay,
                 null, 35, 16, 3
         );
-        btnTheoNgay.setOnItemSelected(ascending -> sapXepTheoNgay(ascending));
+        btnTheoNgay.setOnItemSelected(this::sapXepTheoNgay);
 
-        thanhTrai.getChildren().add(btnTheoNgay);
+        LinkedHashMap<String, String> mapTrangThai = new LinkedHashMap<>();
+        mapTrangThai.put("Đang diễn ra", "DANG_DIEN_RA");
+        mapTrangThai.put("Sắp diễn ra", "SAP_DIEN_RA");
+        mapTrangThai.put("Đã hết hạn", "DA_HET_HAN");
+
+        DropDownButtonMap<String> btnTheoTrangThai = new DropDownButtonMap<>(
+                "Theo trạng thái ▼",
+                mapTrangThai,
+                null, 35, 16, 3
+        );
+        btnTheoTrangThai.setOnItemSelected(this::locTheoTrangThai);
+
+        thanhTrai.getChildren().addAll(btnTheoNgay, btnTheoTrangThai);
     }
 
     private void sapXepTheoNgay(boolean ascending) {
@@ -83,6 +96,24 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
         });
         if (!ascending) comp = comp.reversed();
         danhSachKhuyenMaiHienThi.sort(comp);
+        capNhatBang();
+    }
+
+    private void locTheoTrangThai(String statusKey) {
+        LocalDateTime now = LocalDateTime.now();
+        danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream().filter(km -> {
+            if (km.getNgayBatDau() == null || km.getNgayKetThuc() == null) return false;
+            switch (statusKey) {
+                case "DANG_DIEN_RA":
+                    return now.isAfter(km.getNgayBatDau()) && now.isBefore(km.getNgayKetThuc());
+                case "SAP_DIEN_RA":
+                    return now.isBefore(km.getNgayBatDau());
+                case "DA_HET_HAN":
+                    return now.isAfter(km.getNgayKetThuc());
+                default:
+                    return true;
+            }
+        }).collect(Collectors.toList());
         capNhatBang();
     }
 
@@ -125,14 +156,14 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
             return new SimpleStringProperty(tenLoaiKM);
         });
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        TableColumn<KhuyenMai, String> ngayBDCol = new TableColumn<>("Ngày bắt đầu");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        TableColumn<KhuyenMai, String> ngayBDCol = new TableColumn<>("Bắt đầu");
         ngayBDCol.setCellValueFactory(cellData -> {
             LocalDateTime date = cellData.getValue().getNgayBatDau();
             return new SimpleStringProperty(date != null ? date.format(dateTimeFormatter) : "");
         });
 
-        TableColumn<KhuyenMai, String> ngayKTCol = new TableColumn<>("Ngày kết thúc");
+        TableColumn<KhuyenMai, String> ngayKTCol = new TableColumn<>("Kết thúc");
         ngayKTCol.setCellValueFactory(cellData -> {
             LocalDateTime date = cellData.getValue().getNgayKetThuc();
             return new SimpleStringProperty(date != null ? date.format(dateTimeFormatter) : "");
@@ -142,7 +173,7 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
         trangThaiCol.setCellValueFactory(cellData -> {
             KhuyenMai km = cellData.getValue();
             LocalDateTime now = LocalDateTime.now();
-            String status = "Chưa áp dụng";
+            String status = "N/A";
             if (km.getNgayBatDau() != null && km.getNgayKetThuc() != null) {
                 if (now.isAfter(km.getNgayKetThuc())) {
                     status = "Đã hết hạn";
@@ -163,10 +194,12 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getClickCount() == 2) {
                     KhuyenMai km = row.getItem();
-                    Stage owner = (Stage) getScene().getWindow();
-                    if (controller.capNhatKhuyenMai(owner, km)) {
-                        lamMoiDuLieu();
+                    Stage owner = null;
+                    if (row.getScene() != null && row.getScene().getWindow() != null) {
+                        owner = (Stage) row.getScene().getWindow();
                     }
+                    CuaSoChiTietTraCuuKhuyenMai detailWindow = new CuaSoChiTietTraCuuKhuyenMai(owner, km);
+                    detailWindow.showAndWait();
                 }
             });
             return row;

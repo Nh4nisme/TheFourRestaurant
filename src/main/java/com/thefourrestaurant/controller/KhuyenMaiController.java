@@ -59,6 +59,10 @@ public class KhuyenMaiController {
         return dsDieuKien;
     }
 
+    public List<KhungGio> layKhungGioTheoMaKM(String maKM) {
+        return khungGio_KM_DAO.layKhungGioTheoMaKM(maKM);
+    }
+
     public boolean themKhuyenMaiMoi(Stage owner) {
         List<LoaiKhuyenMai> tatCaLoaiKM = loaiKhuyenMaiDAO.layTatCaLoaiKhuyenMai();
         String maKMMoi = khuyenMaiDAO.taoMaKhuyenMaiMoi();
@@ -230,7 +234,7 @@ public class KhuyenMaiController {
                 if (dkm.getMonAn().getMaMonAn().equals(ct.getMonAn().getMaMonAn())) {
                     BigDecimal originalPrice = BigDecimal.valueOf(ct.getDonGia());
                     BigDecimal newPrice = tinhToanGiamGia(originalPrice, dk.getTyLeGiam(), dk.getSoTienGiam());
-                    
+
                     if (newPrice.compareTo(ct.getKhuyenMaiApDung().getGiaSauGiam()) < 0) {
                         ct.setKhuyenMaiApDung(new KhuyenMaiApDung(km.getTenKM(), newPrice));
                     }
@@ -241,7 +245,7 @@ public class KhuyenMaiController {
 
     private void apDungGiamGiaCombo(List<ChiTietPDB> cart, KhuyenMai km, KhuyenMai_DieuKien dk) {
         Map<String, Integer> cartInventory = cart.stream()
-            .collect(Collectors.groupingBy(ct -> ct.getMonAn().getMaMonAn(), Collectors.summingInt(ChiTietPDB::getSoLuong)));
+                .collect(Collectors.groupingBy(ct -> ct.getMonAn().getMaMonAn(), Collectors.summingInt(ChiTietPDB::getSoLuong)));
 
         List<DieuKien_Mon> comboItems = dk.getDanhSachMonDieuKien();
         if (comboItems.isEmpty()) return;
@@ -259,7 +263,7 @@ public class KhuyenMaiController {
                 MonAn monAn = monAnDAO.layMonAnTheoMa(item.getMonAn().getMaMonAn());
                 comboOriginalPrice = comboOriginalPrice.add(monAn.getDonGia().multiply(BigDecimal.valueOf(item.getSoLuong())));
             }
-            
+
             if (comboOriginalPrice.compareTo(BigDecimal.ZERO) == 0) return;
 
             BigDecimal comboDiscountAmount;
@@ -270,7 +274,7 @@ public class KhuyenMaiController {
             } else {
                 return;
             }
-            
+
             BigDecimal comboFinalPrice = comboOriginalPrice.subtract(comboDiscountAmount);
 
             for (int i = 0; i < maxCombos; i++) {
@@ -279,7 +283,7 @@ public class KhuyenMaiController {
                         if (cartItem.getMonAn().getMaMonAn().equals(comboItem.getMonAn().getMaMonAn())) {
                             BigDecimal originalPrice = BigDecimal.valueOf(cartItem.getDonGia());
                             BigDecimal proportionalPrice = originalPrice.multiply(comboFinalPrice).divide(comboOriginalPrice, 2, RoundingMode.HALF_UP);
-                            
+
                             if (proportionalPrice.compareTo(cartItem.getKhuyenMaiApDung().getGiaSauGiam()) < 0) {
                                 cartItem.setKhuyenMaiApDung(new KhuyenMaiApDung(km.getTenKM(), proportionalPrice));
                             }
@@ -297,7 +301,7 @@ public class KhuyenMaiController {
         if (buyItems.isEmpty() || getItems.isEmpty()) return;
 
         Map<String, Integer> cartInventory = cart.stream()
-            .collect(Collectors.groupingBy(ct -> ct.getMonAn().getMaMonAn(), Collectors.summingInt(ChiTietPDB::getSoLuong)));
+                .collect(Collectors.groupingBy(ct -> ct.getMonAn().getMaMonAn(), Collectors.summingInt(ChiTietPDB::getSoLuong)));
 
         int buyCount = 0;
         for (DieuKien_Mon item : buyItems) {
