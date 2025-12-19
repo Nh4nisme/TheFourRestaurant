@@ -207,7 +207,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 title.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 24px; -fx-font-weight: bold;");
                 title.setMaxWidth(Double.MAX_VALUE);
                 title.setAlignment(Pos.CENTER);
-                VBox.setMargin(title, new Insets(10,0,10,0));
+                VBox.setMargin(title, new Insets(30,0,30,0));
 
                 TextField txtMaTKDlg = new TextField(maTK);
                 txtMaTKDlg.setEditable(false);
@@ -239,10 +239,10 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 grid.getColumnConstraints().addAll(c0, c1);
 
                 VBox content = new VBox(8, title, grid);
-                content.setPrefWidth(620);
-                content.setPrefHeight(600);
+                content.setPrefWidth(600);
+                content.setPrefHeight(400);
                 dp.setContent(content);
-                dp.setPrefSize(620, 600);
+                dp.setPrefSize(600, 400);
 
                 Button okBtn = (Button) dp.lookupButton(ButtonType.OK);
                 if (okBtn != null) {
@@ -291,7 +291,6 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 if (tkOk && nvOk) {
                     Alert a = new Alert(Alert.AlertType.INFORMATION, "Thêm nhân viên thành công.");
                     a.showAndWait();
-                    // clear form for next entry
                     hienThi(null);
                 } else {
                     Alert a = new Alert(Alert.AlertType.ERROR, "Thêm thất bại. Vui lòng thử lại.");
