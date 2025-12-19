@@ -10,6 +10,7 @@ import com.thefourrestaurant.DAO.LoaiMonDAO;
 import com.thefourrestaurant.DAO.MonAnDAO;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.application.Platform;
@@ -266,49 +267,31 @@ public class GiaoDienThucDon extends VBox {
                 return;
             }
 
-            Dialog<Void> dialog = new Dialog<>();
-            dialog.setTitle("Khôi phục thực đơn");
+            List<ThucDonDAO.ThucDonView> toShow = recentlyDeleted.stream().map(d -> d.view).collect(Collectors.toList());
+            KhoiPhucThucDon dialog = new KhoiPhucThucDon(toShow);
             if (this.getScene() != null) dialog.initOwner(this.getScene().getWindow());
-
-            TableView<DeletedThucDon> delTable = new TableView<>();
-            TableColumn<DeletedThucDon, String> nameCol = new TableColumn<>("Tên thực đơn");
-            nameCol.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().view.tenTD));
-            TableColumn<DeletedThucDon, String> loaiCol = new TableColumn<>("Các loại món");
-            loaiCol.setCellValueFactory(cd -> new SimpleStringProperty(String.join(", ", cd.getValue().loai)));
-            TableColumn<DeletedThucDon, Void> actCol = new TableColumn<>("Hành động");
-            actCol.setCellFactory(c -> new TableCell<>() {
-                private final ButtonSample btnRestore = new ButtonSample("Khôi phục", 80, 14, 1);
-                {
-                    btnRestore.setOnAction(ev -> {
-                        DeletedThucDon item = getTableView().getItems().get(getIndex());
-                        if (item == null) return;
-                        ThucDonDAO dao = new ThucDonDAO();
-                        boolean ok = dao.luuThucDonTheoLoaiMon(item.view.tenTD, item.loai);
-                        if (ok) {
-                            recentlyDeleted.remove(item);
-                            getTableView().getItems().remove(item);
-                            napBangThucDon();
-                        } else {
-                            Alert err = new Alert(Alert.AlertType.ERROR, "Khôi phục thất bại.");
-                            if (dialog.getDialogPane().getScene() != null) err.initOwner(dialog.getDialogPane().getScene().getWindow());
-                            err.showAndWait();
-                        }
-                    });
-                }
-                @Override protected void updateItem(Void it, boolean empty) {
-                    super.updateItem(it, empty);
-                    setGraphic(empty ? null : btnRestore);
-                }
-            });
-
-            delTable.getColumns().addAll(nameCol, loaiCol, actCol);
-            delTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-            delTable.getItems().setAll(recentlyDeleted);
-
-            dialog.getDialogPane().setContent(delTable);
-            dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
-            dialog.setResizable(true);
             dialog.showAndWait();
+
+            var selected = dialog.getCacThucDonDaChon();
+            if (selected == null || selected.isEmpty()) return;
+
+            ThucDonDAO dao = new ThucDonDAO();
+            boolean anyOk = false;
+            for (ThucDonDAO.ThucDonView v : selected) {
+                DeletedThucDon match = null;
+                for (DeletedThucDon d : recentlyDeleted) {
+                    if (v.maTD != null && v.maTD.equals(d.view.maTD) || (v.tenTD != null && v.tenTD.equals(d.view.tenTD))) {
+                        match = d; break;
+                    }
+                }
+                List<String> loai = match != null ? match.loai : (v.loaiMon == null ? List.of() : Arrays.stream(v.loaiMon.split(",")).map(String::trim).collect(Collectors.toList()));
+                boolean ok = dao.luuThucDonTheoLoaiMon(v.tenTD, loai);
+                if (ok) {
+                    anyOk = true;
+                    recentlyDeleted.removeIf(d -> d.view.maTD != null && d.view.maTD.equals(v.maTD));
+                }
+            }
+            if (anyOk) napBangThucDon();
         });
 
         rightPane.getChildren().addAll(lblTaoMoi, boxTen, lblLoai, cbLoaiMonAn, boxChonThucAn, btnLuu);
