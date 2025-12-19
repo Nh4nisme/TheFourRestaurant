@@ -5,6 +5,7 @@ import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
@@ -14,6 +15,15 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.Optional;
+
+import com.thefourrestaurant.controller.NhanVienController;
+import com.thefourrestaurant.DAO.NhanVienDAO;
+import com.thefourrestaurant.DAO.TaiKhoanDAO;
+import com.thefourrestaurant.model.TaiKhoan;
 
 public class GiaoDienChiTietNhanVien extends VBox {
 
@@ -32,6 +42,8 @@ public class GiaoDienChiTietNhanVien extends VBox {
     private Label lblTieuDe;
     private Label hintLabel;
     private boolean isEditMode = false;
+    private final NhanVienController controller = new NhanVienController();
+    private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
 
     public File getSelectedImageFile() { return selectedImageFile; }
     public ButtonSample getBtnThem() { return btnThem; }
@@ -58,6 +70,16 @@ public class GiaoDienChiTietNhanVien extends VBox {
         txtHoTen = taoTextField("Họ tên");
         dtpNgaySinh = new DatePicker();
         dtpNgaySinh.setPrefWidth(300);
+        // Disable dates that would make the employee under 18
+        LocalDate maxAllowed = LocalDate.now().minusYears(18);
+        dtpNgaySinh.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (empty || date == null) return;
+                setDisable(date.isAfter(maxAllowed));
+            }
+        });
         cboGioiTinh = new ComboBox<>();
         cboGioiTinh.getItems().addAll("Nam", "Nữ", "Khác");
         cboGioiTinh.setPrefWidth(300);
@@ -129,6 +151,114 @@ public class GiaoDienChiTietNhanVien extends VBox {
         btnThem = new ButtonSample("Thêm", 36, 16, 1);
         btnLuu = new ButtonSample("Lưu", 36, 16, 1);
         btnXoa = new ButtonSample("Xóa", 36, 16, 2);
+
+        // Pre-generate IDs for new entries and wire up add behavior
+        txtMaNV.setEditable(false);
+        txtMaTK.setEditable(false);
+        try {
+            txtMaNV.setText(nhanVienDAO.taoMaNhanVienMoi());
+            txtMaTK.setText(TaiKhoanDAO.taoMaTaiKhoanMoi());
+        } catch (Exception ex) { }
+
+        btnThem.setOnAction(e -> {
+            String hoTen = txtHoTen.getText().trim();
+            LocalDate ngaySinh = dtpNgaySinh.getValue();
+            String gioiTinh = cboGioiTinh.getSelectionModel().getSelectedItem();
+
+            if (hoTen.isEmpty()) {
+                Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Họ tên' không được để trống.");
+                a.showAndWait();
+                return;
+            }
+            if (ngaySinh == null) {
+                Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Ngày sinh' không được để trống.");
+                a.showAndWait();
+                return;
+            }
+            if (gioiTinh == null || gioiTinh.isEmpty()) {
+                Alert a = new Alert(Alert.AlertType.ERROR, "Vui lòng chọn giới tính.");
+                a.showAndWait();
+                return;
+            }
+
+            // generate final IDs
+            String maNV = nhanVienDAO.taoMaNhanVienMoi();
+            String maTK = TaiKhoanDAO.taoMaTaiKhoanMoi();
+            txtMaNV.setText(maNV);
+            txtMaTK.setText(maTK);
+
+            // Show account dialog
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.initOwner(getScene() != null ? getScene().getWindow() : null);
+            dialog.setTitle("Thông tin tài khoản");
+            DialogPane dp = dialog.getDialogPane();
+            dp.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+            Label title = new Label("Thông tin tài khoản");
+            title.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+            TextField txtMaTKDlg = new TextField(maTK);
+            txtMaTKDlg.setEditable(false);
+            txtMaTKDlg.setPrefWidth(300);
+            TextField txtTenDN = new TextField();
+            txtTenDN.setPromptText("Tài khoản");
+            PasswordField txtMatKhau = new PasswordField();
+            txtMatKhau.setPromptText("Mật khẩu");
+            PasswordField txtMatKhau2 = new PasswordField();
+            txtMatKhau2.setPromptText("Nhập lại mật khẩu");
+
+            VBox content = new VBox(8,
+                    title,
+                    new HBox(8, new Label("Mã TK:"), txtMaTKDlg),
+                    new Label("Tài khoản:"), txtTenDN,
+                    new Label("Mật khẩu:"), txtMatKhau,
+                    new Label("Nhập lại mật khẩu:"), txtMatKhau2
+            );
+            content.setPrefWidth(380);
+            dp.setContent(content);
+
+            Optional<ButtonType> res = dialog.showAndWait();
+            if (res.isPresent() && res.get().getButtonData() == ButtonData.OK_DONE) {
+                String tenDN = txtTenDN.getText().trim();
+                String mk = txtMatKhau.getText();
+                String mk2 = txtMatKhau2.getText();
+                if (tenDN.isEmpty()) {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Tài khoản' không được để trống.");
+                    a.showAndWait();
+                    return;
+                }
+                if (mk.isEmpty()) {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Mật khẩu' không được để trống.");
+                    a.showAndWait();
+                    return;
+                }
+                if (!mk.equals(mk2)) {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Mật khẩu nhập lại không khớp.");
+                    a.showAndWait();
+                    return;
+                }
+
+                TaiKhoan tk = new TaiKhoan(maTK, tenDN, mk, null, false);
+                boolean tkOk = TaiKhoanDAO.themTaiKhoan(tk);
+
+                java.sql.Date sqlDate = java.sql.Date.valueOf(ngaySinh);
+                BigDecimal luong = null;
+                try { String l = txtLuong.getText().trim(); if (!l.isEmpty()) luong = new BigDecimal(l); } catch (Exception ex) { }
+
+                NhanVien nv = new NhanVien(maNV, hoTen, sqlDate, getGioiTinhValue(), txtSDT.getText().trim(), luong, tk);
+                boolean nvOk = controller.themNhanVien(nv, selectedImageFile);
+
+                if (tkOk && nvOk) {
+                    Alert a = new Alert(Alert.AlertType.INFORMATION, "Thêm nhân viên thành công.");
+                    a.showAndWait();
+                    // clear form for next entry
+                    hienThi(null);
+                } else {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Thêm thất bại. Vui lòng thử lại.");
+                    a.showAndWait();
+                }
+            }
+        });
 
         HBox footer = new HBox(10, btnThem, btnLuu, btnXoa);
         footer.setAlignment(Pos.CENTER_RIGHT);
@@ -246,10 +376,11 @@ public class GiaoDienChiTietNhanVien extends VBox {
             btnXoa.setVisible(true);
             btnXoa.setManaged(true);
         } else {
-            txtMaNV.setEditable(true);
-            txtMaNV.setStyle("");
-            txtMaTK.setEditable(true);
-            txtMaTK.setStyle("");
+            // For add mode keep MaNV and MaTK readonly (auto-generated)
+            txtMaNV.setEditable(false);
+            txtMaNV.setStyle("-fx-opacity: 0.6;");
+            txtMaTK.setEditable(false);
+            txtMaTK.setStyle("-fx-opacity: 0.6;");
             txtLuong.setEditable(true);
             txtLuong.setStyle("");
 

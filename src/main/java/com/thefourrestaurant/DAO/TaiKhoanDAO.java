@@ -10,6 +10,22 @@ import java.util.List;
 
 public class TaiKhoanDAO {
 
+    public static String taoMaTaiKhoanMoi() {
+        String sql = "SELECT TOP 1 maTK FROM TaiKhoan ORDER BY maTK DESC";
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                String last = rs.getString(1);
+                int num = Integer.parseInt(last.substring(2)) + 1;
+                return String.format("TK%06d", num);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "TK000001";
+    }
+
     public static TaiKhoan dangNhap(String tenDangNhap, String matKhau) {
        String sql = "SELECT " +
            "TK.maTK, TK.tenDangNhap, TK.matKhau, TK.isDeleted AS tkIsDeleted, " +
