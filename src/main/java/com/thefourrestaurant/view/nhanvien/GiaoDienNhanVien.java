@@ -180,23 +180,23 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
         danhSachGoc = FXCollections.observableArrayList(ds);
 
         var source = FXCollections.observableArrayList(ds);
-        source.add(new NhanVien()); 
+        NhanVien placeholder = new NhanVien();
+        source.add(placeholder);
 
-        SortedList<NhanVien> sorted = new SortedList<>(source);
-        sorted.comparatorProperty().bind(Bindings.createObjectBinding(() -> {
-            Comparator<NhanVien> tableComp = table.getComparator();
-            return (a, b) -> {
-                if (a == null && b == null) return 0;
-                if (a == null) return -1;
-                if (b == null) return 1;
-                if (a.getMaNV() == null) return 1;
-                if (b.getMaNV() == null) return -1;
-                if (tableComp == null) return 0;
-                return tableComp.compare(a, b);
-            };
-        }, table.comparatorProperty()));
-
-        table.setItems(sorted);
+        table.setItems(source);
+        table.comparatorProperty().addListener((obs, old, nw) -> {
+            Comparator<NhanVien> comp = nw;
+            javafx.application.Platform.runLater(() -> {
+                if (comp != null) {
+                    javafx.collections.FXCollections.sort(source, (a, b) -> {
+                        if (a == placeholder && b == placeholder) return 0;
+                        if (a == placeholder) return 1;
+                        if (b == placeholder) return -1;
+                        return comp.compare(a, b);
+                    });
+                }
+            });
+        });
     }
 
     @Override

@@ -352,23 +352,23 @@ public class GiaoDienThucDon extends VBox {
         ThucDonDAO dao = new ThucDonDAO();
         var list = dao.layTatCaThucDonGomLoai();
         var source = javafx.collections.FXCollections.observableArrayList(list);
-        source.add(new ThucDonDAO.ThucDonView(null, "", ""));
+        ThucDonDAO.ThucDonView placeholder = new ThucDonDAO.ThucDonView(null, "", "");
+        source.add(placeholder);
 
-        SortedList<ThucDonDAO.ThucDonView> sorted = new SortedList<>(source);
-        sorted.comparatorProperty().bind(Bindings.createObjectBinding(() -> {
-            Comparator<ThucDonDAO.ThucDonView> tableComp = tableThucDon.getComparator();
-            return (a, b) -> {
-                if (a == null && b == null) return 0;
-                if (a == null) return -1;
-                if (b == null) return 1;
-                if (a.maTD == null) return 1; 
-                if (b.maTD == null) return -1;
-                if (tableComp == null) return 0;
-                return tableComp.compare(a, b);
-            };
-        }, tableThucDon.comparatorProperty()));
-
-        tableThucDon.setItems(sorted);
+        tableThucDon.setItems(source);
+        tableThucDon.comparatorProperty().addListener((obs, old, nw) -> {
+            Comparator<ThucDonDAO.ThucDonView> comp = nw;
+            javafx.application.Platform.runLater(() -> {
+                if (comp != null) {
+                    javafx.collections.FXCollections.sort(source, (a, b) -> {
+                        if (a == placeholder && b == placeholder) return 0;
+                        if (a == placeholder) return 1;
+                        if (b == placeholder) return -1;
+                        return comp.compare(a, b);
+                    });
+                }
+            });
+        });
     }
 
     private void setupTableSelectionBehavior() {

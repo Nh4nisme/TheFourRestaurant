@@ -139,21 +139,23 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
         // View gọi Controller để lấy danh sách dữ liệu từ DAO
         List<TaiKhoan> dsTaiKhoan = controller.layDanhSachTaiKhoan();
         var source = FXCollections.observableArrayList(dsTaiKhoan);
-        source.add(new TaiKhoan()); 
-        SortedList<TaiKhoan> sorted = new SortedList<>(source);
-        sorted.comparatorProperty().bind(Bindings.createObjectBinding(() -> {
-            Comparator<TaiKhoan> tableComp = table.getComparator();
-            return (a, b) -> {
-                if (a == null && b == null) return 0;
-                if (a == null) return -1;
-                if (b == null) return 1;
-                if (a.getMaTK() == null) return 1;
-                if (b.getMaTK() == null) return -1;
-                if (tableComp == null) return 0;
-                return tableComp.compare(a, b);
-            };
-        }, table.comparatorProperty()));
-        table.setItems(sorted);
+        TaiKhoan placeholder = new TaiKhoan();
+        source.add(placeholder);
+
+        table.setItems(source);
+        table.comparatorProperty().addListener((obs, old, nw) -> {
+            Comparator<TaiKhoan> comp = nw;
+            javafx.application.Platform.runLater(() -> {
+                if (comp != null) {
+                    javafx.collections.FXCollections.sort(source, (a, b) -> {
+                        if (a == placeholder && b == placeholder) return 0;
+                        if (a == placeholder) return 1;
+                        if (b == placeholder) return -1;
+                        return comp.compare(a, b);
+                    });
+                }
+            });
+        });
 
         //Sự kiện chọn dòng
         table.setRowFactory(t ->{
@@ -205,21 +207,22 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
         danhSachGoc = FXCollections.observableArrayList(ds);
 
         var source = FXCollections.observableArrayList(ds);
-        source.add(new TaiKhoan());
-        SortedList<TaiKhoan> sorted = new SortedList<>(source);
-        sorted.comparatorProperty().bind(Bindings.createObjectBinding(() -> {
-            Comparator<TaiKhoan> tableComp = table.getComparator();
-            return (a, b) -> {
-                if (a == null && b == null) return 0;
-                if (a == null) return -1;
-                if (b == null) return 1;
-                if (a.getMaTK() == null) return 1;
-                if (b.getMaTK() == null) return -1;
-                if (tableComp == null) return 0;
-                return tableComp.compare(a, b);
-            };
-        }, table.comparatorProperty()));
-        table.setItems(sorted);
+        TaiKhoan placeholder = new TaiKhoan();
+        source.add(placeholder);
+        table.setItems(source);
+        table.comparatorProperty().addListener((obs, old, nw) -> {
+            Comparator<TaiKhoan> comp = nw;
+            javafx.application.Platform.runLater(() -> {
+                if (comp != null) {
+                    javafx.collections.FXCollections.sort(source, (a, b) -> {
+                        if (a == placeholder && b == placeholder) return 0;
+                        if (a == placeholder) return 1;
+                        if (b == placeholder) return -1;
+                        return comp.compare(a, b);
+                    });
+                }
+            });
+        });
     }
 
     private void khoiTaoSuKien() {
