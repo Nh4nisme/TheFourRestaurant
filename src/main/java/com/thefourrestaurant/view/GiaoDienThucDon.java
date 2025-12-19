@@ -26,6 +26,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
+import javafx.scene.control.ButtonType;
 
 public class GiaoDienThucDon extends VBox {
 
@@ -38,6 +40,14 @@ public class GiaoDienThucDon extends VBox {
     private final MonAnDAO monAnDAO = new MonAnDAO();
     // map tenLoai -> maLoai for quick lookup
     private final Map<String, String> loaiNameToMa = new HashMap<>();
+    // store recently deleted menus (in-session) for row-based restore
+    private final java.util.List<DeletedThucDon> recentlyDeleted = new java.util.ArrayList<>();
+
+    private static class DeletedThucDon {
+        final ThucDonDAO.ThucDonView view;
+        final java.util.List<String> loai;
+        DeletedThucDon(ThucDonDAO.ThucDonView v, java.util.List<String> l) { this.view = v; this.loai = l == null ? java.util.Collections.emptyList() : new java.util.ArrayList<>(l); }
+    }
 
     public GiaoDienThucDon() {
         setAlignment(Pos.TOP_CENTER);
@@ -63,6 +73,9 @@ public class GiaoDienThucDon extends VBox {
         leftPane.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4,0,0,2);");
         leftPane.setPadding(new Insets(20));
         leftPane.setPrefWidth(450);
+        // keep left pane width stable to avoid table shifting when right pane content changes
+        leftPane.setMinWidth(450);
+        leftPane.setMaxWidth(450);
 
         Label lblDanhSach = new Label("Danh sách Thực Đơn");
         lblDanhSach.setFont(Font.font("System", FontWeight.BOLD, 18));
@@ -71,7 +84,8 @@ public class GiaoDienThucDon extends VBox {
         HBox thanhCongCu = new HBox(10);
         thanhCongCu.setAlignment(Pos.CENTER_LEFT);
         ButtonSample btnTaiLai = new ButtonSample("Tải lại", 35, 14, 3);
-    thanhCongCu.getChildren().add(btnTaiLai);
+        ButtonSample btnKhoiPhuc = new ButtonSample("Khôi phục", 35, 14, 3);
+    thanhCongCu.getChildren().addAll(btnTaiLai, btnKhoiPhuc);
 
     tableThucDon = new TableView<>();
         tableThucDon.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -111,8 +125,13 @@ public class GiaoDienThucDon extends VBox {
                 a.showAndWait().ifPresent(bt -> {
                     if (bt == ButtonType.OK) {
                         try {
-                            boolean ok = new ThucDonDAO().xoaThucDon(tv.maTD);
+                            // capture associated loai before deletion so we can restore if needed
+                            ThucDonDAO dao = new ThucDonDAO();
+                            List<String> loai = dao.layLoaiMonTheoThucDon(tv.tenTD);
+                            boolean ok = dao.xoaThucDon(tv.maTD);
                             if (ok) {
+                                // remember deleted item for in-session restore
+                                recentlyDeleted.add(new DeletedThucDon(tv, loai));
                                 napBangThucDon();
                             } else {
                                 Alert err = new Alert(Alert.AlertType.ERROR, "Xóa thất bại.");
@@ -242,8 +261,57 @@ public class GiaoDienThucDon extends VBox {
             }
         });
 
-        // Nút Tải lại
         btnTaiLai.setOnAction(e -> napBangThucDon());
+        btnKhoiPhuc.setOnAction(e -> {
+            if (recentlyDeleted.isEmpty()) {
+                showAlert(Alert.AlertType.INFORMATION, "Không có thực đơn nào để khôi phục.");
+                return;
+            }
+
+            Dialog<Void> dialog = new Dialog<>();
+            dialog.setTitle("Khôi phục thực đơn");
+            if (this.getScene() != null) dialog.initOwner(this.getScene().getWindow());
+
+            TableView<DeletedThucDon> delTable = new TableView<>();
+            TableColumn<DeletedThucDon, String> nameCol = new TableColumn<>("Tên thực đơn");
+            nameCol.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().view.tenTD));
+            TableColumn<DeletedThucDon, String> loaiCol = new TableColumn<>("Các loại món");
+            loaiCol.setCellValueFactory(cd -> new SimpleStringProperty(String.join(", ", cd.getValue().loai)));
+            TableColumn<DeletedThucDon, Void> actCol = new TableColumn<>("Hành động");
+            actCol.setCellFactory(c -> new TableCell<>() {
+                private final ButtonSample btnRestore = new ButtonSample("Khôi phục", 80, 14, 1);
+                {
+                    btnRestore.setOnAction(ev -> {
+                        DeletedThucDon item = getTableView().getItems().get(getIndex());
+                        if (item == null) return;
+                        ThucDonDAO dao = new ThucDonDAO();
+                        boolean ok = dao.luuThucDonTheoLoaiMon(item.view.tenTD, item.loai);
+                        if (ok) {
+                            recentlyDeleted.remove(item);
+                            getTableView().getItems().remove(item);
+                            napBangThucDon();
+                        } else {
+                            Alert err = new Alert(Alert.AlertType.ERROR, "Khôi phục thất bại.");
+                            if (dialog.getDialogPane().getScene() != null) err.initOwner(dialog.getDialogPane().getScene().getWindow());
+                            err.showAndWait();
+                        }
+                    });
+                }
+                @Override protected void updateItem(Void it, boolean empty) {
+                    super.updateItem(it, empty);
+                    setGraphic(empty ? null : btnRestore);
+                }
+            });
+
+            delTable.getColumns().addAll(nameCol, loaiCol, actCol);
+            delTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+            delTable.getItems().setAll(recentlyDeleted);
+
+            dialog.getDialogPane().setContent(delTable);
+            dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+            dialog.setResizable(true);
+            dialog.showAndWait();
+        });
 
         rightPane.getChildren().addAll(lblTaoMoi, boxTen, lblLoai, cbLoaiMonAn, boxChonThucAn, btnLuu);
 
