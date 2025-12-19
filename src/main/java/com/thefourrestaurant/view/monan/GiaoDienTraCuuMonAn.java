@@ -1,16 +1,13 @@
 package com.thefourrestaurant.view.monan;
 
 import com.thefourrestaurant.DAO.LoaiMonDAO;
-import com.thefourrestaurant.controller.LoaiMonAnController;
 import com.thefourrestaurant.controller.MonAnController;
 import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
-import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.DropDownButtonMap;
 import com.thefourrestaurant.view.components.GiaoDienTraCuu;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -26,40 +23,37 @@ import java.util.stream.Collectors;
 public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
 
     private final MonAnController controller;
-    private final LoaiMonAnController loaiMonAnController;
     private List<MonAn> danhSachMonAnGoc;
     private List<MonAn> danhSachMonAnHienThi;
-    private DropDownButtonMap<String> btnLoaiMon;
+    private final ComboBox<String> cboLoaiMonFilter = new ComboBox<>();
 
     public GiaoDienTraCuuMonAn() {
         super();
         this.controller = new MonAnController();
-        this.loaiMonAnController = new LoaiMonAnController();
 
         khoiTaoGiaoDien();
         themBoLocChuCai();
         themBoLocLoaiMon();
         themBoLocSapXep();
-        themThanhTimKiem("Nhập tên món ăn");
+        themThanhTimKiem("Tìm kiếm món ăn...");
         themButtonLamMoi();
+
         lamMoiDuLieu();
     }
 
     private void themBoLocLoaiMon() {
-        LinkedHashMap<String, String> dsLoaiMon = new LinkedHashMap<>();
-        dsLoaiMon.put("Tất cả", null);
-        loaiMonAnController.layTatCaLoaiMonAn()
-                .forEach(loaiMon -> {
-                    dsLoaiMon.put(
-                            loaiMon.getTenLoaiMon(),   // text hiển thị
-                            loaiMon.getMaLoaiMon()     // value logic
-                    );
-                });
-        btnLoaiMon = new DropDownButtonMap<>("Lọc theo loại", dsLoaiMon, null, 35, 16, 3);
-        btnLoaiMon.setOnItemSelected(maLoaiMon -> locVaCapNhatMonAn());
-        thanhTrai.getChildren().add(btnLoaiMon);
-    }
+        cboLoaiMonFilter.setPromptText("Lọc theo loại");
+        LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
+        List<String> tenLoaiMon = loaiMonDAO.layTatCaLoaiMon().stream()
+                .map(LoaiMon::getTenLoaiMon)
+                .collect(Collectors.toList());
+        cboLoaiMonFilter.getItems().add("Tất cả");
+        cboLoaiMonFilter.getItems().addAll(tenLoaiMon);
+        cboLoaiMonFilter.setValue("Tất cả");
+        cboLoaiMonFilter.setOnAction(e -> locVaCapNhatMonAn());
 
+        thanhTrai.getChildren().add(cboLoaiMonFilter);
+    }
 
     private void themBoLocSapXep() {
         LinkedHashMap<String, Boolean> mapGia = new LinkedHashMap<>();
@@ -71,7 +65,7 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
                 mapGia,
                 null, 35, 16, 3
         );
-        btnTheoGia.setOnItemSelected(ascending -> sapXepTheoGia(ascending));
+        btnTheoGia.setOnItemSelected(this::sapXepTheoGia);
 
         LinkedHashMap<String, Boolean> mapDaBan = new LinkedHashMap<>();
         mapDaBan.put("Phổ biến nhất", false);
@@ -82,7 +76,7 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
                 mapDaBan,
                 null, 35, 16, 3
         );
-        btnTheoDaBan.setOnItemSelected(ascending -> sapXepTheoDaBan(ascending));
+        btnTheoDaBan.setOnItemSelected(this::sapXepTheoDaBan);
 
         LinkedHashMap<String, Boolean> mapNgay = new LinkedHashMap<>();
         mapNgay.put("Mới nhất", false);
@@ -93,18 +87,9 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
                 mapNgay,
                 null, 35, 16, 3
         );
-        btnTheoNgay.setOnItemSelected(ascending -> sapXepTheoNgay(ascending));
+        btnTheoNgay.setOnItemSelected(this::sapXepTheoNgay);
 
         thanhTrai.getChildren().addAll(btnTheoGia, btnTheoNgay, btnTheoDaBan);
-    }
-
-    private void sapXepTheoTen(boolean ascending) {
-        if (ascending) {
-            danhSachMonAnHienThi.sort(Comparator.comparing(MonAn::getTenMon));
-        } else {
-            danhSachMonAnHienThi.sort(Comparator.comparing(MonAn::getTenMon).reversed());
-        }
-        capNhatBang();
     }
 
     private void sapXepTheoGia(boolean ascending) {
@@ -138,23 +123,17 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
     }
 
     private void locVaCapNhatMonAn() {
+        String loaiMonFilter = cboLoaiMonFilter.getValue();
 
-        String maLoaiDuocChon = btnLoaiMon.getSelectedValue();
-
-        if (maLoaiDuocChon == null) {
-            danhSachMonAnHienThi = danhSachMonAnGoc;
-        } else {
+        if (loaiMonFilter != null && !loaiMonFilter.equals("Tất cả")) {
             danhSachMonAnHienThi = danhSachMonAnGoc.stream()
-                    .filter(monAn ->
-                            monAn.getLoaiMon() != null &&
-                                    maLoaiDuocChon.equals(monAn.getLoaiMon().getMaLoaiMon())
-                    )
-                    .toList();
+                    .filter(monAn -> monAn.getLoaiMon() != null && monAn.getLoaiMon().getTenLoaiMon().equals(loaiMonFilter))
+                    .collect(Collectors.toList());
+        } else {
+            danhSachMonAnHienThi = danhSachMonAnGoc;
         }
-
         capNhatBang();
     }
-
 
     @Override
     protected TableView<?> taoBangChinh() {
@@ -174,6 +153,9 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
             return new SimpleStringProperty(formattedGia);
         });
 
+        TableColumn<MonAn, String> soLuongCol = new TableColumn<>("Số lượng");
+        soLuongCol.setCellValueFactory(cell -> new SimpleStringProperty(String.valueOf(cell.getValue().getSoLuong())));
+
         TableColumn<MonAn, String> trangThaiCol = new TableColumn<>("Trạng thái");
         trangThaiCol.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getTrangThai()));
 
@@ -185,7 +167,7 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
             return new SimpleStringProperty(tenLoaiMon);
         });
 
-        table.getColumns().addAll(maMonCol, tenMonAnCol, donGiaCol, trangThaiCol, loaiMonCol);
+        table.getColumns().addAll(maMonCol, tenMonAnCol, donGiaCol, soLuongCol, trangThaiCol, loaiMonCol);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         table.setRowFactory(tv -> {
@@ -193,10 +175,12 @@ public class GiaoDienTraCuuMonAn extends GiaoDienTraCuu {
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getClickCount() == 2) {
                     MonAn monAn = row.getItem();
-                    Stage owner = (Stage) getScene().getWindow();
-                    if (controller.tuyChinhMonAn(owner, monAn)) {
-                        lamMoiDuLieu();
+                    Stage owner = null;
+                    if (row.getScene() != null && row.getScene().getWindow() != null) {
+                        owner = (Stage) row.getScene().getWindow();
                     }
+                    CuaSoChiTietTraCuuMonAn detailWindow = new CuaSoChiTietTraCuuMonAn(owner, monAn);
+                    detailWindow.showAndWait();
                 }
             });
             return row;
