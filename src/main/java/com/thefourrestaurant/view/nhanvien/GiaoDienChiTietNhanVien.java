@@ -181,6 +181,15 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 a.showAndWait();
                 return;
             }
+            // Regex
+            String sdtVal = txtSDT.getText().trim();
+            if (!sdtVal.isEmpty()) {
+                if (!sdtVal.matches("^0\\d{9,10}$")) {
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Số điện thoại không hợp lệ. Phải bắt đầu bằng 0 và gồm 10 hoặc 11 chữ số.");
+                    a.showAndWait();
+                    return;
+                }
+            }
 
             String maNV = nhanVienDAO.taoMaNhanVienMoi();
             String maTK = TaiKhoanDAO.taoMaTaiKhoanMoi();
@@ -224,14 +233,29 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 grid.add(new Label("Nhập lại mật khẩu:"), 0, 3);
                 grid.add(txtMatKhau2, 1, 3);
                 ColumnConstraints c0 = new ColumnConstraints();
-                c0.setMinWidth(80);
+                c0.setMinWidth(140);
                 ColumnConstraints c1 = new ColumnConstraints();
-                c1.setMinWidth(300);
+                c1.setMinWidth(360);
                 grid.getColumnConstraints().addAll(c0, c1);
 
                 VBox content = new VBox(8, title, grid);
-                content.setPrefWidth(420);
+                content.setPrefWidth(620);
+                content.setPrefHeight(600);
                 dp.setContent(content);
+                dp.setPrefSize(620, 600);
+
+                Button okBtn = (Button) dp.lookupButton(ButtonType.OK);
+                if (okBtn != null) {
+                    okBtn.getStyleClass().add("button_sampleGamboge");
+                    okBtn.setPrefHeight(36);
+                    okBtn.setPrefWidth(100);
+                    try {
+                        javafx.scene.text.Font mont = javafx.scene.text.Font.loadFont(
+                                getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"),
+                                16);
+                        if (mont != null) okBtn.setFont(mont);
+                    } catch (Exception ignored) {}
+                }
 
             Optional<ButtonType> res = dialog.showAndWait();
             if (res.isPresent() && res.get().getButtonData() == ButtonData.OK_DONE) {

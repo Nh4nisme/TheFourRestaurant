@@ -177,7 +177,15 @@ public class NavBar extends HBox {
         map.put("Hóa đơn", MapDieuHuong.DM_HOA_DON);
         map.put("Khách hàng", MapDieuHuong.DM_KHACH_HANG);
         map.put("Tài khoản", MapDieuHuong.DM_TAI_KHOAN);
-        map.put("Nhân viên", MapDieuHuong.DM_NHAN_VIEN); 
+        // (VaiTro maVT = 'VT000001' || TenVaiTro = 'QuanLy')
+        com.thefourrestaurant.model.TaiKhoan current = Session.getCurrentUser();
+        if (current != null && current.getVaiTro() != null) {
+            String maVT = current.getVaiTro().getMaVT();
+            String tenVT = current.getVaiTro().getTenVaiTro();
+            if ("VT000001".equals(maVT) || (tenVT != null && "QuanLy".equalsIgnoreCase(tenVT))) {
+                map.put("Nhân viên", MapDieuHuong.DM_NHAN_VIEN);
+            }
+        }
         map.put("Tầng và bàn", MapDieuHuong.DM_TANG_BAN);
         return map;
     }
