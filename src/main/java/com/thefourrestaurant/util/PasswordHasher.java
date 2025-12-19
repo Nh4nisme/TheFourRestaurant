@@ -31,38 +31,4 @@ public class PasswordHasher {
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
         return skf.generateSecret(spec).getEncoded();
     }
-
-    public static void main(String[] args) {
-        String[][] samples = new String[][]{
-                {"TK000001", "admin123", "Admin@123"},
-                {"TK000002", "thungan01", "TNpass01"},
-        };
-
-        System.out.println("-- Hashed passwords (format salt$hash, Base64)");
-        for (String[] s : samples) {
-            String maTK = s[0];
-            String username = s[1];
-            String plain = s[2];
-            String hashed = hash(plain);
-            if (maTK != null) {
-                System.out.printf("-- %s / %s -> %s%n", maTK, username, hashed);
-            } else {
-                System.out.printf("-- %s -> %s%n", plain, hashed);
-            }
-        }
-
-        System.out.println();
-        for (String[] s : samples) {
-            String maTK = s[0];
-            String username = s[1];
-            String plain = s[2];
-            String hashed = hash(plain);
-            if (maTK != null) {
-                System.out.printf("INSERT INTO TaiKhoan (maTK, tenDangNhap, matKhau, maVT) VALUES ('%s', '%s', '%s', '%s');%n",
-                        maTK, username, hashed, maTK.equals("TK000001") ? "VT000001" : "VT000002");
-            } else {
-                System.out.printf("-- password '%s' -> '%s'%n", plain, hashed);
-            }
-        }
-    }
 }
