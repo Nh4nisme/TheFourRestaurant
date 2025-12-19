@@ -28,7 +28,8 @@ public class GiaoDienChiTietTaiKhoan extends VBox {
         // ==== Các trường nhập ====
         txtMaTK = taoTextField("Mã tài khoản");
         txtTenDangNhap = taoTextField("Tên đăng nhập");
-        txtMatKhau = taoTextField("Mật khẩu");
+        txtMatKhau = taoTextField("Nhập mật khẩu mới");
+        txtMatKhau.clear();
         cboVaiTro = new ComboBox<>();
         cboVaiTro.setPromptText("Chọn vai trò");
         cboVaiTro.setMaxWidth(Double.MAX_VALUE);
@@ -79,7 +80,9 @@ public class GiaoDienChiTietTaiKhoan extends VBox {
         txtMaTK.setText(tk.getMaTK());
         txtMaTK.setDisable(true);
         txtTenDangNhap.setText(tk.getTenDN());
-        txtMatKhau.setText(tk.getMatKhau());
+        // Không hiển thị mật khẩu hiện có; luôn để trống để nhập mật khẩu mới
+        txtMatKhau.clear();
+        txtMatKhau.setPromptText("Nhập mật khẩu mới");
         if (tk.getVaiTro() != null) {
             VaiTro vt = cboVaiTro.getItems().stream()
                     .filter(v -> v.getMaVT().equals(tk.getVaiTro().getMaVT()))
