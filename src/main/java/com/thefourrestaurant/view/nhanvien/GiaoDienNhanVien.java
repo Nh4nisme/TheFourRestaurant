@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public class GiaoDienNhanVien extends GiaoDienThucThe {
@@ -107,7 +108,10 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
                 btnXoa.setOnAction(e -> {
                     NhanVien nv = getTableView().getItems().get(getIndex());
                     if (nv == null || nv.getMaNV() == null || nv.getMaNV().trim().isEmpty()) return;
-                    Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Bạn có chắc muốn xóa nhân viên này?", ButtonType.YES, ButtonType.NO);
+                    Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+                    a.setTitle("Xác nhận");
+                    a.setHeaderText("Xác nhận");
+                    a.setContentText("Bạn có chắc muốn xóa nhân viên này?");
                     a.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
                     a.showAndWait().ifPresent(bt -> {
                         if (bt == ButtonType.YES) {
@@ -132,6 +136,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
                     try {
                         chiTiet.getTxtMaNV().setText(nhanVienDAO.taoMaNhanVienMoi());
                         chiTiet.getTxtMaTK().setText(com.thefourrestaurant.DAO.TaiKhoanDAO.taoMaTaiKhoanMoi());
+                        chiTiet.getDtpNgaySinh().setValue(LocalDate.of(2001, 1, 1));
                     } catch (Exception ex) { }
                     getTableView().getSelectionModel().clearSelection();
                 });
@@ -157,7 +162,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
                 setGraphic(box);
             }
         });
-        colAction.setPrefWidth(200);
+        colAction.setPrefWidth(300);
 
         table.getColumns().addAll(colMa, colHoTen, colNgaySinh, colGioiTinh, colSDT, colLuong, colVaiTro, colMaTK, colAction);
         return table;
@@ -191,6 +196,20 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
 
     private void khoiTaoSuKien() {
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldV, newV) -> {
+            if (newV == null) {
+                gdChiTiet.hienThi(null);
+                return;
+            }
+            // if this is the special add-row (empty maNV), treat as 'Thêm nhân viên'
+            if (newV.getMaNV() == null || newV.getMaNV().trim().isEmpty()) {
+                gdChiTiet.hienThi(null);
+                try {
+                    gdChiTiet.getTxtMaNV().setText(nhanVienDAO.taoMaNhanVienMoi());
+                    gdChiTiet.getTxtMaTK().setText(com.thefourrestaurant.DAO.TaiKhoanDAO.taoMaTaiKhoanMoi());
+                    gdChiTiet.getDtpNgaySinh().setValue(LocalDate.of(2001, 1, 1));
+                } catch (Exception ex) { }
+                return;
+            }
             gdChiTiet.hienThi(newV);
         });
         

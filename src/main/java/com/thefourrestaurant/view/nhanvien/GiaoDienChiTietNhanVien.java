@@ -81,7 +81,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 setDisable(date.isAfter(maxAllowed));
             }
         });
-        dtpNgaySinh.setValue(maxAllowed);
+        dtpNgaySinh.setValue(java.time.LocalDate.of(2001, 1, 1));
         cboGioiTinh = new ComboBox<>();
         cboGioiTinh.getItems().addAll("Nam", "Nữ", "Khác");
         cboGioiTinh.setPrefWidth(300);
@@ -157,7 +157,20 @@ public class GiaoDienChiTietNhanVien extends VBox {
 
         btnThem = new ButtonSample("Thêm", 36, 16, 1);
         btnLuu = new ButtonSample("Lưu", 36, 16, 1);
-        btnXoa = new ButtonSample("Xóa", 36, 16, 2);
+        btnXoa = new ButtonSample("Xóa trắng", 36, 16, 2);
+
+        // Xóa trắng: xóa các trường nhập trừ Mã NV và Mã TK
+        btnXoa.setOnAction(ev -> {
+            txtHoTen.clear();
+            txtSDT.clear();
+            txtLuong.clear();
+            cboGioiTinh.getSelectionModel().clearSelection();
+            dtpNgaySinh.setValue(java.time.LocalDate.of(2001, 1, 1));
+            imageView.setImage(null);
+            selectedImageFile = null;
+            hintLabel.setVisible(true);
+            setEditMode(false);
+        });
 
         // tự tạo id
         txtMaNV.setEditable(false);
@@ -385,7 +398,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
         if (nv == null) {
             txtMaNV.clear();
             txtHoTen.clear();
-            dtpNgaySinh.setValue(null);
+            dtpNgaySinh.setValue(java.time.LocalDate.of(2001, 1, 1));
             cboGioiTinh.getSelectionModel().clearSelection();
             txtSDT.clear();
             txtLuong.clear();
