@@ -222,6 +222,45 @@ public class GiaoDienGoiMon extends BorderPane {
             else refreshMonGrid(sel.getMaLoaiMon());
         });
 
+        btnTim.setOnAction(evt -> {
+            String kw = txtTenMon.getText();
+            if (kw == null) kw = "";
+            String q = kw.trim().toLowerCase();
+            LoaiMon sel = cboLoaiMon.getValue();
+            String maLoai = (sel == null || "ALL".equals(sel.getMaLoaiMon())) ? null : sel.getMaLoaiMon();
+
+            List<MonAn> filtered = new java.util.ArrayList<>();
+            for (MonAn m : allMonAn) {
+                if (m.getSoLuong() <= 0) continue;
+                if (maLoai != null) {
+                    if (m.getLoaiMon() == null || !maLoai.equals(m.getLoaiMon().getMaLoaiMon())) continue;
+                }
+                if (q.isEmpty()) {
+                    filtered.add(m);
+                } else {
+                    String ten = m.getTenMon() == null ? "" : m.getTenMon().toLowerCase();
+                    String ma = m.getMaMonAn() == null ? "" : m.getMaMonAn().toLowerCase();
+                    String loaiName = m.getLoaiMon() != null && m.getLoaiMon().getTenLoaiMon() != null ? m.getLoaiMon().getTenLoaiMon().toLowerCase() : "";
+                    if (ten.contains(q) || ma.contains(q) || loaiName.contains(q)) filtered.add(m);
+                }
+            }
+
+            java.util.Comparator<MonAn> comp = (sortMode == 0)
+                    ? ((a, b) -> (a.getTenMon() == null ? "" : a.getTenMon()).compareToIgnoreCase(b.getTenMon() == null ? "" : b.getTenMon()))
+                    : java.util.Comparator.comparingInt(MonAn::getSoLuong);
+            filtered.sort(comp);
+            if (!sortAsc) java.util.Collections.reverse(filtered);
+            populateGrid(filtered);
+        });
+
+        btnLamMoi.setOnAction(evt -> {
+            txtTenMon.clear();
+            cboLoaiMon.setValue(new LoaiMon("ALL", "Tất cả", null));
+            sortMode = 0; sortAsc = true;
+            updateSortButtonLabels();
+            populateGrid(getFilteredAndSortedList(null));
+        });
+
         thanhTren.getChildren().addAll(menuThucDon, lblLoaiMon, cboLoaiMon, lblTenMon, txtTenMon, btnTim, btnLamMoi, btnSortName, btnSortQuantity);
         return thanhTren;
     }

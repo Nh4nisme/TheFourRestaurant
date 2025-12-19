@@ -28,6 +28,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
         super("Nhân viên", new GiaoDienChiTietNhanVien());
         gdChiTiet = (GiaoDienChiTietNhanVien) getChiTietNode();
         khoiTaoGiaoDien();
+        khoiTaoBoLocTimKiem();
         lamMoiDuLieu();
         khoiTaoSuKien();
         adjustSplitPaneDivider();
