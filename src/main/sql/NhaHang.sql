@@ -21,8 +21,8 @@ GO
 -- ================================
 CREATE TABLE TaiKhoan (
                           maTK CHAR(8) PRIMARY KEY CHECK (maTK LIKE 'TK%' AND LEN(maTK) = 8),
-                          tenDangNhap VARCHAR(50) NOT NULL UNIQUE CHECK(LEN(tenDangNhap) >= 6),
-                          matKhau VARCHAR(50) NOT NULL CHECK(LEN(matKhau) >= 6),
+                          tenDangNhap VARCHAR(255) NOT NULL UNIQUE CHECK(LEN(tenDangNhap) >= 6),
+                          matKhau VARCHAR(255) NOT NULL CHECK(LEN(matKhau) >= 6),
                           maVT CHAR(8) NOT NULL,
                           isDeleted BIT DEFAULT 0,
                           CONSTRAINT FK_TaiKhoan_VaiTro FOREIGN KEY (maVT) REFERENCES VaiTro(maVT)
@@ -402,9 +402,13 @@ INSERT INTO VaiTro (maVT, tenVaiTro) VALUES
 GO
 
 -- Tài khoản
-INSERT INTO TaiKhoan (maTK, tenDangNhap, matKhau, maVT) VALUES
-('TK000001', 'admin123', 'Admin@123', 'VT000001'),
-('TK000002', 'thungan01', 'TNpass01', 'VT000002');
+-- OG: {"TK000001", "admin123", "Admin@123"},
+--     {"TK000002", "thungan01", "TNpass01"},
+INSERT INTO TaiKhoan (maTK, tenDangNhap, matKhau, maVT) 
+VALUES ('TK000001', 'admin123', 'SP2yaGkTfGSyoRplFIbSzA==$c2Obw6pzdXZb/npic3zToDOg5W9AJgWoAbfe2ABs3ig=', 'VT000001');
+GO
+INSERT INTO TaiKhoan (maTK, tenDangNhap, matKhau, maVT) 
+VALUES ('TK000002', 'thungan01', 'YYrA1jPAfL/xZgeZ9Jehgg==$66e6xhhTF7uvqaUdF9pIWaNAD+EXdcL1nNOK7w92PLw=', 'VT000002');
 GO
 
 -- Ca làm việc (3 ca)
