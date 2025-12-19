@@ -254,6 +254,15 @@ public class GiaoDienChiTietNhanVien extends VBox {
                     a.showAndWait();
                     return;
                 }
+                try {
+                    if (nhanVienDAO.layNhanVienTheoSDT(sdtVal) != null) {
+                        Alert a = new Alert(Alert.AlertType.ERROR, "Số điện thoại đã tồn tại trong hệ thống.");
+                        a.showAndWait();
+                        return;
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
 
             String maNV = nhanVienDAO.taoMaNhanVienMoi();
@@ -343,6 +352,15 @@ public class GiaoDienChiTietNhanVien extends VBox {
                             ev.consume();
                             return;
                         }
+                        try {
+                            if (TaiKhoanDAO.layTaiKhoanTheoTenDangNhap(tenDNVal) != null) {
+                                Alert a = new Alert(Alert.AlertType.ERROR, "Tài khoản đã tồn tại. Vui lòng chọn tên khác.");
+                                a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                                a.showAndWait();
+                                ev.consume();
+                                return;
+                            }
+                        } catch (Exception ex) { ex.printStackTrace(); }
                         if (mkVal.isEmpty() || mk2Val.isEmpty()) {
                             Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Mật khẩu' và 'Nhập lại mật khẩu' không được để trống.");
                             a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
