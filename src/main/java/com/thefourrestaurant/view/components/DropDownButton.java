@@ -12,12 +12,14 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 public class DropDownButton extends Button {
 
     private final ContextMenu contextMenu = new ContextMenu();
     private String selectedValue;
     private Consumer<String> onItemSelected;
+    private double minButtonWidth = 0;
 
     public DropDownButton(
             String promptText,
@@ -116,7 +118,13 @@ public class DropDownButton extends Button {
                 Node node = custom.getContent();
                 if (node instanceof Label label) {
                     label.applyCss();
-                    double pref = label.prefWidth(-1);
+                    Font lblFont = label.getFont();
+                    Text measurer = new Text(label.getText());
+                    if (lblFont != null) measurer.setFont(lblFont);
+                    double textWidth = measurer.getLayoutBounds().getWidth();
+                    Insets lblPad = label.getPadding();
+                    double lblPaddingLR = (lblPad != null) ? (lblPad.getLeft() + lblPad.getRight()) : 0;
+                    double pref = textWidth + lblPaddingLR;
                     if (pref > maxPref) maxPref = pref;
                 }
             }
@@ -128,9 +136,14 @@ public class DropDownButton extends Button {
         Insets padding = getPadding();
         double targetButtonWidth = contentWidth + padding.getLeft() + padding.getRight();
 
-        if (getWidth() < targetButtonWidth) {
-            setPrefWidth(targetButtonWidth);
+        if (minButtonWidth <= 0) {
+            minButtonWidth = targetButtonWidth;
+        } else if (targetButtonWidth > minButtonWidth) {
+            minButtonWidth = targetButtonWidth;
         }
+
+        setMinWidth(minButtonWidth);
+        setPrefWidth(minButtonWidth);
 
         for (MenuItem item : contextMenu.getItems()) {
             if (item instanceof CustomMenuItem custom) {
