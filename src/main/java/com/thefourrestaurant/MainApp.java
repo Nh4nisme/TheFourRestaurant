@@ -15,7 +15,6 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage){
-        // Nạp font
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Regular.ttf"), 14);
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 14);
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"), 14);
@@ -23,10 +22,7 @@ public class MainApp extends Application {
         GiaoDienDangNhap gd = new GiaoDienDangNhap();
         gd.show(primaryStage);
 
-
-        // Sau khi giao diện đã mở, chạy kết nối DB ở thread riêng
         Task<Connection> ketNoiTask = getConnectionTask();
-
         new Thread(ketNoiTask).start();
     }
 
