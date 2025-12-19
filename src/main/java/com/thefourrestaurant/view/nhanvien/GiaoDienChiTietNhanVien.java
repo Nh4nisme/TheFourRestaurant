@@ -2,6 +2,7 @@ package com.thefourrestaurant.view.nhanvien;
 
 import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.view.components.ButtonSample;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -130,6 +131,11 @@ public class GiaoDienChiTietNhanVien extends VBox {
         GridPane form = new GridPane();
         form.setHgap(10);
         form.setVgap(10);
+        ColumnConstraints formC0 = new ColumnConstraints();
+        formC0.setMinWidth(120);
+        ColumnConstraints formC1 = new ColumnConstraints();
+        formC1.setMinWidth(250);
+        form.getColumnConstraints().addAll(formC0, formC1);
         form.add(new Label("Mã NV:"), 0, 0);
         form.add(txtMaNV, 1, 0);
         form.add(new Label("Họ tên:"), 0, 1);
@@ -211,15 +217,18 @@ public class GiaoDienChiTietNhanVien extends VBox {
 
                 TextField txtMaTKDlg = new TextField(maTK);
                 txtMaTKDlg.setEditable(false);
-                txtMaTKDlg.setPrefWidth(300);
+                txtMaTKDlg.setPrefWidth(250);
                 txtMaTKDlg.setStyle("-fx-control-inner-background: #F5F5F5; -fx-opacity: 1;");
 
                 TextField txtTenDN = new TextField();
                 txtTenDN.setPromptText("Tài khoản");
+                txtTenDN.setPrefWidth(250);
                 PasswordField txtMatKhau = new PasswordField();
                 txtMatKhau.setPromptText("Mật khẩu");
+                txtMatKhau.setPrefWidth(250);
                 PasswordField txtMatKhau2 = new PasswordField();
                 txtMatKhau2.setPromptText("Nhập lại mật khẩu");
+                txtMatKhau2.setPrefWidth(250);
 
                 GridPane grid = new GridPane();
                 grid.setHgap(10);
@@ -235,17 +244,18 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 ColumnConstraints c0 = new ColumnConstraints();
                 c0.setMinWidth(140);
                 ColumnConstraints c1 = new ColumnConstraints();
-                c1.setMinWidth(360);
+                c1.setMinWidth(250);
                 grid.getColumnConstraints().addAll(c0, c1);
 
                 VBox content = new VBox(8, title, grid);
-                content.setPrefWidth(600);
-                content.setPrefHeight(400);
+                content.setPrefWidth(700);
+                content.setPrefHeight(500);
                 dp.setContent(content);
-                dp.setPrefSize(600, 400);
+                dp.setPrefSize(450, 500);
 
                 Button okBtn = (Button) dp.lookupButton(ButtonType.OK);
                 if (okBtn != null) {
+                    okBtn.setText("Thêm");
                     okBtn.getStyleClass().add("button_sampleGamboge");
                     okBtn.setPrefHeight(36);
                     okBtn.setPrefWidth(100);
@@ -255,6 +265,46 @@ public class GiaoDienChiTietNhanVien extends VBox {
                                 16);
                         if (mont != null) okBtn.setFont(mont);
                     } catch (Exception ignored) {}
+                    // error dialog không đóng account dialog
+                    okBtn.addEventFilter(ActionEvent.ACTION, ev -> {
+                        String tenDNVal = txtTenDN.getText().trim();
+                        String mkVal = txtMatKhau.getText();
+                        String mk2Val = txtMatKhau2.getText();
+                        if (txtMaTKDlg.getText().trim().isEmpty()) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Mã tài khoản bị lỗi. Vui lòng thử lại.");
+                            a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                            a.showAndWait();
+                            ev.consume();
+                            return;
+                        }
+                        if (tenDNVal.isEmpty()) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Tài khoản' không được để trống.");
+                            a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                            a.showAndWait();
+                            ev.consume();
+                            return;
+                        }
+                        if (mkVal.isEmpty() || mk2Val.isEmpty()) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Mật khẩu' và 'Nhập lại mật khẩu' không được để trống.");
+                            a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                            a.showAndWait();
+                            ev.consume();
+                            return;
+                        }
+                        if (!mkVal.equals(mk2Val)) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Mật khẩu nhập lại không khớp.");
+                            a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                            a.showAndWait();
+                            ev.consume();
+                            return;
+                        }
+                        if (mkVal.length() < 6) {
+                            Alert a = new Alert(Alert.AlertType.ERROR, "Mật khẩu phải có ít nhất 6 ký tự.");
+                            a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                            a.showAndWait();
+                            ev.consume();
+                        }
+                    });
                 }
 
             Optional<ButtonType> res = dialog.showAndWait();
