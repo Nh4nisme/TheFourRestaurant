@@ -1,4 +1,4 @@
-package com.thefourrestaurant.view;
+package com.thefourrestaurant.view.thucdon;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -13,9 +13,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.transformation.SortedList;
+
 import java.util.Comparator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -26,7 +25,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.stage.Stage;
 import javafx.scene.control.ButtonType;
 
 public class GiaoDienThucDon extends VBox {
@@ -72,10 +70,10 @@ public class GiaoDienThucDon extends VBox {
         VBox leftPane = new VBox(16);
         leftPane.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4,0,0,2);");
         leftPane.setPadding(new Insets(20));
-        leftPane.setPrefWidth(450);
+        leftPane.setPrefWidth(600);
         // keep left pane width stable to avoid table shifting when right pane content changes
-        leftPane.setMinWidth(450);
-        leftPane.setMaxWidth(450);
+        leftPane.setMinWidth(600);
+        leftPane.setMaxWidth(600);
 
         Label lblDanhSach = new Label("Danh sách Thực Đơn");
         lblDanhSach.setFont(Font.font("System", FontWeight.BOLD, 18));
