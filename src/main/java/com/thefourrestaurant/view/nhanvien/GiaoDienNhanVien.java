@@ -111,7 +111,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
                     a.setContentText("Bạn có chắc muốn xóa nhân viên này?");
                     a.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
                     a.showAndWait().ifPresent(bt -> {
-                        if (bt == ButtonType.YES) {
+                        if (bt == ButtonType.OK) {
                             try {
                                 nv.setDeleted(true);
                                 boolean ok = controller.capNhatNhanVien(nv, null);

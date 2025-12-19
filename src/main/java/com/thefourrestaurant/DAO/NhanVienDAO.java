@@ -136,7 +136,7 @@ public class NhanVienDAO {
 
 
     public boolean capNhatNhanVien(NhanVien nv) {
-        String sql = "UPDATE NhanVien SET hoTen = ?, ngaySinh = ?, gioiTinh = ?, soDienThoai = ?, luong = ?, maTK = ?, hinhAnh = ? WHERE maNV = ?";
+        String sql = "UPDATE NhanVien SET hoTen = ?, ngaySinh = ?, gioiTinh = ?, soDienThoai = ?, luong = ?, maTK = ?, hinhAnh = ?, isDeleted = ? WHERE maNV = ?";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -147,7 +147,8 @@ public class NhanVienDAO {
             ps.setBigDecimal(5, nv.getLuong());
             ps.setString(6, nv.getMaTK() != null ? nv.getMaTK().getMaTK() : null);
             ps.setString(7, nv.getHinhAnh());
-            ps.setString(8, nv.getMaNV());
+            ps.setBoolean(8, nv.isDeleted());
+            ps.setString(9, nv.getMaNV());
 
             int updated = ps.executeUpdate();
             return updated > 0;
