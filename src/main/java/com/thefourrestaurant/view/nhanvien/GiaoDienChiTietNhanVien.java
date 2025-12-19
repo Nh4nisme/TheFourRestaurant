@@ -70,7 +70,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
         txtHoTen = taoTextField("Họ tên");
         dtpNgaySinh = new DatePicker();
         dtpNgaySinh.setPrefWidth(300);
-        // Disable dates that would make the employee under 18
+        // >= 18
         LocalDate maxAllowed = LocalDate.now().minusYears(18);
         dtpNgaySinh.setDayCellFactory(picker -> new DateCell() {
             @Override
@@ -80,6 +80,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 setDisable(date.isAfter(maxAllowed));
             }
         });
+        dtpNgaySinh.setValue(maxAllowed);
         cboGioiTinh = new ComboBox<>();
         cboGioiTinh.getItems().addAll("Nam", "Nữ", "Khác");
         cboGioiTinh.setPrefWidth(300);
@@ -152,7 +153,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
         btnLuu = new ButtonSample("Lưu", 36, 16, 1);
         btnXoa = new ButtonSample("Xóa", 36, 16, 2);
 
-        // Pre-generate IDs for new entries and wire up add behavior
+        // tự tạo id
         txtMaNV.setEditable(false);
         txtMaTK.setEditable(false);
         try {
@@ -181,41 +182,56 @@ public class GiaoDienChiTietNhanVien extends VBox {
                 return;
             }
 
-            // generate final IDs
             String maNV = nhanVienDAO.taoMaNhanVienMoi();
             String maTK = TaiKhoanDAO.taoMaTaiKhoanMoi();
             txtMaNV.setText(maNV);
             txtMaTK.setText(maTK);
 
-            // Show account dialog
+            // Tài khoản dialog
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.initOwner(getScene() != null ? getScene().getWindow() : null);
             dialog.setTitle("Thông tin tài khoản");
             DialogPane dp = dialog.getDialogPane();
             dp.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-            Label title = new Label("Thông tin tài khoản");
-            title.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
+                Label title = new Label("Thông tin tài khoản");
+                title.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 24px; -fx-font-weight: bold;");
+                title.setMaxWidth(Double.MAX_VALUE);
+                title.setAlignment(Pos.CENTER);
+                VBox.setMargin(title, new Insets(10,0,10,0));
 
-            TextField txtMaTKDlg = new TextField(maTK);
-            txtMaTKDlg.setEditable(false);
-            txtMaTKDlg.setPrefWidth(300);
-            TextField txtTenDN = new TextField();
-            txtTenDN.setPromptText("Tài khoản");
-            PasswordField txtMatKhau = new PasswordField();
-            txtMatKhau.setPromptText("Mật khẩu");
-            PasswordField txtMatKhau2 = new PasswordField();
-            txtMatKhau2.setPromptText("Nhập lại mật khẩu");
+                TextField txtMaTKDlg = new TextField(maTK);
+                txtMaTKDlg.setEditable(false);
+                txtMaTKDlg.setPrefWidth(300);
+                txtMaTKDlg.setStyle("-fx-control-inner-background: #F5F5F5; -fx-opacity: 1;");
 
-            VBox content = new VBox(8,
-                    title,
-                    new HBox(8, new Label("Mã TK:"), txtMaTKDlg),
-                    new Label("Tài khoản:"), txtTenDN,
-                    new Label("Mật khẩu:"), txtMatKhau,
-                    new Label("Nhập lại mật khẩu:"), txtMatKhau2
-            );
-            content.setPrefWidth(380);
-            dp.setContent(content);
+                TextField txtTenDN = new TextField();
+                txtTenDN.setPromptText("Tài khoản");
+                PasswordField txtMatKhau = new PasswordField();
+                txtMatKhau.setPromptText("Mật khẩu");
+                PasswordField txtMatKhau2 = new PasswordField();
+                txtMatKhau2.setPromptText("Nhập lại mật khẩu");
+
+                GridPane grid = new GridPane();
+                grid.setHgap(10);
+                grid.setVgap(10);
+                grid.add(new Label("Mã TK:"), 0, 0);
+                grid.add(txtMaTKDlg, 1, 0);
+                grid.add(new Label("Tài khoản:"), 0, 1);
+                grid.add(txtTenDN, 1, 1);
+                grid.add(new Label("Mật khẩu:"), 0, 2);
+                grid.add(txtMatKhau, 1, 2);
+                grid.add(new Label("Nhập lại mật khẩu:"), 0, 3);
+                grid.add(txtMatKhau2, 1, 3);
+                ColumnConstraints c0 = new ColumnConstraints();
+                c0.setMinWidth(80);
+                ColumnConstraints c1 = new ColumnConstraints();
+                c1.setMinWidth(300);
+                grid.getColumnConstraints().addAll(c0, c1);
+
+                VBox content = new VBox(8, title, grid);
+                content.setPrefWidth(420);
+                dp.setContent(content);
 
             Optional<ButtonType> res = dialog.showAndWait();
             if (res.isPresent() && res.get().getButtonData() == ButtonData.OK_DONE) {
@@ -376,7 +392,6 @@ public class GiaoDienChiTietNhanVien extends VBox {
             btnXoa.setVisible(true);
             btnXoa.setManaged(true);
         } else {
-            // For add mode keep MaNV and MaTK readonly (auto-generated)
             txtMaNV.setEditable(false);
             txtMaNV.setStyle("-fx-opacity: 0.6;");
             txtMaTK.setEditable(false);
