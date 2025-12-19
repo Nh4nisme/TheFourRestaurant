@@ -500,7 +500,6 @@ public class GiaoDienChiTietNhanVien extends VBox {
                     Alert a = new Alert(Alert.AlertType.INFORMATION, "Thêm nhân viên thành công.");
                     a.showAndWait();
                     hienThi(null);
-                    // Refresh parent list view if present
                     try { refreshParentList(); } catch (Exception ignored) {}
                 } else {
                     try {

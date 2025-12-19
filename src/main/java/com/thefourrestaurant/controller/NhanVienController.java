@@ -1,6 +1,7 @@
 package com.thefourrestaurant.controller;
 
 import com.thefourrestaurant.DAO.NhanVienDAO;
+import com.thefourrestaurant.DAO.TaiKhoanDAO;
 import com.thefourrestaurant.model.NhanVien;
 
 import javafx.scene.control.Alert;
@@ -121,7 +122,17 @@ public class NhanVienController {
                 ex.printStackTrace();
             }
         }
-        return dao.capNhatNhanVien(nv);
+            boolean ok = dao.capNhatNhanVien(nv);
+            if (ok) {
+                try {
+                    if (nv.isDeleted() && nv.getMaTK() != null && nv.getMaTK().getMaTK() != null) {
+                        TaiKhoanDAO.xoaTaiKhoan(nv.getMaTK().getMaTK());
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            return ok;
     }
 
     public boolean themNhanVien(com.thefourrestaurant.model.NhanVien nv, java.io.File imageFile) {

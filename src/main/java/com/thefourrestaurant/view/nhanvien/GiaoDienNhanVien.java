@@ -197,7 +197,6 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
                 gdChiTiet.hienThi(null);
                 return;
             }
-            // if this is the special add-row (empty maNV), treat as 'Thêm nhân viên'
             if (newV.getMaNV() == null || newV.getMaNV().trim().isEmpty()) {
                 gdChiTiet.hienThi(null);
                 try {

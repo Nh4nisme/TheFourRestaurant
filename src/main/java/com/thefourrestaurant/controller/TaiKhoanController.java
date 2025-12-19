@@ -2,6 +2,8 @@ package com.thefourrestaurant.controller;
 
 import com.thefourrestaurant.DAO.TaiKhoanDAO;
 import com.thefourrestaurant.DAO.VaiTroDAO;
+import com.thefourrestaurant.DAO.NhanVienDAO;
+import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.model.VaiTro;
 import com.thefourrestaurant.view.taikhoan.GiaoDienChiTietTaiKhoan;
@@ -82,6 +84,18 @@ public class TaiKhoanController {
     }
 
     public boolean xoaTaiKhoan(String maTK) {
-        return TaiKhoanDAO.xoaTaiKhoan(maTK);
+        boolean ok = TaiKhoanDAO.xoaTaiKhoan(maTK);
+        if (ok) {
+            try {
+                NhanVien nv = new NhanVienDAO().layNhanVienTheoMaTK(maTK);
+                if (nv != null) {
+                    nv.setDeleted(true);
+                    new NhanVienDAO().capNhatNhanVien(nv);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return ok;
     }
 }
