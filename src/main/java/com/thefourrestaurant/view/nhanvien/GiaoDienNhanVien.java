@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.geometry.Pos;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -89,6 +90,9 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
         TableColumn<NhanVien, Void> colAction = new TableColumn<>("Hành động");
         colAction.setCellFactory(tc -> new TableCell<>() {
             private final HBox box = new HBox(6);
+            {
+                box.setAlignment(Pos.CENTER);
+            }
             private final com.thefourrestaurant.view.components.ButtonSample btnSua = new com.thefourrestaurant.view.components.ButtonSample("Sửa", 36, 14, 1);
             private final com.thefourrestaurant.view.components.ButtonSample btnXoa = new com.thefourrestaurant.view.components.ButtonSample("Xóa", 36, 14, 2);
             private final com.thefourrestaurant.view.components.ButtonSample btnAdd = new com.thefourrestaurant.view.components.ButtonSample("Thêm nhân viên", 36, 16, 1);
@@ -157,6 +161,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
                     box.getChildren().addAll(btnSua, btnXoa);
                 }
                 setGraphic(box);
+                setAlignment(Pos.CENTER);
             }
         });
         colAction.setPrefWidth(300);
