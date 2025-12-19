@@ -48,10 +48,7 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
                 new SimpleStringProperty(cell.getValue().getTenDN())
         );
 
-        TableColumn<TaiKhoan, String> colMatKhau = new TableColumn<>("Mật khẩu");
-        colMatKhau.setCellValueFactory(cell ->
-                new SimpleStringProperty(cell.getValue().getMatKhau())
-        );
+        // Mật khẩu không hiển thị trong bảng (bảo mật)
 
         TableColumn<TaiKhoan, String> colVaiTro = new TableColumn<>("Vai trò");
         colVaiTro.setCellValueFactory(cell -> {
@@ -87,7 +84,7 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
             }
         });
 
-        table.getColumns().addAll(colMaTK, colTenDN, colMatKhau, colVaiTro, colHanhDong);
+        table.getColumns().addAll(colMaTK, colTenDN, colVaiTro, colHanhDong);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // View gọi Controller để lấy danh sách dữ liệu từ DAO

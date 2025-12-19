@@ -99,6 +99,8 @@ public class NhanVienController {
 
     public void showAlert(Stage owner, Alert.AlertType type, String message) {
         Alert alert = new Alert(type, message);
+        alert.setTitle("Thông báo");
+        alert.getDialogPane().setPrefSize(560, 200);
         if (owner != null) alert.initOwner(owner);
         alert.showAndWait();
     }

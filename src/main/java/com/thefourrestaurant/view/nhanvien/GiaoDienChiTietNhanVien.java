@@ -333,13 +333,14 @@ public class GiaoDienChiTietNhanVien extends VBox {
                                 16);
                         if (mont != null) okBtn.setFont(mont);
                     } catch (Exception ignored) {}
-                    // error dialog không đóng account dialog
+                    // Cảnh báo lỗi không đóng dialog tài khoản
                     okBtn.addEventFilter(ActionEvent.ACTION, ev -> {
                         String tenDNVal = txtTenDN.getText().trim();
                         String mkVal = txtMatKhau.getText();
                         String mk2Val = txtMatKhau2.getText();
                         if (txtMaTKDlg.getText().trim().isEmpty()) {
                             Alert a = new Alert(Alert.AlertType.ERROR, "Mã tài khoản bị lỗi. Vui lòng thử lại.");
+                            a.getDialogPane().setPrefSize(560, 200);
                             a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
                             a.showAndWait();
                             ev.consume();
@@ -347,6 +348,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
                         }
                         if (tenDNVal.isEmpty()) {
                             Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Tài khoản' không được để trống.");
+                            a.getDialogPane().setPrefSize(560, 200);
                             a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
                             a.showAndWait();
                             ev.consume();
@@ -354,7 +356,11 @@ public class GiaoDienChiTietNhanVien extends VBox {
                         }
                         try {
                             if (TaiKhoanDAO.layTaiKhoanTheoTenDangNhap(tenDNVal) != null) {
-                                Alert a = new Alert(Alert.AlertType.ERROR, "Tài khoản đã tồn tại. Vui lòng chọn tên khác.");
+                                Alert a = new Alert(Alert.AlertType.ERROR);
+                                a.setTitle("Lỗi");
+                                a.setHeaderText("Tài khoản đã tồn tại");
+                                a.setContentText("Tài khoản đã tồn tại. Vui lòng chọn tên khác.");
+                                a.getDialogPane().setPrefSize(560, 200);
                                 a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
                                 a.showAndWait();
                                 ev.consume();
@@ -363,6 +369,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
                         } catch (Exception ex) { ex.printStackTrace(); }
                         if (mkVal.isEmpty() || mk2Val.isEmpty()) {
                             Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Mật khẩu' và 'Nhập lại mật khẩu' không được để trống.");
+                            a.getDialogPane().setPrefSize(560, 200);
                             a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
                             a.showAndWait();
                             ev.consume();
@@ -370,6 +377,7 @@ public class GiaoDienChiTietNhanVien extends VBox {
                         }
                         if (!mkVal.equals(mk2Val)) {
                             Alert a = new Alert(Alert.AlertType.ERROR, "Mật khẩu nhập lại không khớp.");
+                            a.getDialogPane().setPrefSize(560, 200);
                             a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
                             a.showAndWait();
                             ev.consume();
@@ -377,12 +385,34 @@ public class GiaoDienChiTietNhanVien extends VBox {
                         }
                         if (mkVal.length() < 6) {
                             Alert a = new Alert(Alert.AlertType.ERROR, "Mật khẩu phải có ít nhất 6 ký tự.");
+                            a.getDialogPane().setPrefSize(560, 200);
                             a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
                             a.showAndWait();
                             ev.consume();
                         }
                     });
                 }
+
+            dialog.setOnShown(evt -> {
+                Button b = (Button) dp.lookupButton(ButtonType.OK);
+                if (b != null) {
+                    b.addEventFilter(ActionEvent.ACTION, event -> {
+                        String tenDNVal2 = txtTenDN.getText().trim();
+                        try {
+                            if (TaiKhoanDAO.layTaiKhoanTheoTenDangNhap(tenDNVal2) != null) {
+                                Alert a = new Alert(Alert.AlertType.ERROR);
+                                a.setTitle("Lỗi");
+                                a.setHeaderText("Tài khoản đã tồn tại");
+                                a.setContentText("Tài khoản đã tồn tại.");
+                                a.getDialogPane().setPrefSize(420, 180);
+                                a.initOwner(dp.getScene() != null ? dp.getScene().getWindow() : null);
+                                a.showAndWait();
+                                event.consume();
+                            }
+                        } catch (Exception ex) { ex.printStackTrace(); }
+                    });
+                }
+            });
 
             Optional<ButtonType> res = dialog.showAndWait();
             if (res.isPresent() && res.get().getButtonData() == ButtonData.OK_DONE) {
@@ -392,16 +422,22 @@ public class GiaoDienChiTietNhanVien extends VBox {
 
                 if (tenDN.isEmpty()) {
                     Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Tài khoản' không được để trống.");
+                    a.getDialogPane().setPrefSize(560, 200);
+                    a.initOwner(getScene() != null ? getScene().getWindow() : null);
                     a.showAndWait();
                     return;
                 }
                 if (mk.isEmpty()) {
                     Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Mật khẩu' không được để trống.");
+                    a.getDialogPane().setPrefSize(560, 200);
+                    a.initOwner(getScene() != null ? getScene().getWindow() : null);
                     a.showAndWait();
                     return;
                 }
                 if (!mk.equals(mk2)) {
                     Alert a = new Alert(Alert.AlertType.ERROR, "Mật khẩu nhập lại không khớp.");
+                    a.getDialogPane().setPrefSize(560, 200);
+                    a.initOwner(getScene() != null ? getScene().getWindow() : null);
                     a.showAndWait();
                     return;
                 }
@@ -412,6 +448,8 @@ public class GiaoDienChiTietNhanVien extends VBox {
                     try {
                         if (nhanVienDAO.layNhanVienTheoSDT(sdtCheck) != null) {
                             Alert a = new Alert(Alert.AlertType.ERROR, "Số điện thoại đã tồn tại trong hệ thống.");
+                            a.getDialogPane().setPrefSize(560, 200);
+                            a.initOwner(getScene() != null ? getScene().getWindow() : null);
                             a.showAndWait();
                             return;
                         }
@@ -420,20 +458,34 @@ public class GiaoDienChiTietNhanVien extends VBox {
                     }
                 }
 
-                // Kiểm tra tên đăng nhập đã tồn tại
                 try {
                     if (TaiKhoanDAO.layTaiKhoanTheoTenDangNhap(tenDN) != null) {
-                        Alert a = new Alert(Alert.AlertType.ERROR, "Tài khoản đã tồn tại. Vui lòng chọn tên khác.");
+                        Alert a = new Alert(Alert.AlertType.ERROR);
+                        a.setTitle("Lỗi tạo tài khoản");
+                        a.setHeaderText("Tài khoản đã tồn tại");
+                        a.setContentText("Tài khoản '" + tenDN + "' đã tồn tại. Vui lòng chọn tên khác.");
+                        a.getDialogPane().setPrefSize(560, 200);
+                        a.initOwner(getScene() != null ? getScene().getWindow() : null);
                         a.showAndWait();
                         return;
                     }
                 } catch (Exception ex) { ex.printStackTrace(); }
 
                 TaiKhoan tk = new TaiKhoan(maTK, tenDN, mk, selectedRole, false);
-                boolean tkOk = TaiKhoanDAO.themTaiKhoan(tk);
+                boolean tkOk = false;
+                try {
+                    tkOk = TaiKhoanDAO.themTaiKhoan(tk);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
 
                 if (!tkOk) {
-                    Alert a = new Alert(Alert.AlertType.ERROR, "Tạo tài khoản thất bại. Vui lòng thử lại.");
+                    Alert a = new Alert(Alert.AlertType.ERROR);
+                    a.setTitle("Lỗi");
+                    a.setHeaderText("Tạo tài khoản thất bại");
+                    a.setContentText("Không thể tạo tài khoản. Vui lòng kiểm tra tên đăng nhập và thử lại.");
+                    a.getDialogPane().setPrefSize(520, 180);
+                    a.initOwner(getScene() != null ? getScene().getWindow() : null);
                     a.showAndWait();
                     return;
                 }
@@ -456,6 +508,8 @@ public class GiaoDienChiTietNhanVien extends VBox {
                     } catch (Exception ex) { ex.printStackTrace(); }
 
                     Alert a = new Alert(Alert.AlertType.ERROR, "Thêm thất bại. Tài khoản đã bị xóa để tránh dữ liệu không nhất quán.");
+                    a.getDialogPane().setPrefSize(560, 200);
+                    a.initOwner(getScene() != null ? getScene().getWindow() : null);
                     a.showAndWait();
                 }
             }
