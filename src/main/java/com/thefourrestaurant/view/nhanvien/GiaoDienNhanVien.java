@@ -189,11 +189,28 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
             return;
         }
         String q = tuKhoa.toLowerCase();
-        ObservableList<NhanVien> filtered = danhSachGoc.filtered(nv ->
-                (nv.getMaNV() != null && nv.getMaNV().toLowerCase().contains(q)) ||
-                (nv.getHoTen() != null && nv.getHoTen().toLowerCase().contains(q)) ||
-                (nv.getSoDienThoai() != null && nv.getSoDienThoai().toLowerCase().contains(q))
-        );
+        ObservableList<NhanVien> filtered = danhSachGoc.filtered(nv -> {
+            if (nv == null) return false;
+            try {
+                String ma = nv.getMaNV() == null ? "" : nv.getMaNV().toLowerCase();
+                String ten = nv.getHoTen() == null ? "" : nv.getHoTen().toLowerCase();
+                String sdt = nv.getSoDienThoai() == null ? "" : nv.getSoDienThoai().toLowerCase();
+                String gioiTinh = nv.getGioiTinh() == null ? "" : nv.getGioiTinh().toLowerCase();
+                String ngay = nv.getNgaySinh() == null ? "" : nv.getNgaySinh().toString().toLowerCase();
+                String luong = nv.getLuong() == null ? "" : nv.getLuong().toString().toLowerCase();
+                String maTK = (nv.getMaTK() == null || nv.getMaTK().getMaTK() == null) ? "" : nv.getMaTK().getMaTK().toLowerCase();
+                String vaiTro = "";
+                if (nv.getMaTK() != null && nv.getMaTK().getVaiTro() != null) {
+                    vaiTro = nv.getMaTK().getVaiTro().getTenVaiTro() == null ? "" : nv.getMaTK().getVaiTro().getTenVaiTro().toLowerCase();
+                    String maVT = nv.getMaTK().getVaiTro().getMaVT() == null ? "" : nv.getMaTK().getVaiTro().getMaVT().toLowerCase();
+                    if (maVT.contains(q)) return true;
+                }
+
+                return ma.contains(q) || ten.contains(q) || sdt.contains(q) || gioiTinh.contains(q) || ngay.contains(q) || luong.contains(q) || maTK.contains(q) || vaiTro.contains(q);
+            } catch (Exception ex) {
+                return false;
+            }
+        });
         table.setItems(filtered);
     }
 

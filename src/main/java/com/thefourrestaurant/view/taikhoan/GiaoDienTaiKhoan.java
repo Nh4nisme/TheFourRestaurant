@@ -109,17 +109,30 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
     @Override
     protected void thucHienTimKiem(String tuKhoa) {
         if (danhSachGoc == null || danhSachGoc.isEmpty()) return;
-        if (tuKhoa.isEmpty()) {
+        if (tuKhoa == null || tuKhoa.trim().isEmpty()) {
             table.setItems(danhSachGoc);
             return;
         }
 
         String lowerKey = tuKhoa.toLowerCase();
-        ObservableList<TaiKhoan> ketQua = danhSachGoc.filtered(
-                tk -> tk.getMaTK().toLowerCase().contains(lowerKey)
-                        || tk.getTenDN().toLowerCase().contains(lowerKey)
-                        || tk.getVaiTro().getTenVaiTro().toLowerCase().contains(lowerKey)
-        );
+        ObservableList<TaiKhoan> ketQua = danhSachGoc.filtered(tk -> {
+            if (tk == null) return false;
+            try {
+                String ma = tk.getMaTK() == null ? "" : tk.getMaTK().toLowerCase();
+                String ten = tk.getTenDN() == null ? "" : tk.getTenDN().toLowerCase();
+                String matkhau = tk.getMatKhau() == null ? "" : tk.getMatKhau().toLowerCase();
+                String isDel = tk.isDeleted() == null ? "" : tk.isDeleted().toString().toLowerCase();
+                String vaiTroName = "";
+                String vaiTroMa = "";
+                if (tk.getVaiTro() != null) {
+                    vaiTroName = tk.getVaiTro().getTenVaiTro() == null ? "" : tk.getVaiTro().getTenVaiTro().toLowerCase();
+                    vaiTroMa = tk.getVaiTro().getMaVT() == null ? "" : tk.getVaiTro().getMaVT().toLowerCase();
+                }
+                return ma.contains(lowerKey) || ten.contains(lowerKey) || matkhau.contains(lowerKey) || isDel.contains(lowerKey) || vaiTroName.contains(lowerKey) || vaiTroMa.contains(lowerKey);
+            } catch (Exception ex) {
+                return false;
+            }
+        });
         table.setItems(ketQua);
     }
 
