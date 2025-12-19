@@ -179,4 +179,32 @@ public class ThucDonDAO {
         }
         return kq;
     }
+
+    public boolean xoaThucDon(String maTD) {
+        if (maTD == null || maTD.trim().isEmpty()) return false;
+        try (Connection cn = ConnectSQL.getConnection()) {
+            cn.setAutoCommit(false);
+            try {
+                try (PreparedStatement delCT = cn.prepareStatement("DELETE FROM dbo.ChiTietThucDon WHERE maTD = ?")) {
+                    delCT.setString(1, maTD);
+                    delCT.executeUpdate();
+                }
+                try (PreparedStatement delTD = cn.prepareStatement("DELETE FROM dbo.ThucDon WHERE maTD = ?")) {
+                    delTD.setString(1, maTD);
+                    int affected = delTD.executeUpdate();
+                    cn.commit();
+                    return affected > 0;
+                }
+            } catch (Exception ex) {
+                cn.rollback();
+                ex.printStackTrace();
+                return false;
+            } finally {
+                cn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

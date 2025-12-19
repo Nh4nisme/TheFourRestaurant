@@ -78,7 +78,80 @@ public class GiaoDienThucDon extends VBox {
     loaiMonAnCol.setCellValueFactory(d -> new SimpleStringProperty(
         d.getValue().loaiMon == null ? "" : d.getValue().loaiMon
     ));
-    tableThucDon.getColumns().addAll(tenCol, loaiMonAnCol);
+
+    TableColumn<ThucDonDAO.ThucDonView, Void> colAction = new TableColumn<>("Hành động");
+    colAction.setCellFactory(tc -> new TableCell<>() {
+        private final HBox box = new HBox(6);
+        {
+            box.setAlignment(Pos.CENTER);
+        }
+        private final ButtonSample btnSua = new ButtonSample("Sửa", 36, 14, 1);
+        private final ButtonSample btnXoa = new ButtonSample("Xóa", 36, 14, 2);
+        private final ButtonSample btnAdd = new ButtonSample("Thêm thực đơn", 36, 16, 1);
+
+        {
+            btnSua.setOnAction(e -> {
+                ThucDonDAO.ThucDonView tv = getTableView().getItems().get(getIndex());
+                if (tv != null) {
+                    getTableView().getSelectionModel().select(tv);
+                }
+            });
+
+            btnXoa.setOnAction(e -> {
+                ThucDonDAO.ThucDonView tv = getTableView().getItems().get(getIndex());
+                if (tv == null || tv.maTD == null || tv.maTD.trim().isEmpty()) return;
+                Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+                a.setTitle("Xác nhận");
+                a.setHeaderText("Xác nhận");
+                a.setContentText("Bạn có chắc muốn xóa thực đơn này?");
+                a.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
+                a.showAndWait().ifPresent(bt -> {
+                    if (bt == ButtonType.OK) {
+                        try {
+                            boolean ok = new ThucDonDAO().xoaThucDon(tv.maTD);
+                            if (ok) {
+                                napBangThucDon();
+                            } else {
+                                Alert err = new Alert(Alert.AlertType.ERROR, "Xóa thất bại.");
+                                err.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
+                                err.showAndWait();
+                            }
+                        } catch (Exception ex) { ex.printStackTrace(); }
+                    }
+                });
+            });
+
+            btnAdd.setOnAction(e -> {
+                tableThucDon.getSelectionModel().clearSelection();
+                selectedFoods.clear();
+                capNhatBoxChonThucAn();
+            });
+        }
+
+        @Override
+        protected void updateItem(Void item, boolean empty) {
+            super.updateItem(item, empty);
+            box.getChildren().clear();
+            if (empty) {
+                setGraphic(null);
+                return;
+            }
+            ThucDonDAO.ThucDonView tv = getTableView().getItems().get(getIndex());
+            if (tv == null || tv.maTD == null || tv.maTD.trim().isEmpty()) {
+                btnAdd.setPrefWidth(180);
+                box.getChildren().add(btnAdd);
+            } else {
+                btnSua.setPrefWidth(80);
+                btnXoa.setPrefWidth(80);
+                box.getChildren().addAll(btnSua, btnXoa);
+            }
+            setGraphic(box);
+            setAlignment(Pos.CENTER);
+        }
+    });
+    colAction.setPrefWidth(300);
+
+    tableThucDon.getColumns().addAll(tenCol, loaiMonAnCol, colAction);
         VBox.setVgrow(tableThucDon, Priority.ALWAYS);
 
         leftPane.getChildren().addAll(lblDanhSach, thanhCongCu, tableThucDon);
@@ -275,7 +348,10 @@ public class GiaoDienThucDon extends VBox {
     private void napBangThucDon() {
         ThucDonDAO dao = new ThucDonDAO();
         var list = dao.layTatCaThucDonGomLoai();
-        tableThucDon.setItems(javafx.collections.FXCollections.observableArrayList(list));
+        var obs = javafx.collections.FXCollections.observableArrayList(list);
+        // thêm 1 dòng rỗng cuối để cho nút "Thêm thực đơn" giống kiểu Nhân viên
+        obs.add(new ThucDonDAO.ThucDonView(null, "", ""));
+        tableThucDon.setItems(obs);
     }
 
     private void setupTableSelectionBehavior() {
