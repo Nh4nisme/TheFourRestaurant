@@ -5,11 +5,14 @@ import com.thefourrestaurant.model.NhanVien;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Pos;
+import java.util.Comparator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -175,11 +178,25 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
     protected void lamMoiDuLieu() {
         List<NhanVien> ds = controller.layDanhSachNhanVien();
         danhSachGoc = FXCollections.observableArrayList(ds);
-        danhSachHienThi = FXCollections.observableArrayList(ds);
-        NhanVien addRow = new NhanVien();
-        addRow.setMaNV(null);
-        danhSachHienThi.add(addRow);
-        table.setItems(danhSachHienThi);
+
+        var source = FXCollections.observableArrayList(ds);
+        source.add(new NhanVien()); 
+
+        SortedList<NhanVien> sorted = new SortedList<>(source);
+        sorted.comparatorProperty().bind(Bindings.createObjectBinding(() -> {
+            Comparator<NhanVien> tableComp = table.getComparator();
+            return (a, b) -> {
+                if (a == null && b == null) return 0;
+                if (a == null) return -1;
+                if (b == null) return 1;
+                if (a.getMaNV() == null) return 1;
+                if (b.getMaNV() == null) return -1;
+                if (tableComp == null) return 0;
+                return tableComp.compare(a, b);
+            };
+        }, table.comparatorProperty()));
+
+        table.setItems(sorted);
     }
 
     @Override

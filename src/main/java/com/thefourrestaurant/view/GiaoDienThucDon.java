@@ -13,7 +13,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.transformation.SortedList;
+import java.util.Comparator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -348,10 +351,24 @@ public class GiaoDienThucDon extends VBox {
     private void napBangThucDon() {
         ThucDonDAO dao = new ThucDonDAO();
         var list = dao.layTatCaThucDonGomLoai();
-        var obs = javafx.collections.FXCollections.observableArrayList(list);
-        // thêm 1 dòng rỗng cuối để cho nút "Thêm thực đơn" giống kiểu Nhân viên
-        obs.add(new ThucDonDAO.ThucDonView(null, "", ""));
-        tableThucDon.setItems(obs);
+        var source = javafx.collections.FXCollections.observableArrayList(list);
+        source.add(new ThucDonDAO.ThucDonView(null, "", ""));
+
+        SortedList<ThucDonDAO.ThucDonView> sorted = new SortedList<>(source);
+        sorted.comparatorProperty().bind(Bindings.createObjectBinding(() -> {
+            Comparator<ThucDonDAO.ThucDonView> tableComp = tableThucDon.getComparator();
+            return (a, b) -> {
+                if (a == null && b == null) return 0;
+                if (a == null) return -1;
+                if (b == null) return 1;
+                if (a.maTD == null) return 1; 
+                if (b.maTD == null) return -1;
+                if (tableComp == null) return 0;
+                return tableComp.compare(a, b);
+            };
+        }, tableThucDon.comparatorProperty()));
+
+        tableThucDon.setItems(sorted);
     }
 
     private void setupTableSelectionBehavior() {
