@@ -4,7 +4,6 @@ import com.thefourrestaurant.DAO.KhachHangDAO;
 import com.thefourrestaurant.controller.KhachHangController;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.LoaiKhachHang;
-import com.thefourrestaurant.model.TaiKhoan;
 import com.thefourrestaurant.util.ValidatorKhachHang;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import com.thefourrestaurant.view.components.ButtonSample;
@@ -13,7 +12,6 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -26,7 +24,6 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
     private final GiaoDienChiTietKhachHang gdChiTietKH;
     private TableView<KhachHang> table;
     private ObservableList<KhachHang> danhSachGoc;
-    private ObservableList<KhachHang> danhSachHienThi;
     private boolean comparatorListenerAdded = false;
 
     public GiaoDienKhachHang() {
@@ -34,6 +31,7 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
         controller = new KhachHangController();
         gdChiTietKH = (GiaoDienChiTietKhachHang) getChiTietNode();
         khoiTaoGiaoDien();
+        khoiTaoBoLocTimKiem("Nhập số điện thoại...");
         napDanhSachLoaiKhachHang();
         khoiTaoSuKien();
         lamMoiDuLieu();
@@ -192,10 +190,7 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
 
         String lowerKey = tuKhoa.toLowerCase();
         ObservableList<KhachHang> ketQua = danhSachGoc.filtered(
-                kh -> kh.getMaKH().toLowerCase().contains(lowerKey)
-                        || kh.getHoTen().toLowerCase().contains(lowerKey)
-                        || kh.getSoDT().contains(lowerKey)
-                        || kh.getLoaiKH().getTenLoaiKH().contains(lowerKey)
+                kh -> kh.getSoDT().contains(lowerKey)
         );
         table.setItems(ketQua);
     }
