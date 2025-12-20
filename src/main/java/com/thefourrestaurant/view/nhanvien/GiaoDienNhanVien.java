@@ -31,7 +31,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
         super("Nhân viên", new GiaoDienChiTietNhanVien());
         gdChiTiet = (GiaoDienChiTietNhanVien) getChiTietNode();
         khoiTaoGiaoDien();
-        khoiTaoBoLocTimKiem();
+        khoiTaoBoLocTimKiem("nhập tên nhân viên");
         lamMoiDuLieu();
         khoiTaoSuKien();
         adjustSplitPaneDivider();
@@ -50,6 +50,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
     @Override
     protected TableView<?> taoBangChinh() {
         table = new TableView<>();
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         TableColumn<NhanVien, String> colMa = new TableColumn<>("Mã NV");
         colMa.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getMaNV()));
@@ -74,7 +75,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
         TableColumn<NhanVien, String> colSDT = new TableColumn<>("SĐT");
         colSDT.setCellValueFactory(cd -> new SimpleStringProperty(cd.getValue().getSoDienThoai()));
 
-        
+
 
         TableColumn<NhanVien, String> colVaiTro = new TableColumn<>("Vai trò");
         colVaiTro.setCellValueFactory(cd -> {

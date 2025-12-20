@@ -9,14 +9,13 @@ import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class GiaoDienHoaDon extends GiaoDienThucThe {
@@ -24,12 +23,14 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
     private GiaoDienChiTietHoaDon gdChiTietHoaDon;
     private TableView<HoaDon> table;
     private ObservableList<HoaDon> danhSachGoc;
-    private ObservableList<HoaDon> danhSachHienThi;
+    private FilteredList<HoaDon> danhSachHienThi;
 
     public GiaoDienHoaDon() {
         super("Hóa đơn", new GiaoDienChiTietHoaDon());
         gdChiTietHoaDon = (GiaoDienChiTietHoaDon) getChiTietNode();
         khoiTaoGiaoDien();
+        khoiTaoBoLocNgayCuThe();
+        khoiTaoBoLocTimKiem("nhập số điện thoại khách hàng...");
         lamMoiDuLieu();
     }
 
@@ -100,56 +101,48 @@ public class GiaoDienHoaDon extends GiaoDienThucThe {
 
     @Override
     protected void lamMoiDuLieu() {
-        danhSachGoc = FXCollections.observableArrayList(new HoaDonController().layDanhSachHoaDon());
-        danhSachHienThi = FXCollections.observableArrayList(danhSachGoc);
+        danhSachGoc = FXCollections.observableArrayList(controller.layDanhSachHoaDon());
+        danhSachHienThi = new FilteredList<>(danhSachGoc, hd -> true);
         table.setItems(danhSachHienThi);
     }
 
-    @Override
-    protected void thucHienTimKiem(String tuKhoa) {
-        if (danhSachGoc == null || danhSachGoc.isEmpty()) return;
-        if (tuKhoa.isEmpty()) {
-            table.setItems(danhSachGoc);
-            return;
-        }
+    private void apDungBoLoc() {
+        String tuKhoa = txtTimKiem.getText();
+        LocalDate ngay = dpNgayCuThe.getValue();
 
-        String lowerKey = tuKhoa.toLowerCase().trim();
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate ngayTimKiem = null;
+        String key = tuKhoa == null ? "" : tuKhoa.trim();
 
-        try {
-            ngayTimKiem = LocalDate.parse(tuKhoa, fmt);
-        } catch (DateTimeParseException ignored) {
-            // không làm gì, có thể người dùng đang tìm bằng text
-        }
+        danhSachHienThi.setPredicate(hd -> {
 
-        LocalDate finalNgayTimKiem = ngayTimKiem;
-        ObservableList<HoaDon> ketQua = danhSachGoc.filtered(hd -> {
-            boolean match = false;
-
-            // So sánh theo chuỗi text
-            if (hd.getMaHD() != null && hd.getMaHD().toLowerCase().contains(lowerKey))
-                match = true;
-            if (hd.getKhachHang().getSoDT() != null && hd.getKhachHang().getSoDT().toLowerCase().contains(lowerKey))
-                match = true;
-
-            // So sánh theo ngày
-            LocalDateTime ngayDat = hd.getNgayLap();
-            if (ngayDat != null) {
-                // Nếu người dùng nhập đúng ngày dd/MM/yyyy
-                if (finalNgayTimKiem != null && ngayDat.equals(finalNgayTimKiem))
-                    match = true;
-
-                // Hoặc nếu chuỗi ngày chứa text tìm kiếm (ví dụ: 10/2025)
-                String ngayStr = ngayDat.format(fmt).toLowerCase();
-                if (ngayStr.contains(lowerKey))
-                    match = true;
+            // lọc theo sdt
+            if (!key.isEmpty()) {
+                if (hd.getKhachHang() == null) return false;
+                String soDT = hd.getKhachHang().getSoDT();
+                if (soDT == null || !soDT.contains(key))
+                    return false;
             }
 
-            return match;
-        });
+            // lọc theo ngayf
+            if (ngay != null) {
+                LocalDateTime ngayLap = hd.getNgayLap();
+                if (ngayLap == null) return false;
+                if (!ngayLap.toLocalDate().equals(ngay))
+                    return false;
+            }
 
-        table.setItems(ketQua);
+            return true;
+        });
+    }
+
+
+    @Override
+    protected void thucHienTimKiem(String tuKhoa) {
+        apDungBoLoc();
+    }
+
+    @Override
+    protected void locTheoNgay(LocalDate tuNgay, LocalDate denNgay) {
+        apDungBoLoc();
     }
 
     private void hienThiChiTiet(HoaDon hd) {gdChiTietHoaDon.hienThiThongTin(hd);}

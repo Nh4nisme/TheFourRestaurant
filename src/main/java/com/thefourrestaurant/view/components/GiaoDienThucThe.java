@@ -50,6 +50,10 @@ public abstract class GiaoDienThucThe extends VBox {
         toolbar.getStyleClass().add("toolbar");
         toolbar.setAlignment(Pos.CENTER_LEFT);
         toolbar.setPadding(new Insets(10));
+        toolbar.setMinHeight(56);
+        toolbar.setPrefHeight(56);
+        toolbar.setMaxHeight(56);
+
 
         lblTieuDe = new Label(tieuDe);
         lblTieuDe.getStyleClass().add("toolbar-title");
@@ -81,10 +85,10 @@ public abstract class GiaoDienThucThe extends VBox {
 
 
     // Tìm kiếm theo từ khóa
-    protected void khoiTaoBoLocTimKiem() {
+    protected void khoiTaoBoLocTimKiem(String promptText) {
         txtTimKiem = new TextField();
-        txtTimKiem.setPromptText("Tìm kiếm...");
-        txtTimKiem.setPrefWidth(220);
+        txtTimKiem.setPromptText(promptText);
+        txtTimKiem.setPrefWidth(300);
 
         btnTimKiem = new ButtonSample("Tìm", 32, 14, 3);
         btnLamMoi = new ButtonSample("Làm mới", 32, 14, 3);
