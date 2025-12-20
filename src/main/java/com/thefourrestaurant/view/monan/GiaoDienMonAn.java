@@ -201,7 +201,7 @@ public class GiaoDienMonAn extends VBox {
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);
 
-        txtTimKiem.setPromptText("Tìm...");
+        txtTimKiem.setPromptText("nhập tên món ăn");
         txtTimKiem.setPrefWidth(300);
 
         ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
