@@ -64,8 +64,8 @@ public class GiaoDienChiTietBan extends BorderPane {
 		footer.setPadding(new Insets(12, 20, 12, 20));
 		footer.setStyle("-fx-background-color: #1E424D ;");
 
-		Button nutQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 120);
-		nutQuayLai.setOnAction(e -> {
+		Button btnQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 120);
+		btnQuayLai.setOnAction(e -> {
 		    mainContent.getChildren().setAll(new GiaoDienDatBan(mainContent));
 		});
 
@@ -76,7 +76,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 		    new ThanhToanController().moManThanhToanTheoMaBan(ban.getMaBan(), mainContent);
 		});
 
-		footer.getChildren().addAll(nutQuayLai, dayCach, nutTinhTien);
+		footer.getChildren().addAll(btnQuayLai, dayCach, nutTinhTien);
 		return footer;
 	}
 

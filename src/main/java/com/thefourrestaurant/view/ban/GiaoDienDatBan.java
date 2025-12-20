@@ -416,16 +416,11 @@ public class GiaoDienDatBan extends BorderPane {
 	}
 
 	private void nhanBan() {
-		// Lấy tất cả bàn (có thể bỏ qua kiểm tra chọn bàn nếu muốn hiển thị tất cả)
-		Stage stage = new Stage();
-		stage.initOwner(getScene().getWindow());
-		stage.setTitle("Nhận bàn - Danh sách phiếu đặt trước");
 
-		// Tạo giao diện GiaoDienNhanBan, truyền quanLiBan để đồng bộ refresh
-		GiaoDienNhanBan giaoDien = new GiaoDienNhanBan(quanLiBan);
+	    GiaoDienNhanBan giaoDien =
+	        new GiaoDienNhanBan(mainContent, quanLiBan);
 
-		stage.setScene(new Scene(giaoDien, 800, 500)); // có thể chỉnh kích thước phù hợp
-		stage.show();
+	    mainContent.getChildren().add(giaoDien);
 	}
 
 	private void huyBanDatTruoc() {
