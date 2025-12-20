@@ -42,7 +42,6 @@ public abstract class GiaoDienDatBanBase extends VBox {
     protected KhachHang selectedKhachHang;
     protected final KhachHangDAO khachHangDAO = new KhachHangDAO();
     protected final PhieuDatBanDAO phieuDatBanDAO = new PhieuDatBanDAO();
-	private BanDAO banDAO =  new BanDAO();
 
     public GiaoDienDatBanBase(List<Ban> dsBan, StackPane parentPane, QuanLiBan quanLiBan){
         this.dsBan = dsBan != null ? dsBan : new ArrayList<>();
@@ -362,7 +361,6 @@ public abstract class GiaoDienDatBanBase extends VBox {
 	     }
 	     return kh;
 	 }
-	
 	
 	 protected KhachHang validateAllCommon() {
 	

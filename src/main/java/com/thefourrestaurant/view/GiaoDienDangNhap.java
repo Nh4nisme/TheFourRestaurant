@@ -122,14 +122,14 @@ public class GiaoDienDangNhap {
                return;
            }
            if (user.length() < 6 || pass.length() < 6) {
-               Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu.", ButtonType.OK);
+               Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu 1.", ButtonType.OK);
                a.initOwner(stage);
                a.showAndWait();
                return;
            }
            TaiKhoan taiKhoan = TaiKhoanDAO.dangNhap(user, pass);
            if (taiKhoan == null) {
-               Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu.", ButtonType.OK);
+               Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu 2.", ButtonType.OK);
                a.initOwner(stage);
                a.showAndWait();
                return;

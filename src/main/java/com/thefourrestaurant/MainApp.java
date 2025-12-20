@@ -3,6 +3,7 @@ package com.thefourrestaurant;
 import java.sql.Connection;
 
 import com.thefourrestaurant.connect.ConnectSQL;
+import com.thefourrestaurant.view.GiaoDienChinh;
 import com.thefourrestaurant.view.GiaoDienDangNhap;
 
 import javafx.application.Application;
@@ -19,8 +20,10 @@ public class MainApp extends Application {
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-SemiBold.ttf"), 14);
         Font.loadFont(getClass().getResourceAsStream("/com/thefourrestaurant/fonts/Montserrat-Bold.ttf"), 14);
 
-        GiaoDienDangNhap gd = new GiaoDienDangNhap();
-        gd.show(primaryStage);
+//        GiaoDienDangNhap gd = new GiaoDienDangNhap();
+//        gd.show(primaryStage);
+        GiaoDienChinh gdChinh =  new GiaoDienChinh();
+        gdChinh.show(primaryStage);
 
         Task<Connection> ketNoiTask = getConnectionTask();
         new Thread(ketNoiTask).start();

@@ -1,11 +1,16 @@
 package com.thefourrestaurant.view.ban;
 
+import java.time.LocalDateTime;
+
 import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.util.ClockText;
 import com.thefourrestaurant.view.components.ButtonSample2;
+import com.thefourrestaurant.view.components.ButtonSample2.Variant;
+import com.thefourrestaurant.view.monan.GiaoDienGoiMon;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -24,6 +29,7 @@ public class GiaoDienNhanBan extends BorderPane {
 
 	private final PhieuDatBanDAO phieuDAO = new PhieuDatBanDAO();
 	private final BanDAO banDAO = new BanDAO();
+	private final StackPane parentPane;
 	private final QuanLiBan quanLiBan;
 
 	private TableView<PhieuDatBan> table;
@@ -35,13 +41,14 @@ public class GiaoDienNhanBan extends BorderPane {
 	private ObservableList<PhieuDatBan> masterList;
 	private FilteredList<PhieuDatBan> filtered;
 
-	public GiaoDienNhanBan(QuanLiBan quanLiBan) {
+	public GiaoDienNhanBan(StackPane parentPane, QuanLiBan quanLiBan) {
+		this.parentPane = parentPane;
 		this.quanLiBan = quanLiBan;
 
-		setStyle("-fx-background-color: " + COLOR_BG_MAIN + ";");
-
+		setStyle("-fx-background-color: #f0f0f0;");
 		setTop(taoHeader());
 		setCenter(taoNoiDungChinh());
+		setBottom(taoThanhNutDuoi());
 	}
 
 	// ================= HEADER =================
@@ -74,18 +81,18 @@ public class GiaoDienNhanBan extends BorderPane {
 
 	// ================= NỘI DUNG CHÍNH =================
 	private SplitPane taoNoiDungChinh() {
-	    SplitPane split = new SplitPane();
-	    split.setDividerPositions(0.45);
+		SplitPane split = new SplitPane();
+		split.setDividerPositions(0.45);
 
-	    chiTietPane = new GiaoDienChiTietPhieuDatBan();
+		chiTietPane = new GiaoDienChiTietPhieuDatBan();
 
-	    VBox bangPhieu = taoBangPhieu();
+		VBox bangPhieu = taoBangPhieu();
 
-	    VBox rightBox = new VBox(10, chiTietPane, taoNutHanhDong());
-	    rightBox.setPadding(new Insets(10));
+		VBox rightBox = new VBox(10, chiTietPane);
+		rightBox.setPadding(new Insets(10));
 
-	    split.getItems().addAll(bangPhieu, rightBox);
-	    return split;
+		split.getItems().addAll(bangPhieu, rightBox);
+		return split;
 	}
 
 	// ================= TABLE PHIẾU =================
@@ -129,22 +136,72 @@ public class GiaoDienNhanBan extends BorderPane {
 		return box;
 	}
 
-	private HBox taoNutHanhDong() {
-		ButtonSample2 btnNhanBan = new ButtonSample2("Nhận bàn", ButtonSample2.Variant.YELLOW, 150, 45);
+	private HBox taoThanhNutDuoi() {
+
+		// ===== NÚT =====
+		ButtonSample2 btnQuayLai = new ButtonSample2("Quay lại", ButtonSample2.Variant.YELLOW, 150, 45);
+
+		ButtonSample2 btnGopBan = new ButtonSample2("Gộp bàn", ButtonSample2.Variant.YELLOW, 150, 45);
+
+		ButtonSample2 btnChuyenBan = new ButtonSample2("Chuyển bàn", ButtonSample2.Variant.YELLOW, 150, 45);
+
+		ButtonSample2 btnGoiMon = new ButtonSample2("Gọi món", ButtonSample2.Variant.YELLOW, 150, 45);
+
 		ButtonSample2 btnHuyPhieu = new ButtonSample2("Hủy phiếu", ButtonSample2.Variant.YELLOW, 150, 45);
+
+		ButtonSample2 btnNhanBan = new ButtonSample2("Nhận bàn", ButtonSample2.Variant.YELLOW, 150, 45);
+
+		btnQuayLai.setOnAction(e -> {
+		    parentPane.getChildren().remove(this);
+		    quanLiBan.refresh();
+		});
 
 		btnNhanBan.setOnAction(e -> xuLyNhanBan());
 		btnHuyPhieu.setOnAction(e -> xuLyHuyPhieu());
 
-		HBox box = new HBox(15, btnHuyPhieu, btnNhanBan);
-		box.setAlignment(Pos.CENTER_RIGHT);
-		return box;
+		btnGoiMon.setOnAction(e -> xuLyGoiMon());
+		btnGopBan.setOnAction(e -> xuLyGopBan());
+		btnChuyenBan.setOnAction(e -> xuLyChuyenBan());
+
+		// ===== BỐ CỤC =====
+		Region spacer = new Region();
+		HBox.setHgrow(spacer, Priority.ALWAYS);
+
+		HBox bar = new HBox(15, btnQuayLai, spacer, btnGopBan, btnChuyenBan, btnGoiMon, btnHuyPhieu, btnNhanBan);
+
+		bar.setPadding(new Insets(10, 20, 10, 20));
+		bar.setAlignment(Pos.CENTER);
+
+		bar.setStyle("""
+				    -fx-background-color: #f0f0f0;
+				    -fx-border-color: #d0d0d0;
+				    -fx-border-width: 1 0 0 0;
+				""");
+
+		return bar;
 	}
 
-	// ================= LOGIC =================
 	private void xuLyNhanBan() {
+
 		if (phieuDangChon == null) {
 			new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu!").showAndWait();
+			return;
+		}
+
+		if (!"Đặt trước".equals(phieuDangChon.getTrangThai())) {
+			new Alert(Alert.AlertType.WARNING, "Chỉ được nhận bàn với phiếu ĐẶT TRƯỚC!").showAndWait();
+			return;
+		}
+
+		LocalDateTime gioDat = phieuDangChon.getNgayDat();
+		LocalDateTime hienTai = LocalDateTime.now();
+
+		LocalDateTime choPhepNhanTu = gioDat.minusMinutes(30);
+
+		if (hienTai.isBefore(choPhepNhanTu)) {
+			new Alert(Alert.AlertType.WARNING,
+					"Chưa đến thời gian nhận bàn!\n" + "Chỉ được nhận bàn từ " + choPhepNhanTu.toLocalTime())
+					.showAndWait();
 			return;
 		}
 
@@ -181,30 +238,69 @@ public class GiaoDienNhanBan extends BorderPane {
 
 	private void refreshTable() {
 
-	    if (masterList == null) {
-	        masterList = FXCollections.observableArrayList();
-	        filtered = new FilteredList<>(masterList, p -> true);
+		if (masterList == null) {
+			masterList = FXCollections.observableArrayList();
+			filtered = new FilteredList<>(masterList, p -> true);
 
-	        txtSoDT.textProperty().addListener((obs, old, val) -> {
-	            filtered.setPredicate(pdb -> {
-	                if (val == null || val.isBlank())
-	                    return true;
-	                return pdb.getKhachHang() != null
-	                        && pdb.getKhachHang().getSoDT() != null
-	                        && pdb.getKhachHang().getSoDT().contains(val.trim());
-	            });
-	        });
+			txtSoDT.textProperty().addListener((obs, old, val) -> {
+				filtered.setPredicate(pdb -> {
+					if (val == null || val.isBlank())
+						return true;
+					return pdb.getKhachHang() != null && pdb.getKhachHang().getSoDT() != null
+							&& pdb.getKhachHang().getSoDT().contains(val.trim());
+				});
+			});
 
-	        table.setItems(filtered);
-	    }
+			table.setItems(filtered);
+		}
 
-	    masterList.setAll(phieuDAO.layPhieuTheoTrangThai("Đặt trước"));
+		masterList.setAll(phieuDAO.layPhieuTheoTrangThai("Đặt trước"));
 
-	    table.getSelectionModel().clearSelection();
-	    phieuDangChon = null;
+		table.getSelectionModel().clearSelection();
+		phieuDangChon = null;
 
 //	    chiTietPane.clearThongTin(); // ✅ GIỮ UI – CLEAR DATA
 	}
 
+	private ButtonSample2 taoNutQuayLai() {
+		ButtonSample2 btn = new ButtonSample2("Quay lại", ButtonSample2.Variant.YELLOW, 150, 45);
+
+		btn.setOnAction(e -> {
+			parentPane.getChildren().clear();
+			quanLiBan.refresh();
+		});
+
+		return btn;
+	}
+
+	private void xuLyGoiMon() {
+		if (phieuDangChon == null) {
+			new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu!").showAndWait();
+			return;
+		}
+
+		parentPane.getChildren().clear();
+		parentPane.getChildren()
+				.add(new GiaoDienGoiMon(parentPane, phieuDangChon.getDanhSachBan().get(0), phieuDangChon));
+	}
+
+	private void xuLyGopBan() {
+		if (phieuDangChon == null) {
+			new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu cần gộp!").showAndWait();
+			return;
+		}
+
+		// Mở màn hình gộp bàn (bạn có thể làm giống chuyển bàn)
+		new Alert(Alert.AlertType.INFORMATION, "Mở chức năng Gộp bàn").showAndWait();
+	}
+
+	private void xuLyChuyenBan() {
+		if (phieuDangChon == null) {
+			new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu cần chuyển bàn!").showAndWait();
+			return;
+		}
+
+		new Alert(Alert.AlertType.INFORMATION, "Mở chức năng Chuyển bàn").showAndWait();
+	}
 
 }
