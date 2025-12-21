@@ -38,7 +38,6 @@ public class GiaoDienDatBan extends BorderPane {
 	private TangDAO tangDAO = new TangDAO();
 	private PhieuDatBanDAO phieuDAO = new PhieuDatBanDAO();
 	private BanDAO banDAO = new BanDAO();
-	private PhieuDatBan phieuDatTruoc;
 	private PhieuDatBanController phieuDatBanController = new PhieuDatBanController();
 
 	private ComboBox<Tang> cboSoTang;

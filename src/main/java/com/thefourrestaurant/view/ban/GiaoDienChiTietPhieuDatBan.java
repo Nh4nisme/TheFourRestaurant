@@ -123,4 +123,14 @@ public class GiaoDienChiTietPhieuDatBan extends VBox {
         lblTieuDe.setMinWidth(160);
         return new HBox(10, lblTieuDe, lblGiaTri);
     }
+    
+    public void clearThongTin() {
+        lblMaPDB.setText("");
+        lblTenKH.setText("");
+        lblSDT.setText("");
+        lblNgayDat.setText("");
+        thongTinPhu.values().forEach(lbl -> lbl.setText(""));
+        tableBan.getItems().clear();
+        tableMonAn.getItems().clear();
+    }
 }

@@ -10,6 +10,9 @@ import java.math.BigDecimal;
 
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.model.*;
+import com.thefourrestaurant.view.ban.QuanLiBan;
+
+import javafx.scene.layout.StackPane;
 
 public class PhieuDatBanDAO {
 	private BanDAO banDAO = new BanDAO();
@@ -546,13 +549,9 @@ public class PhieuDatBanDAO {
 		List<PhieuDatBan> ds = layPhieuTheoTrangThai("Đang phục vụ");
 
 		for (PhieuDatBan pdb : ds) {
-			if (pdb.getDanhSachBan() != null) {
-				for (Ban ban : pdb.getDanhSachBan()) {
-					if (ban.isBanChinh()) {
-					    map.put(ban.getMaBan(), pdb);
-					}
-				}
-			}
+		    for (Ban ban : pdb.getDanhSachBan()) {
+		        map.put(ban.getMaBan(), pdb);
+		    }
 		}
 
 		return map;
