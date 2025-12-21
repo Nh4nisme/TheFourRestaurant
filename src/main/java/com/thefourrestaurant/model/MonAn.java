@@ -15,31 +15,31 @@ public class MonAn {
     private int daBan;
     private Boolean isDeleted;
     private Boolean isVisible;
+    private BigDecimal giaSauGiam;
+    private String tenKhuyenMai;
 
-    public MonAn() {}
-
-    public MonAn(String maMonAn, String tenMon, BigDecimal donGia, String trangThai, LoaiMon loaiMon, String hinhAnh, Boolean isDeleted) {
-        setMaMonAn(maMonAn);
-        setTenMon(tenMon);
-        setDonGia(donGia);
-        setTrangThai(trangThai);
-        setLoaiMon(loaiMon);
-        setHinhAnh(hinhAnh);
-        setDeleted(isDeleted);
-        this.isVisible = true;
-        this.soLuong = 0;
-        this.daBan = 0;
+    public MonAn() {
     }
 
     public MonAn(String maMonAn) {
         this.maMonAn = maMonAn;
     }
 
-    public String getMaMonAn() { return maMonAn; }
-    public void setMaMonAn(String maMonAn) { this.maMonAn = maMonAn; }
+    public String getMaMonAn() {
+        return maMonAn;
+    }
 
-    public String getTenMon() { return tenMon; }
-    public void setTenMon(String tenMon) { this.tenMon = tenMon; }
+    public void setMaMonAn(String maMonAn) {
+        this.maMonAn = maMonAn;
+    }
+
+    public String getTenMon() {
+        return tenMon;
+    }
+
+    public void setTenMon(String tenMon) {
+        this.tenMon = tenMon;
+    }
 
     public BigDecimal getDonGia() {
         return donGia != null ? donGia.setScale(0, RoundingMode.HALF_UP) : BigDecimal.ZERO;
@@ -49,18 +49,38 @@ public class MonAn {
         return donGia;
     }
 
-    public void setDonGia(BigDecimal donGia) { this.donGia = donGia; }
+    public void setDonGia(BigDecimal donGia) {
+        this.donGia = donGia;
+    }
 
-    public String getTrangThai() { return trangThai; }
-    public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+    public String getTrangThai() {
+        return trangThai;
+    }
 
-    public LoaiMon getLoaiMon() { return loaiMon; }
-    public void setLoaiMon(LoaiMon loaiMon) { this.loaiMon = loaiMon; }
+    public void setTrangThai(String trangThai) {
+        this.trangThai = trangThai;
+    }
 
-    public String getHinhAnh() { return hinhAnh; }
-    public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }
+    public LoaiMon getLoaiMon() {
+        return loaiMon;
+    }
 
-    public int getSoLuong() { return soLuong; }
+    public void setLoaiMon(LoaiMon loaiMon) {
+        this.loaiMon = loaiMon;
+    }
+
+    public String getHinhAnh() {
+        return hinhAnh;
+    }
+
+    public void setHinhAnh(String hinhAnh) {
+        this.hinhAnh = hinhAnh;
+    }
+
+    public int getSoLuong() {
+        return soLuong;
+    }
+
     public void setSoLuong(int soLuong) {
         this.soLuong = soLuong;
         capNhatTrangThaiTheoSoLuong();
@@ -74,14 +94,45 @@ public class MonAn {
         }
     }
 
-    public int getDaBan() { return daBan; }
-    public void setDaBan(int daBan) { this.daBan = daBan; }
+    public int getDaBan() {
+        return daBan;
+    }
 
-    public Boolean getDeleted() {return isDeleted;}
-    public void setDeleted(Boolean deleted) {isDeleted = deleted;}
+    public void setDaBan(int daBan) {
+        this.daBan = daBan;
+    }
 
-    public Boolean getVisible() { return isVisible; }
-    public void setVisible(Boolean visible) { this.isVisible = visible; }
+    public Boolean getDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public Boolean getVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(Boolean visible) {
+        this.isVisible = visible;
+    }
+
+    public BigDecimal getGiaSauGiam() {
+        return giaSauGiam != null ? giaSauGiam.setScale(0, RoundingMode.HALF_UP) : getDonGia();
+    }
+
+    public void setGiaSauGiam(BigDecimal giaSauGiam) {
+        this.giaSauGiam = giaSauGiam;
+    }
+
+    public String getTenKhuyenMai() {
+        return tenKhuyenMai;
+    }
+
+    public void setTenKhuyenMai(String tenKhuyenMai) {
+        this.tenKhuyenMai = tenKhuyenMai;
+    }
 
     @Override
     public String toString() {
