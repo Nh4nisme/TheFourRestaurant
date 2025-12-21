@@ -46,7 +46,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
     private Set<MonAn> dsMonMuaChon = new HashSet<>();
     private Set<MonAn> dsMonNhanGiamChon = new HashSet<>();
     private Set<MonAn> dsMonTangChon = new HashSet<>();
-    
+
     private Node rowMonMua, rowMonNhanGiam, rowMonTang, rowTyLe, rowSoTien, rowSoLuongTang;
     private Label lblMonMua, lblMonNhanGiam, lblMonTang, lblTyLe, lblSoTien, lblSoLuongTang;
 
@@ -65,21 +65,24 @@ public class DieuKienKhuyenMaiDialog extends Stage {
 
         BorderPane layoutChinh = new BorderPane();
         layoutChinh.setPadding(new Insets(20));
-        
+
         layoutChinh.setCenter(taoFormChinh());
         layoutChinh.setBottom(taoChanTrang());
 
         if (isEditMode) {
             dienDuLieuHienCo();
         }
-        
+
         if (khuyenMaiCha.laKieuMaGiamGia()) {
             cboLoaiApDung.setValue("GIAM_TRUC_TIEP");
+            cboLoaiApDung.setDisable(true);
+        } else if (khuyenMaiCha.getLoaiKhuyenMai() != null && "Tặng món".equals(khuyenMaiCha.getLoaiKhuyenMai().getTenLoaiKM())) {
+            cboLoaiApDung.setValue("TANG_MON");
             cboLoaiApDung.setDisable(true);
         } else if (!isEditMode) {
             cboLoaiApDung.getSelectionModel().selectFirst();
         }
-        
+
         capNhatFormTheoLoai();
         apDungRangBuocKhuyenMaiCha();
 
@@ -97,7 +100,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         form.setHgap(10);
 
         cboLoaiApDung = new ComboBox<>();
-        cboLoaiApDung.getItems().addAll("GIAM_TRUC_TIEP", "THEO_COMBO", "MUA_X_GIAM_Y");
+        cboLoaiApDung.getItems().addAll("GIAM_TRUC_TIEP", "THEO_COMBO", "MUA_X_GIAM_Y", "TANG_MON");
         cboLoaiApDung.valueProperty().addListener((obs, oldVal, newVal) -> capNhatFormTheoLoai());
 
         txtMoTa = new TextField();
@@ -112,7 +115,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         int row = 0;
         form.add(new Label("Loại áp dụng:"), 0, row);
         form.add(cboLoaiApDung, 1, row++);
-        
+
         form.add(new Label("Mô tả điều kiện:"), 0, row);
         form.add(txtMoTa, 1, row++);
 
@@ -140,7 +143,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         rowSoTien = txtSoTienGiam;
         form.add(lblSoTien, 0, row);
         form.add(rowSoTien, 1, row++);
-        
+
         lblSoLuongTang = new Label("Số lượng tặng:");
         rowSoLuongTang = txtSoLuongTang;
         form.add(lblSoLuongTang, 0, row);
@@ -148,7 +151,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
 
         return form;
     }
-    
+
     private TextField taoTruongChiDoc(String prompt) {
         TextField tf = new TextField();
         tf.setEditable(false);
@@ -170,7 +173,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         if (loai == null) return;
 
         quanLyHienThi(true, lblMonMua, rowMonMua, lblTyLe, rowTyLe, lblSoTien, rowSoTien, lblMonTang, rowMonTang, lblSoLuongTang, rowSoLuongTang, lblMonNhanGiam, rowMonNhanGiam);
-        
+
         switch (loai) {
             case "GIAM_TRUC_TIEP":
                 quanLyHienThi(false, lblMonTang, rowMonTang, lblSoLuongTang, rowSoLuongTang, lblMonNhanGiam, rowMonNhanGiam);
@@ -182,24 +185,28 @@ public class DieuKienKhuyenMaiDialog extends Stage {
                 quanLyHienThi(true, lblMonNhanGiam, rowMonNhanGiam);
                 quanLyHienThi(false, lblMonTang, rowMonTang, lblSoLuongTang, rowSoLuongTang);
                 break;
+            case "TANG_MON":
+                quanLyHienThi(true, lblMonMua, rowMonMua, lblMonTang, rowMonTang, lblSoLuongTang, rowSoLuongTang);
+                quanLyHienThi(false, lblTyLe, rowTyLe, lblSoTien, rowSoTien, lblMonNhanGiam, rowMonNhanGiam);
+                break;
             default:
                 break;
         }
-        
+
         apDungRangBuocKhuyenMaiCha();
     }
-    
+
     private void apDungRangBuocKhuyenMaiCha() {
         if (khuyenMaiCha != null && khuyenMaiCha.getLoaiKhuyenMai() != null) {
             String tenLoaiKM = khuyenMaiCha.getLoaiKhuyenMai().getTenLoaiKM();
-            
+
             boolean isGiamGiaTyLe = "Giảm giá theo tỷ lệ".equals(tenLoaiKM);
             boolean isGiamGiaSoTien = "Giảm giá theo số tiền".equals(tenLoaiKM);
             boolean isTangMon = "Tặng món".equals(tenLoaiKM);
 
             txtTyLeGiam.setDisable(!isGiamGiaTyLe);
             txtSoTienGiam.setDisable(!isGiamGiaSoTien);
-            
+
             boolean monTangEnabled = isTangMon && rowMonTang.isVisible();
             txtSoLuongTang.setDisable(!monTangEnabled);
             if (rowMonTang instanceof HBox) {
@@ -207,7 +214,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
             }
         }
     }
-    
+
     private void quanLyHienThi(boolean visible, Node... nodes) {
         for (Node node : nodes) {
             node.setManaged(visible);
@@ -226,11 +233,11 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         buttonBox.getChildren().addAll(btnLuu, btnHuy);
         return buttonBox;
     }
-    
+
     private void dienDuLieuHienCo() {
         cboLoaiApDung.setValue(dieuKien.getLoaiApDung());
         txtMoTa.setText(dieuKien.getMoTaDieuKien());
-        
+
         dieuKien.getDanhSachMonDieuKien().forEach(dkm -> {
             if ("MUA".equals(dkm.getVaiTro()) || "GIAM_TRUC_TIEP".equals(dkm.getVaiTro())) {
                 dsMonMuaChon.add(dkm.getMonAn());
@@ -238,13 +245,13 @@ public class DieuKienKhuyenMaiDialog extends Stage {
                 dsMonNhanGiamChon.add(dkm.getMonAn());
             }
         });
-        
+
         dieuKien.getDanhSachMonTang().forEach(dkmt -> dsMonTangChon.add(dkmt.getMonAnTang()));
 
         capNhatHienThiMon(txtMonMua, dsMonMuaChon);
         capNhatHienThiMon(txtMonNhanGiam, dsMonNhanGiamChon);
         capNhatHienThiMon(txtMonTang, dsMonTangChon);
-        
+
         if (dieuKien.getTyLeGiam() != null) txtTyLeGiam.setText(dieuKien.getTyLeGiam().toPlainString());
         if (dieuKien.getSoTienGiam() != null) txtSoTienGiam.setText(dieuKien.getSoTienGiam().toPlainString());
         if (dieuKien.getSoLuongTang() != null) txtSoLuongTang.setText(dieuKien.getSoLuongTang().toString());
@@ -262,7 +269,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
             capNhatHienThiMon(truongHienThi, dsHienTai);
         }
     }
-    
+
     private void capNhatHienThiMon(TextField truongHienThi, Set<MonAn> dsMon) {
         String danhSachTen = dsMon.stream()
                 .map(MonAn::getTenMon)
@@ -293,7 +300,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
             hienThiThongBao(Alert.AlertType.ERROR, "Giá trị số không hợp lệ.");
             return;
         }
-        
+
         List<DieuKien_Mon> monDKList = new ArrayList<>();
         String vaiTroMua = "GIAM_TRUC_TIEP".equals(dieuKien.getLoaiApDung()) ? "GIAM_TRUC_TIEP" : "MUA";
         for (MonAn mon : dsMonMuaChon) {
@@ -325,7 +332,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
 
     public boolean daLuu() { return daLuu; }
     public KhuyenMai_DieuKien getDieuKien() { return dieuKien; }
-    
+
     private void hienThiThongBao(Alert.AlertType type, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(type == Alert.AlertType.ERROR ? "Lỗi" : "Thông báo");

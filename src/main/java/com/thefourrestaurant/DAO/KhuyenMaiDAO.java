@@ -47,8 +47,8 @@ public class KhuyenMaiDAO {
 
     private String layCauTruyVanCoBan() {
         return "SELECT km.*, lkm.tenLoaiKM " +
-               "FROM KhuyenMai km " +
-               "LEFT JOIN LoaiKhuyenMai lkm ON km.maLoaiKM = lkm.maLoaiKM ";
+                "FROM KhuyenMai km " +
+                "LEFT JOIN LoaiKhuyenMai lkm ON km.maLoaiKM = lkm.maLoaiKM ";
     }
 
     public List<KhuyenMai> layDanhSachKhuyenMai() {
@@ -93,10 +93,8 @@ public class KhuyenMaiDAO {
         FROM KhuyenMai
         WHERE isDeleted = 0
           AND kieuKM = ?
-          AND (
-                ngayKetThuc IS NULL
-                OR CAST(ngayKetThuc AS DATE) >= CAST(GETDATE() AS DATE)
-              )
+          AND (ngayBatDau IS NULL OR CAST(ngayBatDau AS DATE) <= CAST(GETDATE() AS DATE))
+          AND (ngayKetThuc IS NULL OR CAST(ngayKetThuc AS DATE) >= CAST(GETDATE() AS DATE))
         """;
 
         try (Connection conn = ConnectSQL.getConnection();
@@ -112,8 +110,13 @@ public class KhuyenMaiDAO {
                 km.setKieuKM(rs.getString("kieuKM"));
                 km.setMaCode(rs.getString("maCode"));
                 km.setSoLuotSuDung(rs.getObject("soLuotSuDung", Integer.class));
-                km.setNgayBatDau(rs.getTimestamp("ngayBatDau").toLocalDateTime());
-                km.setNgayKetThuc(rs.getTimestamp("ngayKetThuc").toLocalDateTime());
+
+                Timestamp nbd = rs.getTimestamp("ngayBatDau");
+                if (nbd != null) km.setNgayBatDau(nbd.toLocalDateTime());
+
+                Timestamp nkt = rs.getTimestamp("ngayKetThuc");
+                if (nkt != null) km.setNgayKetThuc(nkt.toLocalDateTime());
+
                 km.setMoTa(rs.getString("moTa"));
 
                 danhSach.add(km);
@@ -165,7 +168,7 @@ public class KhuyenMaiDAO {
 
     public boolean themKhuyenMai(KhuyenMai km) {
         String sql = "INSERT INTO KhuyenMai (maKM, tenKM, maLoaiKM, kieuKM, maCode, soLuotSuDung, ngayBatDau, ngayKetThuc, moTa, isDeleted) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -193,7 +196,7 @@ public class KhuyenMaiDAO {
 
     public boolean capNhatKhuyenMai(KhuyenMai km) {
         String sql = "UPDATE KhuyenMai SET tenKM = ?, maLoaiKM = ?, kieuKM = ?, maCode = ?, soLuotSuDung = ?, " +
-                     "ngayBatDau = ?, ngayKetThuc = ?, moTa = ? WHERE maKM = ? AND isDeleted = 0";
+                "ngayBatDau = ?, ngayKetThuc = ?, moTa = ? WHERE maKM = ? AND isDeleted = 0";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -285,7 +288,7 @@ public class KhuyenMaiDAO {
 
     public boolean giamSoLuotSuDung(String maKM) {
         String sql = "UPDATE KhuyenMai SET soLuotSuDung = soLuotSuDung - 1 " +
-                     "WHERE maKM = ? AND soLuotSuDung IS NOT NULL AND soLuotSuDung > 0";
+                "WHERE maKM = ? AND soLuotSuDung IS NOT NULL AND soLuotSuDung > 0";
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -296,7 +299,7 @@ public class KhuyenMaiDAO {
             return false;
         }
     }
-    
+
     public List<KhuyenMai> layKhuyenMaiDaXoa() {
         List<KhuyenMai> ds = new ArrayList<>();
         String sql = layCauTruyVanCoBan() + " WHERE km.isDeleted = 1";

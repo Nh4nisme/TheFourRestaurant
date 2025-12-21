@@ -24,6 +24,11 @@ public class KhuyenMai_DieuKienDAO {
                 dk.setSoTienGiam(rs.getBigDecimal("soTienGiam"));
                 dk.setSoLuongTang(rs.getObject("soLuongTang", Integer.class));
                 dk.setMoTaDieuKien(rs.getString("moTaDieuKien"));
+
+                // Load related lists
+                dk.setDanhSachMonDieuKien(new DieuKien_MonDAO().layMonTheoMaDieuKien(dk.getMaDieuKien()));
+                dk.setDanhSachMonTang(new DieuKien_MonTangDAO().layMonTangTheoMaDieuKien(dk.getMaDieuKien()));
+
                 dsDieuKien.add(dk);
             }
         } catch (SQLException e) {
