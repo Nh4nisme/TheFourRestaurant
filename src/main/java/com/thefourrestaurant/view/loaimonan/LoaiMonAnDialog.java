@@ -184,9 +184,17 @@ public class LoaiMonAnDialog extends Stage {
     }
 
     private void luuThayDoi() {
-        String tenLoaiMonAn = truongTen.getText();
-        if (tenLoaiMonAn == null || tenLoaiMonAn.trim().isEmpty()) {
+        String tenLoaiMonAn = truongTen.getText().trim();
+        if (tenLoaiMonAn.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Tên loại món ăn không được để trống!");
+            return;
+        }
+
+        // Regex check cho Tên loại món ăn
+        String regexTen = "^[\\p{L}\\d\\s().,\\-]{2,100}$";
+        if (!tenLoaiMonAn.matches(regexTen)) {
+            showAlert(Alert.AlertType.WARNING, "Tên loại món ăn không hợp lệ!\n" +
+                    "(Chỉ cho phép chữ cái, số, khoảng trắng, các ký tự ().,- và độ dài 2-100 ký tự)");
             return;
         }
 

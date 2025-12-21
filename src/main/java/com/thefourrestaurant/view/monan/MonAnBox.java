@@ -18,9 +18,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import com.thefourrestaurant.model.MonAn;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 public class MonAnBox extends BaseBox {
 
     private StackPane deleteButton;
+    private static final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
     private MonAnBox() {
         super();
@@ -29,6 +34,52 @@ public class MonAnBox extends BaseBox {
         setSpacing(0);
         setPadding(Insets.EMPTY);
         setAlignment(Pos.CENTER);
+    }
+
+    public MonAnBox(MonAn monAn) {
+        this(monAn.getTenMon(),
+                CURRENCY_FORMAT.format(monAn.getDonGia()),
+                monAn.getHinhAnh());
+
+        // Cập nhật số lượng
+        updateSoLuong(monAn.getSoLuong());
+
+        // Hỗ trợ hiển thị giá giảm và tag khuyến mãi
+        if (monAn.getTenKhuyenMai() != null) {
+            updatePromotionUI(monAn);
+        }
+    }
+
+    private void updatePromotionUI(MonAn monAn) {
+        // 1. Thêm tag Khuyến mãi
+        Label tagKM = new Label(monAn.getTenKhuyenMai());
+        tagKM.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 3 8 3 8; -fx-background-radius: 0 0 10 0;");
+
+        StackPane mainContainer = (StackPane) this.getChildren().get(0);
+        StackPane.setAlignment(tagKM, Pos.TOP_LEFT);
+        mainContainer.getChildren().add(tagKM);
+
+        // 2. Cập nhật giá bán
+        VBox bottomPane = (VBox) this.getChildren().get(1);
+        Label lblGiaGoc = null;
+        for (javafx.scene.Node n : bottomPane.getChildren()) {
+            if (n instanceof Label && ((Label) n).getStyleClass().contains("monan-gia")) {
+                lblGiaGoc = (Label) n;
+                break;
+            }
+        }
+
+        if (lblGiaGoc != null) {
+            lblGiaGoc.setText(CURRENCY_FORMAT.format(monAn.getDonGia()));
+            lblGiaGoc.setStyle("-fx-strikethrough: true; -fx-text-fill: #999999; -fx-font-size: 11px;");
+
+            Label lblGiaMoi = new Label(CURRENCY_FORMAT.format(monAn.getGiaSauGiam()));
+            lblGiaMoi.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 13px;");
+
+            // Chèn giá mới vào sau tên món nếu muốn, hoặc sau giá gốc
+            int index = bottomPane.getChildren().indexOf(lblGiaGoc);
+            bottomPane.getChildren().add(index + 1, lblGiaMoi);
+        }
     }
 
     public MonAnBox(String ten, String gia, String imagePath) {

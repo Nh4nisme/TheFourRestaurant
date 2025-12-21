@@ -5,7 +5,6 @@ import com.thefourrestaurant.model.KhuyenMai;
 import com.thefourrestaurant.model.LoaiKhuyenMai;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -22,12 +21,13 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class KhuyenMaiDialog extends Stage {
 
-    private static final String TEN_KM_REGEX = "^[a-zA-Z0-9]{1,100}$";
+    private static final String TEN_KM_REGEX = "^[\\p{L}\\d\\s().,\\-]{1,100}$";
     private static final String MO_TA_REGEX = "^.{1,255}$";
+    private static final String TY_LE_REGEX = "^(\\d{1,2}|100)$";
+    private static final String SO_TIEN_REGEX = "^[1-9]\\d*$";
     private static final String MA_CODE_REGEX = "^[A-Z0-9]{3,50}$";
     private static final String SO_LUOT_REGEX = "^[1-9]\\d*$";
 
@@ -48,13 +48,11 @@ public class KhuyenMaiDialog extends Stage {
 
     private Label nhanMaCode;
     private Label nhanSoLuotSuDung;
-    private List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai;
 
     public KhuyenMaiDialog(KhuyenMai khuyenMai, List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai, String maKhuyenMaiMoi, KhuyenMaiController boDieuKhien) {
         this.khuyenMaiHienTai = khuyenMai;
         this.laCheDoChinhSua = (khuyenMai != null);
         this.boDieuKhien = boDieuKhien;
-        this.danhSachTatCaLoaiKhuyenMai = danhSachTatCaLoaiKhuyenMai;
 
         this.initModality(Modality.APPLICATION_MODAL);
         this.setTitle(laCheDoChinhSua ? "Tùy Chỉnh Khuyến Mãi" : "Thêm Khuyến Mãi Mới");
@@ -79,7 +77,7 @@ public class KhuyenMaiDialog extends Stage {
         hopTieuDe.setPadding(new Insets(15));
         hopTieuDe.setStyle("-fx-background-color: #1E424D;");
 
-        GridPane luoiFormChinh = taoFormChinh(kieuFontStyle, maKhuyenMaiMoi);
+        GridPane luoiFormChinh = taoFormChinh(danhSachTatCaLoaiKhuyenMai, kieuFontStyle, maKhuyenMaiMoi);
         VBox hopGiua = new VBox(20, luoiFormChinh);
         hopGiua.setPadding(new Insets(20));
 
@@ -94,14 +92,10 @@ public class KhuyenMaiDialog extends Stage {
         }
 
         Scene khungCanh = new Scene(layoutChinh, 550, 550);
-        URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
-        if (urlCSS != null) {
-            khungCanh.getStylesheets().add(urlCSS.toExternalForm());
-        }
         this.setScene(khungCanh);
     }
 
-    private GridPane taoFormChinh(String kieuFontStyle, String maKhuyenMaiMoi) {
+    private GridPane taoFormChinh(List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai, String kieuFontStyle, String maKhuyenMaiMoi) {
         GridPane luoiForm = new GridPane();
         luoiForm.setVgap(12);
         luoiForm.setHgap(15);
@@ -154,6 +148,7 @@ public class KhuyenMaiDialog extends Stage {
         hopChonKieuKM.setOnAction(e -> capNhatHienThiTheoKieuKM());
 
         luoiForm.add(new Label("Loại KM:"), 0, row);
+        hopChonLoaiKhuyenMai.setItems(FXCollections.observableArrayList(danhSachTatCaLoaiKhuyenMai));
         hopChonLoaiKhuyenMai.setConverter(new StringConverter<>() {
             @Override
             public String toString(LoaiKhuyenMai object) {
@@ -173,6 +168,37 @@ public class KhuyenMaiDialog extends Stage {
         luoiForm.add(new Label("Ngày KT:"), 0, row);
         luoiForm.add(boChonNgayKetThuc, 1, row++);
 
+        // Ràng buộc ngày tháng: Ngày kết thúc không được trước ngày bắt đầu
+        boChonNgayBatDau.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && boChonNgayKetThuc.getValue() != null && boChonNgayKetThuc.getValue().isBefore(newVal)) {
+                boChonNgayKetThuc.setValue(newVal);
+            }
+        });
+
+        boChonNgayKetThuc.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                LocalDate start = boChonNgayBatDau.getValue();
+                if (start != null && item.isBefore(start)) {
+                    setDisable(true);
+                    setStyle("-fx-background-color: #eeeeee;");
+                }
+            }
+        });
+
+        boChonNgayBatDau.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                LocalDate end = boChonNgayKetThuc.getValue();
+                if (end != null && item.isAfter(end)) {
+                    setDisable(true);
+                    setStyle("-fx-background-color: #eeeeee;");
+                }
+            }
+        });
+
         return luoiForm;
     }
 
@@ -188,16 +214,6 @@ public class KhuyenMaiDialog extends Stage {
         if (!laMaGiamGia) {
             truongMaCode.clear();
             truongSoLuotSuDung.clear();
-        }
-        
-        // Lọc danh sách loại khuyến mãi
-        if (laMaGiamGia) {
-            List<LoaiKhuyenMai> filteredList = danhSachTatCaLoaiKhuyenMai.stream()
-                .filter(lkm -> !"Tặng món".equalsIgnoreCase(lkm.getTenLoaiKM()))
-                .collect(Collectors.toList());
-            hopChonLoaiKhuyenMai.setItems(FXCollections.observableArrayList(filteredList));
-        } else {
-            hopChonLoaiKhuyenMai.setItems(FXCollections.observableArrayList(danhSachTatCaLoaiKhuyenMai));
         }
     }
 
@@ -255,7 +271,7 @@ public class KhuyenMaiDialog extends Stage {
         }
 
         hopChonLoaiKhuyenMai.setValue(khuyenMaiHienTai.getLoaiKhuyenMai());
-        
+
         if (khuyenMaiHienTai.getNgayBatDau() != null) {
             boChonNgayBatDau.setValue(khuyenMaiHienTai.getNgayBatDau().toLocalDate());
         }
@@ -266,7 +282,7 @@ public class KhuyenMaiDialog extends Stage {
 
     private void luuThayDoi() {
         if (!truongTenKM.getText().trim().matches(TEN_KM_REGEX)) {
-            showAlert(Alert.AlertType.WARNING, "Tên khuyến mãi phải là một dãy ký tự không dấu, không chứa khoảng trắng và có độ dài từ 1 đến 100 ký tự.");
+            showAlert(Alert.AlertType.WARNING, "Tên khuyến mãi phải từ 1-100 ký tự và không chứa ký tự đặc biệt lạ.");
             return;
         }
         if (!truongMoTa.getText().trim().matches(MO_TA_REGEX)) {
@@ -303,7 +319,7 @@ public class KhuyenMaiDialog extends Stage {
         }
 
         LoaiKhuyenMai loaiKM = hopChonLoaiKhuyenMai.getValue();
-        
+
         LocalDate ngayBD_localDate = boChonNgayBatDau.getValue();
         LocalDate ngayKT_localDate = boChonNgayKetThuc.getValue();
 
