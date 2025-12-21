@@ -4,8 +4,10 @@ import com.thefourrestaurant.controller.KhachHangController;
 import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.view.components.GiaoDienTraCuu;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 
 import java.util.List;
 
@@ -13,11 +15,18 @@ public class GiaoDienTraCuuKhachHang extends GiaoDienTraCuu {
 
     private TableView<KhachHang> table;
     private KhachHangController controller;
+    private ObservableList<KhachHang> danhSachGoc;
+    private FilteredList<KhachHang> danhSachHienThi;
+    private String chuCaiLoc = "";
+
 
     public GiaoDienTraCuuKhachHang() {
         controller = new KhachHangController();
         khoiTaoGiaoDien();
+        themThanhTimKiem("nhập số điện thoại");
+        themButtonLamMoi();
         themBoLocChuCai();
+        lamMoiDuLieu();
     }
 
     @Override
@@ -54,19 +63,7 @@ public class GiaoDienTraCuuKhachHang extends GiaoDienTraCuu {
             return new SimpleStringProperty("");
         });
 
-        TableColumn<KhachHang, Void> colHanhDong = new TableColumn<>("Hành động");
-        colHanhDong.setCellFactory(col -> new TableCell<>() {
-            private final Button btnXoa = new Button("🗑");
-
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : btnXoa);
-            }
-        });
-
-        table.getColumns().addAll(colMaKH, colHoTen, colNgaySinh, colGioiTinh, colSoDT, colLoaiKH, colHanhDong);
+        table.getColumns().addAll(colMaKH, colHoTen, colNgaySinh, colGioiTinh, colSoDT, colLoaiKH);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         List<KhachHang> dsKhachHang = controller.layDanhSachKhachHang();
@@ -76,12 +73,43 @@ public class GiaoDienTraCuuKhachHang extends GiaoDienTraCuu {
     }
 
     @Override
+    protected void lamMoiDuLieu() {
+        danhSachGoc = FXCollections.observableArrayList(controller.layDanhSachKhachHang());
+        danhSachHienThi = new FilteredList<>(danhSachGoc, kh -> true);
+        table.setItems(danhSachHienThi);
+    }
+
+
+    private void apDungBoLoc() {
+        String tuKhoa = txtTimKiem.getText();
+        String key = tuKhoa == null ? "" : tuKhoa.trim();
+
+        danhSachHienThi.setPredicate(kh -> {
+
+            // Lọc theo chữ cái
+            if (chuCaiLoc != null && !chuCaiLoc.isEmpty()) {
+                if (kh.getHoTen() == null || !kh.getHoTen().toUpperCase().startsWith(chuCaiLoc))
+                    return false;
+            }
+
+            // Lọc theo số điện thoại
+            if (!key.isEmpty()) {
+                return kh.getSoDT() != null && kh.getSoDT().contains(key);
+            }
+
+            return true; // Nếu pass tất cả điều kiện
+        });
+    }
+
+
+    @Override
     protected void thucHienTimKiem(String tuKhoa) {
-        // logic
+        apDungBoLoc();
     }
 
     @Override
-    protected void lamMoiDuLieu() {
-        // logic
+    protected void thucHienLocTheoChuCai(String chuCai) {
+        this.chuCaiLoc = chuCai.toUpperCase();
+        apDungBoLoc();
     }
 }

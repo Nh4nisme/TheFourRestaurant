@@ -23,13 +23,15 @@ import java.util.stream.Collectors;
 public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
 
     private final KhuyenMaiController controller;
+    private final LoaiKhuyenMaiDAO loaiKhuyenMaiDAO;
     private List<KhuyenMai> danhSachKhuyenMaiGoc;
     private List<KhuyenMai> danhSachKhuyenMaiHienThi;
-    private final ComboBox<String> cboLoaiKMFilter = new ComboBox<>();
+    private DropDownButtonMap<String> btnLoaiKM;
 
     public GiaoDienTraCuuKhuyenMai() {
         super();
         this.controller = new KhuyenMaiController();
+        this.loaiKhuyenMaiDAO = new LoaiKhuyenMaiDAO();
 
         khoiTaoGiaoDien();
         themBoLocChuCai();
@@ -47,17 +49,18 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
     }
 
     private void themBoLocLoaiKhuyenMai() {
-        cboLoaiKMFilter.setPromptText("Lọc theo loại");
-        LoaiKhuyenMaiDAO loaiKhuyenMaiDAO = new LoaiKhuyenMaiDAO();
-        List<String> tenLoaiKM = loaiKhuyenMaiDAO.layTatCaLoaiKhuyenMai().stream()
-                .map(LoaiKhuyenMai::getTenLoaiKM)
-                .collect(Collectors.toList());
-        cboLoaiKMFilter.getItems().add("Tất cả");
-        cboLoaiKMFilter.getItems().addAll(tenLoaiKM);
-        cboLoaiKMFilter.setValue("Tất cả");
-        cboLoaiKMFilter.setOnAction(e -> locVaCapNhatKhuyenMai());
-
-        thanhTrai.getChildren().add(cboLoaiKMFilter);
+        LinkedHashMap<String, String> dsLoaiMon = new LinkedHashMap<>();
+        dsLoaiMon.put("Tất cả", null);
+        loaiKhuyenMaiDAO.layTatCaLoaiKhuyenMai()
+                .forEach(loaiKM -> {
+                    dsLoaiMon.put(
+                            loaiKM.getTenLoaiKM(),   // text hiển thị
+                            loaiKM.getMaLoaiKM()     // value logic
+                    );
+                });
+        btnLoaiKM = new DropDownButtonMap<>("Lọc theo loại khuyến mãi", dsLoaiMon, null, 35, 16, 3);
+        btnLoaiKM.setOnItemSelected(maLoaiMon -> locVaCapNhatKhuyenMai());
+        thanhTrai.getChildren().add(btnLoaiKM);
     }
 
     private void themBoLocSapXep() {
@@ -118,14 +121,16 @@ public class GiaoDienTraCuuKhuyenMai extends GiaoDienTraCuu {
     }
 
     private void locVaCapNhatKhuyenMai() {
-        String loaiKMFilter = cboLoaiKMFilter.getValue();
-
-        if (loaiKMFilter != null && !loaiKMFilter.equals("Tất cả")) {
-            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream()
-                    .filter(km -> km.getLoaiKhuyenMai() != null && km.getLoaiKhuyenMai().getTenLoaiKM().equals(loaiKMFilter))
-                    .collect(Collectors.toList());
-        } else {
+        String maLoaiDuocChon = btnLoaiKM.getSelectedValue();
+        if (maLoaiDuocChon == null) {
             danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc;
+        } else {
+            danhSachKhuyenMaiHienThi = danhSachKhuyenMaiGoc.stream()
+                    .filter(monAn ->
+                            monAn.getLoaiKhuyenMai() != null &&
+                                    maLoaiDuocChon.equals(monAn.getLoaiKhuyenMai().getMaLoaiKM())
+                    )
+                    .toList();
         }
         capNhatBang();
     }
