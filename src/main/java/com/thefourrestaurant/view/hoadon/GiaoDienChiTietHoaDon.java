@@ -88,10 +88,7 @@ public class GiaoDienChiTietHoaDon extends VBox {
         infoGrid.setVgap(5);
         infoGrid.setPadding(new Insets(10, 0, 0, 0));
 
-        String[] labels = {
-                "Mã giảm giá:", "Chiết khấu:", "Thành tiền:", "Tiền nhận:", "Tiền thừa:",
-                "Tiền đặt cọc trước:", "Thuế VAT:", "Tiền thanh toán:"
-        };
+        String[] labels = {"Mã giảm giá:", "Chiết khấu:", "Thành tiền:","Thuế VAT:","Tiền thanh toán:", "Tiền đặt cọc trước:", "Tiền nhận:", "Tiền thừa:"};
 
         for (int i = 0; i < labels.length; i++) {
             Label left = new Label(labels[i]);

@@ -63,6 +63,8 @@ public class GiaoDienLapHoaDon extends VBox {
     private final TextField txtTienKhachDua = new TextField();
     private final ComboBox<PhuongThucThanhToan> cboPTTT = new ComboBox<>();
     private final ComboBox<KhuyenMai> cboKhuyenMai = new ComboBox<>();
+    private final CheckBox chkInHoaDon = new CheckBox("In hóa đơn");
+
 
     private final TableView<ChiTietPDB> tblMon = new TableView<>();
 
@@ -199,16 +201,21 @@ public class GiaoDienLapHoaDon extends VBox {
         ButtonSample btnBack = new ButtonSample("Quay lại", "", 45, 16, 3);
         btnBack.setOnAction(e -> mainContent.getChildren().remove(overlay));
 
-        ButtonSample btnInHoaDon = new ButtonSample("In hóa đơn", "", 45, 16, 3);
-        btnInHoaDon.setOnAction(e -> hienThiPreviewPDF());
-
-        ButtonSample btnOK = new  ButtonSample("Xác nhận thanh toán", "", 45, 16, 3);
+        ButtonSample btnOK = new ButtonSample("Xác nhận thanh toán", "", 45, 16, 3);
         btnOK.setOnAction(e -> xuLyXacNhanThanhToan());
 
-        HBox box = new HBox(15, btnBack, btnInHoaDon, btnOK);
+        chkInHoaDon.setSelected(true);
+        chkInHoaDon.setStyle("-fx-font-size: 16; -fx-text-fill: #DDB248; -fx-font-weight: bold;");
+
+        VBox leftBox = new VBox(chkInHoaDon);
+        leftBox.setAlignment(Pos.CENTER_LEFT);
+
+        HBox box = new HBox(20, leftBox, btnBack, btnOK);
         box.setAlignment(Pos.CENTER_RIGHT);
+
         return box;
     }
+
 
 
     // ================== QR ==================
@@ -386,62 +393,6 @@ public class GiaoDienLapHoaDon extends VBox {
         tblMon.getItems().setAll(originalMonList);
     }
 
-    private void hienThiPreviewPDF() {
-        Stage popup = new Stage();
-        popup.initOwner(mainContent.getScene().getWindow());
-        popup.initModality(Modality.WINDOW_MODAL);
-        popup.setTitle("Xem trước hóa đơn");
-
-        VBox root = new VBox(15);
-        root.setPadding(new Insets(15));
-        root.setAlignment(Pos.CENTER);
-
-        // Nếu muốn trực tiếp xem PDF, bạn có thể convert PDF -> Image để hiển thị
-        ImageView pdfPreview = new ImageView();
-        pdfPreview.setFitWidth(600);
-        pdfPreview.setPreserveRatio(true);
-
-        // TODO: tạo ảnh từ PDF tạm thời
-        // pdfPreview.setImage(chuyenPDFThanhAnh(…));
-
-        Button btnIn = new Button("In");
-        btnIn.setOnAction(e -> {
-            String filePath = System.getProperty("user.home") + "/HoaDon_" + lblMaHD.getText() + ".pdf";
-            khoiTaoHoaDonPDF.inHoaDon(
-                    filePath,
-                    lblMaHD.getText(),
-                    lblNgayNhan.getText(),
-                    nhanVienController.layNhanVienTheoMaTK(Session.getCurrentUser().getMaTK()),
-                    phieuDatBan.getKhachHang(),
-                    tblMon.getItems(),
-                    cboKhuyenMai.getValue(),
-                    phieuDatBan.getTienCoc(),
-                    new BigDecimal(txtTienKhachDua.getText()),
-                    new BigDecimal(lblTienThua.getText().replaceAll("[^\\d]", ""))
-            );
-
-            // Mở PDF sau khi in
-            try {
-                java.awt.Desktop.getDesktop().open(new java.io.File(filePath));
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            popup.close();
-        });
-
-        Button btnQuayLai = new Button("Quay lại");
-        btnQuayLai.setOnAction(e -> popup.close());
-
-        HBox buttons = new HBox(15, btnQuayLai, btnIn);
-        buttons.setAlignment(Pos.CENTER);
-
-        root.getChildren().addAll(pdfPreview, buttons);
-
-        Scene scene = new Scene(root);
-        popup.setScene(scene);
-        popup.showAndWait();
-    }
-
 
     // ================== LOGIC ==================
     private BigDecimal tinhThanhTienMon(ChiTietPDB ct) {
@@ -585,6 +536,10 @@ public class GiaoDienLapHoaDon extends VBox {
             }
 
             // ===== HOÀN TẤT =====
+            if (chkInHoaDon.isSelected()) {
+                inHoaDonPDF();
+            }
+
             hienThongBao("Thanh toán thành công!", Alert.AlertType.INFORMATION);
             mainContent.getChildren().remove(overlay);
             if (onThanhToanThanhCong != null) {
@@ -601,6 +556,32 @@ public class GiaoDienLapHoaDon extends VBox {
         alert.initOwner(mainContent.getScene().getWindow());
         alert.initModality(Modality.WINDOW_MODAL);
         alert.showAndWait();
+    }
+
+    private void inHoaDonPDF() {
+        try {
+            String filePath = System.getProperty("user.home")
+                    + "/HoaDon_" + lblMaHD.getText() + ".pdf";
+
+            khoiTaoHoaDonPDF.inHoaDon(
+                    filePath,
+                    lblMaHD.getText(),
+                    lblNgayNhan.getText(),
+                    nhanVienController.layNhanVienTheoMaTK(Session.getCurrentUser().getMaTK()),
+                    phieuDatBan.getKhachHang(),
+                    tblMon.getItems(),
+                    cboKhuyenMai.getValue(),
+                    phieuDatBan.getTienCoc(),
+                    new BigDecimal(txtTienKhachDua.getText()),
+                    new BigDecimal(lblTienThua.getText().replaceAll("[^\\d]", ""))
+            );
+
+            java.awt.Desktop.getDesktop().open(new java.io.File(filePath));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            hienThongBao("Không thể in hóa đơn!", Alert.AlertType.ERROR);
+        }
     }
 
     public void setOnThanhToanThanhCong(Runnable r) {
