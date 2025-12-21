@@ -33,9 +33,14 @@ public abstract class GiaoDienTraCuu extends VBox {
 
     // Tạo thanh công cụ rỗng (không có bộ lọc)
     private void taoThanhCongCuRong() {
-        thanhCongCu = new HBox(15);
+        Label tieuDe = new Label("Sắp xếp: ");
+        tieuDe.setStyle("-fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #DDB248");
+        thanhCongCu = new HBox(15, tieuDe);
         thanhCongCu.setAlignment(Pos.CENTER_LEFT);
         thanhCongCu.setPadding(new Insets(10));
+        thanhCongCu.setMinHeight(56);
+        thanhCongCu.setPrefHeight(56);
+        thanhCongCu.setMaxHeight(56);
         thanhCongCu.setStyle("-fx-background-color: #1E424D;");
 
         thanhTrai = new HBox(10);
@@ -56,6 +61,7 @@ public abstract class GiaoDienTraCuu extends VBox {
         txtTimKiem = new TextField();
         txtTimKiem.setPromptText(promptText);
         txtTimKiem.setStyle("-fx-font-size: 16; -fx-background-radius: 8");
+        txtTimKiem.setPrefWidth(300);
 
         ButtonSample btnTim = new ButtonSample("Tìm", 35, 16, 3);
         btnTim.setOnAction(e -> thucHienTimKiem(txtTimKiem.getText().trim()));
