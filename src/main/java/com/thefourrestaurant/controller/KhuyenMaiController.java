@@ -18,6 +18,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 public class KhuyenMaiController {
 
     private final KhuyenMaiDAO khuyenMaiDAO;
@@ -38,6 +41,57 @@ public class KhuyenMaiController {
         this.khungGio_KM_DAO = new KhungGio_KM_DAO();
     }
 
+    public void capNhatKhuyenMaiChoDanhSachMonAn(List<MonAn> dsMonAn) {
+        if (dsMonAn == null) return;
+
+        // Reset thông tin khuyến mãi cũ
+        for (MonAn ma : dsMonAn) {
+            ma.setGiaSauGiam(ma.getDonGia());
+            ma.setTenKhuyenMai(null);
+        }
+
+        List<KhuyenMai> dsKMSukien = khuyenMaiDAO.layDanhSachKhuyenMaiTheoKieu("SuKien");
+        LocalDateTime bayGio = LocalDateTime.now();
+        LocalTime gioHienTai = LocalTime.now();
+
+        for (KhuyenMai km : dsKMSukien) {
+            // Check ngày áp dụng
+            if (km.getNgayBatDau() != null && bayGio.isBefore(km.getNgayBatDau())) continue;
+            if (km.getNgayKetThuc() != null && bayGio.isAfter(km.getNgayKetThuc())) continue;
+
+            // Check khung giờ
+            List<KhungGio> dsKhungGio = layKhungGioTheoMaKM(km.getMaKM());
+            if (dsKhungGio != null && !dsKhungGio.isEmpty()) {
+                boolean trongKhungGio = false;
+                for (KhungGio kg : dsKhungGio) {
+                    if (gioHienTai.isAfter(kg.getGioBatDau()) && gioHienTai.isBefore(kg.getGioKetThuc())) {
+                        trongKhungGio = true;
+                        break;
+                    }
+                }
+                if (!trongKhungGio) continue;
+            }
+
+            List<KhuyenMai_DieuKien> dsDieuKien = layDieuKienTheoMaKM(km.getMaKM());
+            for (KhuyenMai_DieuKien dk : dsDieuKien) {
+                if ("GIAM_TRUC_TIEP".equals(dk.getLoaiApDung())) {
+                    for (DieuKien_Mon dkm : dk.getDanhSachMonDieuKien()) {
+                        for (MonAn ma : dsMonAn) {
+                            if (ma.getMaMonAn().equals(dkm.getMonAn().getMaMonAn())) {
+                                BigDecimal giaMoi = tinhToanGiamGia(ma.getRawDonGia(), dk.getTyLeGiam(), dk.getSoTienGiam());
+                                // Nếu chưa có khuyến mãi hoặc khuyến mãi này giảm sâu hơn
+                                if (ma.getTenKhuyenMai() == null || giaMoi.compareTo(ma.getGiaSauGiam()) < 0) {
+                                    ma.setGiaSauGiam(giaMoi);
+                                    ma.setTenKhuyenMai(km.getTenKM());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public List<KhuyenMai> layDanhSachKhuyenMai() {
         return khuyenMaiDAO.layDanhSachKhuyenMai();
     }
@@ -45,6 +99,11 @@ public class KhuyenMaiController {
     public List<KhuyenMai> layDanhSachKhuyenMaiTheoKieu(String kieuKM) {
         return khuyenMaiDAO.layDanhSachKhuyenMaiTheoKieu(kieuKM);
     }
+
+    public List<KhuyenMai> layKhuyenMaiConHieuLucTheoKieu(String kieuKM) {
+        return khuyenMaiDAO.layDanhSachKhuyenMaiConHieuLucTheoKieu(kieuKM);
+    }
+
 
     public String taoMaKhuyenMaiMoi() {
         return khuyenMaiDAO.taoMaKhuyenMaiMoi();

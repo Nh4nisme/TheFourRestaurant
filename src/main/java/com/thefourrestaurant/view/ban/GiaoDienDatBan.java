@@ -465,8 +465,15 @@ public class GiaoDienDatBan extends BorderPane {
 
 		PhieuDatBan pdb = phieuDatBanController.layPhieuTheoBan(dsChon.get(0).getMaBan());
 
-		thanhToanController.moManThanhToan(pdb, mainContent);
-	}
+        thanhToanController.moManThanhToan(
+                pdb,
+                mainContent,
+                () -> {
+                    mainContent.getChildren().clear();
+                    mainContent.getChildren().add(new GiaoDienDatBan(mainContent));
+                }
+        );
+    }
 
 	private void tangTruoc() {
 		int currentIndex = cboSoTang.getSelectionModel().getSelectedIndex();

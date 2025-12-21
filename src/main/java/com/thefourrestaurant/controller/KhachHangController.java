@@ -18,9 +18,6 @@ public class KhachHangController {
         this.loaiKhachHangDAO = new LoaiKhachHangDAO();
     }
 
-    /** =========================
-     * LẤY DANH SÁCH
-     * ========================= */
     public List<KhachHang> layDanhSachKhachHang() {
         return khachHangDAO.layDanhSachKhachHang();
     }
@@ -29,13 +26,9 @@ public class KhachHangController {
         return loaiKhachHangDAO.layDanhSachLoaiKhachHang();
     }
 
-    /** =========================
-     * TẠO MỚI KHÁCH HÀNG
-     * ========================= */
     public String taoKhachHang(String hoTen, LocalDate ngaySinh,
                                String gioiTinh, String soDT, LoaiKhachHang loaiKH) {
 
-        // ==== Kiểm tra hợp lệ ====
         if (hoTen == null || hoTen.isEmpty())
             return "Họ tên khách hàng không được để trống!";
         if (ngaySinh == null)
@@ -47,11 +40,9 @@ public class KhachHangController {
         if (loaiKH == null)
             return "Vui lòng chọn loại khách hàng!";
 
-        // ==== Kiểm tra trùng số điện thoại ====
         if (khachHangDAO.layKhachHangTheoSDT(soDT) != null)
             return "Số điện thoại này đã tồn tại!";
 
-        // ==== Tạo đối tượng ====
         KhachHang kh = new KhachHang();
         kh.setHoTen(hoTen);
         kh.setNgaySinh(java.sql.Date.valueOf(ngaySinh));
@@ -64,11 +55,7 @@ public class KhachHangController {
         return ok ? "OK" : "Không thể thêm khách hàng!";
     }
 
-    /** =========================
-     * CẬP NHẬT KHÁCH HÀNG
-     * ========================= */
-    public String capNhatKhachHang(String maKH, String hoTen, LocalDate ngaySinh,
-                                   String gioiTinh, String soDT, LoaiKhachHang loaiKH) {
+    public String capNhatKhachHang(String maKH, String hoTen, LocalDate ngaySinh, String gioiTinh, String soDT, LoaiKhachHang loaiKH) {
 
         if (maKH == null || maKH.isEmpty())
             return "Không tìm thấy mã khách hàng để cập nhật!";
@@ -96,10 +83,7 @@ public class KhachHangController {
         boolean ok = khachHangDAO.capNhatKhachHang(kh);
         return ok ? "OK" : "Cập nhật thất bại!";
     }
-//
-//    /** =========================
-//     * XÓA KHÁCH HÀNG
-//     * ========================= */
+
     public boolean xoaKhachHang(String maKH) {
         if (maKH == null || maKH.isEmpty())
             return false;

@@ -3,7 +3,6 @@ package com.thefourrestaurant;
 import java.sql.Connection;
 
 import com.thefourrestaurant.connect.ConnectSQL;
-import com.thefourrestaurant.view.GiaoDienChinh;
 import com.thefourrestaurant.view.GiaoDienDangNhap;
 
 import javafx.application.Application;
@@ -22,8 +21,6 @@ public class MainApp extends Application {
 
         GiaoDienDangNhap gd = new GiaoDienDangNhap();
         gd.show(primaryStage);
-//        GiaoDienChinh gdChinh =  new GiaoDienChinh();
-//        gdChinh.show(primaryStage);
 
         Task<Connection> ketNoiTask = getConnectionTask();
         new Thread(ketNoiTask).start();

@@ -7,6 +7,7 @@ import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
@@ -23,6 +24,7 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
 
     private TableView<PhieuDatBan> table;
     private ObservableList<PhieuDatBan> danhSachGoc;
+    private FilteredList<PhieuDatBan> danhSachHienThi;
 
     public GiaoDienPhieuDatBan() {
         super("Phiếu đặt bàn", new GiaoDienChiTietPhieuDatBan());
@@ -31,7 +33,7 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
         gdChiTietPhieuDatBan = (GiaoDienChiTietPhieuDatBan) getChiTietNode();
         khoiTaoGiaoDien();
         khoiTaoBoLocNgayCuThe();
-        khoiTaoBoLocTimKiem();
+        khoiTaoBoLocTimKiem("nhập số điện thoại khách hàng...");
         lamMoiDuLieu();
     }
 
@@ -112,7 +114,7 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
 
                     if (xacNhan(stage, "Xóa phiếu " + pdb.getMaPDB() + "?")) {
                         if (controller.xoaPhieuDatBan(pdb.getMaPDB())) {
-                            table.getItems().remove(pdb);
+                            danhSachGoc.remove(pdb);
                             hienThongBao(stage, "Đã xóa phiếu đặt bàn");
                         } else {
                             hienThongBao(stage,
@@ -134,58 +136,48 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
     }
 
     @Override
-    protected void thucHienTimKiem(String tuKhoa) {
-        if (danhSachGoc == null) return;
+    protected void lamMoiDuLieu() {
+        danhSachGoc = FXCollections.observableArrayList(controller.layDanhSachPDB());
+        danhSachHienThi = new FilteredList<>(danhSachGoc, phieuDatBan ->  true);
+        table.setItems(danhSachHienThi);
+    }
 
-        if (tuKhoa == null || tuKhoa.isBlank()) {
-            table.setItems(danhSachGoc);
-            return;
-        }
+    private void apDungBoLoc() {
+        String tuKhoa = txtTimKiem.getText();
+        LocalDate ngay = dpNgayCuThe.getValue();
 
-        String key = tuKhoa.toLowerCase().trim();
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String key = tuKhoa == null ? "" : tuKhoa.trim();
 
-        LocalDate ngayTim = null;
-        try {
-            ngayTim = LocalDate.parse(key, fmt);
-        } catch (Exception ignored) {}
+        danhSachHienThi.setPredicate(phieuDatBan -> {
 
-        LocalDate finalNgayTim = ngayTim;
+            // lọc theo sdt
+            if (!key.isEmpty()) {
+                if (phieuDatBan.getKhachHang() == null) return false;
+                String soDT = phieuDatBan.getKhachHang().getHoTen();
+                if (soDT == null || !soDT.contains(key))
+                    return false;
+            }
 
-        table.setItems(danhSachGoc.filtered(pdb -> {
+            // lọc theo ngayf
+            if (ngay != null) {
+                LocalDateTime ngayLap = phieuDatBan.getNgayDat();
+                if (ngayLap == null) return false;
+                if (!ngayLap.toLocalDate().equals(ngay))
+                    return false;
+            }
 
-            if (pdb.getMaPDB() != null &&
-                    pdb.getMaPDB().toLowerCase().contains(key))
-                return true;
-
-            if (pdb.getTrangThai() != null &&
-                    pdb.getTrangThai().toLowerCase().contains(key))
-                return true;
-
-            KhachHang kh = pdb.getKhachHang();
-            if (kh != null && kh.getHoTen() != null &&
-                    kh.getHoTen().toLowerCase().contains(key))
-                return true;
-
-            NhanVien nv = pdb.getNhanVien();
-            if (nv != null && nv.getHoTen() != null &&
-                    nv.getHoTen().toLowerCase().contains(key))
-                return true;
-
-            if (finalNgayTim != null && pdb.getNgayDat() != null &&
-                    pdb.getNgayDat().toLocalDate().equals(finalNgayTim))
-                return true;
-
-            return false;
-        }));
+            return true;
+        });
     }
 
     @Override
-    protected void lamMoiDuLieu() {
-        danhSachGoc = FXCollections.observableArrayList(
-                controller.layDanhSachPDB()
-        );
-        table.setItems(danhSachGoc);
+    protected void thucHienTimKiem(String tuKhoa) {
+        apDungBoLoc();
+    }
+
+    @Override
+    protected void locTheoNgay(LocalDate tuNgay, LocalDate denNgay) {
+        apDungBoLoc();
     }
 
     private void hienThiChiTiet(PhieuDatBan pdb) {

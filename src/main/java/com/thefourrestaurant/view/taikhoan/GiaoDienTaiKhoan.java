@@ -34,7 +34,7 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
         controller = new TaiKhoanController();
         gdChiTietTK = (GiaoDienChiTietTaiKhoan) getChiTietNode();
         khoiTaoGiaoDien();
-        khoiTaoBoLocTimKiem();
+        khoiTaoBoLocTimKiem("nhập tên tài khoản");
         napDanhSachVaiTro();
         khoiTaoSuKien();
         lamMoiDuLieu();

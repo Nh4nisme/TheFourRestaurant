@@ -1,9 +1,9 @@
 package com.thefourrestaurant.view.monan;
 
 import com.thefourrestaurant.DAO.LoaiMonDAO;
+import com.thefourrestaurant.controller.KhuyenMaiController;
 import com.thefourrestaurant.controller.LoaiMonAnController;
 import com.thefourrestaurant.controller.MonAnController;
-import com.thefourrestaurant.model.LoaiMon;
 import com.thefourrestaurant.model.MonAn;
 import com.thefourrestaurant.view.components.ButtonSample;
 import com.thefourrestaurant.view.components.DropDownButtonMap;
@@ -15,23 +15,20 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GiaoDienMonAn extends VBox {
@@ -40,6 +37,7 @@ public class GiaoDienMonAn extends VBox {
     private final String tenLoaiMon;
     private final MonAnController controller;
     private final LoaiMonAnController loaiMonAnController;
+    private final KhuyenMaiController khuyenMaiController;
 
     private List<MonAn> danhSachMonAnGoc; // Danh sách món ăn gốc, không bị lọc
     private List<MonAn> danhSachMonAnHienThi; // Danh sách món ăn đang hiển thị (đã lọc/sắp xếp)
@@ -58,6 +56,8 @@ public class GiaoDienMonAn extends VBox {
         this.tenLoaiMon = tenLoaiMon;
         this.controller = new MonAnController();
         this.loaiMonAnController = new LoaiMonAnController();
+        this.khuyenMaiController = new KhuyenMaiController();
+
 
         this.setAlignment(Pos.TOP_CENTER);
 
@@ -201,7 +201,7 @@ public class GiaoDienMonAn extends VBox {
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);
 
-        txtTimKiem.setPromptText("Tìm...");
+        txtTimKiem.setPromptText("nhập tên món ăn");
         txtTimKiem.setPrefWidth(300);
 
         ButtonSample btnTim = new ButtonSample("Tìm", "", 35, 13, 3);
@@ -317,6 +317,7 @@ public class GiaoDienMonAn extends VBox {
 
     private void refreshViews() {
         this.danhSachMonAnGoc = controller.layTatCaMonAn();
+        khuyenMaiController.capNhatKhuyenMaiChoDanhSachMonAn(this.danhSachMonAnGoc);
         locVaCapNhatMonAn();
     }
 
@@ -399,8 +400,7 @@ public class GiaoDienMonAn extends VBox {
 
         for (int i = 0; i < danhSachMonAnHienThi.size(); i++) {
             MonAn item = danhSachMonAnHienThi.get(i);
-            String formattedPrice = currencyFormatter.format(item.getDonGia());
-            MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh(), item.getSoLuong());
+            MonAnBox hopMonAn = new MonAnBox(item);
 
             // Hiển thị số đã bán (độ phổ biến)
             hopMonAn.updateDaBan(item.getDaBan());

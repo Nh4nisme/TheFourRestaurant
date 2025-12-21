@@ -198,13 +198,12 @@ public class ChonMonAnDialog extends Stage {
 
         for (int i = 0; i < danhSachMonAnHienThi.size(); i++) {
             MonAn item = danhSachMonAnHienThi.get(i);
-            String formattedPrice = currencyFormatter.format(item.getDonGia());
 
             VBox wrapper = new VBox();
             wrapper.setAlignment(Pos.CENTER);
             wrapper.setSpacing(5);
 
-            MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh());
+            MonAnBox hopMonAn = new MonAnBox(item);
 
             // Checkbox để chọn món
             CheckBox checkbox = new CheckBox();
