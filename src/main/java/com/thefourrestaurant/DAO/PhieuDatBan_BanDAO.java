@@ -10,11 +10,11 @@ import com.thefourrestaurant.model.LoaiBan;
 
 public class PhieuDatBan_BanDAO {
 
-	// 🔹 Lấy danh sách bàn theo mã phiếu với thông tin đầy đủ
 	public List<Ban> layDanhSachBanTheoPhieu(String maPDB) {
 		List<Ban> list = new ArrayList<>();
 		String sql = """
-				    SELECT b.maBan, b.tenBan, b.trangThai, b.toaDoX, b.toaDoY,
+				    SELECT pdbb.isBanChinh,
+				    	   b.maBan, b.tenBan, b.trangThai, b.toaDoX, b.toaDoY,
 				           t.maTang, t.tenTang,
 				           lb.maLoaiBan, lb.tenLoaiBan, lb.giaTien, lb.soChoNgoi, lb.moTa
 				    FROM PhieuDatBan_Ban pdbb
@@ -75,5 +75,15 @@ public class PhieuDatBan_BanDAO {
 		}
 		return true;
 	}
+	
+	public boolean xoaTatCaBanKhoiPhieu(Connection conn, String maPDB) throws SQLException {
+	    String sql = "DELETE FROM PhieuDatBan_Ban WHERE maPDB = ?";
+	    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+	        ps.setString(1, maPDB);
+	        ps.executeUpdate();
+	    }
+	    return true;
+	}
+
 
 }

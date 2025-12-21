@@ -5,6 +5,7 @@ import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import com.thefourrestaurant.DAO.*;
 import com.thefourrestaurant.model.*;
 import com.thefourrestaurant.view.khachhang.GiaoDienThemKhachHang;
+import com.thefourrestaurant.view.monan.GiaoDienGoiMon;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -272,21 +273,38 @@ public abstract class GiaoDienDatBanBase extends VBox {
         });
     }
     
-    protected void showDatBanThanhCong(List<Ban> dsBan) {
-        showMessage("Đã đặt bàn thành công!", Alert.AlertType.INFORMATION);
+    protected void showDatBanThanhCong(
+            StackPane mainContent,
+            Ban ban,
+            PhieuDatBan pdb
+    ) {
+        Stage ownerStage = (Stage) this.getScene().getWindow();
 
-        if (dsBan == null || dsBan.isEmpty()) return;
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Đặt bàn thành công");
+        alert.setHeaderText(null);
+        alert.setContentText("Đã đặt bàn thành công!\nBạn có muốn gọi món ngay không?");
 
-        try {
-            if (quanLiBan != null) {
-                quanLiBan.refresh();
+        alert.initOwner(ownerStage);
+        alert.initModality(Modality.WINDOW_MODAL);
+
+        ButtonType btnCo = new ButtonType("Có");
+        ButtonType btnKhong = new ButtonType("Không", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(btnCo, btnKhong);
+
+        alert.showAndWait().ifPresent(result -> {
+            if (result == btnCo) {
+                mainContent.getChildren().setAll(
+                    new GiaoDienGoiMon(mainContent, ban, pdb)
+                );
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        });
+
+        if (quanLiBan != null) {
+            quanLiBan.refresh();
         }
 
-        Stage stage = (Stage) this.getScene().getWindow();
-        if (stage != null) stage.close();
+        ownerStage.close();
     }
 
 //     Hiển thị thông báo lỗi.

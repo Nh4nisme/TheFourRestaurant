@@ -1,5 +1,6 @@
 package com.thefourrestaurant.view.ban;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
+import com.thefourrestaurant.controller.CountdownController;
 import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.DAO.NhanVienDAO;
 import com.thefourrestaurant.util.Session;
@@ -50,7 +51,10 @@ class GiaoDienDatBanNgay extends GiaoDienDatBanBase {
             boolean ok = dao.themPhieu(pdb, "DAT_NGAY", dsBan);
 
             if (ok) {
-                showDatBanThanhCong(dsBan);
+                Ban banChinh = dsBan.get(0);
+                CountdownController.getInstance()
+                .startDangPhucVu(pdb, null);
+                showDatBanThanhCong(parentPane, banChinh, pdb);
             } else {
                 showDatBanLoi("Đặt bàn thất bại. Vui lòng thử lại!");
             }
