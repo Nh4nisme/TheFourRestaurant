@@ -461,6 +461,9 @@ public class GiaoDienLapHoaDon extends VBox {
                 );
             }
 
+            // ===== XỬ LÝ VIP SAU THANH TOÁN =====
+            hoaDonController.xuLyVIPSauThanhToan(hd);
+
             // ===== CẬP NHẬT PHIẾU ĐẶT BÀN =====
             phieuDatBanController.capNhatTrangThai(
                     phieuDatBan.getMaPDB(),

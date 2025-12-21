@@ -3,12 +3,12 @@ package com.thefourrestaurant.controller;
 import com.thefourrestaurant.DAO.ChiTietHoaDonDAO;
 import com.thefourrestaurant.DAO.ChiTietPDBDAO;
 import com.thefourrestaurant.DAO.HoaDonDAO;
-import com.thefourrestaurant.model.ChiTietHoaDon;
-import com.thefourrestaurant.model.ChiTietPDB;
-import com.thefourrestaurant.model.HoaDon;
+import com.thefourrestaurant.DAO.KhachHangDAO;
+import com.thefourrestaurant.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,7 +18,10 @@ public class HoaDonController {
     private HoaDonDAO hoaDonDAO  = new HoaDonDAO();
     private ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO();
     private final ChiTietPDBDAO chiTietDAO = new ChiTietPDBDAO();
+    private final KhachHangDAO khachHangDAO = new KhachHangDAO();
 
+    private static final BigDecimal MOC_VIP = new BigDecimal("10000000");
+    private static final String MA_LOAI_VIP = "LKH00002";
 
     public ObservableList<HoaDon> layDanhSachHoaDon(){
         return FXCollections.observableArrayList(hoaDonDAO.layDanhSachHoaDon());
@@ -67,6 +70,36 @@ public class HoaDonController {
             }
         }
         return new ArrayList<>(danhSachGop.values());
+    }
+
+    public void xuLyVIPSauThanhToan(HoaDon hoaDonMoi) {
+
+        KhachHang kh = hoaDonMoi.getKhachHang();
+        if (kh == null) return;
+
+        if (kh.getLoaiKH() != null
+                && MA_LOAI_VIP.equals(kh.getLoaiKH().getMaLoaiKH())) {
+            return;
+        }
+
+        BigDecimal tongCu =
+                hoaDonDAO.tongTienThuanTheoKhach(kh.getMaKH());
+
+        BigDecimal tongSau =
+                tongCu.add(hoaDonMoi.getTongTien());
+
+        if (tongSau.compareTo(MOC_VIP) >= 0) {
+
+            khachHangDAO.capNhatLoaiKhachHang(
+                    kh.getMaKH(),
+                    MA_LOAI_VIP
+            );
+
+            LoaiKhachHang vip = new LoaiKhachHang(MA_LOAI_VIP);
+            vip.setTenLoaiKH("VIP"); // optional
+
+            kh.setLoaiKH(vip);
+        }
     }
 
 }

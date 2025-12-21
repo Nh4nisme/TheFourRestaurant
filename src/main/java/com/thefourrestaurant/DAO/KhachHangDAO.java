@@ -193,6 +193,26 @@ public class KhachHangDAO {
         return false;
     }
 
+    public void capNhatLoaiKhachHang(String maKH, String maLoaiKH) {
+        String sql = """
+        UPDATE KhachHang
+        SET maLoaiKH = ?
+        WHERE maKH = ?
+    """;
+
+        try (Connection con = ConnectSQL.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, maLoaiKH);
+            ps.setString(2, maKH);
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public boolean xoaKhachHang(String maKH) {
         String sql = "UPDATE KhachHang SET isDeleted = 1 WHERE maKH = ?";
         try (Connection conn = ConnectSQL.getConnection();

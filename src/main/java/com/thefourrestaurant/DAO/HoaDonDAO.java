@@ -229,6 +229,28 @@ public class HoaDonDAO {
         return new ArrayList<>(mapHoaDon.values());
     }
 
+    public BigDecimal tongTienThuanTheoKhach(String maKH) {
+        String sql = """
+        SELECT ISNULL(SUM(ct.soLuong * ct.donGia), 0)
+        FROM HoaDon hd
+        JOIN ChiTietHD ct ON hd.maHD = ct.maHD
+        WHERE hd.maKH = ? AND hd.isDeleted = 0
+    """;
+
+        try (Connection con = ConnectSQL.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, maKH);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getBigDecimal(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return BigDecimal.ZERO;
+    }
+
 
     public String taoMaHDMoi() {
         String newId = "HD000001";
