@@ -15,6 +15,7 @@ public class KhuyenMai_DieuKien {
     private String loaiApDung; // Phân loại cách áp dụng: GIAM_TRUC_TIEP, THEO_COMBO, MUA_X_GIAM_Y
     private BigDecimal tyLeGiam;
     private BigDecimal soTienGiam;
+    private BigDecimal giaToiThieu;
     private Integer soLuongTang;
     private String moTaDieuKien;
 
@@ -64,6 +65,14 @@ public class KhuyenMai_DieuKien {
 
     public void setSoTienGiam(BigDecimal soTienGiam) {
         this.soTienGiam = soTienGiam;
+    }
+
+    public BigDecimal getGiaToiThieu() {
+        return giaToiThieu;
+    }
+
+    public void setGiaToiThieu(BigDecimal giaToiThieu) {
+        this.giaToiThieu = giaToiThieu;
     }
 
     public Integer getSoLuongTang() {

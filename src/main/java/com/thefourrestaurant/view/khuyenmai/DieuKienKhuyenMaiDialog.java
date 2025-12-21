@@ -40,6 +40,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
     private TextField txtMonTang;
     private TextField txtTyLeGiam;
     private TextField txtSoTienGiam;
+    private TextField txtGiaToiThieu;
     private TextField txtSoLuongTang;
     private Spinner<Integer> spinnerSoLuongMua;
 
@@ -47,8 +48,8 @@ public class DieuKienKhuyenMaiDialog extends Stage {
     private Set<MonAn> dsMonNhanGiamChon = new HashSet<>();
     private Set<MonAn> dsMonTangChon = new HashSet<>();
 
-    private Node rowMonMua, rowMonNhanGiam, rowMonTang, rowTyLe, rowSoTien, rowSoLuongTang;
-    private Label lblMonMua, lblMonNhanGiam, lblMonTang, lblTyLe, lblSoTien, lblSoLuongTang;
+    private Node rowMonMua, rowMonNhanGiam, rowMonTang, rowTyLe, rowSoTien, rowSoLuongTang, rowGiaToiThieu;
+    private Label lblMonMua, lblMonNhanGiam, lblMonTang, lblTyLe, lblSoTien, lblSoLuongTang, lblGiaToiThieu;
 
     public DieuKienKhuyenMaiDialog(KhuyenMai_DieuKien dieuKien, KhuyenMai khuyenMaiCha, KhuyenMaiController boDieuKhien) {
         this.isEditMode = (dieuKien != null);
@@ -109,6 +110,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         txtMonTang = taoTruongChiDoc("Chọn món được tặng...");
         txtTyLeGiam = new TextField();
         txtSoTienGiam = new TextField();
+        txtGiaToiThieu = new TextField();
         txtSoLuongTang = new TextField();
         spinnerSoLuongMua = new Spinner<>(1, 100, 1);
 
@@ -144,6 +146,11 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         form.add(lblSoTien, 0, row);
         form.add(rowSoTien, 1, row++);
 
+        lblGiaToiThieu = new Label("Giá đơn tối thiểu:");
+        rowGiaToiThieu = txtGiaToiThieu;
+        form.add(lblGiaToiThieu, 0, row);
+        form.add(rowGiaToiThieu, 1, row++);
+
         lblSoLuongTang = new Label("Số lượng tặng:");
         rowSoLuongTang = txtSoLuongTang;
         form.add(lblSoLuongTang, 0, row);
@@ -172,7 +179,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         String loai = cboLoaiApDung.getValue();
         if (loai == null) return;
 
-        quanLyHienThi(true, lblMonMua, rowMonMua, lblTyLe, rowTyLe, lblSoTien, rowSoTien, lblMonTang, rowMonTang, lblSoLuongTang, rowSoLuongTang, lblMonNhanGiam, rowMonNhanGiam);
+        quanLyHienThi(true, lblMonMua, rowMonMua, lblTyLe, rowTyLe, lblSoTien, rowSoTien, lblMonTang, rowMonTang, lblSoLuongTang, rowSoLuongTang, lblMonNhanGiam, rowMonNhanGiam, lblGiaToiThieu, rowGiaToiThieu);
 
         switch (loai) {
             case "GIAM_TRUC_TIEP":
@@ -254,6 +261,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
 
         if (dieuKien.getTyLeGiam() != null) txtTyLeGiam.setText(dieuKien.getTyLeGiam().toPlainString());
         if (dieuKien.getSoTienGiam() != null) txtSoTienGiam.setText(dieuKien.getSoTienGiam().toPlainString());
+        if (dieuKien.getGiaToiThieu() != null) txtGiaToiThieu.setText(dieuKien.getGiaToiThieu().toPlainString());
         if (dieuKien.getSoLuongTang() != null) txtSoLuongTang.setText(dieuKien.getSoLuongTang().toString());
     }
 
@@ -295,6 +303,7 @@ public class DieuKienKhuyenMaiDialog extends Stage {
         try {
             dieuKien.setTyLeGiam(txtTyLeGiam.getText().trim().isEmpty() ? null : new BigDecimal(txtTyLeGiam.getText().trim()));
             dieuKien.setSoTienGiam(txtSoTienGiam.getText().trim().isEmpty() ? null : new BigDecimal(txtSoTienGiam.getText().trim()));
+            dieuKien.setGiaToiThieu(txtGiaToiThieu.getText().trim().isEmpty() ? null : new BigDecimal(txtGiaToiThieu.getText().trim()));
             dieuKien.setSoLuongTang(txtSoLuongTang.getText().trim().isEmpty() ? null : Integer.parseInt(txtSoLuongTang.getText().trim()));
         } catch (NumberFormatException e) {
             hienThiThongBao(Alert.AlertType.ERROR, "Giá trị số không hợp lệ.");

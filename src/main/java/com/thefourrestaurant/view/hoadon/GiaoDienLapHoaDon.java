@@ -1,7 +1,6 @@
 package com.thefourrestaurant.view.hoadon;
 
 import com.thefourrestaurant.DAO.BanDAO;
-import com.thefourrestaurant.DAO.KhuyenMai_DieuKienDAO;
 import com.thefourrestaurant.DAO.PhieuDatBan_BanDAO;
 import com.thefourrestaurant.controller.*;
 import com.thefourrestaurant.model.*;
@@ -23,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,6 +36,7 @@ public class GiaoDienLapHoaDon extends VBox {
     private final StackPane overlay;
     private PhieuDatBan phieuDatBan;
     private KhuyenMai khuyenMaiHienTai;
+    private List<ChiTietPDB> originalMonList = new ArrayList<>();
 
     // ================== CONTROLLERS ==================
     private final HoaDonController hoaDonController = new HoaDonController();
@@ -273,18 +274,8 @@ public class GiaoDienLapHoaDon extends VBox {
     }
 
     private void khoiTaoComboKhuyenMai() {
-        List<KhuyenMai> dsKM = khuyenMaiController.layKhuyenMaiConHieuLucTheoKieu("MaGiamGia");
-        cboKhuyenMai.getItems().clear();
+        cboKhuyenMai.setPromptText("Áp dụng khuyến mãi");
 
-        if (dsKM == null || dsKM.isEmpty()) {
-            // Không có khuyến mãi hợp lệ
-            cboKhuyenMai.setPromptText("Không có khuyến mãi hợp lệ");
-            cboKhuyenMai.setValue(null);
-        } else {
-            cboKhuyenMai.setDisable(false);
-            cboKhuyenMai.setPromptText("Áp dụng khuyến mãi");
-            cboKhuyenMai.getItems().setAll(dsKM);
-        }
         // Hiển thị tên KM
         cboKhuyenMai.setCellFactory(lv -> new ListCell<>() {
             @Override
@@ -299,19 +290,50 @@ public class GiaoDienLapHoaDon extends VBox {
             if (newVal == null) {
                 khuyenMaiHienTai = null;
             } else {
-                List<KhuyenMai_DieuKien> dsDieuKien =
-                        new KhuyenMai_DieuKienDAO().layDieuKienTheoMaKM(newVal.getMaKM());
-
-                newVal.setKhuyenMaiDieuKien(
-                        dsDieuKien.isEmpty() ? null : dsDieuKien.get(0)
-                );
-
+                if (newVal.getKhuyenMaiDieuKien() == null) {
+                    List<KhuyenMai_DieuKien> dsDieuKien =
+                            khuyenMaiController.layDieuKienTheoMaKM(newVal.getMaKM());
+                    newVal.setKhuyenMaiDieuKien(
+                            dsDieuKien.isEmpty() ? null : dsDieuKien.get(0)
+                    );
+                }
                 khuyenMaiHienTai = newVal;
             }
 
+            applyKhuyenMai();
             capNhatHienThiKhuyenMai();
             capNhatSoTienThanhToan();
         });
+    }
+
+    private void loadKhuyenMaiHopLe(BigDecimal tongTien) {
+        List<KhuyenMai> dsKM = khuyenMaiController.layKhuyenMaiConHieuLucTheoKieu("MaGiamGia");
+        List<KhuyenMai> dsFiltered = new ArrayList<>();
+
+        for (KhuyenMai km : dsKM) {
+            List<KhuyenMai_DieuKien> dsDK = khuyenMaiController.layDieuKienTheoMaKM(km.getMaKM());
+            if (dsDK.isEmpty()) {
+                dsFiltered.add(km);
+                continue;
+            }
+
+            KhuyenMai_DieuKien dk = dsDK.get(0);
+            km.setKhuyenMaiDieuKien(dk);
+
+            if (dk.getGiaToiThieu() == null || tongTien.compareTo(dk.getGiaToiThieu()) >= 0) {
+                dsFiltered.add(km);
+            }
+        }
+
+        cboKhuyenMai.getItems().clear();
+        if (dsFiltered.isEmpty()) {
+            cboKhuyenMai.setPromptText("Không có khuyến mãi hợp lệ");
+            cboKhuyenMai.setDisable(true);
+        } else {
+            cboKhuyenMai.setDisable(false);
+            cboKhuyenMai.setPromptText("Áp dụng khuyến mãi");
+            cboKhuyenMai.getItems().setAll(dsFiltered);
+        }
     }
 
 
@@ -319,7 +341,7 @@ public class GiaoDienLapHoaDon extends VBox {
     // ================== DISPLAY ==================
     public void hienThiThongTinPhieuDatBan(PhieuDatBan pdb) {
         this.phieuDatBan = pdb;
-        
+
         PhieuDatBan_BanDAO pdbBanDAO = new PhieuDatBan_BanDAO();
         pdb.setDanhSachBan(pdbBanDAO.layDanhSachBanTheoPhieu(pdb.getMaPDB()));
 
@@ -336,12 +358,15 @@ public class GiaoDienLapHoaDon extends VBox {
         List<ChiTietPDB> danhSachDaGop =
                 hoaDonController.layChiTietHienThi(pdb.getMaPDB());
 
+        this.originalMonList = new ArrayList<>(danhSachDaGop);
         tblMon.getItems().clear();
         tblMon.getItems().setAll(danhSachDaGop);
         lblTienCoc.setText(dinhDangTien(
                 pdb.getTienCoc() == null ? BigDecimal.ZERO : pdb.getTienCoc()) + " đ");
 
+        applyKhuyenMai();
         capNhatSoTienThanhToan();
+        loadKhuyenMaiHopLe(tinhTongTienMon());
     }
 
     private void capNhatHienThiKhuyenMai() {
@@ -366,6 +391,10 @@ public class GiaoDienLapHoaDon extends VBox {
         else {
             lblChietKhau.setText("0");
         }
+    }
+
+    private void applyKhuyenMai() {
+        tblMon.getItems().setAll(originalMonList);
     }
 
 
