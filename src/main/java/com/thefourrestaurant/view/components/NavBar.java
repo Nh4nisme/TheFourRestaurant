@@ -38,7 +38,7 @@ public class NavBar extends HBox {
         DM_HOA_DON,
         DM_KHACH_HANG,
         DM_TAI_KHOAN,
-        DM_NHAN_VIEN, // <--- Add this line
+        DM_NHAN_VIEN,
         DM_TANG_BAN,
 
         // Xử lý

@@ -12,6 +12,10 @@ public class LoaiKhachHang {
         setTenLoaiKH(tenLoaiKH);
     }
 
+    public LoaiKhachHang(String maLoaiKH) {
+        setMaLoaiKH(maLoaiKH);
+    }
+
     public String getMaLoaiKH() {
         return maLoaiKH;
     }
