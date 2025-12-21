@@ -4,8 +4,8 @@ import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.DAO.PhieuDatBan_BanDAO;
 import com.thefourrestaurant.controller.*;
 import com.thefourrestaurant.model.*;
+import com.thefourrestaurant.util.khoiTaoHoaDonPDF;
 import com.thefourrestaurant.util.Session;
-import com.thefourrestaurant.view.ban.GiaoDienDatBan;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.beans.property.*;
 import javafx.geometry.*;
@@ -16,7 +16,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -182,15 +181,15 @@ public class GiaoDienLapHoaDon extends VBox {
 
         txtTienKhachDua.textProperty().addListener((o, a, b) -> capNhatTienThua());
 
-        grid.addRow(0, new Label("Khuyến mãi:"), cboKhuyenMai);
-        grid.addRow(1, new Label("Chiết khấu:"), lblChietKhau);
-        grid.addRow(2, new Label("VAT:"), lblVAT);
-        grid.addRow(3, new Label("Tổng tiền:"), lblTongTien);
-        grid.addRow(4, new Label("Tiền cọc:"), lblTienCoc);
-        grid.addRow(5, new Label("PTTT:"), cboPTTT);
-        grid.addRow(6, new Label("Tiền khách đưa:"), txtTienKhachDua);
-        grid.addRow(7, new Label("Tiền thừa:"), lblTienThua);
-        grid.addRow(8, new Label("Phải thanh toán:"), lblThanhToan);
+        grid.addRow(0, new Label("Khuyến mãi: "), cboKhuyenMai);
+        grid.addRow(1, new Label("Chiết khấu: "), lblChietKhau);
+        grid.addRow(2, new Label("VAT: "), lblVAT);
+        grid.addRow(3, new Label("Tổng tiền: "), lblTongTien);
+        grid.addRow(4, new Label("Tiền cọc: "), lblTienCoc);
+        grid.addRow(5, new Label("PTTT: "), cboPTTT);
+        grid.addRow(6, new Label("Tiền khách đưa: "), txtTienKhachDua);
+        grid.addRow(7, new Label("Tiền thừa: "), lblTienThua);
+        grid.addRow(8, new Label("Phải thanh toán: "), lblThanhToan);
 
         return grid;
     }
@@ -200,13 +199,17 @@ public class GiaoDienLapHoaDon extends VBox {
         ButtonSample btnBack = new ButtonSample("Quay lại", "", 45, 16, 3);
         btnBack.setOnAction(e -> mainContent.getChildren().remove(overlay));
 
+        ButtonSample btnInHoaDon = new ButtonSample("In hóa đơn", "", 45, 16, 3);
+        btnInHoaDon.setOnAction(e -> hienThiPreviewPDF());
+
         ButtonSample btnOK = new  ButtonSample("Xác nhận thanh toán", "", 45, 16, 3);
         btnOK.setOnAction(e -> xuLyXacNhanThanhToan());
 
-        HBox box = new HBox(15, btnBack, btnOK);
+        HBox box = new HBox(15, btnBack, btnInHoaDon, btnOK);
         box.setAlignment(Pos.CENTER_RIGHT);
         return box;
     }
+
 
     // ================== QR ==================
     private void khoiTaoQR() {
@@ -255,10 +258,10 @@ public class GiaoDienLapHoaDon extends VBox {
         qrOverlay.getChildren().add(content);
     }
 
-
     private void khoiTaoComboPTTT() {
         cboPTTT.getItems().setAll(ptttController.layPhuongThucThanhToan());
         cboPTTT.getSelectionModel().selectFirst();
+        cboPTTT.setPrefWidth(220);
 
         cboPTTT.valueProperty().addListener((obs, o, n) -> {
             if (n.getLoaiPTTT().getTenHienThi().equalsIgnoreCase("Chuyển khoản")) {
@@ -275,6 +278,7 @@ public class GiaoDienLapHoaDon extends VBox {
 
     private void khoiTaoComboKhuyenMai() {
         cboKhuyenMai.setPromptText("Áp dụng khuyến mãi");
+        cboKhuyenMai.setPrefWidth(220);
 
         // Hiển thị tên KM
         cboKhuyenMai.setCellFactory(lv -> new ListCell<>() {
@@ -294,7 +298,7 @@ public class GiaoDienLapHoaDon extends VBox {
                     List<KhuyenMai_DieuKien> dsDieuKien =
                             khuyenMaiController.layDieuKienTheoMaKM(newVal.getMaKM());
                     newVal.setKhuyenMaiDieuKien(
-                            dsDieuKien.isEmpty() ? null : dsDieuKien.get(0)
+                            dsDieuKien.isEmpty() ? null : dsDieuKien.getFirst()
                     );
                 }
                 khuyenMaiHienTai = newVal;
@@ -317,7 +321,7 @@ public class GiaoDienLapHoaDon extends VBox {
                 continue;
             }
 
-            KhuyenMai_DieuKien dk = dsDK.get(0);
+            KhuyenMai_DieuKien dk = dsDK.getFirst();
             km.setKhuyenMaiDieuKien(dk);
 
             if (dk.getGiaToiThieu() == null || tongTien.compareTo(dk.getGiaToiThieu()) >= 0) {
@@ -335,8 +339,6 @@ public class GiaoDienLapHoaDon extends VBox {
             cboKhuyenMai.getItems().setAll(dsFiltered);
         }
     }
-
-
 
     // ================== DISPLAY ==================
     public void hienThiThongTinPhieuDatBan(PhieuDatBan pdb) {
@@ -370,31 +372,74 @@ public class GiaoDienLapHoaDon extends VBox {
     }
 
     private void capNhatHienThiKhuyenMai() {
-        if (khuyenMaiHienTai == null) {
-            lblChietKhau.setText("0");
-            return;
-        }
+        if (khuyenMaiHienTai == null) {lblChietKhau.setText("0"); return;}
 
         KhuyenMai_DieuKien dk = khuyenMaiHienTai.getKhuyenMaiDieuKien();
 
-        if (dk == null) {
-            lblChietKhau.setText("0");
-            return;
-        }
-
-        if (dk.getTyLeGiam() != null) {
-            lblChietKhau.setText(dk.getTyLeGiam() + "%");
-        }
-        else if (dk.getSoTienGiam() != null) {
-            lblChietKhau.setText(dinhDangTien(dk.getSoTienGiam()) + " đ");
-        }
-        else {
-            lblChietKhau.setText("0");
-        }
+        if (dk == null) {lblChietKhau.setText("0"); return;}
+        if (dk.getTyLeGiam() != null) {lblChietKhau.setText(dk.getTyLeGiam() + "%");}
+        else if (dk.getSoTienGiam() != null) {lblChietKhau.setText(dinhDangTien(dk.getSoTienGiam()) + " đ");}
+        else {lblChietKhau.setText("0");}
     }
 
     private void applyKhuyenMai() {
         tblMon.getItems().setAll(originalMonList);
+    }
+
+    private void hienThiPreviewPDF() {
+        Stage popup = new Stage();
+        popup.initOwner(mainContent.getScene().getWindow());
+        popup.initModality(Modality.WINDOW_MODAL);
+        popup.setTitle("Xem trước hóa đơn");
+
+        VBox root = new VBox(15);
+        root.setPadding(new Insets(15));
+        root.setAlignment(Pos.CENTER);
+
+        // Nếu muốn trực tiếp xem PDF, bạn có thể convert PDF -> Image để hiển thị
+        ImageView pdfPreview = new ImageView();
+        pdfPreview.setFitWidth(600);
+        pdfPreview.setPreserveRatio(true);
+
+        // TODO: tạo ảnh từ PDF tạm thời
+        // pdfPreview.setImage(chuyenPDFThanhAnh(…));
+
+        Button btnIn = new Button("In");
+        btnIn.setOnAction(e -> {
+            String filePath = System.getProperty("user.home") + "/HoaDon_" + lblMaHD.getText() + ".pdf";
+            khoiTaoHoaDonPDF.inHoaDon(
+                    filePath,
+                    lblMaHD.getText(),
+                    lblNgayNhan.getText(),
+                    nhanVienController.layNhanVienTheoMaTK(Session.getCurrentUser().getMaTK()),
+                    phieuDatBan.getKhachHang(),
+                    tblMon.getItems(),
+                    cboKhuyenMai.getValue(),
+                    phieuDatBan.getTienCoc(),
+                    new BigDecimal(txtTienKhachDua.getText()),
+                    new BigDecimal(lblTienThua.getText().replaceAll("[^\\d]", ""))
+            );
+
+            // Mở PDF sau khi in
+            try {
+                java.awt.Desktop.getDesktop().open(new java.io.File(filePath));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            popup.close();
+        });
+
+        Button btnQuayLai = new Button("Quay lại");
+        btnQuayLai.setOnAction(e -> popup.close());
+
+        HBox buttons = new HBox(15, btnQuayLai, btnIn);
+        buttons.setAlignment(Pos.CENTER);
+
+        root.getChildren().addAll(pdfPreview, buttons);
+
+        Scene scene = new Scene(root);
+        popup.setScene(scene);
+        popup.showAndWait();
     }
 
 
@@ -529,6 +574,7 @@ public class GiaoDienLapHoaDon extends VBox {
 
             // ===== CẬP NHẬT TRẠNG THÁI BÀN =====
             BanDAO banDAO = new BanDAO();
+            assert phieuDatBan != null;
             int soBanCapNhat = banDAO.capNhatTrangThaiDanhSach(
                     phieuDatBan.getDanhSachBan(),
                     "Trống"
@@ -546,7 +592,6 @@ public class GiaoDienLapHoaDon extends VBox {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
             hienThongBao("Lỗi khi thanh toán!", Alert.AlertType.ERROR);
         }
     }
