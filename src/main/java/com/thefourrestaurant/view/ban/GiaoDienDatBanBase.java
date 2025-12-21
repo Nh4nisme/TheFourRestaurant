@@ -21,6 +21,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
@@ -242,7 +243,6 @@ public abstract class GiaoDienDatBanBase extends VBox {
     }
 
     private void wireCommonHandlers(){
-        // Kiểm tra SDT khách
         btnKiemTra.setOnAction(e->{
             String sdt = txtSDTKhachDat.getText()==null?"":txtSDTKhachDat.getText().trim();
             if(sdt.length()<10){ lblTenKhachDat.setText("SDT không hợp lệ"); return; }
@@ -251,28 +251,41 @@ public abstract class GiaoDienDatBanBase extends VBox {
                 selectedKhachHang = kh;
                 lblTenKhachDat.setText(kh.getHoTen());
             }else{
-                Stage st = new Stage();
-                GiaoDienThemKhachHang view = new GiaoDienThemKhachHang(sdt, khMoi->{
-                    selectedKhachHang = khMoi;
-                    txtSDTKhachDat.setText(khMoi.getSoDT());
-                    lblTenKhachDat.setText(khMoi.getHoTen());
-                });
-                st.setScene(new Scene(view));
-                st.initOwner(getScene()!=null?getScene().getWindow():null);
-                st.initModality(Modality.APPLICATION_MODAL);
-                st.setTitle("Thêm khách hàng");
-                st.showAndWait();
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Khách hàng không tồn tại");
+                alert.setHeaderText(null);
+                alert.setContentText("Khách hàng với số điện thoại này không tồn tại. Bạn có muốn thêm khách hàng mới?");
+
+                if (this.getScene() != null && this.getScene().getWindow() != null) {
+                    alert.initOwner(this.getScene().getWindow());
+                }
+                ButtonType btnCo = new ButtonType("Có", ButtonBar.ButtonData.YES);
+                ButtonType btnKhong = new ButtonType("Không", ButtonBar.ButtonData.NO);
+                alert.getButtonTypes().setAll(btnCo, btnKhong);
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == btnCo) {
+                    Stage st = new Stage();
+                    GiaoDienThemKhachHang view = new GiaoDienThemKhachHang(sdt, khMoi -> {
+                        selectedKhachHang = khMoi;
+                        txtSDTKhachDat.setText(khMoi.getSoDT());
+                        lblTenKhachDat.setText(khMoi.getHoTen());
+                    });
+                    st.setScene(new Scene(view));
+                    st.initOwner(getScene() != null ? getScene().getWindow() : null);
+                    st.initModality(Modality.APPLICATION_MODAL);
+                    st.setTitle("Thêm khách hàng");
+                    st.showAndWait();
+                }
             }
         });
-
         btnDatBan.setOnAction(e->wireDatBanHandler());
-
         btnQuayLai.setOnAction(e->{
             Stage st = (Stage)getScene().getWindow();
             if(st!=null) st.close();
         });
     }
-    
+
     protected void showDatBanThanhCong(
             StackPane mainContent,
             Ban ban,
@@ -288,10 +301,9 @@ public abstract class GiaoDienDatBanBase extends VBox {
         alert.initOwner(ownerStage);
         alert.initModality(Modality.WINDOW_MODAL);
 
-        ButtonType btnCo = new ButtonType("Có");
-        ButtonType btnKhong = new ButtonType("Không", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType btnCo = new ButtonType("Có", ButtonBar.ButtonData.YES);
+        ButtonType btnKhong = new ButtonType("Không", ButtonBar.ButtonData.NO);
         alert.getButtonTypes().setAll(btnCo, btnKhong);
-
         alert.showAndWait().ifPresent(result -> {
             if (result == btnCo) {
                 mainContent.getChildren().setAll(
