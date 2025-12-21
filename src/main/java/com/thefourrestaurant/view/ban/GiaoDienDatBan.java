@@ -146,15 +146,14 @@ public class GiaoDienDatBan extends BorderPane {
 
 			// Gán hành động cho từng nút tương ứng phím tắt
 			switch (phimTat) {
-			case "F1" -> btn.setOnAction(e -> datBanNgay());
-			case "F2" -> btn.setOnAction(e -> datBanTruoc());
-			case "F3" -> btn.setOnAction(e -> nhanBan());
-			case "F4" -> btn.setOnAction(e -> huyBanDatTruoc());
-			case "F5" -> btn.setOnAction(e -> datMon());
-			case "F6" -> btn.setOnAction(e -> tinhTien());
-			case "F7" -> btn.setOnAction(e -> tangTruoc());
-			case "F8" -> btn.setOnAction(e -> tangSau());
-			}
+		    case "F1" -> btn.setOnAction(e -> datBanNgay());
+		    case "F2" -> btn.setOnAction(e -> datBanTruoc());
+		    case "F3" -> btn.setOnAction(e -> nhanBan());
+		    case "F4" -> btn.setOnAction(e -> datMon());
+		    case "F5" -> btn.setOnAction(e -> tinhTien());
+		    case "F6" -> btn.setOnAction(e -> tangTruoc());
+		    case "F7" -> btn.setOnAction(e -> tangSau());
+		}
 
 			cacNut.getChildren().add(btn);
 		}
@@ -413,23 +412,6 @@ public class GiaoDienDatBan extends BorderPane {
 		GiaoDienNhanBan giaoDien = new GiaoDienNhanBan(mainContent, quanLiBan);
 
 		mainContent.getChildren().add(giaoDien);
-	}
-
-	private void huyBanDatTruoc() {
-		List<Ban> dsChon = layDsBanDangChonHoacThongBao();
-		if (dsChon == null || dsChon.isEmpty())
-			return;
-
-		String tenBanStr = dsChon.stream().map(Ban::getTenBan).reduce((a, b) -> a + ", " + b).orElse("");
-
-		Stage stage = new Stage();
-		stage.initOwner(getScene().getWindow());
-		stage.initModality(Modality.APPLICATION_MODAL);
-		stage.setTitle("Danh sách phiếu đặt trước - " + tenBanStr);
-
-		GiaoDienHuyBanDatTruoc giaoDien = new GiaoDienHuyBanDatTruoc(dsChon.get(0), quanLiBan);
-		stage.setScene(new Scene(giaoDien, 700, 400));
-		stage.showAndWait();
 	}
 
 	private void datMon() {

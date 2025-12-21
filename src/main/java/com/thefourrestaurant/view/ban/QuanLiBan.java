@@ -10,7 +10,6 @@ import java.util.Map;
 
 import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
-import com.thefourrestaurant.DAO.PhieuDatBan_BanDAO;
 import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.controller.CountdownController;
@@ -313,24 +312,9 @@ public class QuanLiBan extends VBox {
 					PhieuDatBan pdbDayDu = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
 
 					if (pdbDayDu == null) {
-						Platform.runLater(() -> {
-						    Alert alert = new Alert(Alert.AlertType.INFORMATION,
-						        "Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
-
-						    // Chỉ block Stage cha nếu đã có scene
-						    if (this.getScene() != null && this.getScene().getWindow() != null) {
-						        Stage ownerStage = (Stage) this.getScene().getWindow();
-						        alert.initOwner(ownerStage);
-						        alert.initModality(Modality.WINDOW_MODAL); // chỉ block cửa sổ cha
-						    } else {
-						        // Nếu chưa có Stage cha, để non-modal
-						        alert.initModality(Modality.NONE);
-						    }
-
-						    alert.show();
-						});
-
-					}
+	                    showKhongCoPhieu(ban);
+	                    return;
+	                }
 
 					mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban, pdbDayDu));
 				}
@@ -374,7 +358,7 @@ public class QuanLiBan extends VBox {
 			}
 		}
 
-		// AU ĐÓ MỚI XÉT TRẠNG THÁI BÀN
+		// SAU ĐÓ MỚI XÉT TRẠNG THÁI BÀN
 		if ("Đang phục vụ".equals(ban.getTrangThai())) {
 			return "-fx-border-color: orange; -fx-border-width: 3; -fx-border-radius: 12;";
 		}
@@ -627,6 +611,21 @@ public class QuanLiBan extends VBox {
 
 	public void setBanCu(Ban ban) {
 		this.banCu = ban;
+	}
+	
+	protected void showKhongCoPhieu(Ban ban) {
+	    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+	    alert.setTitle("Thông báo");
+	    alert.setHeaderText(null);
+	    alert.setContentText("Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
+	    
+	    // Set owner để luôn hiển thị trên cùng
+	    if (this.getScene() != null && this.getScene().getWindow() != null) {
+	        alert.initOwner(this.getScene().getWindow());
+	    }
+
+	    alert.initModality(Modality.APPLICATION_MODAL);
+	    alert.showAndWait();
 	}
 
 }
