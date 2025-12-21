@@ -440,7 +440,8 @@ INSERT INTO LoaiKhachHang (maLoaiKH, tenLoaiKH) VALUES
 -- Khách hàng
 INSERT INTO KhachHang (maKH, hoTen, ngaySinh, gioiTinh, soDT, maLoaiKH) VALUES
                                                                             ('KH000001', N'Nguyễn Văn F', '1990-06-06', 'Nam', '0956789012', 'LKH00001'),
-                                                                            ('KH000002', N'Trần Thị G', '1991-07-07', 'Nu', '0967890123', 'LKH00002');
+                                                                            ('KH000002', N'Trần Thị G', '1991-07-07', 'Nu', '0967890123', 'LKH00002'),
+                                                                            ('KH000003', N'Cao Quốc Trung', '2005-06-08', 'Nu', '0932931634', 'LKH00002');
 GO
 
 -- Tầng
@@ -593,11 +594,11 @@ VALUES
 GO
 
 -- Liên kết Phiếu đặt bàn với Bàn
-INSERT INTO PhieuDatBan_Ban (maPDB, maBan)
+INSERT INTO PhieuDatBan_Ban (maPDB, maBan, isBanChinh)
 VALUES
-('PD000001', 'BA000001'),
-('PD000002', 'BA000002'),
-('PD000003', 'BA000003');
+('PD000001', 'BA000001', 1),
+('PD000002', 'BA000002', 0),
+('PD000003', 'BA000003', 0);
 GO
 
 -- ==============================
@@ -735,3 +736,8 @@ VALUES
 
 -- Tráng miệng cao cấp
 ('MA000029', N'Tiramisu', 55000, N'Còn', 'LM000003', N'/com/thefourrestaurant/images/MonAn/tiramisu.jpg', 100, 0, 0, 1);
+
+CREATE UNIQUE INDEX UX_PDB_OneBanChinh
+ON PhieuDatBan_Ban(maPDB)
+WHERE isBanChinh = 1;
+GO

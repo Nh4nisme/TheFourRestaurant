@@ -237,6 +237,13 @@ public class PhieuDatBanDAO {
 			ps.setString(6, trangThaiPhieu);
 			ps.setBigDecimal(7, BigDecimal.ZERO);
 			ps.executeUpdate();
+			
+			if (!danhSachBan.isEmpty()) {
+			    danhSachBan.get(0).setBanChinh(true);
+			    for (int i = 1; i < danhSachBan.size(); i++) {
+			        danhSachBan.get(i).setBanChinh(false);
+			    }
+			}
 
 			// INSERT bảng liên kết CÙNG CONNECTION
 			new PhieuDatBan_BanDAO().themBanVaoPhieu(conn, maMoi, danhSachBan);
@@ -594,6 +601,53 @@ public class PhieuDatBanDAO {
 	        return false;
 	    }
 	}
+	
+	public Ban layBanChinhCuaPhieu(String maPDB) {
+	    String sql = """
+	        SELECT b.maBan, b.tenBan, b.trangThai, b.maTang,
+	               lb.maLoaiBan, lb.tenLoaiBan AS tenLoai, lb.soChoNgoi, lb.giaTien
+	        FROM PhieuDatBan_Ban pdb
+	        JOIN Ban b ON pdb.maBan = b.maBan
+	        LEFT JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
+	        WHERE pdb.maPDB = ? AND pdb.isBanChinh = 1
+	    """;
 
+	    try (Connection conn = ConnectSQL.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+	        ps.setString(1, maPDB);
+
+	        try (ResultSet rs = ps.executeQuery()) {
+	            if (rs.next()) {
+	                Ban ban = new Ban();
+	                ban.setMaBan(rs.getString("maBan"));
+	                ban.setTenBan(rs.getString("tenBan"));
+	                ban.setTrangThai(rs.getString("trangThai"));
+
+	                Tang tang = new Tang();
+	                tang.setMaTang(rs.getString("maTang"));
+	                ban.setTang(tang);
+
+	                // LoaiBan
+	                String maLoaiBan = rs.getString("maLoaiBan");
+	                if (maLoaiBan != null) {
+	                    LoaiBan lb = new LoaiBan();
+	                    lb.setMaLoaiBan(maLoaiBan);
+	                    lb.setTenLoaiBan(rs.getString("tenLoai"));
+	                    lb.setSoChoNgoi(rs.getInt("soChoNgoi"));
+	                    lb.setGiaTien(rs.getBigDecimal("giaTien"));
+	                    ban.setLoaiBan(lb);
+	                }
+
+	                return ban;
+	            }
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return null;
+	}
 
 }
