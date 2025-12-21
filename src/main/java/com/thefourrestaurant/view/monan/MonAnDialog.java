@@ -45,7 +45,7 @@ public class MonAnDialog extends Stage {
     private final ImageView khungHinhAnh = new ImageView();
 
     private static final Set<String> ALLOWED_EXTENSIONS = new HashSet<>(
-        Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp")
+            Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".bmp")
     );
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -126,9 +126,9 @@ public class MonAnDialog extends Stage {
         // Ảnh ở trên cùng
         VBox hopAnh = new VBox(5);
         hopAnh.setAlignment(Pos.CENTER);
-        hopAnh.setPrefSize(160, 160);
-        hopAnh.setMinSize(140, 140);
-        hopAnh.setMaxSize(200, 200);
+        hopAnh.setPrefSize(120, 120);
+        hopAnh.setMinSize(120, 120);
+        hopAnh.setMaxSize(120, 120);
         hopAnh.setStyle("-fx-background-color: #F0F0F0; -fx-border-color: #CCCCCC; "
                 + "-fx-border-radius: 10; -fx-background-radius: 10; -fx-border-style: dashed;");
         hopAnh.setCursor(javafx.scene.Cursor.HAND);
@@ -140,13 +140,12 @@ public class MonAnDialog extends Stage {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        khungHinhAnh.setFitWidth(140);
-        khungHinhAnh.setFitHeight(140);
+        khungHinhAnh.setFitWidth(100);
+        khungHinhAnh.setFitHeight(100);
         hopAnh.getChildren().add(khungHinhAnh);
         hopAnh.setOnMouseClicked(e -> chonAnh());
         luoiForm.add(hopAnh, 0, 0, 2, 1);
-        GridPane.setHalignment(hopAnh, HPos.CENTER);
-        GridPane.setValignment(hopAnh, VPos.CENTER);
+
         luoiForm.add(new Label("Tên:"), 0, 1);
         luoiForm.add(truongTen, 1, 1);
 
@@ -252,7 +251,7 @@ public class MonAnDialog extends Stage {
         FileChooser boChonTep = new FileChooser();
         boChonTep.setTitle("Chọn Ảnh Món Ăn");
         boChonTep.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Tệp Ảnh", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
+                new FileChooser.ExtensionFilter("Tệp Ảnh", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
         );
         File tep = boChonTep.showOpenDialog(this);
         if (tep != null) {
@@ -263,24 +262,24 @@ public class MonAnDialog extends Stage {
             if (dotIndex > 0) {
                 extension = fileName.substring(dotIndex);
             }
-            
+
             if (!ALLOWED_EXTENSIONS.contains(extension)) {
-                showAlert(Alert.AlertType.WARNING, 
-                    "Định dạng ảnh không hỗ trợ!\n" +
-                    "Chỉ chấp nhận: PNG, JPG, JPEG, GIF, BMP\n" +
-                    "Tệp của bạn: " + extension);
+                showAlert(Alert.AlertType.WARNING,
+                        "Định dạng ảnh không hỗ trợ!\n" +
+                                "Chỉ chấp nhận: PNG, JPG, JPEG, GIF, BMP\n" +
+                                "Tệp của bạn: " + extension);
                 return;
             }
-            
+
             // Kiểm tra kích thước file
             if (tep.length() > MAX_FILE_SIZE) {
-                showAlert(Alert.AlertType.WARNING, 
-                    "Tệp ảnh quá lớn!\n" +
-                    "Giới hạn: 10MB\n" +
-                    "Kích thước tệp: " + (tep.length() / 1024 / 1024) + "MB");
+                showAlert(Alert.AlertType.WARNING,
+                        "Tệp ảnh quá lớn!\n" +
+                                "Giới hạn: 10MB\n" +
+                                "Kích thước tệp: " + (tep.length() / 1024 / 1024) + "MB");
                 return;
             }
-            
+
             tepAnhDaChon = tep;
             try {
                 javafx.scene.image.Image anh = new javafx.scene.image.Image(tep.toURI().toString());
@@ -293,14 +292,35 @@ public class MonAnDialog extends Stage {
     }
 
     private void luuThayDoi() {
-        if (truongTen.getText().trim().isEmpty() || truongGia.getText().trim().isEmpty() || loaiMonComboBox.getValue() == null) {
+        String tenMon = truongTen.getText().trim();
+        String giaText = truongGia.getText().trim();
+
+        if (tenMon.isEmpty() || giaText.isEmpty() || loaiMonComboBox.getValue() == null) {
             showAlert(Alert.AlertType.WARNING, "Vui lòng nhập Tên, Giá và chọn Loại món ăn!");
+            return;
+        }
+
+        // Regex check cho Tên món
+        // Cho phép chữ cái (bao gồm tiếng Việt), số, khoảng trắng và các ký tự ().,-
+        // Độ dài từ 2 đến 100 ký tự
+        String regexTen = "^[\\p{L}\\d\\s().,\\-]{2,100}$";
+        if (!tenMon.matches(regexTen)) {
+            showAlert(Alert.AlertType.WARNING, "Tên món ăn không hợp lệ!\n" +
+                    "(Chỉ cho phép chữ cái, số, khoảng trắng, các ký tự ().,- và độ dài 2-100 ký tự)");
+            return;
+        }
+
+        // Regex check cho Giá (số dương, tối đa 2 chữ số thập phân)
+        String regexGia = "^\\d+(\\.\\d{1,2})?$";
+        if (!giaText.matches(regexGia)) {
+            showAlert(Alert.AlertType.WARNING, "Giá món ăn không hợp lệ!\n" +
+                    "(Phải là số dương, ví dụ: 50000 hoặc 50000.50)");
             return;
         }
 
         BigDecimal donGia;
         try {
-            donGia = new BigDecimal(truongGia.getText().trim());
+            donGia = new BigDecimal(giaText);
             if (donGia.compareTo(BigDecimal.ZERO) < 0) {
                 showAlert(Alert.AlertType.WARNING, "Đơn giá không được là số âm!");
                 return;

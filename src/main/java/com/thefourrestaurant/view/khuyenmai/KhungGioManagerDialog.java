@@ -95,6 +95,28 @@ public class KhungGioManagerDialog extends Stage {
         CheckBox chkLapLai = new CheckBox("Lặp lại hàng ngày");
         ButtonSample btnThem = new ButtonSample("Thêm", 35, 14, 2);
 
+        // --- Ràng buộc khung giờ: Giờ kết thúc không được trước giờ bắt đầu ---
+        Runnable checkAndUpdateTime = () -> {
+            String gBD = cboGioBatDauGio.getValue();
+            String pBD = cboGioBatDauPhut.getValue();
+            String gKT = cboGioKetThucGio.getValue();
+            String pKT = cboGioKetThucPhut.getValue();
+
+            if (gBD != null && pBD != null && gKT != null && pKT != null) {
+                LocalTime start = LocalTime.of(Integer.parseInt(gBD), Integer.parseInt(pBD));
+                LocalTime end = LocalTime.of(Integer.parseInt(gKT), Integer.parseInt(pKT));
+                if (end.isBefore(start)) {
+                    cboGioKetThucGio.setValue(gBD);
+                    cboGioKetThucPhut.setValue(pBD);
+                }
+            }
+        };
+
+        cboGioBatDauGio.valueProperty().addListener((obs, oldVal, newVal) -> checkAndUpdateTime.run());
+        cboGioBatDauPhut.valueProperty().addListener((obs, oldVal, newVal) -> checkAndUpdateTime.run());
+        cboGioKetThucGio.valueProperty().addListener((obs, oldVal, newVal) -> checkAndUpdateTime.run());
+        cboGioKetThucPhut.valueProperty().addListener((obs, oldVal, newVal) -> checkAndUpdateTime.run());
+
         addForm.add(new Label("Giờ bắt đầu:"), 0, 0);
         addForm.add(boxGioBatDau, 1, 0);
         addForm.add(new Label("Giờ kết thúc:"), 0, 1);

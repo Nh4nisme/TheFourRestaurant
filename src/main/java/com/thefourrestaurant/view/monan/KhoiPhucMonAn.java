@@ -61,9 +61,7 @@ public class KhoiPhucMonAn extends CuaSoKhoiPhuc<MonAn> {
 
         for (int i = 0; i < danhSachHienThi.size(); i++) {
             MonAn item = danhSachHienThi.get(i);
-            String formattedPrice = currencyFormatter.format(item.getDonGia());
-
-            MonAnBox hopMonAn = new MonAnBox(item.getTenMon(), formattedPrice, item.getHinhAnh());
+            MonAnBox hopMonAn = new MonAnBox(item);
 
             int col = i % soCotMoiHang;
             int row = i / soCotMoiHang;
