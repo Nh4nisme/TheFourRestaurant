@@ -35,6 +35,7 @@ public class KhuyenMaiDialog extends Stage {
     private final boolean laCheDoChinhSua;
     private final KhuyenMai khuyenMaiHienTai;
     private final KhuyenMaiController boDieuKhien;
+    private final List<LoaiKhuyenMai> danhSachTatCaLoaiKhuyenMai;
 
     private final TextField truongMaKM = new TextField();
     private final TextField truongTenKM = new TextField();
@@ -53,6 +54,7 @@ public class KhuyenMaiDialog extends Stage {
         this.khuyenMaiHienTai = khuyenMai;
         this.laCheDoChinhSua = (khuyenMai != null);
         this.boDieuKhien = boDieuKhien;
+        this.danhSachTatCaLoaiKhuyenMai = danhSachTatCaLoaiKhuyenMai;
 
         this.initModality(Modality.APPLICATION_MODAL);
         this.setTitle(laCheDoChinhSua ? "Tùy Chỉnh Khuyến Mãi" : "Thêm Khuyến Mãi Mới");
@@ -92,6 +94,10 @@ public class KhuyenMaiDialog extends Stage {
         }
 
         Scene khungCanh = new Scene(layoutChinh, 550, 550);
+        URL urlCSS = getClass().getResource("/com/thefourrestaurant/css/Application.css");
+        if (urlCSS != null) {
+            khungCanh.getStylesheets().add(urlCSS.toExternalForm());
+        }
         this.setScene(khungCanh);
     }
 
@@ -211,9 +217,24 @@ public class KhuyenMaiDialog extends Stage {
         nhanMaCode.setDisable(!laMaGiamGia);
         nhanSoLuotSuDung.setDisable(!laMaGiamGia);
 
-        if (!laMaGiamGia) {
+        if (laMaGiamGia) {
+            // Lọc bỏ "Tặng món" nếu là Mã giảm giá
+            List<LoaiKhuyenMai> dsLoc = danhSachTatCaLoaiKhuyenMai.stream()
+                    .filter(lkm -> !"Tặng món".equals(lkm.getTenLoaiKM()))
+                    .toList();
+            LoaiKhuyenMai selected = hopChonLoaiKhuyenMai.getValue();
+            hopChonLoaiKhuyenMai.setItems(FXCollections.observableArrayList(dsLoc));
+            if (selected != null && "Tặng món".equals(selected.getTenLoaiKM())) {
+                hopChonLoaiKhuyenMai.setValue(null);
+            } else {
+                hopChonLoaiKhuyenMai.setValue(selected);
+            }
+        } else {
             truongMaCode.clear();
             truongSoLuotSuDung.clear();
+            LoaiKhuyenMai selected = hopChonLoaiKhuyenMai.getValue();
+            hopChonLoaiKhuyenMai.setItems(FXCollections.observableArrayList(danhSachTatCaLoaiKhuyenMai));
+            hopChonLoaiKhuyenMai.setValue(selected);
         }
     }
 

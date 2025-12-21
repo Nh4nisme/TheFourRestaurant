@@ -22,8 +22,14 @@ public class KhuyenMai_DieuKienDAO {
                 dk.setLoaiApDung(rs.getString("loaiApDung"));
                 dk.setTyLeGiam(rs.getBigDecimal("tyLeGiam"));
                 dk.setSoTienGiam(rs.getBigDecimal("soTienGiam"));
+                dk.setGiaToiThieu(rs.getBigDecimal("giaToiThieu"));
                 dk.setSoLuongTang(rs.getObject("soLuongTang", Integer.class));
                 dk.setMoTaDieuKien(rs.getString("moTaDieuKien"));
+
+                // Load related lists
+                dk.setDanhSachMonDieuKien(new DieuKien_MonDAO().layMonTheoMaDieuKien(dk.getMaDieuKien()));
+                dk.setDanhSachMonTang(new DieuKien_MonTangDAO().layMonTangTheoMaDieuKien(dk.getMaDieuKien()));
+
                 dsDieuKien.add(dk);
             }
         } catch (SQLException e) {
@@ -51,12 +57,11 @@ public class KhuyenMai_DieuKienDAO {
     }
 
     public boolean themDieuKien(KhuyenMai_DieuKien dieuKien) throws SQLException {
-        String sqlDieuKien = "INSERT INTO KhuyenMai_DieuKien (maDieuKien, maKM, loaiApDung, tyLeGiam, soTienGiam, soLuongTang, moTaDieuKien) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sqlDieuKien = "INSERT INTO KhuyenMai_DieuKien (maDieuKien, maKM, loaiApDung, tyLeGiam, soTienGiam, giaToiThieu, soLuongTang, moTaDieuKien) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         Connection conn = null;
         try {
             conn = ConnectSQL.getConnection();
             conn.setAutoCommit(false);
-
             // Insert into KhuyenMai_DieuKien
             try (PreparedStatement ps = conn.prepareStatement(sqlDieuKien)) {
                 ps.setString(1, dieuKien.getMaDieuKien());
@@ -64,8 +69,9 @@ public class KhuyenMai_DieuKienDAO {
                 ps.setString(3, dieuKien.getLoaiApDung());
                 ps.setBigDecimal(4, dieuKien.getTyLeGiam());
                 ps.setBigDecimal(5, dieuKien.getSoTienGiam());
-                ps.setObject(6, dieuKien.getSoLuongTang());
-                ps.setString(7, dieuKien.getMoTaDieuKien());
+                ps.setBigDecimal(6, dieuKien.getGiaToiThieu());
+                ps.setObject(7, dieuKien.getSoLuongTang());
+                ps.setString(8, dieuKien.getMoTaDieuKien());
                 ps.executeUpdate();
             }
 
@@ -108,14 +114,15 @@ public class KhuyenMai_DieuKienDAO {
             new DieuKien_MonTangDAO().xoaMonTangTheoMaDieuKien(conn, dieuKien.getMaDieuKien());
 
             // 2. Update main condition table
-            String sqlDieuKien = "UPDATE KhuyenMai_DieuKien SET loaiApDung=?, tyLeGiam=?, soTienGiam=?, soLuongTang=?, moTaDieuKien=? WHERE maDieuKien=?";
+            String sqlDieuKien = "UPDATE KhuyenMai_DieuKien SET loaiApDung=?, tyLeGiam=?, soTienGiam=?, giaToiThieu=?, soLuongTang=?, moTaDieuKien=? WHERE maDieuKien=?";
             try (PreparedStatement ps = conn.prepareStatement(sqlDieuKien)) {
                 ps.setString(1, dieuKien.getLoaiApDung());
                 ps.setBigDecimal(2, dieuKien.getTyLeGiam());
                 ps.setBigDecimal(3, dieuKien.getSoTienGiam());
-                ps.setObject(4, dieuKien.getSoLuongTang());
-                ps.setString(5, dieuKien.getMoTaDieuKien());
-                ps.setString(6, dieuKien.getMaDieuKien());
+                ps.setBigDecimal(4, dieuKien.getGiaToiThieu());
+                ps.setObject(5, dieuKien.getSoLuongTang());
+                ps.setString(6, dieuKien.getMoTaDieuKien());
+                ps.setString(7, dieuKien.getMaDieuKien());
                 ps.executeUpdate();
             }
 

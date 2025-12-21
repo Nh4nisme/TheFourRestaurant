@@ -75,6 +75,10 @@ public class KhuyenMaiController {
             List<KhuyenMai_DieuKien> dsDieuKien = layDieuKienTheoMaKM(km.getMaKM());
             for (KhuyenMai_DieuKien dk : dsDieuKien) {
                 if ("GIAM_TRUC_TIEP".equals(dk.getLoaiApDung())) {
+                    // Nếu có giá tối thiểu > 0 thì không hiển thị khuyến mãi trên MonAnBox (Menu)
+                    if (dk.getGiaToiThieu() != null && dk.getGiaToiThieu().compareTo(BigDecimal.ZERO) > 0) {
+                        continue;
+                    }
                     for (DieuKien_Mon dkm : dk.getDanhSachMonDieuKien()) {
                         for (MonAn ma : dsMonAn) {
                             if (ma.getMaMonAn().equals(dkm.getMonAn().getMaMonAn())) {
@@ -263,16 +267,33 @@ public class KhuyenMaiController {
     }
 
     public void tinhGiaSauKhuyenMai(List<ChiTietPDB> danhSachMonTrongGio) {
+        // Remove old gifted items first
+        danhSachMonTrongGio.removeIf(ct -> ct.getDonGia() == 0.0 && ct.getKhuyenMaiApDung() != null && !ct.getKhuyenMaiApDung().getTenKhuyenMai().isEmpty());
+
         for (ChiTietPDB ct : danhSachMonTrongGio) {
             ct.setKhuyenMaiApDung(new KhuyenMaiApDung("", BigDecimal.valueOf(ct.getDonGia())));
         }
 
-        List<KhuyenMai> khuyenMaiSuKien = khuyenMaiDAO.layDanhSachKhuyenMaiTheoKieu("SuKien");
+        BigDecimal tongTienTruocKM = BigDecimal.ZERO;
+        for (ChiTietPDB ct : danhSachMonTrongGio) {
+            tongTienTruocKM = tongTienTruocKM.add(BigDecimal.valueOf(ct.getDonGia()).multiply(BigDecimal.valueOf(ct.getSoLuong())));
+        }
+
+        List<KhuyenMai> khuyenMaiSuKien = khuyenMaiDAO.layDanhSachKhuyenMaiConHieuLucTheoKieu("SuKien");
 
         for (KhuyenMai km : khuyenMaiSuKien) {
             List<KhuyenMai_DieuKien> dieuKiens = layDieuKienTheoMaKM(km.getMaKM());
             for (KhuyenMai_DieuKien dk : dieuKiens) {
-                switch (dk.getLoaiApDung()) {
+                if (dk.getLoaiApDung() == null) continue;
+
+                // Check minimum order price if set
+                if (dk.getGiaToiThieu() != null && dk.getGiaToiThieu().compareTo(BigDecimal.ZERO) > 0) {
+                    if (tongTienTruocKM.compareTo(dk.getGiaToiThieu()) < 0) {
+                        continue;
+                    }
+                }
+
+                switch (dk.getLoaiApDung().toUpperCase()) {
                     case "GIAM_TRUC_TIEP":
                         apDungGiamGiaTrucTiep(danhSachMonTrongGio, km, dk);
                         break;
@@ -282,6 +303,48 @@ public class KhuyenMaiController {
                     case "MUA_X_GIAM_Y":
                         apDungGiamGiaMuaXTangY(danhSachMonTrongGio, km, dk);
                         break;
+                    case "TANG_MON":
+                        apDungTangMon(danhSachMonTrongGio, km, dk);
+                        break;
+                }
+            }
+        }
+    }
+
+    private void apDungTangMon(List<ChiTietPDB> cart, KhuyenMai km, KhuyenMai_DieuKien dk) {
+        // Check if condition is met
+        boolean conditionMet = true;
+        if (dk.getDanhSachMonDieuKien() != null && !dk.getDanhSachMonDieuKien().isEmpty()) {
+            Map<String, Integer> cartInventory = cart.stream()
+                    .collect(Collectors.groupingBy(ct -> ct.getMonAn().getMaMonAn(), Collectors.summingInt(ChiTietPDB::getSoLuong)));
+
+            for (DieuKien_Mon dkm : dk.getDanhSachMonDieuKien()) {
+                int required = dkm.getSoLuong();
+                int current = cartInventory.getOrDefault(dkm.getMonAn().getMaMonAn(), 0);
+                if (current < required) {
+                    conditionMet = false;
+                    break;
+                }
+            }
+        }
+
+        if (conditionMet) {
+            if (dk.getDanhSachMonTang() != null) {
+                for (DieuKien_MonTang dmt : dk.getDanhSachMonTang()) {
+                    // One gift item per condition met? Usually it's just add it once or for each set.
+                    // Simplified: Add it once.
+                    boolean alreadyGifted = cart.stream()
+                            .anyMatch(ct -> ct.getMonAn().getMaMonAn().equals(dmt.getMonAnTang().getMaMonAn())
+                                    && ct.getDonGia() == 0.0);
+
+                    if (!alreadyGifted) {
+                        ChiTietPDB ctTang = new ChiTietPDB();
+                        ctTang.setMonAn(dmt.getMonAnTang());
+                        ctTang.setSoLuong(dk.getSoLuongTang() != null ? dk.getSoLuongTang() : 1);
+                        ctTang.setDonGia(0.0);
+                        ctTang.setKhuyenMaiApDung(new KhuyenMaiApDung(km.getTenKM(), BigDecimal.ZERO));
+                        cart.add(ctTang);
+                    }
                 }
             }
         }

@@ -288,10 +288,11 @@ GO
 CREATE TABLE KhuyenMai_DieuKien (
     maDieuKien CHAR(8) PRIMARY KEY CHECK (maDieuKien LIKE 'DK%' AND LEN(maDieuKien) = 8),
     maKM CHAR(8) NOT NULL,
-    loaiApDung VARCHAR(20) NOT NULL CHECK (loaiApDung IN ('GIAM_TRUC_TIEP', 'THEO_COMBO', 'MUA_X_GIAM_Y')),
+    loaiApDung VARCHAR(20) NOT NULL CHECK (loaiApDung IN ('GIAM_TRUC_TIEP', 'THEO_COMBO', 'MUA_X_GIAM_Y', 'TANG_MON')),
     tyLeGiam DECIMAL(5,2) NULL CHECK(tyLeGiam >= 0 AND tyLeGiam <= 100),
     soTienGiam DECIMAL(12,2) NULL CHECK(soTienGiam >= 0),
     soLuongTang INT NULL CHECK(soLuongTang >= 0),
+    giaToiThieu DECIMAL(18,2) DEFAULT 0,
     moTaDieuKien NVARCHAR(255) NULL,
     CONSTRAINT FK_DieuKien_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM) ON DELETE CASCADE
 );
