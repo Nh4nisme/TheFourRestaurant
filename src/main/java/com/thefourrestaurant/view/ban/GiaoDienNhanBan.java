@@ -207,24 +207,34 @@ public class GiaoDienNhanBan extends BorderPane {
 	}
 
 	private void xuLyHuyPhieu() {
-		if (phieuDangChon == null) {
-			new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu!").showAndWait();
-			return;
-		}
+	    if (phieuDangChon == null) {
+	        new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu!").showAndWait();
+	        return;
+	    }
 
-		Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-				"Bạn có chắc chắn muốn HỦY phiếu này?\nHành động này không thể hoàn tác.", ButtonType.YES,
-				ButtonType.NO);
+	    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+	            "Bạn có chắc chắn muốn HỦY phiếu này?\nHành động này không thể hoàn tác.",
+	            ButtonType.YES, ButtonType.NO);
 
-		if (confirm.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
-			phieuDAO.capNhatTrangThai(phieuDangChon.getMaPDB(), "Hủy");
+	    if (confirm.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
 
-			refreshTable();
-			quanLiBan.refresh();
-			phieuDangChon = null;
+	        // Cập nhật trạng thái phiếu thành "Đã hủy"
+	        phieuDAO.capNhatTrangThai(phieuDangChon.getMaPDB(), "Đã hủy");
 
-			new Alert(Alert.AlertType.INFORMATION, "Hủy phiếu thành công!").showAndWait();
-		}
+	        // Cập nhật trạng thái bàn liên quan về "Trống"
+	        banDAO.capNhatTrangThaiDanhSach(phieuDangChon.getDanhSachBan(), "Trống");
+
+	        // Load lại TableView và refresh giao diện quản lý bàn
+	        refreshTable();
+	        quanLiBan.refresh();
+
+	        // Xóa phiếu đang chọn và clear thông tin chi tiết
+	        phieuDangChon = null;
+	        chiTietPane.clearThongTin();
+
+	        // Hiển thị thông báo thành công
+	        new Alert(Alert.AlertType.INFORMATION, "Hủy phiếu thành công!").showAndWait();
+	    }
 	}
 
 	private void refreshTable() {
@@ -250,7 +260,7 @@ public class GiaoDienNhanBan extends BorderPane {
 		table.getSelectionModel().clearSelection();
 		phieuDangChon = null;
 
-//	    chiTietPane.clearThongTin(); // ✅ GIỮ UI – CLEAR DATA
+	    chiTietPane.clearThongTin();
 	}
 
 	private void xuLyGoiMon() {

@@ -11,17 +11,21 @@ import java.util.Map;
 import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
 import com.thefourrestaurant.DAO.PhieuDatBan_BanDAO;
+import com.thefourrestaurant.DAO.TangDAO;
 import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.controller.CountdownController;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
+import com.thefourrestaurant.model.Tang;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -38,6 +42,7 @@ public class QuanLiBan extends VBox {
 	private final Label lblBreadcrumb = new Label();
 	private PhieuDatBan phieuDangThaoTac;
 	private Ban banCu;
+	private ComboBox<Tang> cboSoTang;
 
 	private StackPane mainContent;
 	private String context;
@@ -51,11 +56,11 @@ public class QuanLiBan extends VBox {
 	private int indexMau = 0;
 
 	private String maTangHienTai = "TG000001";
+	private TangDAO tangDAO = new TangDAO();
 
 	public QuanLiBan(StackPane mainContent, String context) {
 		this.mainContent = mainContent;
 		this.context = context;
-		// === Cấu hình chính cho layout ===
 		this.setPrefSize(1200, 700);
 		this.setSpacing(0);
 		this.setAlignment(Pos.TOP_CENTER);
@@ -63,32 +68,20 @@ public class QuanLiBan extends VBox {
 
 		Platform.runLater(() -> hienThiBanTheoTang(maTangHienTai));
 
-		// Toolbar
+		// === Toolbar ===
 		ButtonSample btnThemBan = new ButtonSample(context.equals("QUAN_LY_BAN") ? "Thêm bàn"
 				: context.equals("GOP_BAN") ? "Xác nhận gộp"
 						: context.equals("CHUYEN_BAN") ? "Xác nhận chuyển" : "Thao tác",
 				45, 16, 3);
-
 		btnThemBan.setOnAction(e -> {
-
 			switch (context) {
-
-			case "QUAN_LY_BAN":
-				moPopupTuyChinhBan(null);
-				break;
-
-			case "GOP_BAN":
-				xuLyXacNhanGopBan();
-				break;
-
-			case "CHUYEN_BAN":
-				xuLyXacNhanChuyenBan(banCu);
-				break;
-
-			default:
-				break;
+			case "QUAN_LY_BAN" -> moPopupTuyChinhBan(null);
+			case "GOP_BAN" -> xuLyXacNhanGopBan();
+			case "CHUYEN_BAN" -> xuLyXacNhanChuyenBan(banCu);
 			}
 		});
+
+		// Button Lưu sơ đồ
 		ButtonSample btnLuuSoDo = new ButtonSample("Lưu sơ đồ", 45, 16, 3);
 		btnLuuSoDo.setOnAction(e -> {
 			this.choPhepDiChuyen = false;
@@ -96,8 +89,39 @@ public class QuanLiBan extends VBox {
 			alert.initOwner(this.getScene().getWindow());
 			alert.showAndWait();
 		});
+		
+		cboSoTang = new ComboBox<>();
 
-		ToolBar toolBar = new ToolBar(btnThemBan, btnLuuSoDo);
+		// --- ComboBox tầng ---
+		List<Tang> dsTang = tangDAO.layTatCaTang();
+		cboSoTang.getItems().addAll(dsTang);
+		if (!dsTang.isEmpty())
+			cboSoTang.setValue(dsTang.get(0));
+
+		cboSoTang.setCellFactory(param -> new ListCell<>() {
+			@Override
+			protected void updateItem(Tang item, boolean empty) {
+				super.updateItem(item, empty);
+				setText(empty || item == null ? null : item.getTenTang());
+			}
+		});
+		cboSoTang.setButtonCell(new ListCell<>() {
+			@Override
+			protected void updateItem(Tang item, boolean empty) {
+				super.updateItem(item, empty);
+				setText(empty || item == null ? null : item.getTenTang());
+			}
+		});
+		cboSoTang.setPrefHeight(45);
+		cboSoTang.setOnAction(e -> {
+			Tang tangChon = cboSoTang.getValue();
+			if (tangChon != null) {
+				hienThiBanTheoTang(tangChon.getMaTang());
+			}
+		});
+
+		// ToolBar gồm: nút Thêm bàn, ComboBox tầng, nút Lưu sơ đồ
+		ToolBar toolBar = new ToolBar(btnThemBan, btnLuuSoDo, cboSoTang);
 		toolBar.setStyle("-fx-background-color: #1E424D");
 		toolBar.setPadding(new Insets(10, 10, 10, 10));
 
@@ -236,26 +260,26 @@ public class QuanLiBan extends VBox {
 
 			if ("GOP_BAN".equals(context) || "CHUYEN_BAN".equals(context)) {
 
-				//Chỉ cho chọn bàn TRỐNG
+				// Chỉ cho chọn bàn TRỐNG
 				if (!"Trống".equals(ban.getTrangThai())) {
 					return;
 				}
 
 				if ("CHUYEN_BAN".equals(context)) {
-				    dsBanDangChon.clear();
-				    dsBanDangChon.add(ban);
+					dsBanDangChon.clear();
+					dsBanDangChon.add(ban);
 
-				    for (Node n : khuVucBan.getChildren()) {
-				        if (n instanceof StackPane sp && sp.getUserData() != null) {
-				            String maBanSP = (String) sp.getUserData();
-				            if (ban.getMaBan().equals(maBanSP)) {
-				                sp.setBackground(new Background(
-				                    new BackgroundFill(Color.rgb(100, 200, 255, 0.6), new CornerRadii(10), Insets.EMPTY)));
-				            } else {
-				                sp.setBackground(null);
-				            }
-				        }
-				    }
+					for (Node n : khuVucBan.getChildren()) {
+						if (n instanceof StackPane sp && sp.getUserData() != null) {
+							String maBanSP = (String) sp.getUserData();
+							if (ban.getMaBan().equals(maBanSP)) {
+								sp.setBackground(new Background(new BackgroundFill(Color.rgb(100, 200, 255, 0.6),
+										new CornerRadii(10), Insets.EMPTY)));
+							} else {
+								sp.setBackground(null);
+							}
+						}
+					}
 				} else {
 					// Gộp bàn vẫn cho chọn nhiều
 					if (dsBanDangChon.contains(ban)) {
@@ -604,9 +628,9 @@ public class QuanLiBan extends VBox {
 
 		return new PhieuDatBanDAO().layBanChinhCuaPhieu(phieuDangThaoTac.getMaPDB());
 	}
-	
+
 	public void setBanCu(Ban ban) {
-	    this.banCu = ban;
+		this.banCu = ban;
 	}
 
 }

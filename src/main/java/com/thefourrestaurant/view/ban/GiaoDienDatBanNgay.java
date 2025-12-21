@@ -52,8 +52,6 @@ class GiaoDienDatBanNgay extends GiaoDienDatBanBase {
 
             if (ok) {
                 Ban banChinh = dsBan.get(0);
-                CountdownController.getInstance()
-                .startDangPhucVu(pdb, null);
                 showDatBanThanhCong(parentPane, banChinh, pdb);
             } else {
                 showDatBanLoi("Đặt bàn thất bại. Vui lòng thử lại!");
