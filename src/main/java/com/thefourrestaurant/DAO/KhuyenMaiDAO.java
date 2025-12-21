@@ -85,6 +85,48 @@ public class KhuyenMaiDAO {
         return danhSach;
     }
 
+    public List<KhuyenMai> layDanhSachKhuyenMaiConHieuLucTheoKieu(String kieuKM) {
+        List<KhuyenMai> danhSach = new ArrayList<>();
+
+        String sql = """
+        SELECT *
+        FROM KhuyenMai
+        WHERE isDeleted = 0
+          AND kieuKM = ?
+          AND (
+                ngayKetThuc IS NULL
+                OR CAST(ngayKetThuc AS DATE) >= CAST(GETDATE() AS DATE)
+              )
+        """;
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, kieuKM);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                KhuyenMai km = new KhuyenMai();
+                km.setMaKM(rs.getString("maKM"));
+                km.setTenKM(rs.getString("tenKM"));
+                km.setKieuKM(rs.getString("kieuKM"));
+                km.setMaCode(rs.getString("maCode"));
+                km.setSoLuotSuDung(rs.getObject("soLuotSuDung", Integer.class));
+                km.setNgayBatDau(rs.getTimestamp("ngayBatDau").toLocalDateTime());
+                km.setNgayKetThuc(rs.getTimestamp("ngayKetThuc").toLocalDateTime());
+                km.setMoTa(rs.getString("moTa"));
+
+                danhSach.add(km);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return danhSach;
+    }
+
+
     public KhuyenMai layKhuyenMaiTheoMa(String maKM) {
         String sql = layCauTruyVanCoBan() + " WHERE km.maKM = ? AND km.isDeleted = 0";
         try (Connection conn = ConnectSQL.getConnection();

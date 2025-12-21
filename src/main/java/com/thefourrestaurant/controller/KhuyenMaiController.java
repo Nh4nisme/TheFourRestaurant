@@ -100,6 +100,11 @@ public class KhuyenMaiController {
         return khuyenMaiDAO.layDanhSachKhuyenMaiTheoKieu(kieuKM);
     }
 
+    public List<KhuyenMai> layKhuyenMaiConHieuLucTheoKieu(String kieuKM) {
+        return khuyenMaiDAO.layDanhSachKhuyenMaiConHieuLucTheoKieu(kieuKM);
+    }
+
+
     public String taoMaKhuyenMaiMoi() {
         return khuyenMaiDAO.taoMaKhuyenMaiMoi();
     }
