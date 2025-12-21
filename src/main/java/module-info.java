@@ -6,6 +6,7 @@ module com.thefourrestaurant {
     requires java.desktop;
     requires jfxtras.controls;
     requires javafx.base;
+    requires com.github.librepdf.openpdf;
 
     exports com.thefourrestaurant;
 }

@@ -1,5 +1,7 @@
 package com.thefourrestaurant.model;
 
+import javafx.collections.ObservableList;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
