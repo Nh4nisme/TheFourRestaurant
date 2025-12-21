@@ -98,27 +98,36 @@ public class GiaoDienChiTietBan extends BorderPane {
 	}
 
 	private VBox buildLeftColumn() {
-		VBox trai = new VBox(16);
-		trai.setPrefWidth(380);
+	    VBox trai = new VBox(16);
+	    trai.setPrefWidth(380);
 
-		// Tiêu đề cột "Thông tin bàn"
-		Label tieuDeTtb = new Label("Thông tin bàn");
-		tieuDeTtb.setMaxWidth(Double.MAX_VALUE);
-		tieuDeTtb.setAlignment(Pos.CENTER);
-		tieuDeTtb.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
+	    Label tieuDeTtb = new Label("Thông tin bàn");
+	    tieuDeTtb.setMaxWidth(Double.MAX_VALUE);
+	    tieuDeTtb.setAlignment(Pos.CENTER);
+	    tieuDeTtb.setStyle("-fx-text-fill: #DDB248; -fx-font-size: 18px; -fx-font-weight: bold;");
 
-		// Dữ liệu bàn
-		String[] thongTinBan = new String[] { ban.getTrangThai(), ban.getLoaiBan().getTenLoaiBan(),
-				String.valueOf(ban.getLoaiBan().getSoChoNgoi()),
-				ban.getLoaiBan().getMoTa() != null ? ban.getLoaiBan().getMoTa() : "",
-				ban.getLoaiBan().getGiaTien().toPlainString() };
+	    VBox theTtb;
+	    if (ban != null && ban.getLoaiBan() != null) {
+	        String[] thongTinBan = new String[] {
+	            ban.getTrangThai() != null ? ban.getTrangThai() : "—",
+	            ban.getLoaiBan().getTenLoaiBan() != null ? ban.getLoaiBan().getTenLoaiBan() : "—",
+	            String.valueOf(ban.getLoaiBan().getSoChoNgoi()),
+	            ban.getLoaiBan().getMoTa() != null ? ban.getLoaiBan().getMoTa() : "",
+	            ban.getLoaiBan().getGiaTien() != null ? ban.getLoaiBan().getGiaTien().toPlainString() : "0"
+	        };
+	        theTtb = buildInfoCardWithData(
+	            new String[] { "Trạng Thái:", "Loại bàn:", "Số người:", "Mô tả:", "Giá tiền:" }, 
+	            thongTinBan
+	        );
+	    } else {
+	        theTtb = buildInfoCardWithData(
+	            new String[] { "Trạng Thái:", "Loại bàn:", "Số người:", "Mô tả:", "Giá tiền:" }, 
+	            new String[] { "—", "—", "—", "—", "0" }
+	        );
+	    }
 
-		VBox theTtb = buildInfoCardWithData(new String[] { "Trạng Thái:", "Loại bàn:", "Số người:" }, thongTinBan);
-
-		// Thêm tất cả vào VBox cột trái
-		trai.getChildren().addAll(tieuDeTtb, theTtb);
-
-		return trai;
+	    trai.getChildren().addAll(tieuDeTtb, theTtb);
+	    return trai;
 	}
 
 	/**
@@ -183,8 +192,8 @@ public class GiaoDienChiTietBan extends BorderPane {
 		Label[] headers = { n1, n2, n3, n4, n5 };
 		for (Label lbl : headers) {
 			lbl.setStyle("-fx-text-fill: #DDB248; -fx-font-weight: bold;");
-			lbl.setMinWidth(120);
-			lbl.setPrefWidth(120);
+			lbl.setMinWidth(150);
+			lbl.setPrefWidth(150);
 		}
 
 		VBox vboxTrai = new VBox(6, new HBox(6, n1, lblMaPDB), new HBox(6, n3, lblGioVao), new HBox(6, n5, lblConLai) // NEW

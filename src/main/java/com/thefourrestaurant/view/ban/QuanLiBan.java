@@ -30,6 +30,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -89,7 +90,7 @@ public class QuanLiBan extends VBox {
 			alert.initOwner(this.getScene().getWindow());
 			alert.showAndWait();
 		});
-		
+
 		cboSoTang = new ComboBox<>();
 
 		// --- ComboBox tầng ---
@@ -312,10 +313,23 @@ public class QuanLiBan extends VBox {
 					PhieuDatBan pdbDayDu = pdbDAO.layPhieuDangHoatDongTheoBan(ban.getMaBan());
 
 					if (pdbDayDu == null) {
-						Alert alert = new Alert(Alert.AlertType.INFORMATION,
-								"Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
-						alert.show();
-						return;
+						Platform.runLater(() -> {
+						    Alert alert = new Alert(Alert.AlertType.INFORMATION,
+						        "Bàn \"" + ban.getTenBan() + "\" hiện chưa có phiếu hoạt động.");
+
+						    // Chỉ block Stage cha nếu đã có scene
+						    if (this.getScene() != null && this.getScene().getWindow() != null) {
+						        Stage ownerStage = (Stage) this.getScene().getWindow();
+						        alert.initOwner(ownerStage);
+						        alert.initModality(Modality.WINDOW_MODAL); // chỉ block cửa sổ cha
+						    } else {
+						        // Nếu chưa có Stage cha, để non-modal
+						        alert.initModality(Modality.NONE);
+						    }
+
+						    alert.show();
+						});
+
 					}
 
 					mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, ban, pdbDayDu));
@@ -509,12 +523,6 @@ public class QuanLiBan extends VBox {
 			return;
 		}
 
-		Ban banChinh = layBanChinhCuaPhieuDangThaoTac();
-		if (banChinh == null) {
-			new Alert(Alert.AlertType.ERROR, "Không xác định được bàn chính!").show();
-			return;
-		}
-
 		try (Connection conn = ConnectSQL.getConnection()) {
 			conn.setAutoCommit(false);
 
@@ -538,11 +546,15 @@ public class QuanLiBan extends VBox {
 
 			conn.commit();
 
-			new Alert(Alert.AlertType.INFORMATION, "Gộp bàn thành công!").show();
+			Alert alert = new Alert(Alert.AlertType.INFORMATION, "Gộp bàn thành công");
+			alert.initOwner(this.getScene().getWindow());
+			alert.show();
 
 			dsBanDangChon.clear();
 			refresh();
 
+			Ban banChinh = layBanChinhCuaPhieuDangThaoTac();
+			
 			// 4️⃣ QUAY VỀ CHI TIẾT BÀN → DÙNG BÀN CHÍNH
 			mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, banChinh, phieuDangThaoTac));
 
@@ -553,7 +565,6 @@ public class QuanLiBan extends VBox {
 	}
 
 	private void xuLyXacNhanChuyenBan(Ban banCu) {
-
 		if (phieuDangThaoTac == null) {
 			new Alert(Alert.AlertType.ERROR, "Không xác định được phiếu đang thao tác!").show();
 			return;
@@ -564,17 +575,8 @@ public class QuanLiBan extends VBox {
 			return;
 		}
 
-		// Lấy bàn đích đầu tiên từ dsBanDangChon
 		Ban banDich = dsBanDangChon.get(0);
 
-		// Lấy bàn chính hiện tại
-		Ban banChinh = layBanChinhCuaPhieuDangThaoTac();
-		if (banChinh == null) {
-			new Alert(Alert.AlertType.ERROR, "Không xác định được bàn chính hiện tại!").show();
-			return;
-		}
-
-		// Nếu bàn cũ và bàn đích giống nhau, không cần chuyển
 		if (banCu.getMaBan().equals(banDich.getMaBan())) {
 			new Alert(Alert.AlertType.INFORMATION, "Bàn bạn chọn đã là bàn hiện tại!").show();
 			return;
@@ -583,38 +585,32 @@ public class QuanLiBan extends VBox {
 		try (Connection conn = ConnectSQL.getConnection()) {
 			conn.setAutoCommit(false);
 
-			if (banCu.getMaBan().equals(banChinh.getMaBan())) {
-				// Bàn cũ là bàn chính → bàn đích sẽ trở thành bàn chính
-				String sqlUpdateBanChinh = "UPDATE PhieuDatBan_Ban SET isBanChinh = CASE WHEN maBan = ? THEN 1 ELSE 0 END WHERE maPDB = ?";
-				try (PreparedStatement ps = conn.prepareStatement(sqlUpdateBanChinh)) {
-					ps.setString(1, banDich.getMaBan());
-					ps.setString(2, phieuDangThaoTac.getMaPDB());
-					ps.executeUpdate();
-				}
-			} else {
-				// Bàn cũ là bàn phụ → chỉ cập nhật bàn phụ
-				String sqlUpdateBanPhu = "UPDATE PhieuDatBan_Ban SET maBan = ? WHERE maBan = ? AND maPDB = ?";
-				try (PreparedStatement ps = conn.prepareStatement(sqlUpdateBanPhu)) {
-					ps.setString(1, banDich.getMaBan());
-					ps.setString(2, banCu.getMaBan());
-					ps.setString(3, phieuDangThaoTac.getMaPDB());
-					ps.executeUpdate();
-				}
+			// ✅ Update đúng bàn đã truyền vào
+			String sqlUpdate = "UPDATE PhieuDatBan_Ban SET maBan = ? WHERE maPDB = ? AND maBan = ?";
+			try (PreparedStatement ps = conn.prepareStatement(sqlUpdate)) {
+				ps.setString(1, banDich.getMaBan()); // bàn mới
+				ps.setString(2, phieuDangThaoTac.getMaPDB()); // phiếu
+				ps.setString(3, banCu.getMaBan()); // bàn cũ
+				ps.executeUpdate();
 			}
 
-			// Cập nhật trạng thái bàn
-			banDAO.capNhatTrangThaiDanhSach(List.of(banCu), "Trống"); // bàn cũ
-			banDAO.capNhatTrangThaiDanhSach(List.of(banDich), "Đang phục vụ"); // bàn mới
+			// ✅ Cập nhật trạng thái bàn
+			banDAO.capNhatTrangThaiDanhSach(List.of(banCu), "Trống");
+			banDAO.capNhatTrangThaiDanhSach(List.of(banDich), "Đang phục vụ");
 
 			conn.commit();
 
-			new Alert(Alert.AlertType.INFORMATION, "Chuyển bàn thành công!").show();
-
+			Alert alert = new Alert(Alert.AlertType.INFORMATION, "Chuyển bàn thành công!");
+			alert.initOwner(this.getScene().getWindow());
+			alert.show();
+			
 			dsBanDangChon.clear();
 			refresh();
+			
+			Ban banChinh = layBanChinhCuaPhieuDangThaoTac();
 
-			// Mở chi tiết bàn mới (bàn chính nếu bàn cũ là bàn chính, hoặc bàn đích)
-			mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, banDich, phieuDangThaoTac));
+			// 4️⃣ QUAY VỀ CHI TIẾT BÀN → DÙNG BÀN CHÍNH
+			mainContent.getChildren().setAll(new GiaoDienChiTietBan(mainContent, banChinh, phieuDangThaoTac));
 
 		} catch (Exception e) {
 			e.printStackTrace();
