@@ -60,11 +60,10 @@ public class GiaoDienDatBan extends BorderPane {
 					case F1 -> datBanNgay();
 					case F2 -> datBanTruoc();
 					case F3 -> nhanBan();
-					case F4 -> huyBanDatTruoc();
-					case F5 -> datMon();
-					case F6 -> tinhTien();
-					case F7 -> tangTruoc();
-					case F8 -> tangSau();
+					case F4 -> datMon();
+					case F5 -> tinhTien();
+					case F6 -> tangTruoc();
+					case F7 -> tangSau();
 					default -> {
 					}
 					}
@@ -119,9 +118,9 @@ public class GiaoDienDatBan extends BorderPane {
 		// Danh sách nút: [Text chính, Phím tắt]
 		List<String[]> nutTitles = List.of(new String[] { "Đặt bàn ngay", "F1" },
 				new String[] { "Đặt bàn trước", "F2" }, new String[] { "Nhận bàn", "F3" },
-				new String[] { "Hủy bàn đặt trước", "F4" }, new String[] { "Đặt món", "F5" },
-				new String[] { "Tính tiền", "F6" }, new String[] { "Tầng trước", "F7" },
-				new String[] { "Tầng sau", "F8" });
+				new String[] { "Đặt món", "F4" },
+				new String[] { "Tính tiền", "F5" }, new String[] { "Tầng trước", "F6" },
+				new String[] { "Tầng sau", "F7" });
 
 		for (String[] title : nutTitles) {
 			String tenNut = title[0];
@@ -211,7 +210,7 @@ public class GiaoDienDatBan extends BorderPane {
 		quanLiBan = new QuanLiBan(mainContent, "DAT_BAN");
 		Tang tangMacDinh = cboSoTang.getValue();
 		if (tangMacDinh != null) {
-		    quanLiBan.hienThiBanTheoTang(tangMacDinh.getMaTang());
+			quanLiBan.hienThiBanTheoTang(tangMacDinh.getMaTang());
 		}
 
 		Pane khuVucBan = quanLiBan.getKhuVucBan();
@@ -232,112 +231,107 @@ public class GiaoDienDatBan extends BorderPane {
 	}
 
 	private HBox taoHang1() {
-		HBox hang1 = new HBox(10);
-		hang1.setPadding(new Insets(0, 0, 0, 20));
-		hang1.setAlignment(Pos.CENTER_LEFT);
+	    HBox hang1 = new HBox(10);
+	    hang1.setPadding(new Insets(0, 0, 0, 20));
+	    hang1.setAlignment(Pos.CENTER_LEFT);
 
-		cboBanDatTruoc.setPrefHeight(45);
-		List<String> trangThaiList = banDAO.layDanhSachTrangThaiTuCSDL();
+	    double lblWidth = 120;   // tất cả label cùng width
+	    double cboWidth = 150;   // tất cả combo box cùng width
 
-		List<String> trangThaiFullList = new ArrayList<>();
-		trangThaiFullList.add("Tất cả");
-		trangThaiFullList.addAll(trangThaiList);
+	    // Label + ComboBox Trạng thái bàn
+	    Label lblTrangThaiBan = taoLabel("Trạng thái bàn:", 16, true);
+	    lblTrangThaiBan.setPrefWidth(lblWidth);
+	    cboBanDatTruoc.setPrefWidth(cboWidth);
+	    cboBanDatTruoc.setPrefHeight(45);
+	    List<String> trangThaiList = banDAO.layDanhSachTrangThaiTuCSDL();
+	    List<String> trangThaiFullList = new ArrayList<>();
+	    trangThaiFullList.add("Tất cả");
+	    trangThaiFullList.addAll(trangThaiList);
+	    cboBanDatTruoc.getItems().addAll(trangThaiFullList);
+	    cboBanDatTruoc.setValue("Tất cả");
+	    styleComboBox(cboBanDatTruoc, cboWidth);
+	    cboBanDatTruoc.setOnAction(e -> locBanTheoTatCaTieuChi());
 
-		cboBanDatTruoc.getItems().addAll(trangThaiFullList);
-		cboBanDatTruoc.setValue("Tất cả");
-		styleComboBox(cboBanDatTruoc, 150);
+	    // Label + ComboBox Số tầng
+	    Label lblSoTang = taoLabel("Số tầng:", 16, true);
+	    lblSoTang.setPrefWidth(lblWidth);
+	    cboSoTang = new ComboBox<>();
+	    cboSoTang.setPrefWidth(cboWidth);
+	    List<Tang> dsTang = tangDAO.layTatCaTang();
+	    cboSoTang.getItems().addAll(dsTang);
+	    if (!dsTang.isEmpty()) cboSoTang.setValue(dsTang.get(0));
+	    cboSoTang.setCellFactory(param -> new ListCell<>() {
+	        @Override
+	        protected void updateItem(Tang item, boolean empty) {
+	            super.updateItem(item, empty);
+	            setText(empty || item == null ? null : item.getTenTang());
+	        }
+	    });
+	    cboSoTang.setOnAction(e -> locBanTheoTatCaTieuChi());
 
-		cboBanDatTruoc.setOnAction(e -> locBanTheoTatCaTieuChi());
+	    // Label + TextField Mã bàn
+	    Label lblMaBan = taoLabel("Mã bàn:", 16, true);
+	    lblMaBan.setPrefWidth(lblWidth);
+	    txtMaBan.setPrefWidth(cboWidth);
 
-		Label lblSoTang = taoLabel("Số tầng:", 16, true);
-		lblSoTang.setPrefWidth(70);
+	    // Nút Tìm
+	    ButtonSample2 btnTim = new ButtonSample2("Tìm", ButtonSample2.Variant.YELLOW, 120, 45);
+	    btnTim.setOnAction(e -> timBanTheoMaBan());
 
-		cboSoTang = new ComboBox<>();
-		List<Tang> dsTang = tangDAO.layTatCaTang();
+	    hang1.getChildren().addAll(
+	        lblTrangThaiBan, cboBanDatTruoc, taoSpacerH(20),
+	        lblSoTang, cboSoTang, taoSpacerH(20),
+	        lblMaBan, txtMaBan, taoSpacerH(20),
+	        btnTim
+	    );
 
-		for (Tang tang : dsTang) {
-			cboSoTang.getItems().add(tang);
-		}
-
-		if (!dsTang.isEmpty()) {
-			cboSoTang.setValue(dsTang.get(0));
-		}
-
-		cboSoTang.setCellFactory(param -> new ListCell<>() {
-			@Override
-			protected void updateItem(Tang item, boolean empty) {
-				super.updateItem(item, empty);
-				setText(empty || item == null ? null : item.getTenTang());
-			}
-		});
-
-		cboSoTang.setOnAction(e -> locBanTheoTatCaTieuChi());
-
-		Label lblMaBan = taoLabel("Mã bàn:", 16, true);
-		lblMaBan.setPrefWidth(70);
-
-		txtMaBan.setPrefWidth(300);
-
-		ButtonSample2 btnTim = new ButtonSample2("Tìm", ButtonSample2.Variant.YELLOW, 120, 45);
-		btnTim.setOnAction(e -> {
-			String maBan = txtMaBan.getText().trim();
-			if (maBan.isEmpty()) {
-				Alert alert = new Alert(Alert.AlertType.WARNING);
-				alert.setTitle("Thông báo");
-				alert.setHeaderText(null);
-				alert.setContentText("Vui lòng nhập mã bàn cần tìm!");
-				alert.showAndWait();
-				return;
-			}
-			timBanTheoMaBan();
-		});
-
-		hang1.getChildren().addAll(cboBanDatTruoc, taoSpacerH(60), lblSoTang, cboSoTang, taoSpacerH(60), lblMaBan,
-				txtMaBan, taoSpacerH(60), btnTim);
-		return hang1;
+	    return hang1;
 	}
 
 	private HBox taoHang2() {
-		HBox hang2 = new HBox(10);
-		hang2.setPadding(new Insets(0, 0, 0, 20));
-		hang2.setAlignment(Pos.CENTER_LEFT);
+	    HBox hang2 = new HBox(10);
+	    hang2.setPadding(new Insets(0, 0, 0, 20));
+	    hang2.setAlignment(Pos.CENTER_LEFT);
 
-		Label lblLoaiBan = taoLabel("Loại bàn:", 16, true);
-		lblLoaiBan.setPrefWidth(70);
+	    double lblWidth = 120;   // label cùng width
+	    double cboWidth = 150;   // combo box cùng width
 
-		cboLoaiBan.getItems().addAll("Tất cả", "Bàn tròn", "Bàn vuông");
-		cboLoaiBan.setPromptText("Chọn");
-		cboLoaiBan.setPrefWidth(200);
+	    // Label + ComboBox Loại bàn
+	    Label lblLoaiBan = taoLabel("Loại bàn:", 16, true);
+	    lblLoaiBan.setPrefWidth(lblWidth);
+	    cboLoaiBan.setPrefWidth(cboWidth);
+	    cboLoaiBan.getItems().addAll("Tất cả", "Bàn tròn", "Bàn vuông");
+	    cboLoaiBan.setOnAction(e -> locBanTheoTatCaTieuChi());
 
-		cboLoaiBan.setOnAction(e -> locBanTheoTatCaTieuChi());
+	    // Label + ComboBox Số ghế
+	    Label lblSoGhe = taoLabel("Số ghế:", 16, true);
+	    lblSoGhe.setPrefWidth(lblWidth);
+	    cboSoGhe.setPrefWidth(cboWidth);
+	    cboSoGhe.setPrefHeight(45);
+	    List<String> dsSoGhe = new ArrayList<>();
+	    dsSoGhe.add("Tất cả");
+	    for (Ban ban : banDAO.layTatCaBan()) {
+	        String soGheStr = ban.getLoaiBan().getSoChoNgoi() + " ghế";
+	        if (!dsSoGhe.contains(soGheStr)) dsSoGhe.add(soGheStr);
+	    }
+	    cboSoGhe.getItems().addAll(dsSoGhe);
+	    cboSoGhe.setValue("Tất cả");
+	    styleComboBox(cboSoGhe, cboWidth);
+	    cboSoGhe.setOnAction(e -> locBanTheoTatCaTieuChi());
+	    
+	    Region spacer = new Region();
+	    spacer.setPrefWidth(310);
 
-		Label lblSoGhe = taoLabel("Số ghế:", 16, true);
-		lblSoGhe.setPrefWidth(70);
+	    // Nút Làm mới
+	    ButtonSample2 btnLamMoi = new ButtonSample2("Làm mới", ButtonSample2.Variant.YELLOW, 120, 45);
 
-		cboSoGhe.setPrefHeight(45);
+	    hang2.getChildren().addAll(
+	        lblLoaiBan, cboLoaiBan, taoSpacerH(20),
+	        lblSoGhe, cboSoGhe, taoSpacerH(20),spacer,
+	        btnLamMoi
+	    );
 
-		// Danh sách số ghế từ tất cả bàn
-		List<String> dsSoGhe = new ArrayList<>();
-		dsSoGhe.add("Tất cả"); // mặc định hiển thị tất cả
-
-		for (Ban ban : banDAO.layTatCaBan()) {
-			String soGheStr = ban.getLoaiBan().getSoChoNgoi() + " ghế";
-			if (!dsSoGhe.contains(soGheStr)) {
-				dsSoGhe.add(soGheStr);
-			}
-		}
-
-		cboSoGhe.getItems().addAll(dsSoGhe);
-		cboSoGhe.setValue("Tất cả");
-		styleComboBox(cboSoGhe, 100);
-
-		cboSoGhe.setOnAction(e -> locBanTheoTatCaTieuChi());
-
-		ButtonSample2 btnLamMoi = new ButtonSample2("Làm mới", ButtonSample2.Variant.YELLOW, 120, 45);
-
-		hang2.getChildren().addAll(taoSpacerH(220), lblLoaiBan, cboLoaiBan, taoSpacerH(60), lblSoGhe, cboSoGhe,
-				taoSpacerH(185), btnLamMoi);
-		return hang2;
+	    return hang2;
 	}
 
 	private void styleComboBox(ComboBox<String> comboBox, double width) {
@@ -389,37 +383,36 @@ public class GiaoDienDatBan extends BorderPane {
 		st.initModality(Modality.APPLICATION_MODAL);
 		st.setScene(new Scene(new GiaoDienDatBanNgay(dsChon, mainContent, quanLiBan)));
 		st.setOnHidden(e -> {
-	        quanLiBan.clearBanDangChon();
-	        quanLiBan.refresh();
-	    });
+			quanLiBan.clearBanDangChon();
+			quanLiBan.refresh();
+		});
 		st.showAndWait();
 	}
 
 	private void datBanTruoc() {
-	    List<Ban> dsChonGoc = layDsBanDangChonHoacThongBao();
-	    if (dsChonGoc == null || dsChonGoc.isEmpty())
-	        return;
+		List<Ban> dsChonGoc = layDsBanDangChonHoacThongBao();
+		if (dsChonGoc == null || dsChonGoc.isEmpty())
+			return;
 
-	    List<Ban> dsChon = new ArrayList<>(dsChonGoc);
+		List<Ban> dsChon = new ArrayList<>(dsChonGoc);
 
-	    Stage st = new Stage();
-	    st.initOwner(getScene().getWindow());
-	    st.initModality(Modality.APPLICATION_MODAL);
-	    st.setScene(new Scene(new GiaoDienDatBanTruoc(dsChon, mainContent, quanLiBan)));
-	    
-	    st.setOnHidden(e -> {
-	        quanLiBan.clearBanDangChon();
-	        quanLiBan.refresh();
-	    });
-	    st.showAndWait();
+		Stage st = new Stage();
+		st.initOwner(getScene().getWindow());
+		st.initModality(Modality.APPLICATION_MODAL);
+		st.setScene(new Scene(new GiaoDienDatBanTruoc(dsChon, mainContent, quanLiBan)));
+
+		st.setOnHidden(e -> {
+			quanLiBan.clearBanDangChon();
+			quanLiBan.refresh();
+		});
+		st.showAndWait();
 	}
 
 	private void nhanBan() {
 
-	    GiaoDienNhanBan giaoDien =
-	        new GiaoDienNhanBan(mainContent, quanLiBan);
+		GiaoDienNhanBan giaoDien = new GiaoDienNhanBan(mainContent, quanLiBan);
 
-	    mainContent.getChildren().add(giaoDien);
+		mainContent.getChildren().add(giaoDien);
 	}
 
 	private void huyBanDatTruoc() {
@@ -464,15 +457,11 @@ public class GiaoDienDatBan extends BorderPane {
 
 		PhieuDatBan pdb = phieuDatBanController.layPhieuTheoBan(dsChon.get(0).getMaBan());
 
-        thanhToanController.moManThanhToan(
-                pdb,
-                mainContent,
-                () -> {
-                    mainContent.getChildren().clear();
-                    mainContent.getChildren().add(new GiaoDienDatBan(mainContent));
-                }
-        );
-    }
+		thanhToanController.moManThanhToan(pdb, mainContent, () -> {
+			mainContent.getChildren().clear();
+			mainContent.getChildren().add(new GiaoDienDatBan(mainContent));
+		});
+	}
 
 	private void tangTruoc() {
 		int currentIndex = cboSoTang.getSelectionModel().getSelectedIndex();
