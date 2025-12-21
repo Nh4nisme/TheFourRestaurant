@@ -371,7 +371,7 @@ public class GiaoDienLapHoaDon extends VBox {
 
     // ================== LOGIC ==================
     private BigDecimal tinhThanhTienMon(ChiTietPDB ct) {
-        return ct.getMonAn().getDonGia().multiply(BigDecimal.valueOf(ct.getSoLuong()));
+        return BigDecimal.valueOf(ct.getDonGia()).multiply(BigDecimal.valueOf(ct.getSoLuong()));
     }
 
     private BigDecimal tinhTongTienMon() {
@@ -473,7 +473,7 @@ public class GiaoDienLapHoaDon extends VBox {
                         hd.getMaHD(),
                         ct.getMonAn().getMaMonAn(),
                         ct.getSoLuong(),
-                        ct.getMonAn().getDonGia()
+                        BigDecimal.valueOf(ct.getDonGia())
                 );
             }
 

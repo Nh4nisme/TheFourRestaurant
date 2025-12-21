@@ -595,6 +595,35 @@ public class GiaoDienGoiMon extends BorderPane {
         return NumberFormat.getCurrencyInstance(Locale.of("vi", "VN")).format(Math.max(0, value));
     }
 
+//    private void xuLyGuiBep() {
+//        try {
+//            if (danhSachChiTiet.isEmpty()) {
+//                new Alert(Alert.AlertType.WARNING, "Chưa có món nào trong phiếu!").showAndWait();
+//                return;
+//            }
+//
+//            ChiTietPDBDAO chiTietDAO = new ChiTietPDBDAO();
+//
+//            for (ChiTietPDB ct : danhSachChiTiet) {
+//                ct.setPhieuDatBan(pdb);
+//                chiTietDAO.them(ct);
+//            }
+//
+//            new Alert(Alert.AlertType.INFORMATION, "Đã gửi bếp thành công!").showAndWait();
+//
+//            danhSachChiTiet.clear();
+//            bangPhieu.refresh();
+//            capNhatTongTien();
+//
+//            mainContent.getChildren().clear();
+//            mainContent.getChildren().add(new GiaoDienDatBan(mainContent));
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//            new Alert(Alert.AlertType.ERROR, "Lỗi khi gửi bếp: " + ex.getMessage()).showAndWait();
+//        }
+//    }
+
     private void xuLyGuiBep() {
         try {
             if (danhSachChiTiet.isEmpty()) {
@@ -602,21 +631,31 @@ public class GiaoDienGoiMon extends BorderPane {
                 return;
             }
 
-            ChiTietPDBDAO chiTietDAO = new ChiTietPDBDAO();
+            // 1. Áp dụng khuyến mãi trước khi lưu
+            khuyenMaiController.tinhGiaSauKhuyenMai(danhSachChiTiet);
 
+            // 2. Cập nhật donGia = giá đã áp khuyến mãi
             for (ChiTietPDB ct : danhSachChiTiet) {
+                KhuyenMaiApDung promo = ct.getKhuyenMaiApDung();
+                double giaSauKhuyenMai = (promo != null) ? promo.getGiaSauGiam().doubleValue() : ct.getDonGia();
+                ct.setDonGia(giaSauKhuyenMai);
                 ct.setPhieuDatBan(pdb);
+            }
+
+            // 3. Lưu xuống DB
+            ChiTietPDBDAO chiTietDAO = new ChiTietPDBDAO();
+            for (ChiTietPDB ct : danhSachChiTiet) {
                 chiTietDAO.them(ct);
             }
 
             new Alert(Alert.AlertType.INFORMATION, "Đã gửi bếp thành công!").showAndWait();
 
+            // 4. Reset UI
             danhSachChiTiet.clear();
             bangPhieu.refresh();
             capNhatTongTien();
 
-            mainContent.getChildren().clear();
-            mainContent.getChildren().add(new GiaoDienDatBan(mainContent));
+            mainContent.getChildren().setAll(new GiaoDienDatBan(mainContent));
 
         } catch (Exception ex) {
             ex.printStackTrace();
