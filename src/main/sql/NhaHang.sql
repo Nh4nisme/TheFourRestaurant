@@ -1,4 +1,4 @@
--- ================================
+﻿-- ================================
 -- Tạo CSDL
 -- ================================
 CREATE DATABASE NhaHangDB;
@@ -255,6 +255,7 @@ GO
 CREATE TABLE PhieuDatBan_Ban (
                                  maPDB CHAR(8) NOT NULL,
                                  maBan CHAR(8) NOT NULL,
+                                 isBanChinh BIT NOT NULL DEFAULT 0,
                                  PRIMARY KEY (maPDB, maBan),
                                  CONSTRAINT FK_PDBB_PDB FOREIGN KEY (maPDB) REFERENCES PhieuDatBan(maPDB) ON DELETE CASCADE ON UPDATE CASCADE,
                                  CONSTRAINT FK_PDBB_Ban FOREIGN KEY (maBan) REFERENCES Ban(maBan) ON DELETE CASCADE ON UPDATE CASCADE
@@ -586,9 +587,9 @@ GO
 -- Dữ liệu Phiếu đặt bàn
 INSERT INTO PhieuDatBan (maPDB, ngayDat, soNguoi, maKH, maNV, ngayTao, trangThai, tienCoc)
 VALUES
-('PD000001', '2025-12-20 18:30:00', 4, 'KH000001', 'NV000001', '2025-10-23 10:00:00', N'Đã thanh toán', 0),
-('PD000002', '2025-12-24 12:00:00', 2, 'KH000002', 'NV000002', '2025-10-23 10:05:00', N'Đã thanh toán', 0),
-('PD000003', '2025-12-26 19:00:00', 3, 'KH000001', 'NV000002', '2025-10-22 09:30:00', N'Đã thanh toán', 0);
+('PD000001', '2025-12-25 18:30:00', 4, 'KH000001', 'NV000001', '2025-10-23 10:00:00', N'Đã thanh toán', 0),
+('PD000002', '2025-12-25 12:00:00', 2, 'KH000002', 'NV000002', '2025-10-23 10:05:00', N'Đã thanh toán', 0),
+('PD000003', '2025-12-25 19:00:00', 3, 'KH000001', 'NV000002', '2025-10-22 09:30:00', N'Đã thanh toán', 0);
 GO
 
 -- Liên kết Phiếu đặt bàn với Bàn
