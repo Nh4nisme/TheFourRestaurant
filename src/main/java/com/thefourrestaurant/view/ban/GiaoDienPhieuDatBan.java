@@ -1,7 +1,6 @@
 package com.thefourrestaurant.view.ban;
 
 import com.thefourrestaurant.controller.PhieuDatBanController;
-import com.thefourrestaurant.controller.TaiKhoanController;
 import com.thefourrestaurant.model.*;
 import com.thefourrestaurant.view.components.GiaoDienThucThe;
 import javafx.beans.property.SimpleStringProperty;
@@ -9,13 +8,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.List;
 
 public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
 
@@ -23,7 +19,6 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
     private final GiaoDienChiTietPhieuDatBan gdChiTietPhieuDatBan;
 
     private TableView<PhieuDatBan> table;
-    private ObservableList<PhieuDatBan> danhSachGoc;
     private FilteredList<PhieuDatBan> danhSachHienThi;
 
     public GiaoDienPhieuDatBan() {
@@ -33,7 +28,7 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
         gdChiTietPhieuDatBan = (GiaoDienChiTietPhieuDatBan) getChiTietNode();
         khoiTaoGiaoDien();
         khoiTaoBoLocNgayCuThe();
-        khoiTaoBoLocTimKiem("nhập số điện thoại khách hàng...");
+        khoiTaoBoLocTimKiem("nhập tên khách hàng");
         lamMoiDuLieu();
     }
 
@@ -79,13 +74,7 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
                 new SimpleStringProperty(c.getValue().getTrangThai())
         );
 
-        TableColumn<PhieuDatBan, Void> colHanhDong = taoCotXoa();
-
-        table.getColumns().addAll(
-                colMaPDB, colNgayTao, colNgayDat,
-                colTenKH, colTenNV, colTrangThai, colHanhDong
-        );
-
+        table.getColumns().addAll(colMaPDB, colNgayTao, colNgayDat, colTenKH, colTenNV, colTrangThai);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         table.setRowFactory(t -> {
@@ -97,47 +86,12 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
             });
             return row;
         });
-
         return table;
-    }
-
-    private TableColumn<PhieuDatBan, Void> taoCotXoa() {
-        TableColumn<PhieuDatBan, Void> col = new TableColumn<>("Hành động");
-
-        col.setCellFactory(c -> new TableCell<>() {
-            private final Button btnXoa = new Button("🗑");
-
-            {
-                btnXoa.setOnAction(e -> {
-                    PhieuDatBan pdb = getTableView().getItems().get(getIndex());
-                    Stage stage = (Stage) btnXoa.getScene().getWindow();
-
-                    if (xacNhan(stage, "Xóa phiếu " + pdb.getMaPDB() + "?")) {
-                        if (controller.xoaPhieuDatBan(pdb.getMaPDB())) {
-                            danhSachGoc.remove(pdb);
-                            hienThongBao(stage, "Đã xóa phiếu đặt bàn");
-                        } else {
-                            hienThongBao(stage,
-                                    "Không thể xóa phiếu này",
-                                    Alert.AlertType.ERROR);
-                        }
-                    }
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : btnXoa);
-            }
-        });
-
-        return col;
     }
 
     @Override
     protected void lamMoiDuLieu() {
-        danhSachGoc = FXCollections.observableArrayList(controller.layDanhSachPDB());
+        ObservableList<PhieuDatBan> danhSachGoc = FXCollections.observableArrayList(controller.layDanhSachPDB());
         danhSachHienThi = new FilteredList<>(danhSachGoc, phieuDatBan ->  true);
         table.setItems(danhSachHienThi);
     }
@@ -162,10 +116,8 @@ public class GiaoDienPhieuDatBan extends GiaoDienThucThe {
             if (ngay != null) {
                 LocalDateTime ngayLap = phieuDatBan.getNgayDat();
                 if (ngayLap == null) return false;
-                if (!ngayLap.toLocalDate().equals(ngay))
-                    return false;
+                return ngayLap.toLocalDate().equals(ngay);
             }
-
             return true;
         });
     }

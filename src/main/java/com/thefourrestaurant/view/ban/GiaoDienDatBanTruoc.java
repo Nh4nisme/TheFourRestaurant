@@ -16,6 +16,7 @@ import javafx.scene.Node;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
@@ -117,8 +118,10 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
             
             if (ngay.equals(LocalDate.now())) {
                 LocalTime gioHienTai = LocalTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                String gioHienTaiStr = gioHienTai.format(formatter);
                 if (!gio.isAfter(gioHienTai)) {
-                    showDatBanLoi("Giờ nhận bàn phải sau thời điểm hiện tại!");
+                    showDatBanLoi("Giờ nhận bàn phải sau: " + gioHienTaiStr);
                     return;
                 }
             }
