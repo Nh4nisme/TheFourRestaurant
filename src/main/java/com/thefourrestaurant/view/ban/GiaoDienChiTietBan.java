@@ -17,7 +17,6 @@ import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -370,6 +369,7 @@ public class GiaoDienChiTietBan extends BorderPane {
 	    }
 		
 	    QuanLiBan qlb = new QuanLiBan(mainContent, "CHUYEN_BAN");
+	    qlb.setBanCu(ban);
 	    qlb.setPhieuDangThaoTac(pdb);
 	    mainContent.getChildren().setAll(qlb);
 	}

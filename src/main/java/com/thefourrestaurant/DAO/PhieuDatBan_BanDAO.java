@@ -62,18 +62,17 @@ public class PhieuDatBan_BanDAO {
 		return list;
 	}
 
-	public boolean themBanVaoPhieu(Connection conn, String maPDB, List<Ban> danhSachBan) throws SQLException {
-
-		String sqlInsert = "INSERT INTO PhieuDatBan_Ban (maPDB, maBan) VALUES (?, ?)";
-
-		for (Ban ban : danhSachBan) {
-			try (PreparedStatement ps = conn.prepareStatement(sqlInsert)) {
-				ps.setString(1, maPDB);
-				ps.setString(2, ban.getMaBan());
-				ps.executeUpdate();
-			}
-		}
-		return true;
+	public void themBanVaoPhieu(Connection conn, String maPDB, List<Ban> danhSachBan) throws SQLException {
+	    String sql = "INSERT INTO PhieuDatBan_Ban(maPDB, maBan, isBanChinh) VALUES (?, ?, ?)";
+	    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+	        for (Ban b : danhSachBan) {
+	            ps.setString(1, maPDB);
+	            ps.setString(2, b.getMaBan());
+	            ps.setBoolean(3, b.isBanChinh());
+	            ps.addBatch();
+	        }
+	        ps.executeBatch();
+	    }
 	}
 	
 	public boolean xoaTatCaBanKhoiPhieu(Connection conn, String maPDB) throws SQLException {
