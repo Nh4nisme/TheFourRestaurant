@@ -28,6 +28,7 @@ public class PhieuDatBanDAO {
 				ban.setToaDoX(rs.getInt("toaDoX"));
 				ban.setToaDoY(rs.getInt("toaDoY"));
 				ban.setTrangThai(rs.getString("trangThaiBan"));
+				ban.setBanChinh(rs.getBoolean("isBanChinh"));
 
 				String maLoaiBan = rs.getString("maLoaiBan");
 				if (maLoaiBan != null) {
@@ -140,6 +141,7 @@ public class PhieuDatBanDAO {
 				    SELECT pdb.*,
 				           kh.maKH, kh.hoTen AS tenKH, kh.soDT,
 				           nv.maNV, nv.hoTen AS tenNV,
+				           pdbb.isBanChinh,
 				           b.maBan, b.tenBan, b.toaDoX, b.toaDoY, b.trangThai AS trangThaiBan,
 				           lb.maLoaiBan, lb.tenLoaiBan AS tenLoai, lb.soChoNgoi, lb.giaTien,
 				           ctpdb.maCT, ctpdb.donGia, ctpdb.ghiChu, m.tenMon, m.maMonAn, ctpdb.soLuong
@@ -162,6 +164,7 @@ public class PhieuDatBanDAO {
 				    SELECT pdb.*,
 				           kh.maKH, kh.hoTen AS tenKH, kh.soDT,
 				           nv.maNV, nv.hoTen AS tenNV,
+				           pdbb.isBanChinh,
 				           b.maBan, b.tenBan, b.toaDoX, b.toaDoY, b.trangThai AS trangThaiBan,
 				           lb.maLoaiBan, lb.tenLoaiBan AS tenLoai, lb.soChoNgoi, lb.giaTien,
 				           ctpdb.maCT, ctpdb.donGia, ctpdb.ghiChu, m.tenMon, m.maMonAn, ctpdb.soLuong
@@ -183,6 +186,7 @@ public class PhieuDatBanDAO {
 		String sql = """
 				    SELECT pdb.*, pdbb.maBan, kh.maKH, kh.hoTen AS tenKH, kh.soDT,
 				           nv.maNV, nv.hoTen AS tenNV,
+				           pdbb.isBanChinh,
 				           b.tenBan, b.toaDoX, b.toaDoY, b.trangThai AS trangThaiBan,
 				           lb.maLoaiBan, lb.tenLoaiBan AS tenLoai, lb.soChoNgoi, lb.giaTien,
 				           ctpdb.maCT, ctpdb.donGia, ctpdb.ghiChu, m.tenMon, m.maMonAn, ctpdb.soLuong
@@ -296,6 +300,7 @@ public class PhieuDatBanDAO {
 				    SELECT pdb.*,
 				           kh.maKH, kh.hoTen AS tenKH, kh.soDT,
 				           nv.maNV, nv.hoTen AS tenNV,
+				           pdbb.isBanChinh,
 				           b.maBan, b.tenBan, b.toaDoX, b.toaDoY, b.trangThai AS trangThaiBan,
 				           lb.maLoaiBan, lb.tenLoaiBan AS tenLoai, lb.soChoNgoi, lb.giaTien,
 				           ctpdb.maCT, ctpdb.donGia, ctpdb.ghiChu, m.maMonAn, m.tenMon, ctpdb.soLuong
@@ -361,6 +366,7 @@ public class PhieuDatBanDAO {
 					ban.setToaDoX(rs.getInt("toaDoX"));
 					ban.setToaDoY(rs.getInt("toaDoY"));
 					ban.setTrangThai(rs.getString("trangThaiBan"));
+					ban.setBanChinh(rs.getBoolean("isBanChinh"));
 
 					// Loại bàn
 					String maLoaiBan = rs.getString("maLoaiBan");
@@ -412,6 +418,7 @@ public class PhieuDatBanDAO {
 		String sql = """
 				    SELECT pdb.*, kh.maKH, kh.hoTen AS tenKH, kh.soDT,
 				           nv.maNV, nv.hoTen AS tenNV,
+				           pdbb.isBanChinh,
 				           b.maBan, b.tenBan, b.toaDoX, b.toaDoY, b.trangThai AS trangThaiBan,
 				           lb.maLoaiBan, lb.tenLoaiBan AS tenLoai, lb.soChoNgoi, lb.giaTien,
 				           ctpdb.maCT, ctpdb.donGia, ctpdb.ghiChu, m.tenMon, m.maMonAn, ctpdb.soLuong
@@ -455,7 +462,7 @@ public class PhieuDatBanDAO {
 				JOIN Ban b ON pdbb.maBan = b.maBan
 				JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
 				WHERE pdb.maPDB = ?)
-				         WHERE maPDB = ?
+				         WHERE maPDB = ? AND pdbb.isBanChinh = 1
 				         """;
 		String sqlKhac = "UPDATE PhieuDatBan SET trangThai = ? WHERE maPDB = ?";
 
@@ -518,7 +525,9 @@ public class PhieuDatBanDAO {
 
 		for (PhieuDatBan pdb : ds) {
 			for (Ban ban : pdb.getDanhSachBan()) {
-				map.put(ban.getMaBan(), pdb);
+				if (ban.isBanChinh()) {
+				    map.put(ban.getMaBan(), pdb);
+				}
 			}
 		}
 		return map;
@@ -532,12 +541,59 @@ public class PhieuDatBanDAO {
 		for (PhieuDatBan pdb : ds) {
 			if (pdb.getDanhSachBan() != null) {
 				for (Ban ban : pdb.getDanhSachBan()) {
-					map.put(ban.getMaBan(), pdb);
+					if (ban.isBanChinh()) {
+					    map.put(ban.getMaBan(), pdb);
+					}
 				}
 			}
 		}
 
 		return map;
 	}
+	
+	public boolean chuyenCumBanDangPhucVu(
+	        String maPDB,
+	        List<Ban> banCu,
+	        List<Ban> banMoi
+	) {
+	    String xoaBanCu = "DELETE FROM PhieuDatBan_Ban WHERE maPDB = ? AND isBanChinh = 0";
+	    Connection conn = null;
+
+	    try {
+	        conn = ConnectSQL.getConnection();
+	        conn.setAutoCommit(false);
+
+	        // 1. Gỡ bàn cũ
+	        try (PreparedStatement ps = conn.prepareStatement(xoaBanCu)) {
+	            ps.setString(1, maPDB);
+	            ps.executeUpdate();
+	        }
+	        
+	        boolean coBanChinh = banMoi.stream().anyMatch(Ban::isBanChinh);
+	        if (!coBanChinh) {
+	            throw new IllegalStateException("Cụm bàn mới phải có bàn chính");
+	        }
+
+	        // 2. Thêm bàn mới
+	        new PhieuDatBan_BanDAO().themBanVaoPhieu(conn, maPDB, banMoi);
+
+	        // 3. Cập nhật trạng thái bàn
+	        banDAO.capNhatTrangThaiDanhSach(banCu, "Trống");
+	        banDAO.capNhatTrangThaiDanhSach(banMoi, "Đang phục vụ");
+
+	        conn.commit();
+	        return true;
+
+	    } catch (Exception e) {
+	        try {
+	            if (conn != null) conn.rollback();
+	        } catch (SQLException ex) {
+	            ex.printStackTrace();
+	        }
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+
 
 }

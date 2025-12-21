@@ -17,6 +17,7 @@ import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -66,6 +67,9 @@ public class GiaoDienChiTietBan extends BorderPane {
 
 		Button btnQuayLai = new ButtonSample2("Quay lại", Variant.YELLOW, 120);
 		btnQuayLai.setOnAction(e -> {
+		    if (pdb != null && lblConLai != null) {
+		        countdownController.unregisterLabel(pdb.getMaPDB(), lblConLai);
+		    }
 		    mainContent.getChildren().setAll(new GiaoDienDatBan(mainContent));
 		});
 
@@ -260,12 +264,34 @@ public class GiaoDienChiTietBan extends BorderPane {
 		hopDen.getChildren().add(tongTienBox);
 
 		// Nút chức năng
-		HBox thanhChucNang = new HBox();
+		HBox thanhChucNang = new HBox(12);
 		thanhChucNang.setAlignment(Pos.CENTER_RIGHT);
 		thanhChucNang.setPadding(new Insets(12, 0, 0, 0));
-		Button nutGoiMon = new ButtonSample2("Gọi thêm món", Variant.YELLOW, 120);
-		nutGoiMon.setOnAction(e -> mainContent.getChildren().setAll(new GiaoDienGoiMon(mainContent, ban, pdb)));
-		thanhChucNang.getChildren().add(nutGoiMon);
+
+		// Gọi thêm món
+		Button btnGoiMon = new ButtonSample2("Gọi thêm món", Variant.YELLOW, 120);
+		btnGoiMon.setOnAction(e ->
+		    mainContent.getChildren().setAll(new GiaoDienGoiMon(mainContent, ban, pdb))
+		);
+
+		// Gộp bàn
+		Button btnGopBan = new ButtonSample2("Gộp bàn", Variant.YELLOW, 120);
+		btnGopBan.setOnAction(e -> xuLyGopBan());
+
+		// Chuyển bàn
+		Button btnChuyenBan = new ButtonSample2("Chuyển bàn", Variant.YELLOW, 120);
+		btnChuyenBan.setOnAction(e -> xuLyChuyenBan());
+
+		// Chỉ cho phép khi đang phục vụ
+		boolean dangPhucVu = "Đang phục vụ".equals(ban.getTrangThai());
+		btnGopBan.setDisable(!dangPhucVu);
+		btnChuyenBan.setDisable(!dangPhucVu);
+
+		thanhChucNang.getChildren().addAll(
+		    btnGopBan,
+		    btnChuyenBan,
+		    btnGoiMon
+		);
 
 		khungPhai.getChildren().addAll(tieuDe, thongTinNho, hopDen, thanhChucNang);
 		phai.getChildren().add(khungPhai);
@@ -327,5 +353,26 @@ public class GiaoDienChiTietBan extends BorderPane {
 		p.setPrefWidth(width);
 		return p;
 	}
+	
+	private void xuLyGopBan() {
+		if (pdb != null && lblConLai != null) {
+	        countdownController.unregisterLabel(pdb.getMaPDB(), lblConLai);
+	    }
+		
+	    QuanLiBan qlb = new QuanLiBan(mainContent, "GOP_BAN");
+	    qlb.setPhieuDangThaoTac(pdb);
+	    mainContent.getChildren().setAll(qlb);
+	}
+
+	private void xuLyChuyenBan() {
+		if (pdb != null && lblConLai != null) {
+	        countdownController.unregisterLabel(pdb.getMaPDB(), lblConLai);
+	    }
+		
+	    QuanLiBan qlb = new QuanLiBan(mainContent, "CHUYEN_BAN");
+	    qlb.setPhieuDangThaoTac(pdb);
+	    mainContent.getChildren().setAll(qlb);
+	}
+
 
 }

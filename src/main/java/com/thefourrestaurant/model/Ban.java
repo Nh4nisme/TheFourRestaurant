@@ -9,6 +9,7 @@ public class Ban {
     private Tang tang;
     private LoaiBan loaiBan;
     private String anhBan;
+    private boolean banChinh;
 
     public Ban() {}
 
@@ -93,9 +94,21 @@ public class Ban {
     public void setAnhBan(String anhBan) {
         this.anhBan = anhBan;
     }
+    
+    public boolean isBanChinh() {
+        return banChinh;
+    }
+
+    public void setBanChinh(boolean banChinh) {
+        this.banChinh = banChinh;
+    }
 
     @Override
     public String toString() {
-        return tenBan + " - " + (tang != null ? tang.getTenTang() : "Chưa có tầng") + " (" + trangThai + ")";
+    	return tenBan + " - " 
+    		     + (tang != null ? tang.getTenTang() : "Chưa có tầng")
+    		     + (banChinh ? " [BÀN CHÍNH]" : "")
+    		     + " (" + trangThai + ")";
+
     }
 }

@@ -152,7 +152,7 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
             boolean ok = phieuDatBanDAO.themPhieu(pdb, "DAT_TRUOC", dsBan);
 
             if (ok) {
-                showDatBanThanhCong(dsBan);
+                showDatBanThanhCong(parentPane, banChinh, pdb);
             } else {
                 showDatBanLoi("Đặt bàn trước thất bại. Vui lòng thử lại!");
             }

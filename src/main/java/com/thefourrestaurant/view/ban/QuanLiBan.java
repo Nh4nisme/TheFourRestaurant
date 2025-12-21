@@ -1,5 +1,7 @@
 package com.thefourrestaurant.view.ban;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +10,8 @@ import java.util.Map;
 
 import com.thefourrestaurant.DAO.BanDAO;
 import com.thefourrestaurant.DAO.PhieuDatBanDAO;
+import com.thefourrestaurant.DAO.PhieuDatBan_BanDAO;
+import com.thefourrestaurant.connect.ConnectSQL;
 import com.thefourrestaurant.controller.CountdownController;
 import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
@@ -32,6 +36,7 @@ public class QuanLiBan extends VBox {
 	private PhieuDatBanDAO pdbDAO = new PhieuDatBanDAO();
 	private final Pane khuVucBan = new Pane(); // nơi hiển thị bàn
 	private final Label lblBreadcrumb = new Label();
+	private PhieuDatBan phieuDangThaoTac;
 
 	private StackPane mainContent;
 	private String context;
@@ -55,10 +60,41 @@ public class QuanLiBan extends VBox {
 		this.setSpacing(0);
 		this.setAlignment(Pos.TOP_CENTER);
 		this.setStyle("-fx-background-color: #F5F5F5;");
+		
+		Platform.runLater(() -> hienThiBanTheoTang(maTangHienTai));
 
 		// Toolbar
-		ButtonSample btnThemBan = new ButtonSample("Thêm bàn", 45, 16, 3);
-		btnThemBan.setOnAction(e -> moPopupTuyChinhBan(null));
+		ButtonSample btnThemBan = new ButtonSample(
+			    context.equals("QUAN_LY_BAN") ? "Thêm bàn" :
+			    context.equals("GOP_BAN") ? "Xác nhận gộp" :
+			    context.equals("CHUYEN_BAN") ? "Xác nhận chuyển" :
+			    "Thao tác",
+			    45, 16, 3
+			);
+
+			btnThemBan.setOnAction(e -> {
+
+			    switch (context) {
+
+			        case "QUAN_LY_BAN":
+			            // ➕ Thêm bàn mới
+			            moPopupTuyChinhBan(null);
+			            break;
+
+			        case "GOP_BAN":
+			            // 🔗 Gộp bàn
+			            xuLyXacNhanGopBan();
+			            break;
+
+			        case "CHUYEN_BAN":
+			            // 🔄 Chuyển bàn
+			            xuLyXacNhanChuyenBan();
+			            break;
+
+			        default:
+			            break;
+			    }
+			});
 		ButtonSample btnLuuSoDo = new ButtonSample("Lưu sơ đồ", 45, 16, 3);
 		btnLuuSoDo.setOnAction(e -> {
 			this.choPhepDiChuyen = false;
@@ -207,6 +243,32 @@ public class QuanLiBan extends VBox {
 		});
 
 		khungBan.setOnMouseClicked(e -> {
+			
+			if ("GOP_BAN".equals(context) || "CHUYEN_BAN".equals(context)) {
+
+		        // ❌ Chỉ cho chọn bàn TRỐNG
+		        if (!"Trống".equals(ban.getTrangThai())) {
+		            return;
+		        }
+
+		        if (dsBanDangChon.contains(ban)) {
+		            dsBanDangChon.remove(ban);
+		            khungBan.setBackground(null);
+		        } else {
+		            dsBanDangChon.add(ban);
+		            khungBan.setBackground(
+		                new Background(
+		                    new BackgroundFill(
+		                        Color.rgb(100, 200, 255, 0.6),
+		                        new CornerRadii(10),
+		                        Insets.EMPTY
+		                    )
+		                )
+		            );
+		        }
+		        return;
+		    }
+			
 			if (e.getClickCount() == 1) {
 				if (dsBanDangChon.contains(ban)) {
 					dsBanDangChon.remove(ban);
@@ -402,6 +464,147 @@ public class QuanLiBan extends VBox {
 	public void clearBanDangChon() {
 	    dsBanDangChon.clear();
 	}
+
+	public void setPhieuDangThaoTac(PhieuDatBan pdb) {
+	    this.phieuDangThaoTac = pdb;
+	}
+
+	private void xuLyXacNhanGopBan() {
+
+	    if (phieuDangThaoTac == null) {
+	        new Alert(Alert.AlertType.ERROR, "Không xác định được phiếu đang thao tác!").show();
+	        return;
+	    }
+
+	    if (dsBanDangChon.isEmpty()) {
+	        new Alert(Alert.AlertType.WARNING, "Vui lòng chọn ít nhất 1 bàn trống để gộp!").show();
+	        return;
+	    }
+
+	    // BÀN CHÍNH = BÀN CLICK ĐẦU TIÊN
+	    Ban banChinh = dsBanDangChon.get(0);
+
+	    try (Connection conn = ConnectSQL.getConnection()) {
+	        conn.setAutoCommit(false);
+
+	        // XÓA BÀN CŨ (NẾU CÓ)
+	        new PhieuDatBan_BanDAO()
+	            .xoaTatCaBanKhoiPhieu(conn, phieuDangThaoTac.getMaPDB());
+
+	        // INSERT BÀN + isBanChinh
+	        String sql = """
+	            INSERT INTO PhieuDatBan_Ban(maPDB, maBan, isBanChinh)
+	            VALUES (?, ?, ?)
+	        """;
+
+	        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+	            for (Ban ban : dsBanDangChon) {
+	                ps.setString(1, phieuDangThaoTac.getMaPDB());
+	                ps.setString(2, ban.getMaBan());
+	                ps.setBoolean(3, ban.equals(banChinh));
+	                ps.addBatch();
+	            }
+	            ps.executeBatch();
+	        }
+
+	        // CẬP NHẬT TRẠNG THÁI BÀN
+	        banDAO.capNhatTrangThaiDanhSach(dsBanDangChon, "Đang phục vụ");
+
+	        conn.commit();
+
+	        new Alert(Alert.AlertType.INFORMATION, "Gộp bàn thành công!").show();
+
+	        dsBanDangChon.clear();
+	        refresh();
+
+	        // QUAY VỀ CHI TIẾT BÀN → DÙNG BÀN CHÍNH
+	        mainContent.getChildren().setAll(
+	            new GiaoDienChiTietBan(
+	                mainContent,
+	                banChinh,
+	                phieuDangThaoTac
+	            )
+	        );
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        new Alert(Alert.AlertType.ERROR, "Gộp bàn thất bại!").show();
+	    }
+	}
+	
+	private void xuLyXacNhanChuyenBan() {
+
+	    if (phieuDangThaoTac == null) {
+	        new Alert(Alert.AlertType.ERROR, "Không xác định được phiếu đang thao tác!").show();
+	        return;
+	    }
+
+	    if (dsBanDangChon.isEmpty()) {
+	        new Alert(Alert.AlertType.WARNING, "Vui lòng chọn ít nhất 1 bàn trống để chuyển!").show();
+	        return;
+	    }
+
+	    // ✅ BÀN CHÍNH MỚI = BÀN CLICK ĐẦU
+	    Ban banChinhMoi = dsBanDangChon.get(0);
+
+	    try (Connection conn = ConnectSQL.getConnection()) {
+	        conn.setAutoCommit(false);
+
+	        PhieuDatBan_BanDAO pdbBanDAO = new PhieuDatBan_BanDAO();
+
+	        // LẤY DANH SÁCH BÀN CŨ CỦA PHIẾU
+	        List<Ban> dsBanCu =
+	            pdbBanDAO.layDanhSachBanTheoPhieu(phieuDangThaoTac.getMaPDB());
+
+	        // XÓA LIÊN KẾT BÀN CŨ
+	        pdbBanDAO.xoaTatCaBanKhoiPhieu(conn, phieuDangThaoTac.getMaPDB());
+
+	        // INSERT BÀN MỚI + isBanChinh
+	        String sqlInsert = """
+	            INSERT INTO PhieuDatBan_Ban(maPDB, maBan, isBanChinh)
+	            VALUES (?, ?, ?)
+	        """;
+
+	        try (PreparedStatement ps = conn.prepareStatement(sqlInsert)) {
+	            for (Ban ban : dsBanDangChon) {
+	                ps.setString(1, phieuDangThaoTac.getMaPDB());
+	                ps.setString(2, ban.getMaBan());
+	                ps.setBoolean(3, ban.equals(banChinhMoi));
+	                ps.addBatch();
+	            }
+	            ps.executeBatch();
+	        }
+
+	        // BÀN CŨ → TRỐNG
+	        if (!dsBanCu.isEmpty()) {
+	            banDAO.capNhatTrangThaiDanhSach(dsBanCu, "Trống");
+	        }
+
+	        // BÀN MỚI → ĐANG PHỤC VỤ
+	        banDAO.capNhatTrangThaiDanhSach(dsBanDangChon, "Đang phục vụ");
+
+	        conn.commit();
+
+	        new Alert(Alert.AlertType.INFORMATION, "Chuyển bàn thành công!").show();
+
+	        dsBanDangChon.clear();
+	        refresh();
+
+	        // 6️⃣ QUAY VỀ CHI TIẾT BÀN CHÍNH MỚI
+	        mainContent.getChildren().setAll(
+	            new GiaoDienChiTietBan(
+	                mainContent,
+	                banChinhMoi,
+	                phieuDangThaoTac
+	            )
+	        );
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        new Alert(Alert.AlertType.ERROR, "Chuyển bàn thất bại!").show();
+	    }
+	}
+
 
 
 

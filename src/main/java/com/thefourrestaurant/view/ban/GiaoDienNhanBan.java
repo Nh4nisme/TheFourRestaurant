@@ -8,7 +8,6 @@ import com.thefourrestaurant.model.Ban;
 import com.thefourrestaurant.model.PhieuDatBan;
 import com.thefourrestaurant.util.ClockText;
 import com.thefourrestaurant.view.components.ButtonSample2;
-import com.thefourrestaurant.view.components.ButtonSample2.Variant;
 import com.thefourrestaurant.view.monan.GiaoDienGoiMon;
 
 import javafx.collections.FXCollections;
@@ -18,12 +17,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
 
 public class GiaoDienNhanBan extends BorderPane {
 
 	// ===== MÀU =====
-	private static final String COLOR_BG_MAIN = "#f0f0f0";
 	private static final String COLOR_BG_HEADER = "#1E424D";
 	private static final String COLOR_TEXT_GOLD = "#DDB248";
 
@@ -141,10 +138,6 @@ public class GiaoDienNhanBan extends BorderPane {
 		// ===== NÚT =====
 		ButtonSample2 btnQuayLai = new ButtonSample2("Quay lại", ButtonSample2.Variant.YELLOW, 150, 45);
 
-		ButtonSample2 btnGopBan = new ButtonSample2("Gộp bàn", ButtonSample2.Variant.YELLOW, 150, 45);
-
-		ButtonSample2 btnChuyenBan = new ButtonSample2("Chuyển bàn", ButtonSample2.Variant.YELLOW, 150, 45);
-
 		ButtonSample2 btnGoiMon = new ButtonSample2("Gọi món", ButtonSample2.Variant.YELLOW, 150, 45);
 
 		ButtonSample2 btnHuyPhieu = new ButtonSample2("Hủy phiếu", ButtonSample2.Variant.YELLOW, 150, 45);
@@ -160,14 +153,12 @@ public class GiaoDienNhanBan extends BorderPane {
 		btnHuyPhieu.setOnAction(e -> xuLyHuyPhieu());
 
 		btnGoiMon.setOnAction(e -> xuLyGoiMon());
-		btnGopBan.setOnAction(e -> xuLyGopBan());
-		btnChuyenBan.setOnAction(e -> xuLyChuyenBan());
 
 		// ===== BỐ CỤC =====
 		Region spacer = new Region();
 		HBox.setHgrow(spacer, Priority.ALWAYS);
 
-		HBox bar = new HBox(15, btnQuayLai, spacer, btnGopBan, btnChuyenBan, btnGoiMon, btnHuyPhieu, btnNhanBan);
+		HBox bar = new HBox(15, btnQuayLai, spacer, btnGoiMon, btnHuyPhieu, btnNhanBan);
 
 		bar.setPadding(new Insets(10, 20, 10, 20));
 		bar.setAlignment(Pos.CENTER);
@@ -262,17 +253,6 @@ public class GiaoDienNhanBan extends BorderPane {
 //	    chiTietPane.clearThongTin(); // ✅ GIỮ UI – CLEAR DATA
 	}
 
-	private ButtonSample2 taoNutQuayLai() {
-		ButtonSample2 btn = new ButtonSample2("Quay lại", ButtonSample2.Variant.YELLOW, 150, 45);
-
-		btn.setOnAction(e -> {
-			parentPane.getChildren().clear();
-			quanLiBan.refresh();
-		});
-
-		return btn;
-	}
-
 	private void xuLyGoiMon() {
 		if (phieuDangChon == null) {
 			new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu!").showAndWait();
@@ -282,25 +262,6 @@ public class GiaoDienNhanBan extends BorderPane {
 		parentPane.getChildren().clear();
 		parentPane.getChildren()
 				.add(new GiaoDienGoiMon(parentPane, phieuDangChon.getDanhSachBan().get(0), phieuDangChon));
-	}
-
-	private void xuLyGopBan() {
-		if (phieuDangChon == null) {
-			new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu cần gộp!").showAndWait();
-			return;
-		}
-
-		// Mở màn hình gộp bàn (bạn có thể làm giống chuyển bàn)
-		new Alert(Alert.AlertType.INFORMATION, "Mở chức năng Gộp bàn").showAndWait();
-	}
-
-	private void xuLyChuyenBan() {
-		if (phieuDangChon == null) {
-			new Alert(Alert.AlertType.WARNING, "Vui lòng chọn phiếu cần chuyển bàn!").showAndWait();
-			return;
-		}
-
-		new Alert(Alert.AlertType.INFORMATION, "Mở chức năng Chuyển bàn").showAndWait();
 	}
 
 }
