@@ -15,7 +15,9 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,8 +32,8 @@ public class GiaoDienLapHoaDon extends VBox {
     private static final BigDecimal VAT_RATE = BigDecimal.valueOf(0.10);
 
     // ================== STATE ==================
-    private final Stage stage;
     private final StackPane mainContent;
+    private final StackPane overlay;
     private PhieuDatBan phieuDatBan;
     private KhuyenMai khuyenMaiHienTai;
 
@@ -67,11 +69,26 @@ public class GiaoDienLapHoaDon extends VBox {
     // QR overlay
     private final StackPane qrOverlay = new StackPane();
 
+    // Callback
+    private Runnable onThanhToanThanhCong;
+
     // ================== CONSTRUCTOR ==================
-    public GiaoDienLapHoaDon(Stage stage, StackPane mainContent) {
-        this.stage = stage;
+    public GiaoDienLapHoaDon(StackPane mainContent, StackPane overlay) {
+        this.overlay = overlay;
         this.mainContent = mainContent;
+
         khoiTaoUI();
+
+        StackPane popupWrapper = new StackPane(this);
+        popupWrapper.setMaxWidth(1000);
+        popupWrapper.setMaxHeight(780);
+
+        qrOverlay.setVisible(false);
+        popupWrapper.getChildren().add(qrOverlay);
+        StackPane.setAlignment(qrOverlay, Pos.CENTER);
+
+        this.getProperties().put("popupWrapper", popupWrapper);
+
         getStyleClass().add("hoa-don-root");
     }
 
@@ -92,17 +109,11 @@ public class GiaoDienLapHoaDon extends VBox {
                 taoFooter()
         );
 
-        Scene scene = new Scene(new StackPane(this, qrOverlay), 1000, 780);
-        scene.getStylesheets().add(
-                Objects.requireNonNull(
-                        getClass().getResource("/com/thefourrestaurant/css/Application.css")
-                ).toExternalForm()
-        );
-
-        stage.setScene(scene);
-        stage.setTitle("Lập hóa đơn");
-        stage.show();
+        setMaxWidth(1000);
+        setMaxHeight(780);
     }
+
+
 
     private Node taoTitle() {
         HBox hBox = new HBox();
@@ -186,7 +197,7 @@ public class GiaoDienLapHoaDon extends VBox {
     // ================== FOOTER ==================
     private Node taoFooter() {
         ButtonSample btnBack = new ButtonSample("Quay lại", "", 45, 16, 3);
-        btnBack.setOnAction(e -> stage.close());
+        btnBack.setOnAction(e -> mainContent.getChildren().remove(overlay));
 
         ButtonSample btnOK = new  ButtonSample("Xác nhận thanh toán", "", 45, 16, 3);
         btnOK.setOnAction(e -> xuLyXacNhanThanhToan());
@@ -201,6 +212,7 @@ public class GiaoDienLapHoaDon extends VBox {
         // Overlay nền mờ
         qrOverlay.setVisible(false);
         qrOverlay.setStyle("-fx-background-color: rgba(0,0,0,0.6);");
+        qrOverlay.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
         // QR image
         ImageView qr = new ImageView(
@@ -261,34 +273,38 @@ public class GiaoDienLapHoaDon extends VBox {
     }
 
     private void khoiTaoComboKhuyenMai() {
-        // Lấy danh sách khuyến mãi
-        cboKhuyenMai.getItems().setAll(khuyenMaiController.layDanhSachKhuyenMaiTheoKieu("MaGiamGia"));
+        List<KhuyenMai> dsKM = khuyenMaiController.layKhuyenMaiConHieuLucTheoKieu("MaGiamGia");
+        cboKhuyenMai.getItems().clear();
 
-        // Hiển thị tên khuyến mãi trong ComboBox
+        if (dsKM == null || dsKM.isEmpty()) {
+            // Không có khuyến mãi hợp lệ
+            cboKhuyenMai.setPromptText("Không có khuyến mãi hợp lệ");
+            cboKhuyenMai.setValue(null);
+        } else {
+            cboKhuyenMai.setDisable(false);
+            cboKhuyenMai.setPromptText("Áp dụng khuyến mãi");
+            cboKhuyenMai.getItems().setAll(dsKM);
+        }
+        // Hiển thị tên KM
         cboKhuyenMai.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(KhuyenMai item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("");
-                } else {
-                    setText(item.getTenKM());
-                }
+                setText((empty || item == null) ? "" : item.getTenKM());
             }
         });
 
         cboKhuyenMai.setButtonCell(cboKhuyenMai.getCellFactory().call(null));
-        cboKhuyenMai.setPromptText("Áp dụng khuyến mãi");
         cboKhuyenMai.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null) {
                 khuyenMaiHienTai = null;
             } else {
-                // Lấy danh sách điều kiện từ DB
-                List<KhuyenMai_DieuKien> dsDieuKien = new KhuyenMai_DieuKienDAO()
-                        .layDieuKienTheoMaKM(newVal.getMaKM());
+                List<KhuyenMai_DieuKien> dsDieuKien =
+                        new KhuyenMai_DieuKienDAO().layDieuKienTheoMaKM(newVal.getMaKM());
 
-                // Lấy điều kiện đầu tiên (hoặc xử lý theo nhu cầu)
-                newVal.setKhuyenMaiDieuKien(dsDieuKien.isEmpty() ? null : dsDieuKien.get(0));
+                newVal.setKhuyenMaiDieuKien(
+                        dsDieuKien.isEmpty() ? null : dsDieuKien.get(0)
+                );
 
                 khuyenMaiHienTai = newVal;
             }
@@ -296,8 +312,8 @@ public class GiaoDienLapHoaDon extends VBox {
             capNhatHienThiKhuyenMai();
             capNhatSoTienThanhToan();
         });
-
     }
+
 
 
     // ================== DISPLAY ==================
@@ -495,8 +511,10 @@ public class GiaoDienLapHoaDon extends VBox {
 
             // ===== HOÀN TẤT =====
             hienThongBao("Thanh toán thành công!", Alert.AlertType.INFORMATION);
-            stage.close();
-            mainContent.getChildren().setAll(new GiaoDienDatBan(mainContent));
+            mainContent.getChildren().remove(overlay);
+            if (onThanhToanThanhCong != null) {
+                onThanhToanThanhCong.run();
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -504,5 +522,14 @@ public class GiaoDienLapHoaDon extends VBox {
         }
     }
 
-    private void hienThongBao(String msg, Alert.AlertType type) { new Alert(type, msg).showAndWait(); }
+    private void hienThongBao(String msg, Alert.AlertType type) {
+        Alert alert = new Alert(type, msg);
+        alert.initOwner(mainContent.getScene().getWindow());
+        alert.initModality(Modality.WINDOW_MODAL);
+        alert.showAndWait();
+    }
+
+    public void setOnThanhToanThanhCong(Runnable r) {
+        this.onThanhToanThanhCong = r;
+    }
 }
