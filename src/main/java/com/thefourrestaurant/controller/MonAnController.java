@@ -97,7 +97,7 @@ public class MonAnController {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Xác nhận xóa");
         confirmAlert.setHeaderText("Bạn có chắc chắn muốn xóa món: " + monAn.getTenMon() + "?");
-        confirmAlert.setContentText("Hành động này không thể hoàn tác.");
+        confirmAlert.setContentText("Hành động này có thể hoàn tác ở nút khôi phục.");
         confirmAlert.initOwner(owner);
 
         Optional<ButtonType> result = confirmAlert.showAndWait();

@@ -100,7 +100,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
                 box.setAlignment(Pos.CENTER);
             }
             private final com.thefourrestaurant.view.components.ButtonSample btnSua = new com.thefourrestaurant.view.components.ButtonSample("Sửa", 36, 14, 1);
-            private final com.thefourrestaurant.view.components.ButtonSample btnXoa = new com.thefourrestaurant.view.components.ButtonSample("Xóa", 36, 14, 2);
+//            private final com.thefourrestaurant.view.components.ButtonSample btnXoa = new com.thefourrestaurant.view.components.ButtonSample("Xóa", 36, 14, 2);
             private final com.thefourrestaurant.view.components.ButtonSample btnAdd = new com.thefourrestaurant.view.components.ButtonSample("Thêm nhân viên", 36, 16, 1);
 
             {
@@ -112,22 +112,22 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
                     }
                 });
 
-                btnXoa.setOnAction(e -> {
-                    NhanVien nv = getTableView().getItems().get(getIndex());
-                    if (nv == null || nv.getMaNV() == null || nv.getMaNV().trim().isEmpty()) return;
-                    Stage stage = getTableView().getScene() != null ? (Stage) getTableView().getScene().getWindow() : null;
-                    boolean confirm = xacNhan(stage, "Bạn có chắc muốn xóa nhân viên này?");
-                    if (!confirm) return;
-                    try {
-                        nv.setDeleted(true);
-                        boolean ok = controller.capNhatNhanVien(nv, null);
-                        if (ok) {
-                            getTableView().getItems().remove(nv);
-                        } else {
-                            hienThongBao(stage, "Xóa thất bại.", Alert.AlertType.ERROR);
-                        }
-                    } catch (Exception ex) { ex.printStackTrace(); }
-                });
+//                btnXoa.setOnAction(e -> {
+//                    NhanVien nv = getTableView().getItems().get(getIndex());
+//                    if (nv == null || nv.getMaNV() == null || nv.getMaNV().trim().isEmpty()) return;
+//                    Stage stage = getTableView().getScene() != null ? (Stage) getTableView().getScene().getWindow() : null;
+//                    boolean confirm = xacNhan(stage, "Bạn có chắc muốn xóa nhân viên này?");
+//                    if (!confirm) return;
+//                    try {
+//                        nv.setDeleted(true);
+//                        boolean ok = controller.capNhatNhanVien(nv, null);
+//                        if (ok) {
+//                            getTableView().getItems().remove(nv);
+//                        } else {
+//                            hienThongBao(stage, "Xóa thất bại.", Alert.AlertType.ERROR);
+//                        }
+//                    } catch (Exception ex) { ex.printStackTrace(); }
+//                });
 
                 btnAdd.setOnAction(e -> {
                     GiaoDienChiTietNhanVien chiTiet = (GiaoDienChiTietNhanVien) getChiTietNode();
@@ -155,8 +155,8 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
                     box.getChildren().add(btnAdd);
                 } else {
                     btnSua.setPrefWidth(80);
-                    btnXoa.setPrefWidth(80);
-                    box.getChildren().addAll(btnSua, btnXoa);
+//                    btnXoa.setPrefWidth(80);
+                    box.getChildren().addAll(btnSua);
                 }
                 setGraphic(box);
                 setAlignment(Pos.CENTER);

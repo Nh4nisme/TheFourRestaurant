@@ -69,7 +69,7 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
                 box.setAlignment(javafx.geometry.Pos.CENTER);
             }
             private final ButtonSample btnSua = new ButtonSample("Sửa", 36, 14, 1);
-            private final ButtonSample btnXoa = new ButtonSample("Xóa", 36, 14, 2);
+//            private final ButtonSample btnXoa = new ButtonSample("Xóa", 36, 14, 2);
             private final ButtonSample btnAdd = new ButtonSample("Thêm tài khoản", 36, 16, 1);
 
             {
@@ -81,29 +81,29 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
                     }
                 });
 
-                btnXoa.setOnAction(e -> {
-                    TaiKhoan tk = getTableView().getItems().get(getIndex());
-                    if (tk == null || tk.getMaTK() == null || tk.getMaTK().trim().isEmpty()) return;
-                    Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-                    a.setTitle("Xác nhận");
-                    a.setHeaderText("Xác nhận");
-                    a.setContentText("Bạn có chắc muốn xóa tài khoản: " + tk.getTenDN() + " ?");
-                    a.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
-                    a.showAndWait().ifPresent(bt -> {
-                        if (bt == ButtonType.OK) {
-                            try {
-                                boolean ok = controller.xoaTaiKhoan(tk.getMaTK());
-                                if (ok) {
-                                    refreshBangChinh();
-                                } else {
-                                    Alert err = new Alert(Alert.AlertType.ERROR, "Xóa thất bại.");
-                                    err.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
-                                    err.showAndWait();
-                                }
-                            } catch (Exception ex) { ex.printStackTrace(); }
-                        }
-                    });
-                });
+//                btnXoa.setOnAction(e -> {
+//                    TaiKhoan tk = getTableView().getItems().get(getIndex());
+//                    if (tk == null || tk.getMaTK() == null || tk.getMaTK().trim().isEmpty()) return;
+//                    Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+//                    a.setTitle("Xác nhận");
+//                    a.setHeaderText("Xác nhận");
+//                    a.setContentText("Bạn có chắc muốn xóa tài khoản: " + tk.getTenDN() + " ?");
+//                    a.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
+//                    a.showAndWait().ifPresent(bt -> {
+//                        if (bt == ButtonType.OK) {
+//                            try {
+//                                boolean ok = controller.xoaTaiKhoan(tk.getMaTK());
+//                                if (ok) {
+//                                    refreshBangChinh();
+//                                } else {
+//                                    Alert err = new Alert(Alert.AlertType.ERROR, "Xóa thất bại.");
+//                                    err.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
+//                                    err.showAndWait();
+//                                }
+//                            } catch (Exception ex) { ex.printStackTrace(); }
+//                        }
+//                    });
+//                });
 
                 btnAdd.setOnAction(e -> {
                     table.getSelectionModel().clearSelection();
@@ -125,8 +125,8 @@ public class GiaoDienTaiKhoan extends GiaoDienThucThe {
                     box.getChildren().add(btnAdd);
                 } else {
                     btnSua.setPrefWidth(80);
-                    btnXoa.setPrefWidth(80);
-                    box.getChildren().addAll(btnSua, btnXoa);
+//                    btnXoa.setPrefWidth(80);
+                    box.getChildren().addAll(btnSua);
                 }
                 setGraphic(box);
                 setAlignment(javafx.geometry.Pos.CENTER);

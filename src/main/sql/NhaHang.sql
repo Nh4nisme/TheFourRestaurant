@@ -293,6 +293,7 @@ CREATE TABLE KhuyenMai_DieuKien (
     soTienGiam DECIMAL(12,2) NULL CHECK(soTienGiam >= 0),
     soLuongTang INT NULL CHECK(soLuongTang >= 0),
     moTaDieuKien NVARCHAR(255) NULL,
+    giaToiThieu DECIMAL(18,2) NULL,
     CONSTRAINT FK_DieuKien_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM) ON DELETE CASCADE
 );
 GO
