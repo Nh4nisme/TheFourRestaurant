@@ -270,16 +270,13 @@ public abstract class GiaoDienDatBanBase extends VBox {
 		    KhachHang kh = khachHangDAO.layKhachHangTheoSDT(sdt);
 		    if (kh != null) {
 		        selectedKhachHang = kh;
-		        showMessage("Khách hàng: " + kh.getHoTen(), Alert.AlertType.INFORMATION);
+		        lblTenKhachDat.setText(kh.getHoTen()); // điền tên khách luôn, không show alert
 		    } else {
-		        // Thông báo khách hàng chưa tồn tại
-		        showMessage("Khách hàng chưa tồn tại!", Alert.AlertType.ERROR);
-
-		        // Hỏi người dùng có muốn thêm khách hàng mới không
+		        // Khách hàng chưa tồn tại, hỏi có muốn thêm mới không
 		        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		        alert.setTitle("Thêm khách hàng");
 		        alert.setHeaderText(null);
-		        alert.setContentText("Bạn có muốn thêm khách hàng mới không?");
+		        alert.setContentText("Khách hàng chưa tồn tại!\nBạn có muốn thêm khách hàng mới không?");
 		        if (this.getScene() != null && this.getScene().getWindow() != null) {
 		            alert.initOwner(this.getScene().getWindow());
 		        }
@@ -292,9 +289,16 @@ public abstract class GiaoDienDatBanBase extends VBox {
 		        if (result.isPresent() && result.get() == btnCo) {
 		            Stage st = new Stage();
 		            GiaoDienThemKhachHang view = new GiaoDienThemKhachHang(sdt, khMoi -> {
+		                // Regex kiểm tra tên (chỉ chữ cái và khoảng trắng)
+		                String hoTen = khMoi.getHoTen() != null ? khMoi.getHoTen().trim() : "";
+		                if (!hoTen.matches("[a-zA-ZÀ-ỹ\\s]{1,50}")) {
+		                    showMessage("Tên không hợp lệ! Chỉ chứa chữ cái và khoảng trắng, tối đa 50 ký tự.", Alert.AlertType.ERROR);
+		                    return;
+		                }
 		                selectedKhachHang = khMoi;
 		                txtSDTKhachDat.setText(khMoi.getSoDT());
-		                showMessage("Thêm khách hàng thành công: " + khMoi.getHoTen(), Alert.AlertType.INFORMATION);
+		                lblTenKhachDat.setText(hoTen); // điền tên sau khi thêm
+		                showMessage("Thêm khách hàng thành công: " + hoTen, Alert.AlertType.INFORMATION);
 		            });
 		            st.setScene(new Scene(view));
 		            st.initOwner(getScene() != null ? getScene().getWindow() : null);

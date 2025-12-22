@@ -8,6 +8,7 @@ import com.thefourrestaurant.model.KhachHang;
 import com.thefourrestaurant.model.LoaiKhachHang;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -188,16 +189,29 @@ public class GiaoDienThemKhachHang extends VBox {
             LocalDate ns = dpNgaySinh.getValue();
             String gioiTinh = cboGioiTinh.getSelectionModel().getSelectedItem();
 
+            // Kiểm tra tên hợp lệ
             if (ten.isEmpty()) {
                 txtTenKhachHang.requestFocus();
+                showMessage("Vui lòng nhập tên khách hàng!", Alert.AlertType.ERROR);
                 return;
             }
+            if (!ten.matches("[a-zA-ZÀ-ỹ\\s]{1,50}")) {
+                txtTenKhachHang.requestFocus();
+                showMessage("Tên không hợp lệ! Chỉ chứa chữ cái và khoảng trắng, tối đa 50 ký tự.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            // Kiểm tra giới tính
             if (gioiTinh == null || !("Nam".equals(gioiTinh) || "Nữ".equals(gioiTinh))) {
                 cboGioiTinh.requestFocus();
+                showMessage("Vui lòng chọn giới tính!", Alert.AlertType.ERROR);
                 return;
             }
-            if (sdt.length() < 10) {
+
+            // Kiểm tra SDT
+            if (!sdt.matches("0\\d{9}")) {
                 txtSoDT.requestFocus();
+                showMessage("SDT không hợp lệ! Phải 10 chữ số, bắt đầu bằng 0.", Alert.AlertType.ERROR);
                 return;
             }
 
@@ -210,29 +224,37 @@ public class GiaoDienThemKhachHang extends VBox {
                 return;
             }
 
+            // Tạo mới
             KhachHang kh = new KhachHang();
             kh.setHoTen(ten);
             kh.setSoDT(sdt);
-            // Map "Nữ" hiển thị sang giá trị DB hợp lệ "Nu"
-            String gioiTinhDb = "Nữ".equals(gioiTinh) ? "Nu" : gioiTinh;
-            kh.setGioiTinh(gioiTinhDb);
+            kh.setGioiTinh("Nữ".equals(gioiTinh) ? "Nu" : gioiTinh);
             kh.setNgaySinh(ns != null ? Date.valueOf(ns) : null);
-            // Gán loại KH đầu tiên nếu có; nếu không có thì dừng vì maLoaiKH NOT NULL
             List<LoaiKhachHang> ds = new LoaiKhachHangDAO().layDanhSachLoaiKhachHang();
-            if (!ds.isEmpty()) {
-                kh.setLoaiKH(ds.get(0));
-            } else {
-                // Không có loại KH trong DB -> không thể lưu theo schema
-                return;
-            }
+            if (!ds.isEmpty()) kh.setLoaiKH(ds.get(0));
+            else return; // không có loại KH -> không lưu
 
             boolean ok = khachHangDAO.themKhachHang(kh);
             if (ok) {
                 if (onSaved != null) onSaved.accept(kh);
+                showMessage("Thêm khách hàng thành công: " + ten, Alert.AlertType.INFORMATION);
                 Stage st = (Stage) getScene().getWindow();
                 if (st != null) st.close();
             }
         });
+    }
+    
+    private void showMessage(String message, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(type == Alert.AlertType.ERROR ? "Lỗi" : "Thông báo");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        if (this.getScene() != null && this.getScene().getWindow() != null) {
+            alert.initOwner(this.getScene().getWindow());
+        }
+
+        alert.showAndWait();
     }
     
 
