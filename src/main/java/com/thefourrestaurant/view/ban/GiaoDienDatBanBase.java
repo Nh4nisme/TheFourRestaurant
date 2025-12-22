@@ -258,44 +258,51 @@ public abstract class GiaoDienDatBanBase extends VBox {
 
 	private void wireCommonHandlers() {
 		btnKiemTra.setOnAction(e -> {
-			String sdt = txtSDTKhachDat.getText() == null ? "" : txtSDTKhachDat.getText().trim();
-			if (sdt.length() < 10) {
-				lblTenKhachDat.setText("SDT không hợp lệ");
-				return;
-			}
-			KhachHang kh = khachHangDAO.layKhachHangTheoSDT(sdt);
-			if (kh != null) {
-				selectedKhachHang = kh;
-				lblTenKhachDat.setText(kh.getHoTen());
-			} else {
-				Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-				alert.setTitle("Khách hàng không tồn tại");
-				alert.setHeaderText(null);
-				alert.setContentText(
-						"Khách hàng với số điện thoại này không tồn tại. Bạn có muốn thêm khách hàng mới?");
+		    String sdt = txtSDTKhachDat.getText() == null ? "" : txtSDTKhachDat.getText().trim();
 
-				if (this.getScene() != null && this.getScene().getWindow() != null) {
-					alert.initOwner(this.getScene().getWindow());
-				}
-				ButtonType btnCo = new ButtonType("Có", ButtonBar.ButtonData.YES);
-				ButtonType btnKhong = new ButtonType("Không", ButtonBar.ButtonData.NO);
-				alert.getButtonTypes().setAll(btnCo, btnKhong);
+		    // Kiểm tra SDT hợp lệ (10 chữ số, bắt đầu bằng 0)
+		    if (!sdt.matches("0\\d{9}")) { 
+		        showMessage("SDT không hợp lệ! (phải 10 số, bắt đầu bằng 0)", Alert.AlertType.ERROR);
+		        return;
+		    }
 
-				Optional<ButtonType> result = alert.showAndWait();
-				if (result.isPresent() && result.get() == btnCo) {
-					Stage st = new Stage();
-					GiaoDienThemKhachHang view = new GiaoDienThemKhachHang(sdt, khMoi -> {
-						selectedKhachHang = khMoi;
-						txtSDTKhachDat.setText(khMoi.getSoDT());
-						lblTenKhachDat.setText(khMoi.getHoTen());
-					});
-					st.setScene(new Scene(view));
-					st.initOwner(getScene() != null ? getScene().getWindow() : null);
-					st.initModality(Modality.APPLICATION_MODAL);
-					st.setTitle("Thêm khách hàng");
-					st.showAndWait();
-				}
-			}
+		    // Kiểm tra khách hàng trong DB
+		    KhachHang kh = khachHangDAO.layKhachHangTheoSDT(sdt);
+		    if (kh != null) {
+		        selectedKhachHang = kh;
+		        showMessage("Khách hàng: " + kh.getHoTen(), Alert.AlertType.INFORMATION);
+		    } else {
+		        // Thông báo khách hàng chưa tồn tại
+		        showMessage("Khách hàng chưa tồn tại!", Alert.AlertType.ERROR);
+
+		        // Hỏi người dùng có muốn thêm khách hàng mới không
+		        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+		        alert.setTitle("Thêm khách hàng");
+		        alert.setHeaderText(null);
+		        alert.setContentText("Bạn có muốn thêm khách hàng mới không?");
+		        if (this.getScene() != null && this.getScene().getWindow() != null) {
+		            alert.initOwner(this.getScene().getWindow());
+		        }
+
+		        ButtonType btnCo = new ButtonType("Có", ButtonBar.ButtonData.YES);
+		        ButtonType btnKhong = new ButtonType("Không", ButtonBar.ButtonData.NO);
+		        alert.getButtonTypes().setAll(btnCo, btnKhong);
+
+		        Optional<ButtonType> result = alert.showAndWait();
+		        if (result.isPresent() && result.get() == btnCo) {
+		            Stage st = new Stage();
+		            GiaoDienThemKhachHang view = new GiaoDienThemKhachHang(sdt, khMoi -> {
+		                selectedKhachHang = khMoi;
+		                txtSDTKhachDat.setText(khMoi.getSoDT());
+		                showMessage("Thêm khách hàng thành công: " + khMoi.getHoTen(), Alert.AlertType.INFORMATION);
+		            });
+		            st.setScene(new Scene(view));
+		            st.initOwner(getScene() != null ? getScene().getWindow() : null);
+		            st.initModality(Modality.APPLICATION_MODAL);
+		            st.setTitle("Thêm khách hàng");
+		            st.showAndWait();
+		        }
+		    }
 		});
 		btnDatBan.setOnAction(e -> wireDatBanHandler());
 		btnQuayLai.setOnAction(e -> {
