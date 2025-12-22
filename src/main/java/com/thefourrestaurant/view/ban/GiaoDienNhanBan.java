@@ -187,7 +187,7 @@ public class GiaoDienNhanBan extends BorderPane {
 		LocalDateTime gioDat = phieuDangChon.getNgayDat();
 		LocalDateTime hienTai = LocalDateTime.now();
 
-		LocalDateTime choPhepNhanTu = gioDat.minusMinutes(30);
+		LocalDateTime choPhepNhanTu = gioDat.minusMinutes(10);
 
 		if (hienTai.isBefore(choPhepNhanTu)) {
 			new Alert(Alert.AlertType.WARNING,

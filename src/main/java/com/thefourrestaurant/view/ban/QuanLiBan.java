@@ -69,25 +69,44 @@ public class QuanLiBan extends VBox {
 		Platform.runLater(() -> hienThiBanTheoTang(maTangHienTai));
 
 		// === Toolbar ===
-		ButtonSample btnThemBan = new ButtonSample(context.equals("QUAN_LY_BAN") ? "Thêm bàn"
-				: context.equals("GOP_BAN") ? "Xác nhận gộp"
-						: context.equals("CHUYEN_BAN") ? "Xác nhận chuyển" : "Thao tác",
-				45, 16, 3);
-		btnThemBan.setOnAction(e -> {
-			switch (context) {
-			case "QUAN_LY_BAN" -> moPopupTuyChinhBan(null);
-			case "GOP_BAN" -> xuLyXacNhanGopBan();
-			case "CHUYEN_BAN" -> xuLyXacNhanChuyenBan(banCu);
-			}
+		ButtonSample btnLuuHoacQuayLai = new ButtonSample(
+		        context.equals("GOP_BAN") || context.equals("CHUYEN_BAN")
+		                ? "Quay lại"
+		                : "Lưu sơ đồ",
+		        45, 16, 3
+		);
+
+		btnLuuHoacQuayLai.setOnAction(e -> {
+		    if ("GOP_BAN".equals(context) || "CHUYEN_BAN".equals(context)) {
+		        Ban banChinh = layBanChinhCuaPhieuDangThaoTac();
+		        if (banChinh != null && phieuDangThaoTac != null) {
+		            mainContent.getChildren()
+		                    .setAll(new GiaoDienChiTietBan(mainContent, banChinh, phieuDangThaoTac));
+		        }
+		    } else {
+		        this.choPhepDiChuyen = false;
+		        Alert alert = new Alert(Alert.AlertType.INFORMATION,
+		                "Đã lưu sơ đồ! Chế độ di chuyển đã tắt.");
+		        alert.initOwner(this.getScene().getWindow());
+		        alert.showAndWait();
+		    }
 		});
 
-		// Button Lưu sơ đồ
-		ButtonSample btnLuuSoDo = new ButtonSample("Lưu sơ đồ", 45, 16, 3);
-		btnLuuSoDo.setOnAction(e -> {
-			this.choPhepDiChuyen = false;
-			Alert alert = new Alert(Alert.AlertType.INFORMATION, "Đã lưu sơ đồ! Chế độ di chuyển đã tắt.");
-			alert.initOwner(this.getScene().getWindow());
-			alert.showAndWait();
+		// 🔹 Nút Thêm bàn / Xác nhận
+		ButtonSample btnThemHoacXacNhan = new ButtonSample(
+		        context.equals("QUAN_LY_BAN") ? "Thêm bàn"
+		                : context.equals("GOP_BAN") ? "Xác nhận gộp"
+		                : context.equals("CHUYEN_BAN") ? "Xác nhận chuyển"
+		                : "Thao tác",
+		        45, 16, 3
+		);
+
+		btnThemHoacXacNhan.setOnAction(e -> {
+		    switch (context) {
+		        case "QUAN_LY_BAN" -> moPopupTuyChinhBan(null);
+		        case "GOP_BAN" -> xuLyXacNhanGopBan();
+		        case "CHUYEN_BAN" -> xuLyXacNhanChuyenBan(banCu);
+		    }
 		});
 
 		cboSoTang = new ComboBox<>();
@@ -113,6 +132,7 @@ public class QuanLiBan extends VBox {
 			}
 		});
 		cboSoTang.setPrefHeight(45);
+		cboSoTang.getStyleClass().add("combo-yellow");
 		cboSoTang.setOnAction(e -> {
 			Tang tangChon = cboSoTang.getValue();
 			if (tangChon != null) {
@@ -121,7 +141,11 @@ public class QuanLiBan extends VBox {
 		});
 
 		// ToolBar gồm: nút Thêm bàn, ComboBox tầng, nút Lưu sơ đồ
-		ToolBar toolBar = new ToolBar(btnThemBan, btnLuuSoDo, cboSoTang);
+		ToolBar toolBar = new ToolBar(
+		        btnLuuHoacQuayLai,
+		        btnThemHoacXacNhan,
+		        cboSoTang
+		);
 		toolBar.setStyle("-fx-background-color: #1E424D");
 		toolBar.setPadding(new Insets(10, 10, 10, 10));
 
@@ -444,8 +468,16 @@ public class QuanLiBan extends VBox {
 				thoaDieuKien = false;
 			}
 
-			if (loaiBan != null && !loaiBan.equals("Tất cả") && !b.getLoaiBan().equals(loaiBan)) {
-				thoaDieuKien = false;
+			if (loaiBan != null) {
+			    String tenLoai = b.getLoaiBan().getTenLoaiBan().toUpperCase();
+
+			    if (loaiBan.equalsIgnoreCase("VIP") && !tenLoai.contains("VIP")) {
+			        thoaDieuKien = false;
+			    }
+
+			    if (loaiBan.equalsIgnoreCase("THƯỜNG") && !tenLoai.contains("THƯỜNG")) {
+			        thoaDieuKien = false;
+			    }
 			}
 
 			if (soGhe > 0 && b.getLoaiBan().getSoChoNgoi() != soGhe) {

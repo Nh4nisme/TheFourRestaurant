@@ -22,9 +22,12 @@ import java.util.List;
 class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
     private DatePicker dtpNgayNhanBan;
     private ComboBox<String> cboGioNhanBan;
+    
+    private static final int THOI_GIAN_NGOI_PHUT = 120;
 
     public GiaoDienDatBanTruoc(List<Ban> dsBan, StackPane parentPane, QuanLiBan quanLiBan){
         super(dsBan, parentPane, quanLiBan);
+        
     }
 
     @Override
@@ -76,23 +79,39 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
 
     // Kiểm tra trùng giờ
     private void checkTrungGio() {
-        if (dsBan == null || dsBan.isEmpty()) return;
+        PhieuDatBan pdbTrung = getPhieuTrungGio();
+        if (pdbTrung != null) {
+            showDatBanLoi(buildThongBaoTrung(pdbTrung));
+        }
+    }
+    
+    private PhieuDatBan getPhieuTrungGio() {
+        if (dsBan == null || dsBan.isEmpty()) return null;
 
         LocalDate ngay = dtpNgayNhanBan.getValue();
         LocalTime gio = getGioNhanBan();
-        if (ngay == null || gio == null) return;
+        if (ngay == null || gio == null) return null;
 
-        LocalDateTime ngayGioMoi = LocalDateTime.of(ngay, gio);
+        LocalDateTime gioMoi = LocalDateTime.of(ngay, gio);
 
         for (Ban ban : dsBan) {
-            if (phieuDatBanDAO.kiemTraTrungGioDatTruoc(ban.getMaBan(), ngayGioMoi)) {
-                showDatBanLoi(
-                    "Bàn " + ban.getTenBan() +
-                    " đã có người đặt vào " + gio + " ngày " + ngay
-                );
-                return; // ❗ chỉ cần 1 bàn trùng là dừng
-            }
+            PhieuDatBan pdbTrung = phieuDatBanDAO.layPhieuDatTruocTrungGio(ban.getMaBan(), gioMoi);
+            if (pdbTrung != null) return pdbTrung;
         }
+        return null;
+    }
+    
+    private String buildThongBaoTrung(PhieuDatBan pdb) {
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm");
+        LocalDateTime gioBatDau = pdb.getNgayDat();
+        LocalDateTime gioKetThuc = gioBatDau.plusMinutes(THOI_GIAN_NGOI_PHUT);
+
+        String tenBan = (pdb.getDanhSachBan() != null && !pdb.getDanhSachBan().isEmpty()) 
+                         ? pdb.getDanhSachBan().get(0).getTenBan() 
+                         : "bàn này";
+
+        return "Bàn " + tenBan + " đã được đặt từ " 
+                + gioBatDau.format(fmt) + " đến " + gioKetThuc.format(fmt);
     }
 
     @Override
@@ -125,16 +144,17 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
                     return;
                 }
             }
+            
+            PhieuDatBan pdbTrung = getPhieuTrungGio();
+            if (pdbTrung != null) {
+                showDatBanLoi(buildThongBaoTrung(pdbTrung));
+                return;
+            }
 
             if (dsBan.isEmpty()) return;
 
             Ban banChinh = dsBan.get(0);
             LocalDateTime ngayGioMoi = LocalDateTime.of(ngay, gio);
-
-            if (phieuDatBanDAO.kiemTraTrungGioDatTruoc(banChinh.getMaBan(), ngayGioMoi)) {
-                showDatBanLoi("Bàn " + banChinh.getTenBan() + " đã có người đặt vào giờ này!");
-                return;
-            }
 
             PhieuDatBan pdb = new PhieuDatBan();
             pdb.setDanhSachBan(dsBan);
@@ -165,6 +185,5 @@ class GiaoDienDatBanTruoc extends GiaoDienDatBanBase {
             ex.printStackTrace();
         }
     }
-
-
+    
 }

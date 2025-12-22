@@ -18,6 +18,7 @@ class GiaoDienDatBanNgay extends GiaoDienDatBanBase {
 
 	public GiaoDienDatBanNgay(List<Ban> dsBan, StackPane parentPane, QuanLiBan quanLiBan){
         super(dsBan, parentPane, quanLiBan);
+        
     }
 
     @Override

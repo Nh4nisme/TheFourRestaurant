@@ -431,3 +431,37 @@
 .qr-overlay {
     -fx-background-color: rgba(0,0,0,0.5);
 }
+
+/* ================= COMBOBOX MÀU VÀNG ================= */
+.combo-yellow {
+    -fx-background-color: #DDB248;
+    -fx-border-color: #DDB248;
+    -fx-border-radius: 7;
+    -fx-background-radius: 7;
+    -fx-font-weight: bold;
+}
+
+/* Text hiển thị */
+.combo-yellow .list-cell {
+    -fx-background-color: #DDB248;
+    -fx-text-fill: #1E424D;
+}
+
+/* Nút mũi tên */
+.combo-yellow .arrow-button {
+    -fx-background-color: #DDB248;
+}
+
+.combo-yellow .arrow {
+    -fx-background-color: #1E424D;
+}
+
+/* Dropdown list */
+.combo-yellow .combo-box-popup .list-cell {
+    -fx-background-color: white;
+    -fx-text-fill: #1E424D;
+}
+
+.combo-yellow .combo-box-popup .list-cell:hover {
+    -fx-background-color: #E5D595;
+}
