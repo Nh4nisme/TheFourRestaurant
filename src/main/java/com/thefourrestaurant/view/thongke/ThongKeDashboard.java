@@ -38,19 +38,19 @@ public class ThongKeDashboard extends VBox {
 
         HBox filterBox = new HBox(10);
         filterBox.setAlignment(Pos.CENTER_LEFT);
-        Label lblThang = new Label("Thang:");
+        Label lblThang = new Label("Tháng:");
         lblThang.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
         cboThang = new ComboBox<>();
         cboThang.getItems().addAll(IntStream.rangeClosed(1, 12).boxed().collect(Collectors.toList()));
         cboThang.setValue(currentMonth);
 
-        Label lblNam = new Label("Nam:");
+        Label lblNam = new Label("Năm:");
         lblNam.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
         cboNam = new ComboBox<>();
         cboNam.getItems().addAll(IntStream.rangeClosed(currentYear - 5, currentYear).boxed().sorted((a, b) -> b - a).toList());
         cboNam.setValue(currentYear);
 
-        ButtonSample btnCapNhat = new ButtonSample("Cap Nhat", 50, 25, 14);
+        ButtonSample btnCapNhat = new ButtonSample("Cập nhật", 50, 25, 14);
         btnCapNhat.getStyleClass().add("button_sampleGamboge");
         btnCapNhat.setOnAction(e -> loadData());
 
@@ -83,11 +83,11 @@ public class ThongKeDashboard extends VBox {
 
         cardsContainer.getChildren().clear();
         cardsContainer.getChildren().addAll(
-            createCard("Tong Doanh Thu", currencyFormat.format(tongDoanhThu), "#27AE60"),
-            createCard("So Hoa Don", String.valueOf(soHoaDon), "#2980B9"),
-            createCard("Khach Hang Moi", String.valueOf(soKhachHangMoi), "#8E44AD"),
-            createCard("Mon An Ban Ra", String.valueOf(soMonAnBanRa), "#E67E22"),
-            createCard("TB/Hoa Don", currencyFormat.format(trungBinhHD), "#16A085")
+                createCard("Tổng Doanh Thu", currencyFormat.format(tongDoanhThu), "#27AE60"),
+                createCard("Số Hóa Đơn", String.valueOf(soHoaDon), "#2980B9"),
+                createCard("Khách Hàng Mới", String.valueOf(soKhachHangMoi), "#8E44AD"),
+                createCard("Món Ăn Bán Ra", String.valueOf(soMonAnBanRa), "#E67E22"),
+                createCard("TB/Hóa Đơn", currencyFormat.format(trungBinhHD), "#16A085")
         );
 
         chartsContainer.getChildren().clear();
@@ -96,10 +96,10 @@ public class ThongKeDashboard extends VBox {
         if (!doanhThuTheoNgay.isEmpty()) {
             CategoryAxis xAxis = new CategoryAxis();
             NumberAxis yAxis = new NumberAxis();
-            xAxis.setLabel("Ngay");
+            xAxis.setLabel("Ngày");
             yAxis.setLabel("Doanh thu (VND)");
             LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-            lineChart.setTitle("Doanh thu theo ngay");
+            lineChart.setTitle("Doanh thu theo ngày");
             lineChart.setLegendVisible(false);
             lineChart.setPrefSize(800, 500);
 
@@ -116,10 +116,10 @@ public class ThongKeDashboard extends VBox {
         if (!thongKeGio.isEmpty()) {
             CategoryAxis xAxis2 = new CategoryAxis();
             NumberAxis yAxis2 = new NumberAxis();
-            xAxis2.setLabel("Gio");
-            yAxis2.setLabel("So hoa don");
+            xAxis2.setLabel("Giờ");
+            yAxis2.setLabel("Số hóa đơn");
             BarChart<String, Number> barChart = new BarChart<>(xAxis2, yAxis2);
-            barChart.setTitle("Gio cao diem");
+            barChart.setTitle("Giờ cao điểm");
             barChart.setLegendVisible(false);
             barChart.setPrefSize(700, 500);
 
@@ -139,8 +139,8 @@ public class ThongKeDashboard extends VBox {
         card.setMinWidth(180);
         card.setMaxWidth(220);
         card.setStyle("-fx-background-color: white; -fx-background-radius: 10; " +
-                      "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4); " +
-                      "-fx-border-color: " + color + "; -fx-border-width: 0 0 0 5; -fx-border-radius: 10;");
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4); " +
+                "-fx-border-color: " + color + "; -fx-border-width: 0 0 0 5; -fx-border-radius: 10;");
 
         Label lblTitle = new Label(title);
         lblTitle.setStyle("-fx-font-size: 13px; -fx-text-fill: #7F8C8D;");
