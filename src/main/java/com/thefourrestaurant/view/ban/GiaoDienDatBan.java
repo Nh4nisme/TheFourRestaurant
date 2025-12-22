@@ -14,12 +14,16 @@ import com.thefourrestaurant.view.components.ButtonSample2;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
+import javafx.scene.control.Label;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -177,18 +181,40 @@ public class GiaoDienDatBan extends BorderPane {
 	}
 
 	private VBox taoChuThichThanhBen() {
-		VBox chuThich = new VBox(10);
-		chuThich.setPadding(new Insets(30, 10, 10, 10));
+	    VBox chuThich = new VBox(10);
+	    chuThich.setPadding(new Insets(30, 10, 10, 10));
 
-		List<LegendItem> items = List.of(new LegendItem("Bàn trống", Color.WHITE),
-				new LegendItem("Bàn đã được đặt trước", Color.web("#87CEEB")),
-				new LegendItem("Bàn đang sử dụng", Color.web("#FFB347")));
+	    // Thêm legend VIP ở đầu
+	    HBox vipLegend = new HBox(10);
+	    vipLegend.setAlignment(Pos.CENTER_LEFT);
 
-		for (LegendItem item : items) {
-			chuThich.getChildren().add(taoChuThich(item.text, item.color));
-		}
+	    try {
+	        ImageView vipIcon = new ImageView(
+	            new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/vip1.png"))
+	        );
+	        vipIcon.setFitWidth(35);
+	        vipIcon.setFitHeight(35);
 
-		return chuThich;
+	        Label lblVip = taoLabel("Bàn VIP", 16, true);
+
+	        vipLegend.getChildren().addAll(vipIcon, lblVip);
+	        chuThich.getChildren().add(vipLegend);
+	    } catch (Exception e) {
+	        System.out.println("Không tìm thấy icon VIP: " + e.getMessage());
+	    }
+
+	    // Legend các trạng thái bàn bình thường
+	    List<LegendItem> items = List.of(
+	        new LegendItem("Bàn trống", Color.WHITE),
+	        new LegendItem("Bàn đã được đặt trước", Color.web("#87CEEB")),
+	        new LegendItem("Bàn đang sử dụng", Color.web("#FFB347"))
+	    );
+
+	    for (LegendItem item : items) {
+	        chuThich.getChildren().add(taoChuThich(item.text, item.color));
+	    }
+
+	    return chuThich;
 	}
 
 	private HBox taoChuThich(String text, Color color) {
