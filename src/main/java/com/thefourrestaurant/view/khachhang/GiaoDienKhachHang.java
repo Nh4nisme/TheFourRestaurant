@@ -93,6 +93,7 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
                     String maMoi = new KhachHangDAO().taoMaKHMoi();
                     try {
                         gdChiTietKH.getTxtMaKH().setText(maMoi);
+                        gdChiTietKH.getDpNgaySinh().setValue(java.time.LocalDate.of(2001, 1, 1));
                     } catch (Exception ex) { }
                 });
             }
