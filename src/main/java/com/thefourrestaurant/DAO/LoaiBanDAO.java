@@ -15,24 +15,16 @@ public class LoaiBanDAO {
         String sql = "SELECT * FROM LoaiBan ORDER BY maLoaiBan";
 
         try (Connection conn = ConnectSQL.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                LoaiBan lb = new LoaiBan(
-                        rs.getString("maLoaiBan"),
-                        rs.getString("tenLoaiBan"),
-                        rs.getBigDecimal("giaTien"),
-                        rs.getInt("soChoNgoi"),
-                        rs.getString("moTa")
-                );
-                dsLoaiBan.add(lb);
+                dsLoaiBan.add(mapLoaiBan(rs));
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return dsLoaiBan;
     }
 
@@ -44,37 +36,9 @@ public class LoaiBanDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, maLoaiBan);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return new LoaiBan(
-                        rs.getString("maLoaiBan"),
-                        rs.getString("tenLoaiBan"),
-                        rs.getBigDecimal("giaTien"),
-                        rs.getInt("soChoNgoi"),
-                        rs.getString("moTa")
-                );
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    // 🔹 Lấy tên loại bàn theo mã bàn
-    public String layTenLoaiTheoBan(String maBan) {
-        String sql = "SELECT lb.tenLoaiBan " +
-                     "FROM Ban b JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan " +
-                     "WHERE b.maBan = ?";
-        try (Connection conn = ConnectSQL.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, maBan);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getString(1);
+                    return mapLoaiBan(rs);
                 }
             }
 
@@ -82,5 +46,75 @@ public class LoaiBanDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    // 🔹 Lấy tên loại bàn theo mã bàn
+    public String layTenLoaiTheoBan(String maBan) {
+        String sql = """
+            SELECT lb.tenLoaiBan
+            FROM Ban b
+            JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
+            WHERE b.maBan = ?
+        """;
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, maBan);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("tenLoaiBan");
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // 🔹 Lấy loại bàn theo tên (VIP / Bàn thường)
+    public List<LoaiBan> layLoaiBanTheoTen(String loai) {
+        List<LoaiBan> ds = new ArrayList<>();
+
+        String sql = "SELECT * FROM LoaiBan";
+        String likeValue = null;
+
+        if ("VIP".equalsIgnoreCase(loai)) {
+            sql += " WHERE tenLoaiBan LIKE ?";
+            likeValue = "%VIP%";
+        } else if ("THUONG".equalsIgnoreCase(loai)) {
+            sql += " WHERE tenLoaiBan LIKE ?";
+            likeValue = "%Bàn thường%";
+        }
+
+        try (Connection conn = ConnectSQL.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            if (likeValue != null) {
+                ps.setString(1, likeValue);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ds.add(mapLoaiBan(rs));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ds;
+    }
+
+    // 🔹 Hàm map ResultSet → LoaiBan (tái sử dụng)
+    private LoaiBan mapLoaiBan(ResultSet rs) throws SQLException {
+        return new LoaiBan(
+                rs.getString("maLoaiBan"),
+                rs.getString("tenLoaiBan"),
+                rs.getBigDecimal("giaTien"),
+                rs.getInt("soChoNgoi"),
+                rs.getString("moTa")
+        );
     }
 }

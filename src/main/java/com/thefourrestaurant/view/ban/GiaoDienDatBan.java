@@ -52,6 +52,8 @@ public class GiaoDienDatBan extends BorderPane {
 
 		this.setLeft(taoThanhBen());
 		this.setCenter(taoNoiDungChinh());
+		
+		loadTatCaComboBox();
 
 		this.sceneProperty().addListener((obs, oldScene, newScene) -> {
 			if (newScene != null) {
@@ -234,20 +236,13 @@ public class GiaoDienDatBan extends BorderPane {
 	    hang1.setPadding(new Insets(0, 0, 0, 20));
 	    hang1.setAlignment(Pos.CENTER_LEFT);
 
-	    double lblWidth = 120;   // tất cả label cùng width
-	    double cboWidth = 150;   // tất cả combo box cùng width
+	    double lblWidth = 120;
+	    double cboWidth = 180;
 
-	    // Label + ComboBox Trạng thái bàn
 	    Label lblTrangThaiBan = taoLabel("Trạng thái bàn:", 16, true);
 	    lblTrangThaiBan.setPrefWidth(lblWidth);
 	    cboBanDatTruoc.setPrefWidth(cboWidth);
 	    cboBanDatTruoc.setPrefHeight(45);
-	    List<String> trangThaiList = banDAO.layDanhSachTrangThaiTuCSDL();
-	    List<String> trangThaiFullList = new ArrayList<>();
-	    trangThaiFullList.add("Tất cả");
-	    trangThaiFullList.addAll(trangThaiList);
-	    cboBanDatTruoc.getItems().addAll(trangThaiFullList);
-	    cboBanDatTruoc.setValue("Tất cả");
 	    styleComboBox(cboBanDatTruoc, cboWidth);
 	    cboBanDatTruoc.setOnAction(e -> locBanTheoTatCaTieuChi());
 
@@ -255,10 +250,7 @@ public class GiaoDienDatBan extends BorderPane {
 	    Label lblSoTang = taoLabel("Số tầng:", 16, true);
 	    lblSoTang.setPrefWidth(lblWidth);
 	    cboSoTang = new ComboBox<>();
-	    cboSoTang.setPrefWidth(cboWidth);
-	    List<Tang> dsTang = tangDAO.layTatCaTang();
-	    cboSoTang.getItems().addAll(dsTang);
-	    if (!dsTang.isEmpty()) cboSoTang.setValue(dsTang.get(0));
+	    styleComboBox(cboSoTang, cboWidth);
 	    cboSoTang.setCellFactory(param -> new ListCell<>() {
 	        @Override
 	        protected void updateItem(Tang item, boolean empty) {
@@ -293,13 +285,12 @@ public class GiaoDienDatBan extends BorderPane {
 	    hang2.setAlignment(Pos.CENTER_LEFT);
 
 	    double lblWidth = 120;   // label cùng width
-	    double cboWidth = 150;   // combo box cùng width
+	    double cboWidth = 180;   // combo box cùng width
 
 	    // Label + ComboBox Loại bàn
 	    Label lblLoaiBan = taoLabel("Loại bàn:", 16, true);
 	    lblLoaiBan.setPrefWidth(lblWidth);
-	    cboLoaiBan.setPrefWidth(cboWidth);
-	    cboLoaiBan.getItems().addAll("Tất cả", "Bàn tròn", "Bàn vuông");
+	    styleComboBox(cboLoaiBan, cboWidth);
 	    cboLoaiBan.setOnAction(e -> locBanTheoTatCaTieuChi());
 
 	    // Label + ComboBox Số ghế
@@ -315,11 +306,11 @@ public class GiaoDienDatBan extends BorderPane {
 	    }
 	    cboSoGhe.getItems().addAll(dsSoGhe);
 	    cboSoGhe.setValue("Tất cả");
-	    styleComboBox(cboSoGhe, cboWidth);
+	    cboSoGhe.getStyleClass().add("combo-yellow");
 	    cboSoGhe.setOnAction(e -> locBanTheoTatCaTieuChi());
 	    
 	    Region spacer = new Region();
-	    spacer.setPrefWidth(310);
+	    spacer.setPrefWidth(340);
 
 	    // Nút Làm mới
 	    ButtonSample2 btnLamMoi = new ButtonSample2("Làm mới", ButtonSample2.Variant.YELLOW, 120, 45);
@@ -333,7 +324,7 @@ public class GiaoDienDatBan extends BorderPane {
 	    return hang2;
 	}
 
-	private void styleComboBox(ComboBox<String> comboBox, double width) {
+	private void styleComboBox(ComboBox<?> comboBox, double width) {
 		comboBox.setStyle("-fx-background-color: " + COLOR_TEXT + "; -fx-text-fill: " + COLOR_BACKGROUND_SIDE
 				+ "; -fx-font-weight: bold;");
 		comboBox.setPrefWidth(width);
@@ -550,5 +541,75 @@ public class GiaoDienDatBan extends BorderPane {
 		quanLiBan.taoBan(quanLiBan.getKhuVucBan(), ban, new HashMap<>());
 
 	}
+	
+	private void loadCboTrangThaiBan() {
+	    cboBanDatTruoc.getItems().clear();
+
+	    List<String> trangThaiList = banDAO.layDanhSachTrangThaiTuCSDL();
+	    List<String> trangThaiFullList = new ArrayList<>();
+	    trangThaiFullList.add("Tất cả");
+	    trangThaiFullList.addAll(trangThaiList);
+
+	    cboBanDatTruoc.getItems().addAll(trangThaiFullList);
+	    cboBanDatTruoc.setValue("Tất cả");
+
+	    cboBanDatTruoc.setOnAction(e -> locBanTheoTatCaTieuChi());
+	}
+
+	private void loadCboSoTang() {
+	    cboSoTang.getItems().clear();
+
+	    List<Tang> dsTang = tangDAO.layTatCaTang();
+	    cboSoTang.getItems().addAll(dsTang);
+
+	    if (!dsTang.isEmpty()) {
+	        cboSoTang.setValue(dsTang.get(0));
+	    }
+
+	    cboSoTang.setCellFactory(param -> new ListCell<>() {
+	        @Override
+	        protected void updateItem(Tang item, boolean empty) {
+	            super.updateItem(item, empty);
+	            setText(empty || item == null ? null : item.getTenTang());
+	        }
+	    });
+
+	    cboSoTang.setOnAction(e -> locBanTheoTatCaTieuChi());
+	}
+	
+	private void loadCboSoGhe() {
+	    cboSoGhe.getItems().clear();
+
+	    List<String> dsSoGhe = new ArrayList<>();
+	    dsSoGhe.add("Tất cả");
+
+	    for (Ban ban : banDAO.layTatCaBan()) {
+	        String soGheStr = ban.getLoaiBan().getSoChoNgoi() + " ghế";
+	        if (!dsSoGhe.contains(soGheStr)) {
+	            dsSoGhe.add(soGheStr);
+	        }
+	    }
+
+	    cboSoGhe.getItems().addAll(dsSoGhe);
+	    cboSoGhe.setValue("Tất cả");
+
+	    cboSoGhe.setOnAction(e -> locBanTheoTatCaTieuChi());
+	}
+	
+	private void loadCboLoaiBan() {
+	    cboLoaiBan.getItems().clear();
+	    cboLoaiBan.getItems().addAll("Tất cả", "VIP", "Thường");
+	    cboLoaiBan.setValue("Tất cả");
+
+	    cboLoaiBan.setOnAction(e -> locBanTheoTatCaTieuChi());
+	}
+	
+	private void loadTatCaComboBox() {
+	    loadCboTrangThaiBan();
+	    loadCboSoTang();
+	    loadCboLoaiBan();
+	    loadCboSoGhe();
+	}
+
 
 }

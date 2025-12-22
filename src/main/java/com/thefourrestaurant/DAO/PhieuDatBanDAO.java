@@ -240,12 +240,12 @@ public class PhieuDatBanDAO {
 			ps.setString(6, trangThaiPhieu);
 			ps.setBigDecimal(7, BigDecimal.ZERO);
 			ps.executeUpdate();
-			
+
 			if (!danhSachBan.isEmpty()) {
-			    danhSachBan.get(0).setBanChinh(true);
-			    for (int i = 1; i < danhSachBan.size(); i++) {
-			        danhSachBan.get(i).setBanChinh(false);
-			    }
+				danhSachBan.get(0).setBanChinh(true);
+				for (int i = 1; i < danhSachBan.size(); i++) {
+					danhSachBan.get(i).setBanChinh(false);
+				}
 			}
 
 			// INSERT bảng liên kết CÙNG CONNECTION
@@ -536,7 +536,7 @@ public class PhieuDatBanDAO {
 		for (PhieuDatBan pdb : ds) {
 			for (Ban ban : pdb.getDanhSachBan()) {
 				if (ban.isBanChinh()) {
-				    map.put(ban.getMaBan(), pdb);
+					map.put(ban.getMaBan(), pdb);
 				}
 			}
 		}
@@ -549,104 +549,145 @@ public class PhieuDatBanDAO {
 		List<PhieuDatBan> ds = layPhieuTheoTrangThai("Đang phục vụ");
 
 		for (PhieuDatBan pdb : ds) {
-		    for (Ban ban : pdb.getDanhSachBan()) {
-		        map.put(ban.getMaBan(), pdb);
-		    }
+			for (Ban ban : pdb.getDanhSachBan()) {
+				map.put(ban.getMaBan(), pdb);
+			}
 		}
 
 		return map;
 	}
-	
-	public boolean chuyenCumBanDangPhucVu(
-	        String maPDB,
-	        List<Ban> banCu,
-	        List<Ban> banMoi
-	) {
-	    String xoaBanCu = "DELETE FROM PhieuDatBan_Ban WHERE maPDB = ? AND isBanChinh = 0";
-	    Connection conn = null;
 
-	    try {
-	        conn = ConnectSQL.getConnection();
-	        conn.setAutoCommit(false);
+	public boolean chuyenCumBanDangPhucVu(String maPDB, List<Ban> banCu, List<Ban> banMoi) {
+		String xoaBanCu = "DELETE FROM PhieuDatBan_Ban WHERE maPDB = ? AND isBanChinh = 0";
+		Connection conn = null;
 
-	        // 1. Gỡ bàn cũ
-	        try (PreparedStatement ps = conn.prepareStatement(xoaBanCu)) {
-	            ps.setString(1, maPDB);
-	            ps.executeUpdate();
-	        }
-	        
-	        boolean coBanChinh = banMoi.stream().anyMatch(Ban::isBanChinh);
-	        if (!coBanChinh) {
-	            throw new IllegalStateException("Cụm bàn mới phải có bàn chính");
-	        }
+		try {
+			conn = ConnectSQL.getConnection();
+			conn.setAutoCommit(false);
 
-	        // 2. Thêm bàn mới
-	        new PhieuDatBan_BanDAO().themBanVaoPhieu(conn, maPDB, banMoi);
+			// 1. Gỡ bàn cũ
+			try (PreparedStatement ps = conn.prepareStatement(xoaBanCu)) {
+				ps.setString(1, maPDB);
+				ps.executeUpdate();
+			}
 
-	        // 3. Cập nhật trạng thái bàn
-	        banDAO.capNhatTrangThaiDanhSach(banCu, "Trống");
-	        banDAO.capNhatTrangThaiDanhSach(banMoi, "Đang phục vụ");
+			boolean coBanChinh = banMoi.stream().anyMatch(Ban::isBanChinh);
+			if (!coBanChinh) {
+				throw new IllegalStateException("Cụm bàn mới phải có bàn chính");
+			}
 
-	        conn.commit();
-	        return true;
+			// 2. Thêm bàn mới
+			new PhieuDatBan_BanDAO().themBanVaoPhieu(conn, maPDB, banMoi);
 
-	    } catch (Exception e) {
-	        try {
-	            if (conn != null) conn.rollback();
-	        } catch (SQLException ex) {
-	            ex.printStackTrace();
-	        }
-	        e.printStackTrace();
-	        return false;
-	    }
+			// 3. Cập nhật trạng thái bàn
+			banDAO.capNhatTrangThaiDanhSach(banCu, "Trống");
+			banDAO.capNhatTrangThaiDanhSach(banMoi, "Đang phục vụ");
+
+			conn.commit();
+			return true;
+
+		} catch (Exception e) {
+			try {
+				if (conn != null)
+					conn.rollback();
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+			e.printStackTrace();
+			return false;
+		}
 	}
-	
+
 	public Ban layBanChinhCuaPhieu(String maPDB) {
+		String sql = """
+				    SELECT b.maBan, b.tenBan, b.trangThai, b.maTang,
+				           lb.maLoaiBan, lb.tenLoaiBan AS tenLoai, lb.soChoNgoi, lb.giaTien
+				    FROM PhieuDatBan_Ban pdb
+				    JOIN Ban b ON pdb.maBan = b.maBan
+				    LEFT JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
+				    WHERE pdb.maPDB = ? AND pdb.isBanChinh = 1
+				""";
+
+		try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+			ps.setString(1, maPDB);
+
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					Ban ban = new Ban();
+					ban.setMaBan(rs.getString("maBan"));
+					ban.setTenBan(rs.getString("tenBan"));
+					ban.setTrangThai(rs.getString("trangThai"));
+
+					Tang tang = new Tang();
+					tang.setMaTang(rs.getString("maTang"));
+					ban.setTang(tang);
+
+					// LoaiBan
+					String maLoaiBan = rs.getString("maLoaiBan");
+					if (maLoaiBan != null) {
+						LoaiBan lb = new LoaiBan();
+						lb.setMaLoaiBan(maLoaiBan);
+						lb.setTenLoaiBan(rs.getString("tenLoai"));
+						lb.setSoChoNgoi(rs.getInt("soChoNgoi"));
+						lb.setGiaTien(rs.getBigDecimal("giaTien"));
+						ban.setLoaiBan(lb);
+					}
+
+					return ban;
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public PhieuDatBan layPhieuDatTruocTrungGio(String maBan, LocalDateTime gioMoi) {
+	    LocalDateTime gioKetThucMoi = gioMoi.plusMinutes(120);
+
 	    String sql = """
-	        SELECT b.maBan, b.tenBan, b.trangThai, b.maTang,
-	               lb.maLoaiBan, lb.tenLoaiBan AS tenLoai, lb.soChoNgoi, lb.giaTien
-	        FROM PhieuDatBan_Ban pdb
-	        JOIN Ban b ON pdb.maBan = b.maBan
-	        LEFT JOIN LoaiBan lb ON b.maLoaiBan = lb.maLoaiBan
-	        WHERE pdb.maPDB = ? AND pdb.isBanChinh = 1
+	        SELECT TOP 1 pdb.maPDB, pdb.ngayDat, b.maBan, b.tenBan
+	        FROM PhieuDatBan pdb
+	        JOIN PhieuDatBan_Ban pdbb ON pdb.maPDB = pdbb.maPDB
+	        JOIN Ban b ON pdbb.maBan = b.maBan
+	        WHERE pdbb.maBan = ?
+	          AND pdb.trangThai = N'Đặt trước'
+	          AND pdb.isDeleted = 0
 	    """;
 
 	    try (Connection conn = ConnectSQL.getConnection();
 	         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-	        ps.setString(1, maPDB);
+	        ps.setString(1, maBan);
+	        ResultSet rs = ps.executeQuery();
 
-	        try (ResultSet rs = ps.executeQuery()) {
-	            if (rs.next()) {
+	        while (rs.next()) {
+	            LocalDateTime gioBatDauCu = rs.getTimestamp("ngayDat").toLocalDateTime();
+	            LocalDateTime gioKetThucCu = gioBatDauCu.plusMinutes(120);
+
+	            if (gioMoi.isBefore(gioKetThucCu) && gioKetThucMoi.isAfter(gioBatDauCu)) {
+	                PhieuDatBan pdb = new PhieuDatBan();
+	                pdb.setMaPDB(rs.getString("maPDB"));
+	                pdb.setNgayDat(gioBatDauCu);
+
+	                // Thêm bàn vào danh sách
 	                Ban ban = new Ban();
 	                ban.setMaBan(rs.getString("maBan"));
 	                ban.setTenBan(rs.getString("tenBan"));
-	                ban.setTrangThai(rs.getString("trangThai"));
+	                pdb.setDanhSachBan(List.of(ban));
 
-	                Tang tang = new Tang();
-	                tang.setMaTang(rs.getString("maTang"));
-	                ban.setTang(tang);
-
-	                // LoaiBan
-	                String maLoaiBan = rs.getString("maLoaiBan");
-	                if (maLoaiBan != null) {
-	                    LoaiBan lb = new LoaiBan();
-	                    lb.setMaLoaiBan(maLoaiBan);
-	                    lb.setTenLoaiBan(rs.getString("tenLoai"));
-	                    lb.setSoChoNgoi(rs.getInt("soChoNgoi"));
-	                    lb.setGiaTien(rs.getBigDecimal("giaTien"));
-	                    ban.setLoaiBan(lb);
-	                }
-
-	                return ban;
+	                return pdb;
 	            }
 	        }
 
-	    } catch (Exception e) {
+	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
-
 	    return null;
 	}
+
 
 }
