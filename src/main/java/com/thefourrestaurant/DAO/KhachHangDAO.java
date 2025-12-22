@@ -15,18 +15,68 @@ import java.util.List;
 public class KhachHangDAO {
     private LoaiKhachHangDAO loaiKhachHangDAO = new  LoaiKhachHangDAO();
 
+//    public List<KhachHang> layDanhSachKhachHang() {
+//        List<KhachHang> ds = new ArrayList<>();
+//        String sql = "SELECT * FROM KhachHang WHERE isDeleted = 0";
+//        try (Connection conn = ConnectSQL.getConnection();
+//             PreparedStatement ps = conn.prepareStatement(sql);
+//             ResultSet rs = ps.executeQuery()) {
+//
+//            while (rs.next()) {
+//                String maLoaiKH = rs.getString("maLoaiKH");
+//                LoaiKhachHang loaiKH = null;
+//                if (maLoaiKH != null) {
+//                    loaiKH = loaiKhachHangDAO.layLoaiKhachHangTheoMa(maLoaiKH);
+//                }
+//
+//                KhachHang kh = new KhachHang(
+//                        rs.getString("maKH"),
+//                        rs.getString("hoTen"),
+//                        rs.getDate("ngaySinh"),
+//                        rs.getString("gioiTinh"),
+//                        rs.getString("soDT"),
+//                        loaiKH,
+//                        rs.getBoolean("isDeleted")
+//                );
+//                ds.add(kh);
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        return ds;
+//    }
+
     public List<KhachHang> layDanhSachKhachHang() {
         List<KhachHang> ds = new ArrayList<>();
-        String sql = "SELECT * FROM KhachHang WHERE isDeleted = 0";
+
+        String sql = """
+        SELECT 
+            kh.maKH,
+            kh.hoTen,
+            kh.ngaySinh,
+            kh.gioiTinh,
+            kh.soDT,
+            kh.isDeleted,
+            lkh.maLoaiKH,
+            lkh.tenLoaiKH
+        FROM KhachHang kh
+        LEFT JOIN LoaiKhachHang lkh ON kh.maLoaiKH = lkh.maLoaiKH
+        WHERE kh.isDeleted = 0
+        """;
+
         try (Connection conn = ConnectSQL.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                String maLoaiKH = rs.getString("maLoaiKH");
+
                 LoaiKhachHang loaiKH = null;
-                if (maLoaiKH != null) {
-                    loaiKH = loaiKhachHangDAO.layLoaiKhachHangTheoMa(maLoaiKH);
+                if (rs.getString("maLoaiKH") != null) {
+                    loaiKH = new LoaiKhachHang(
+                            rs.getString("maLoaiKH"),
+                            rs.getString("tenLoaiKH")
+                    );
                 }
 
                 KhachHang kh = new KhachHang(
@@ -38,14 +88,17 @@ public class KhachHangDAO {
                         loaiKH,
                         rs.getBoolean("isDeleted")
                 );
+
                 ds.add(kh);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return ds;
     }
+
 
     public KhachHang layKhachHangTheoMa(String maKH) {
         String sql = "SELECT * FROM KhachHang WHERE maKH = ? AND isDeleted = 0";

@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 
 public class GiaoDienChiTietKhachHang extends VBox {
 
@@ -35,6 +36,16 @@ public class GiaoDienChiTietKhachHang extends VBox {
         dpNgaySinh = new DatePicker();
         dpNgaySinh.setPromptText("Ngày sinh");
         dpNgaySinh.setMaxWidth(Double.MAX_VALUE);
+        LocalDate maxAllowed = LocalDate.now().minusYears(18);
+        dpNgaySinh.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (empty || date == null) return;
+                setDisable(date.isAfter(maxAllowed));
+            }
+        });
+        dpNgaySinh.setValue(java.time.LocalDate.of(2001, 1, 1));
         txtGioiTinh = taoTextField("Giới tính (Nam/Nu)");
         txtSoDT = taoTextField("Số điện thoại");
 
