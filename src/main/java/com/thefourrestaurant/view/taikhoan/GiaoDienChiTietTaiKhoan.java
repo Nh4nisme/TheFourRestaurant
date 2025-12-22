@@ -27,6 +27,7 @@ public class GiaoDienChiTietTaiKhoan extends VBox {
 
         // ==== Các trường nhập ====
         txtMaTK = taoTextField("Mã tài khoản");
+        txtMaTK.setDisable(true);
         txtTenDangNhap = taoTextField("Tên đăng nhập");
         txtMatKhau = taoTextField("Nhập mật khẩu mới");
         txtMatKhau.clear();
@@ -96,7 +97,6 @@ public class GiaoDienChiTietTaiKhoan extends VBox {
 
     public void Clear() {
         txtMaTK.clear();
-        txtMaTK.setDisable(false);
         txtTenDangNhap.clear();
         txtMatKhau.clear();
     }
