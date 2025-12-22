@@ -226,7 +226,7 @@ CREATE TABLE PhieuDatBan (
                              soNguoi INT CHECK(soNguoi > 0),
                              maKH CHAR(8) NOT NULL,
                              maNV CHAR(8) NOT NULL,
-                             trangThai NVARCHAR(50) DEFAULT N'Đang phục vụ' CHECK (trangThai IN (N'Đang phục vụ', N'Đặt trước', N'Đã thanh toán', N'Đã hủy')),
+                             trangThai NVARCHAR(50) DEFAULT N'Đang phục vụ' CHECK (trangThai IN (N'Đang phục vụ', N'Đặt trước', N'Đã thanh toán', N'Đã hủy', N'Khách không đến')),
                              tienCoc DECIMAL(18, 2) NOT NULL CHECK (tienCoc >= 0),
                              isDeleted BIT DEFAULT 0,
                              CONSTRAINT FK_PDB_KhachHang FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
@@ -288,11 +288,10 @@ GO
 CREATE TABLE KhuyenMai_DieuKien (
     maDieuKien CHAR(8) PRIMARY KEY CHECK (maDieuKien LIKE 'DK%' AND LEN(maDieuKien) = 8),
     maKM CHAR(8) NOT NULL,
-    loaiApDung VARCHAR(20) NOT NULL CHECK (loaiApDung IN ('GIAM_TRUC_TIEP', 'THEO_COMBO', 'MUA_X_GIAM_Y', 'TANG_MON')),
+    loaiApDung VARCHAR(20) NOT NULL CHECK (loaiApDung IN ('GIAM_TRUC_TIEP', 'THEO_COMBO', 'MUA_X_GIAM_Y')),
     tyLeGiam DECIMAL(5,2) NULL CHECK(tyLeGiam >= 0 AND tyLeGiam <= 100),
     soTienGiam DECIMAL(12,2) NULL CHECK(soTienGiam >= 0),
     soLuongTang INT NULL CHECK(soLuongTang >= 0),
-    giaToiThieu DECIMAL(18,2) DEFAULT 0,
     moTaDieuKien NVARCHAR(255) NULL,
     CONSTRAINT FK_DieuKien_KhuyenMai FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM) ON DELETE CASCADE
 );
@@ -474,12 +473,12 @@ GO
 -- ==============================
 INSERT INTO Ban (maBan, tenBan, trangThai, toaDoX, toaDoY, maTang, maLoaiBan, anhBan) VALUES
 -- ===== Tầng 1 =====
-('BA000001', N'Bàn 1-T1', N'Trống', 100, 100, 'TG000001', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000001', N'Bàn 1-T1', N'Trống', 100, 100, 'TG000001', 'LB000007', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
 ('BA000002', N'Bàn 2-T1', N'Trống', 100, 300, 'TG000001', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
-('BA000003', N'Bàn 3-T1', N'Trống', 100, 500, 'TG000001', 'LB000004', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
+('BA000003', N'Bàn 3-T1', N'Trống', 100, 500, 'TG000001', 'LB000007', N'/com/thefourrestaurant/images/Ban/Ban_8.png'),
 
-('BA000004', N'Bàn 4-T1', N'Trống', 400, 100, 'TG000001', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
-('BA000005', N'Bàn 5-T1', N'Trống', 400, 300, 'TG000001', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000004', N'Bàn 4-T1', N'Trống', 400, 100, 'TG000001', 'LB000006', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
+('BA000005', N'Bàn 5-T1', N'Trống', 400, 300, 'TG000001', 'LB000006', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
 ('BA000006', N'Bàn 6-T1', N'Trống', 400, 500, 'TG000001', 'LB000003', N'/com/thefourrestaurant/images/Ban/Ban_6.png'),
 
 ('BA000007', N'Bàn 7-T1', N'Trống', 700, 150, 'TG000001', 'LB000002', N'/com/thefourrestaurant/images/Ban/Ban_4.png'),

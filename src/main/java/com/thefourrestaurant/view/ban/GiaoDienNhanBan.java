@@ -10,6 +10,7 @@ import com.thefourrestaurant.util.ClockText;
 import com.thefourrestaurant.view.components.ButtonSample2;
 import com.thefourrestaurant.view.monan.GiaoDienGoiMon;
 
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -17,6 +18,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.animation.KeyFrame;
+import javafx.util.Duration;
 
 public class GiaoDienNhanBan extends BorderPane {
 
@@ -46,6 +49,10 @@ public class GiaoDienNhanBan extends BorderPane {
 		setTop(taoHeader());
 		setCenter(taoNoiDungChinh());
 		setBottom(taoThanhNutDuoi());
+		
+		Timeline autoCancelTimeline = new Timeline(new KeyFrame(Duration.minutes(1), e -> checkAutoCancel()));
+		autoCancelTimeline.setCycleCount(Timeline.INDEFINITE);
+		autoCancelTimeline.play();
 	}
 
 	// ================= HEADER =================
@@ -273,5 +280,27 @@ public class GiaoDienNhanBan extends BorderPane {
 		parentPane.getChildren()
 				.add(new GiaoDienGoiMon(parentPane, phieuDangChon.getDanhSachBan().get(0), phieuDangChon));
 	}
+	
+	private void checkAutoCancel() {
+	    LocalDateTime now = LocalDateTime.now();
+
+	    // Lấy danh sách phiếu đang "Đặt trước"
+	    ObservableList<PhieuDatBan> phieuList = FXCollections.observableArrayList(phieuDAO.layPhieuTheoTrangThai("Đặt trước"));
+
+	    for (PhieuDatBan pdb : phieuList) {
+	        LocalDateTime gioDat = pdb.getNgayDat();
+	        if (gioDat.plusMinutes(15).isBefore(now)) { // Quá 15 phút
+	            phieuDAO.capNhatTrangThai(pdb.getMaPDB(), "Khách không đến"); // Hủy phiếu
+	            banDAO.capNhatTrangThaiDanhSach(pdb.getDanhSachBan(), "Trống"); // Trả bàn
+	            if (phieuDangChon != null && phieuDangChon.equals(pdb)) {
+	                phieuDangChon = null;
+	                chiTietPane.clearThongTin();
+	            }
+	        }
+	    }
+
+	    refreshTable(); // Cập nhật TableView
+	}
+
 
 }

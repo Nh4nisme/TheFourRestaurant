@@ -169,4 +169,95 @@ public class BanDAO {
 
 		return dsTrangThai;
 	}
+	
+	public boolean themBan(Ban ban) {
+	    String sql = """
+	        INSERT INTO Ban (maBan, tenBan, trangThai, maTang, maLoaiBan, toaDoX, toaDoY, anhBan)
+	        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	    """;
+	    try (Connection conn = ConnectSQL.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	    	
+	    	String maBanMoi = new BanDAO().sinhMaBanMoi();
+	    	
+	    	if (ban.getToaDoX() == 0 && ban.getToaDoY() == 0) {
+	            // VD tạm: 100,100
+	            ban.setToaDoX(100);
+	            ban.setToaDoY(100);
+	            // hoặc tính toán dựa vào parentPane nếu bạn pass được chiều rộng/chiều cao
+	        }
+
+	        ps.setString(1, maBanMoi);
+	        ps.setString(2, ban.getTenBan());
+	        ps.setString(3, ban.getTrangThai());
+	        ps.setString(4, ban.getTang().getMaTang());
+	        ps.setString(5, ban.getLoaiBan().getMaLoaiBan());
+	        ps.setInt(6, ban.getToaDoX());
+	        ps.setInt(7, ban.getToaDoY());
+	        ps.setString(8, ban.getAnhBan());
+
+	        return ps.executeUpdate() > 0;
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+	
+	// 🔹 Cập nhật thông tin bàn
+	public boolean capNhatBan(Ban ban) {
+	    String sql = """
+	        UPDATE Ban 
+	        SET tenBan = ?, trangThai = ?, maLoaiBan = ?, anhBan = ? 
+	        WHERE maBan = ?
+	    """;
+	    try (Connection conn = ConnectSQL.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+	        ps.setString(1, ban.getTenBan());
+	        ps.setString(2, ban.getTrangThai());
+	        ps.setString(3, ban.getLoaiBan().getMaLoaiBan());
+	        ps.setString(4, ban.getAnhBan());
+	        ps.setString(5, ban.getMaBan());
+	        return ps.executeUpdate() > 0;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+	
+	public String sinhMaBanMoi() {
+	    String sql = "SELECT TOP 1 maBan FROM Ban ORDER BY maBan DESC";
+	    try (Connection conn = ConnectSQL.getConnection();
+	         Statement st = conn.createStatement();
+	         ResultSet rs = st.executeQuery(sql)) {
+
+	        if (rs.next()) {
+	            String lastMa = rs.getString("maBan"); // VD: BA000003
+	            int number = Integer.parseInt(lastMa.substring(2)); // lấy 000003 -> 3
+	            return String.format("BA%06d", number + 1); // BA000004
+	        } else {
+	            return "BA000001"; // trường hợp chưa có bàn nào
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "BA000001";
+	    }
+	}
+	
+	public boolean xoaBan(String maBan) {
+	    String sql = "DELETE FROM Ban WHERE maBan = ?";
+	    try (Connection conn = ConnectSQL.getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+	        ps.setString(1, maBan);
+	        return ps.executeUpdate() > 0;
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+
+
 }
