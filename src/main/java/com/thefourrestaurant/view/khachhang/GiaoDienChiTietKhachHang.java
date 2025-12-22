@@ -30,6 +30,7 @@ public class GiaoDienChiTietKhachHang extends VBox {
 
         // ==== Các trường nhập ====
         txtMaKH = taoTextField("Mã khách hàng");
+        txtMaKH.setDisable(true);
         txtHoTen = taoTextField("Họ tên");
         dpNgaySinh = new DatePicker();
         dpNgaySinh.setPromptText("Ngày sinh");
@@ -107,7 +108,6 @@ public class GiaoDienChiTietKhachHang extends VBox {
 
     public void Clear() {
         txtMaKH.clear();
-        txtMaKH.setDisable(false);
         txtHoTen.clear();
         dpNgaySinh.setValue(null);
         txtGioiTinh.clear();

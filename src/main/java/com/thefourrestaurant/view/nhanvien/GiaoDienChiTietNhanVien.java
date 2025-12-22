@@ -1,6 +1,7 @@
 package com.thefourrestaurant.view.nhanvien;
 
 import com.thefourrestaurant.model.NhanVien;
+import com.thefourrestaurant.util.ValidatorNhanVien;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -222,47 +223,41 @@ public class GiaoDienChiTietNhanVien extends VBox {
 
         btnThem.setOnAction(e -> {
             String hoTen = txtHoTen.getText().trim();
+            if (!ValidatorNhanVien.validateHoTen(hoTen, getScene().getWindow())) return;
+
             LocalDate ngaySinh = dtpNgaySinh.getValue();
             String gioiTinh = cboGioiTinh.getSelectionModel().getSelectedItem();
 
-            if (hoTen.isEmpty()) {
-                Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Họ tên' không được để trống.");
-                a.showAndWait();
-                return;
-            }
             if (ngaySinh == null) {
-                Alert a = new Alert(Alert.AlertType.ERROR, "Trường 'Ngày sinh' không được để trống.");
-                a.showAndWait();
+                ValidatorNhanVien.showAlert(getScene().getWindow(),Alert.AlertType.ERROR, "Thiếu Thông Tin", "Trường ngày sinh không được để trống");
                 return;
             }
             if (gioiTinh == null || gioiTinh.isEmpty()) {
-                Alert a = new Alert(Alert.AlertType.ERROR, "Vui lòng chọn giới tính.");
-                a.showAndWait();
+                ValidatorNhanVien.showAlert(getScene().getWindow(),Alert.AlertType.ERROR, "Thiếu Thông Tin", "Vui lòng chọn giới tính");
                 return;
             }
-            VaiTro selectedRole = cboVaiTro.getSelectionModel().getSelectedItem();
-            if (selectedRole == null) {
-                Alert a = new Alert(Alert.AlertType.ERROR, "Vui lòng chọn vai trò.");
-                a.showAndWait();
-                return;
-            }
-            // Regex
+
             String sdtVal = txtSDT.getText().trim();
-            if (!sdtVal.isEmpty()) {
-                if (!sdtVal.matches("^0\\d{9,10}$")) {
-                    Alert a = new Alert(Alert.AlertType.ERROR, "Số điện thoại không hợp lệ. Phải bắt đầu bằng 0 và gồm 10 hoặc 11 chữ số.");
-                    a.showAndWait();
+
+            if (sdtVal.isEmpty()) {
+                ValidatorNhanVien.showAlert(getScene().getWindow(), Alert.AlertType.ERROR,"Lỗi dữ liệu", "Số điện thoại không được để trống.");
+                return;
+            }
+            if (!ValidatorNhanVien.validateSDT(sdtVal, getScene().getWindow())) return;
+
+            try {
+                if (nhanVienDAO.layNhanVienTheoSDT(sdtVal) != null) {
+                    ValidatorNhanVien.showAlert(getScene().getWindow(), Alert.AlertType.ERROR,"Lỗi dữ liệu", "Số điện thoại đã tồn tại trong hệ thống.");
                     return;
                 }
-                try {
-                    if (nhanVienDAO.layNhanVienTheoSDT(sdtVal) != null) {
-                        Alert a = new Alert(Alert.AlertType.ERROR, "Số điện thoại đã tồn tại trong hệ thống.");
-                        a.showAndWait();
-                        return;
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            VaiTro selectedRole = cboVaiTro.getSelectionModel().getSelectedItem();
+            if (selectedRole == null) {
+                ValidatorNhanVien.showAlert(getScene().getWindow(),Alert.AlertType.ERROR, "Thiếu Thông Tin", "Vui lòng chọn vai trò");
+                return;
             }
 
             String maNV = nhanVienDAO.taoMaNhanVienMoi();
