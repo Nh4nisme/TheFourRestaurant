@@ -251,6 +251,21 @@ public class QuanLiBan extends VBox {
 		StackPane khungBan = new StackPane(imgBan, lblTenBan);
 		khungBan.setLayoutX(ban.getToaDoX());
 		khungBan.setLayoutY(ban.getToaDoY());
+		
+		if (ban.getLoaiBan().getTenLoaiBan().toUpperCase().contains("VIP")) {
+	        try {
+	            ImageView vipIcon = new ImageView(
+	                new Image(getClass().getResourceAsStream("/com/thefourrestaurant/images/icon/vip1.png"))
+	            );
+	            vipIcon.setFitWidth(35);   // kích thước icon
+	            vipIcon.setFitHeight(35);
+	            StackPane.setAlignment(vipIcon, Pos.TOP_LEFT);
+	            StackPane.setMargin(vipIcon, new Insets(5,0,0,5));
+	            khungBan.getChildren().add(vipIcon);
+	        } catch (Exception e) {
+	            System.out.println("Không tìm thấy icon VIP: " + e.getMessage());
+	        }
+	    }
 
 		String borderStyle = getBorderStyle(ban, context, mapDatTruoc);
 		khungBan.setStyle(borderStyle);
