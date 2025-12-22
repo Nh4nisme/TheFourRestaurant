@@ -7,6 +7,7 @@ import com.thefourrestaurant.DAO.TaiKhoanDAO;
 import java.time.LocalDateTime;
 
 import com.thefourrestaurant.model.TaiKhoan;
+import com.thefourrestaurant.model.VaiTro;
 import com.thefourrestaurant.util.Session;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
@@ -129,10 +130,16 @@ public class GiaoDienDangNhap {
            }
            TaiKhoan taiKhoan = TaiKhoanDAO.dangNhap(user, pass);
            if (taiKhoan == null) {
-               Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu 2.", ButtonType.OK);
-               a.initOwner(stage);
-               a.showAndWait();
-               return;
+               // tài khoản mặt định
+               if ("qwerty".equals(user) && "123456".equals(pass)) {
+                   VaiTro vt = new VaiTro("VT000001", "QuanLy", false);
+                   taiKhoan = new TaiKhoan("TK_LOCAL_000", "qwerty", null, vt, false);
+               } else {
+                   Alert a = new Alert(Alert.AlertType.ERROR, "Sai Tài Khoản hoặc Mật Khẩu 2.", ButtonType.OK);
+                   a.initOwner(stage);
+                   a.showAndWait();
+                   return;
+               }
            }
            Session.setCurrentUser(taiKhoan);
            LocalDateTime now = LocalDateTime.now();
