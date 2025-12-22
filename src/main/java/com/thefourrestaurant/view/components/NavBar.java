@@ -128,6 +128,12 @@ public class NavBar extends HBox {
 
         btnThongKe = new ButtonSample("Thống kê", ICON_THONG_KE, 45, 16, 1);
 
+        // ẩn 'Thống kê' cho Thu ngân
+        if (isThuNgan()) {
+            btnThongKe.setVisible(false);
+            btnThongKe.setManaged(false);
+        }
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
@@ -140,6 +146,15 @@ public class NavBar extends HBox {
                 spacer,
             btnTaiKhoan
         );
+    }
+
+    private boolean isThuNgan() {
+        TaiKhoan current = Session.getCurrentUser();
+        if (current == null || current.getVaiTro() == null) return false;
+        String maVT = current.getVaiTro().getMaVT();
+        String tenVT = current.getVaiTro().getTenVaiTro();
+        return "VT000002".equals(maVT)
+                || (tenVT != null && ("thungan" .equalsIgnoreCase(tenVT) || "thu ngan".equalsIgnoreCase(tenVT) || "thu ngân".equalsIgnoreCase(tenVT)));
     }
 
     private void xuLyKetCa() {
@@ -171,6 +186,12 @@ public class NavBar extends HBox {
 
     private LinkedHashMap<String, MapDieuHuong> taoMenuDanhMuc() {
         LinkedHashMap<String, MapDieuHuong> map = new LinkedHashMap<>();
+        // Thu Ngân chỉ thấy được mỗi 'Thống kê'
+        if (isThuNgan()) {
+            map.put("Hóa đơn", MapDieuHuong.DM_HOA_DON);
+            return map;
+        }
+
         map.put("Thực đơn", MapDieuHuong.DM_THUC_DON);
         map.put("Món ăn", MapDieuHuong.DM_MON_AN);
         map.put("Loại món ăn", MapDieuHuong.DM_LOAI_MON);
