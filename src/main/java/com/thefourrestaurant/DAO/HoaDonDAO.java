@@ -96,7 +96,6 @@ public class HoaDonDAO {
 
         LEFT JOIN KhuyenMai km
             ON hd.maKM = km.maKM
-           AND km.isDeleted = 0
 
         LEFT JOIN LoaiKhuyenMai lkm
             ON km.maLoaiKM = lkm.maLoaiKM
