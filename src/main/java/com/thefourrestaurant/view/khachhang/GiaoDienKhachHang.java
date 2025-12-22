@@ -78,7 +78,6 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
                 box.setAlignment(Pos.CENTER);
             }
             private final ButtonSample btnSua = new ButtonSample("Sửa", 36, 14, 1);
-            private final ButtonSample btnXoa = new ButtonSample("Xóa", 36, 14, 2);
             private final ButtonSample btnAdd = new ButtonSample("Thêm khách hàng", 36, 16, 1);
 
             {
@@ -87,21 +86,6 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
                     if (kh == null) return;
                     table.getSelectionModel().select(kh);
                     hienThiChiTiet(kh);
-                });
-
-                btnXoa.setOnAction(event -> {
-                    KhachHang kh = getTableView().getItems().get(getIndex());
-                    Stage stage = (Stage) btnXoa.getScene().getWindow();
-                    if (kh == null) return;
-                    if (xacNhan(stage, "Bạn có chắc muốn xóa khách hàng: " + kh.getHoTen() + " ?")) {
-                        boolean ok = controller.xoaKhachHang(kh.getMaKH());
-                        if (ok) {
-                            getTableView().getItems().remove(kh);
-                            hienThongBao(stage, "Đã xóa khách hàng!");
-                        } else {
-                            hienThongBao(stage, "Không thể xóa khách hàng này!", Alert.AlertType.ERROR);
-                        }
-                    }
                 });
 
                 btnAdd.setOnAction(e -> {
@@ -128,7 +112,7 @@ public class GiaoDienKhachHang extends GiaoDienThucThe {
                 if (kh.getMaKH() == null || kh.getMaKH().isEmpty()) {
                     setGraphic(btnAdd);
                 } else {
-                    box.getChildren().setAll(btnSua, btnXoa);
+                    box.getChildren().setAll(btnSua);
                     setGraphic(box);
                 }
             }
