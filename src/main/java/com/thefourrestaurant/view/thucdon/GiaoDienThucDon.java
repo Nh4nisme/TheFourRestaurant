@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import com.thefourrestaurant.view.components.ButtonSample;
 import javafx.application.Platform;
+import javafx.stage.Stage;
 import javafx.beans.property.SimpleStringProperty;
 
 import java.util.Comparator;
@@ -37,9 +38,7 @@ public class GiaoDienThucDon extends VBox {
     private final List<FoodItem> selectedFoods = new ArrayList<>();
     private final LoaiMonDAO loaiMonDAO = new LoaiMonDAO();
     private final MonAnDAO monAnDAO = new MonAnDAO();
-    // map tenLoai -> maLoai for quick lookup
     private final Map<String, String> loaiNameToMa = new HashMap<>();
-    // store recently deleted menus (in-session) for row-based restore
     private final java.util.List<DeletedThucDon> recentlyDeleted = new java.util.ArrayList<>();
 
     private static class DeletedThucDon {
@@ -52,7 +51,6 @@ public class GiaoDienThucDon extends VBox {
         setAlignment(Pos.TOP_CENTER);
         setStyle("-fx-background-color: #FAFAFA;");
 
-        // === Thanh breadcrumb ===
         Label duongDan = new Label("Thực đơn");
         duongDan.getStyleClass().add("toolbar-title");
         VBox khungDuongDan = new VBox(duongDan);
@@ -72,7 +70,6 @@ public class GiaoDienThucDon extends VBox {
         leftPane.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4,0,0,2);");
         leftPane.setPadding(new Insets(20));
         leftPane.setPrefWidth(600);
-        // keep left pane width stable to avoid table shifting when right pane content changes
         leftPane.setMinWidth(600);
         leftPane.setMaxWidth(600);
 
@@ -116,30 +113,20 @@ public class GiaoDienThucDon extends VBox {
             btnXoa.setOnAction(e -> {
                 ThucDonDAO.ThucDonView tv = getTableView().getItems().get(getIndex());
                 if (tv == null || tv.maTD == null || tv.maTD.trim().isEmpty()) return;
-                Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-                a.setTitle("Xác nhận");
-                a.setHeaderText("Xác nhận");
-                a.setContentText("Bạn có chắc muốn xóa thực đơn này?");
-                a.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
-                a.showAndWait().ifPresent(bt -> {
-                    if (bt == ButtonType.OK) {
-                        try {
-                            // capture associated loai before deletion so we can restore if needed
-                            ThucDonDAO dao = new ThucDonDAO();
-                            List<String> loai = dao.layLoaiMonTheoThucDon(tv.tenTD);
-                            boolean ok = dao.xoaThucDon(tv.maTD);
-                            if (ok) {
-                                // remember deleted item for in-session restore
-                                recentlyDeleted.add(new DeletedThucDon(tv, loai));
-                                napBangThucDon();
-                            } else {
-                                Alert err = new Alert(Alert.AlertType.ERROR, "Xóa thất bại.");
-                                err.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
-                                err.showAndWait();
-                            }
-                        } catch (Exception ex) { ex.printStackTrace(); }
+                Stage stage = getTableView().getScene() != null ? (Stage) getTableView().getScene().getWindow() : null;
+                boolean confirmed = xacNhan(stage, "Bạn có chắc muốn xóa thực đơn này?");
+                if (!confirmed) return;
+                try {
+                    ThucDonDAO dao = new ThucDonDAO();
+                    List<String> loai = dao.layLoaiMonTheoThucDon(tv.tenTD);
+                    boolean ok = dao.xoaThucDon(tv.maTD);
+                    if (ok) {
+                        recentlyDeleted.add(new DeletedThucDon(tv, loai));
+                        napBangThucDon();
+                    } else {
+                        hienThongBao(stage, "Xóa thất bại.", Alert.AlertType.ERROR);
                     }
-                });
+                } catch (Exception ex) { ex.printStackTrace(); }
             });
 
             btnAdd.setOnAction(e -> {
@@ -443,8 +430,32 @@ public class GiaoDienThucDon extends VBox {
     }
 
     private void showAlert(Alert.AlertType type, String message) {
-        Alert a = new Alert(type, message);
-        a.showAndWait();
+        Alert a = new Alert(type);
+        a.setTitle("Thông báo");
+        a.setHeaderText(null);
+        a.setContentText(message);
+        Stage stage = this.getScene() != null ? (Stage) this.getScene().getWindow() : null;
+        if (stage != null) a.initOwner(stage);
+        a.show();
+    }
+
+    private boolean xacNhan(Stage stage, String noiDung) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Xác nhận");
+        confirm.setHeaderText(null);
+        confirm.setContentText(noiDung);
+        if (stage != null) confirm.initOwner(stage);
+        Optional<ButtonType> rs = confirm.showAndWait();
+        return rs.isPresent() && rs.get() == ButtonType.OK;
+    }
+
+    private void hienThongBao(Stage stage, String noiDung, Alert.AlertType loai) {
+        Alert a = new Alert(loai);
+        a.setTitle("Thông báo");
+        a.setHeaderText(null);
+        a.setContentText(noiDung);
+        if (stage != null) a.initOwner(stage);
+        a.show();
     }
 
     // Đồng bộ danh sách loại món ăn với DB (bảng LoaiMonAn.tenLoaiMon)

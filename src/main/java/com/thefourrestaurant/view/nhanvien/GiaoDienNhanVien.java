@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Pos;
 import java.util.Comparator;
@@ -114,26 +115,18 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
                 btnXoa.setOnAction(e -> {
                     NhanVien nv = getTableView().getItems().get(getIndex());
                     if (nv == null || nv.getMaNV() == null || nv.getMaNV().trim().isEmpty()) return;
-                    Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-                    a.setTitle("Xác nhận");
-                    a.setHeaderText("Xác nhận");
-                    a.setContentText("Bạn có chắc muốn xóa nhân viên này?");
-                    a.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
-                    a.showAndWait().ifPresent(bt -> {
-                        if (bt == ButtonType.OK) {
-                            try {
-                                nv.setDeleted(true);
-                                boolean ok = controller.capNhatNhanVien(nv, null);
-                                if (ok) {
-                                    getTableView().getItems().remove(nv);
-                                } else {
-                                    Alert err = new Alert(Alert.AlertType.ERROR, "Xóa thất bại.");
-                                    err.initOwner(getTableView().getScene() != null ? (javafx.stage.Window) getTableView().getScene().getWindow() : null);
-                                    err.showAndWait();
-                                }
-                            } catch (Exception ex) { ex.printStackTrace(); }
+                    Stage stage = getTableView().getScene() != null ? (Stage) getTableView().getScene().getWindow() : null;
+                    boolean confirm = xacNhan(stage, "Bạn có chắc muốn xóa nhân viên này?");
+                    if (!confirm) return;
+                    try {
+                        nv.setDeleted(true);
+                        boolean ok = controller.capNhatNhanVien(nv, null);
+                        if (ok) {
+                            getTableView().getItems().remove(nv);
+                        } else {
+                            hienThongBao(stage, "Xóa thất bại.", Alert.AlertType.ERROR);
                         }
-                    });
+                    } catch (Exception ex) { ex.printStackTrace(); }
                 });
 
                 btnAdd.setOnAction(e -> {
@@ -210,21 +203,7 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
         ObservableList<NhanVien> filtered = danhSachGoc.filtered(nv -> {
             if (nv == null) return false;
             try {
-//                String ma = nv.getMaNV() == null ? "" : nv.getMaNV().toLowerCase();
                 String ten = nv.getHoTen() == null ? "" : nv.getHoTen().toLowerCase();
-//                String sdt = nv.getSoDienThoai() == null ? "" : nv.getSoDienThoai().toLowerCase();
-//                String gioiTinh = nv.getGioiTinh() == null ? "" : nv.getGioiTinh().toLowerCase();
-//                String ngay = nv.getNgaySinh() == null ? "" : nv.getNgaySinh().toString().toLowerCase();
-//                String luong = nv.getLuong() == null ? "" : nv.getLuong().toString().toLowerCase();
-//                String maTK = (nv.getMaTK() == null || nv.getMaTK().getMaTK() == null) ? "" : nv.getMaTK().getMaTK().toLowerCase();
-//                String vaiTro = "";
-//                if (nv.getMaTK() != null && nv.getMaTK().getVaiTro() != null) {
-////                    vaiTro = nv.getMaTK().getVaiTro().getTenVaiTro() == null ? "" : nv.getMaTK().getVaiTro().getTenVaiTro().toLowerCase();
-////                    String maVT = nv.getMaTK().getVaiTro().getMaVT() == null ? "" : nv.getMaTK().getVaiTro().getMaVT().toLowerCase();
-////                    if (maVT.contains(q)) return true;
-//                }
-
-//                return ma.contains(q) || ten.contains(q) || sdt.contains(q) || gioiTinh.contains(q) || ngay.contains(q) || luong.contains(q) || maTK.contains(q) || vaiTro.contains(q);
                 return ten.contains(q);
             } catch (Exception ex) {
                 return false;
@@ -253,9 +232,9 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
         
         gdChiTiet.getBtnLuu().setOnAction(e -> {
             NhanVien selected = table.getSelectionModel().getSelectedItem();
+            Stage stage = gdChiTiet.getScene() != null ? (Stage) gdChiTiet.getScene().getWindow() : null;
             if (selected == null) {
-                Alert a = new Alert(Alert.AlertType.WARNING, "Vui lòng chọn nhân viên để lưu");
-                a.showAndWait();
+                hienThongBao(stage, "Vui lòng chọn nhân viên để lưu", Alert.AlertType.WARNING);
                 return;
             }
 
@@ -270,12 +249,10 @@ public class GiaoDienNhanVien extends GiaoDienThucThe {
             NhanVien nv = new NhanVien(ma, hoTen, ngay, gioiTinh, sdt, luong, selected.getMaTK());
             boolean ok = controller.capNhatNhanVien(nv, gdChiTiet.getSelectedImageFile());
             if (ok) {
-                Alert info = new Alert(Alert.AlertType.INFORMATION, "Thông tin nhân viên đã được cập nhật");
-                info.showAndWait();
+                hienThongBao(stage, "Thông tin nhân viên đã được cập nhật", Alert.AlertType.INFORMATION);
                 lamMoiDuLieu();
             } else {
-                Alert err = new Alert(Alert.AlertType.ERROR, "Cập nhật thất bại");
-                err.showAndWait();
+                hienThongBao(stage, "Cập nhật thất bại", Alert.AlertType.ERROR);
             }
         });
     }

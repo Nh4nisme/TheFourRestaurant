@@ -44,6 +44,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import javafx.stage.Stage;
 
 public class GiaoDienGoiMon extends BorderPane {
     private ButtonSample btnTim, btnLamMoi;
@@ -552,7 +553,7 @@ public class GiaoDienGoiMon extends BorderPane {
 
     private void themMonVaoPhieu(MonAn mon) {
         if (mon.getSoLuong() <= 0) {
-            new Alert(Alert.AlertType.WARNING, "Món " + mon.getTenMon() + " hiện đã hết.").showAndWait();
+            hienThongBao("Món " + mon.getTenMon() + " hiện đã hết.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -595,39 +596,10 @@ public class GiaoDienGoiMon extends BorderPane {
         return NumberFormat.getCurrencyInstance(Locale.of("vi", "VN")).format(Math.max(0, value));
     }
 
-//    private void xuLyGuiBep() {
-//        try {
-//            if (danhSachChiTiet.isEmpty()) {
-//                new Alert(Alert.AlertType.WARNING, "Chưa có món nào trong phiếu!").showAndWait();
-//                return;
-//            }
-//
-//            ChiTietPDBDAO chiTietDAO = new ChiTietPDBDAO();
-//
-//            for (ChiTietPDB ct : danhSachChiTiet) {
-//                ct.setPhieuDatBan(pdb);
-//                chiTietDAO.them(ct);
-//            }
-//
-//            new Alert(Alert.AlertType.INFORMATION, "Đã gửi bếp thành công!").showAndWait();
-//
-//            danhSachChiTiet.clear();
-//            bangPhieu.refresh();
-//            capNhatTongTien();
-//
-//            mainContent.getChildren().clear();
-//            mainContent.getChildren().add(new GiaoDienDatBan(mainContent));
-//
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            new Alert(Alert.AlertType.ERROR, "Lỗi khi gửi bếp: " + ex.getMessage()).showAndWait();
-//        }
-//    }
-
     private void xuLyGuiBep() {
         try {
             if (danhSachChiTiet.isEmpty()) {
-                new Alert(Alert.AlertType.WARNING, "Chưa có món nào trong phiếu!").showAndWait();
+                hienThongBao("Chưa có món nào trong phiếu!", Alert.AlertType.WARNING);
                 return;
             }
 
@@ -648,7 +620,7 @@ public class GiaoDienGoiMon extends BorderPane {
                 chiTietDAO.them(ct);
             }
 
-            new Alert(Alert.AlertType.INFORMATION, "Đã gửi bếp thành công!").showAndWait();
+            hienThongBao("Đã gửi bếp thành công!", Alert.AlertType.INFORMATION);
 
             // 4. Reset UI
             danhSachChiTiet.clear();
@@ -659,7 +631,17 @@ public class GiaoDienGoiMon extends BorderPane {
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Lỗi khi gửi bếp: " + ex.getMessage()).showAndWait();
+            hienThongBao("Lỗi khi gửi bếp: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
+    }
+
+    private void hienThongBao(String noiDung, Alert.AlertType loai) {
+        Alert a = new Alert(loai);
+        a.setTitle("Thông báo");
+        a.setHeaderText(null);
+        a.setContentText(noiDung);
+        Stage stage = this.getScene() != null ? (Stage) this.getScene().getWindow() : null;
+        if (stage != null) a.initOwner(stage);
+        a.show();
     }
 }
