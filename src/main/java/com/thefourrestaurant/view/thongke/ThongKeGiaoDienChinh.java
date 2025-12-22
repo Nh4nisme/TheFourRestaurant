@@ -34,7 +34,7 @@ public class ThongKeGiaoDienChinh extends BorderPane {
         Label nhanTieuDe = new Label("Báo Cáo & Thống Kê");
         nhanTieuDe.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #D4A017;");
 
-        ButtonSample nutXuatCSV = new ButtonSample("Xuat CSV", 50, 25, 14);
+        ButtonSample nutXuatCSV = new ButtonSample("Xuất CSV", 50, 25, 14);
         nutXuatCSV.getStyleClass().add("button_sampleGamboge");
         nutXuatCSV.setOnAction(e -> xuatRaCSV());
 
@@ -53,7 +53,7 @@ public class ThongKeGiaoDienChinh extends BorderPane {
         Tab tabTongQuan = new Tab("Tổng quan");
         tabTongQuan.setContent(new ThongKeDashboard());
 
-        Tab tabDoanhThu = new Tab("Doanh Thu");
+        Tab tabDoanhThu = new Tab("Doanh thu");
         tabDoanhThu.setContent(new ThongKeGiaoDien());
 
         Tab tabKhachHang = new Tab("Khách hàng");
@@ -70,9 +70,9 @@ public class ThongKeGiaoDienChinh extends BorderPane {
 
     private void xuatRaCSV() {
         FileChooser hopChonFile = new FileChooser();
-        hopChonFile.setTitle("Luu bao cao");
+        hopChonFile.setTitle("Lưu báo cáo");
         hopChonFile.setInitialFileName("BaoCaoThongKe_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".csv");
-        hopChonFile.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        hopChonFile.getExtensionFilters().add(new FileChooser.ExtensionFilter("Tệp CSV", "*.csv"));
 
         Stage cuaSo = (Stage) this.getScene().getWindow();
         File file = hopChonFile.showSaveDialog(cuaSo);
@@ -84,36 +84,36 @@ public class ThongKeGiaoDienChinh extends BorderPane {
                 LocalDate ngayBatDau = namThang.atDay(1);
                 LocalDate ngayKetThuc = namThang.atEndOfMonth();
 
-                nguoiGhi.println("BAO CAO THONG KE - " + homNay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                nguoiGhi.println("BÁO CÁO THỐNG KÊ - " + homNay.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 nguoiGhi.println();
 
-                nguoiGhi.println("TONG QUAN");
+                nguoiGhi.println("TỔNG QUAN");
                 BigDecimal tongDoanhThu = thongKeDAO.getTongDoanhThu(ngayBatDau, ngayKetThuc);
                 int soHoaDon = thongKeDAO.getSoHoaDon(ngayBatDau, ngayKetThuc);
 
-                nguoiGhi.println("Tong doanh thu," + tongDoanhThu);
-                nguoiGhi.println("So hoa don," + soHoaDon);
+                nguoiGhi.println("Tổng doanh thu," + tongDoanhThu);
+                nguoiGhi.println("Số hóa đơn," + soHoaDon);
                 nguoiGhi.println();
 
-                nguoiGhi.println("DOANH THU THEO NGAY");
-                nguoiGhi.println("Ngay,Doanh thu");
+                nguoiGhi.println("DOANH THU THEO NGÀY");
+                nguoiGhi.println("Ngày,Doanh thu");
                 Map<String, Double> doanhThuNgay = thongKeDAO.getDoanhThuTheoNgay(ngayBatDau, ngayKetThuc, null);
                 for (Map.Entry<String, Double> muc : doanhThuNgay.entrySet()) {
                     nguoiGhi.println(muc.getKey() + "," + muc.getValue());
                 }
 
                 Alert thongBao = new Alert(Alert.AlertType.INFORMATION);
-                thongBao.setTitle("Thanh cong");
+                thongBao.setTitle("Thành công");
                 thongBao.setHeaderText(null);
-                thongBao.setContentText("Da xuat bao cao thanh cong!");
+                thongBao.setContentText("Đã xuất báo cáo thành công!");
                 thongBao.initOwner(cuaSo);
                 thongBao.showAndWait();
             } catch (Exception ex) {
                 ex.printStackTrace();
                 Alert thongBaoLoi = new Alert(Alert.AlertType.ERROR);
-                thongBaoLoi.setTitle("Loi");
+                thongBaoLoi.setTitle("Lỗi");
                 thongBaoLoi.setHeaderText(null);
-                thongBaoLoi.setContentText("Khong the xuat bao cao: " + ex.getMessage());
+                thongBaoLoi.setContentText("Không thể xuất báo cáo: " + ex.getMessage());
                 thongBaoLoi.initOwner(cuaSo);
                 thongBaoLoi.showAndWait();
             }

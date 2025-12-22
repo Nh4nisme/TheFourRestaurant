@@ -37,19 +37,19 @@ public class ThongKeKhachHang extends VBox {
 
         HBox filterBox = new HBox(10);
         filterBox.setAlignment(Pos.CENTER_LEFT);
-        Label lblThang = new Label("Thang:");
+        Label lblThang = new Label("Tháng:");
         lblThang.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
         cboThang = new ComboBox<>();
         cboThang.getItems().addAll(IntStream.rangeClosed(1, 12).boxed().collect(Collectors.toList()));
         cboThang.setValue(currentMonth);
 
-        Label lblNam = new Label("Nam:");
+        Label lblNam = new Label("Năm:");
         lblNam.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
         cboNam = new ComboBox<>();
         cboNam.getItems().addAll(IntStream.rangeClosed(currentYear - 5, currentYear).boxed().sorted((a, b) -> b - a).toList());
         cboNam.setValue(currentYear);
 
-        ButtonSample btnCapNhat = new ButtonSample("Cap Nhat", 50, 25, 14);
+        ButtonSample btnCapNhat = new ButtonSample("Cập nhật", 50, 25, 14);
         btnCapNhat.getStyleClass().add("button_sampleGamboge");
         btnCapNhat.setOnAction(e -> loadData());
 
@@ -77,7 +77,7 @@ public class ThongKeKhachHang extends VBox {
         Map<String, Integer> loaiKH = thongKeDAO.getThongKeKhachHangTheoLoai(startDate, endDate);
         if (!loaiKH.isEmpty()) {
             PieChart pieChart = new PieChart();
-            pieChart.setTitle("Khach hang theo loai");
+            pieChart.setTitle("Khách hàng theo loại");
             pieChart.setPrefSize(700, 500);
             for (Map.Entry<String, Integer> entry : loaiKH.entrySet()) {
                 pieChart.getData().add(new PieChart.Data(entry.getKey(), entry.getValue()));
@@ -89,10 +89,10 @@ public class ThongKeKhachHang extends VBox {
         if (!doanhThuKH.isEmpty()) {
             CategoryAxis xAxis = new CategoryAxis();
             NumberAxis yAxis = new NumberAxis();
-            xAxis.setLabel("Khach hang");
+            xAxis.setLabel("Khách hàng");
             yAxis.setLabel("Doanh thu (VND)");
             BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
-            barChart.setTitle("Top 10 khach hang theo doanh thu");
+            barChart.setTitle("Top 10 khách hàng theo doanh thu");
             barChart.setLegendVisible(false);
             barChart.setPrefSize(800, 500);
 
@@ -108,10 +108,10 @@ public class ThongKeKhachHang extends VBox {
         if (!tanSuat.isEmpty()) {
             CategoryAxis xAxis2 = new CategoryAxis();
             NumberAxis yAxis2 = new NumberAxis();
-            xAxis2.setLabel("Khach hang");
-            yAxis2.setLabel("So lan den");
+            xAxis2.setLabel("Khách hàng");
+            yAxis2.setLabel("Số lần đến");
             BarChart<String, Number> barChart2 = new BarChart<>(xAxis2, yAxis2);
-            barChart2.setTitle("Top 10 khach hang thuong xuyen");
+            barChart2.setTitle("Top 10 khách hàng thường xuyên");
             barChart2.setLegendVisible(false);
             barChart2.setPrefSize(800, 500);
 
@@ -129,8 +129,8 @@ public class ThongKeKhachHang extends VBox {
         summaryBox.setPadding(new Insets(20));
         summaryBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
         summaryBox.getChildren().addAll(
-            createStatLabel("Tong khach hang:", String.valueOf(tongKH)),
-            createStatLabel("Khach hang moi:", String.valueOf(khMoi))
+                createStatLabel("Tổng khách hàng:", String.valueOf(tongKH)),
+                createStatLabel("Khách hàng mới:", String.valueOf(khMoi))
         );
         chartsRow2.getChildren().add(summaryBox);
     }

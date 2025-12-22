@@ -36,19 +36,19 @@ public class ThongKeNhanVien extends VBox {
 
         HBox filterBox = new HBox(10);
         filterBox.setAlignment(Pos.CENTER_LEFT);
-        Label lblThang = new Label("Thang:");
+        Label lblThang = new Label("Tháng:");
         lblThang.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
         cboThang = new ComboBox<>();
         cboThang.getItems().addAll(IntStream.rangeClosed(1, 12).boxed().collect(Collectors.toList()));
         cboThang.setValue(currentMonth);
 
-        Label lblNam = new Label("Nam:");
+        Label lblNam = new Label("Năm:");
         lblNam.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E424D;");
         cboNam = new ComboBox<>();
         cboNam.getItems().addAll(IntStream.rangeClosed(currentYear - 5, currentYear).boxed().sorted((a, b) -> b - a).toList());
         cboNam.setValue(currentYear);
 
-        ButtonSample btnCapNhat = new ButtonSample("Cap Nhat", 50, 25, 14);
+        ButtonSample btnCapNhat = new ButtonSample("Cập nhật", 50, 25, 14);
         btnCapNhat.getStyleClass().add("button_sampleGamboge");
         btnCapNhat.setOnAction(e -> loadData());
 
@@ -74,10 +74,10 @@ public class ThongKeNhanVien extends VBox {
         if (!soHDNV.isEmpty()) {
             CategoryAxis xAxis = new CategoryAxis();
             NumberAxis yAxis = new NumberAxis();
-            xAxis.setLabel("Nhan vien");
-            yAxis.setLabel("So hoa don");
+            xAxis.setLabel("Nhân viên");
+            yAxis.setLabel("Số hóa đơn");
             BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
-            barChart.setTitle("So hoa don theo nhan vien");
+            barChart.setTitle("Số hóa đơn theo nhân viên");
             barChart.setLegendVisible(false);
             barChart.setPrefSize(800, 500);
 
@@ -93,10 +93,10 @@ public class ThongKeNhanVien extends VBox {
         if (!doanhThuNV.isEmpty()) {
             CategoryAxis xAxis2 = new CategoryAxis();
             NumberAxis yAxis2 = new NumberAxis();
-            xAxis2.setLabel("Nhan vien");
+            xAxis2.setLabel("Nhân viên");
             yAxis2.setLabel("Doanh thu (VND)");
             BarChart<String, Number> barChart2 = new BarChart<>(xAxis2, yAxis2);
-            barChart2.setTitle("Doanh thu theo nhan vien");
+            barChart2.setTitle("Doanh thu theo nhân viên");
             barChart2.setLegendVisible(false);
             barChart2.setPrefSize(800, 500);
 
