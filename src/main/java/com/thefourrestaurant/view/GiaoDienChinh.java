@@ -31,7 +31,7 @@ public class GiaoDienChinh {
         stage.setScene(scene);
         stage.show();
     }
-
+//asdasl jdalskdjalskdj alksjd lkasjd ljashfjkl adhlfikas h adhf jkadhj kfhdajkf hadjkhf jkadh fjkadh fjkadhf jkadhfjk ahdjf klhadjlfa fa aldfhjdakf hjadkhfjkadh jkfhjk fhadjkfhadjkfhadjkfh adjkfh kj
 
     private HBox taoLayoutChinh() {
         HBox layout = new HBox(taoKhuVucTrai(), taoKhuVucPhai());
